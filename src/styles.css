@@ -1,1 +1,215 @@
-/* You can add global styles to this file, and also import other style files */
+/* Definición de variables de tema y de sentimientos */
+:root {
+  /* Colores de Angular Material (puedes ajustarlos a tu preferencia) */
+  --primary-color: #3f51b5;   /* Indigo */
+  --accent-color: #e91e63;    /* Pink */
+  --warn-color: #f44336;      /* Red */
+
+  /* Variables para los estilos según el sentimiento */
+  --positive-bg: #e8f5e9;
+  --positive-border: #66bb6a;
+  --positive-text: #388e3c;
+
+  --negative-bg: #ffebee;
+  --negative-border: #e57373;
+  --negative-text: #d32f2f;
+
+  --neutral-bg: #eceff1;
+  --neutral-border: #90a4ae;
+  --neutral-text: #607d8b;
+
+  /* Colores de applicación Wild Caribbean Green*/
+  --wild-green-uno: #F2FFFF; 
+  --wild-green-dos: #BDFEFC;
+  --wild-green-tres: #86F9ED;
+  --wild-green-cuatro: #4EE9D1;
+  --wild-green-cinco: #1BCCA6;
+  --wild-green-seis: #09A378;
+  --wild-green-siete: #027951;
+  --wild-green-ocho: #005031;
+  --wild-green-nueve: #002615;
+}
+
+/* Reset de box-sizing para que todos los elementos usen el mismo modelo de caja */
+html, body {
+  box-sizing: border-box;
+  margin: 0;
+  font-family: 'Inter', sans-serif;
+  background-color: var(--wild-green-uno);
+  font-size: 16px;
+  height: 100%;
+  width: 100%;
+}
+
+*, *::before, *::after {
+  box-sizing: inherit;
+  margin: 0;
+  padding: 0;
+}
+/* 1.1 Estilos generales */
+app-root {
+
+  display: flex; /* Already set */
+  justify-content: center; /* Centers children horizontally */
+  align-items: center;     /* Centers children vertically */
+
+  height: 100%;
+  width: 100%;
+  min-height: 100vh;
+}
+/* 1.3 Contenedor centrado (opcional) */
+.app-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: var(--wild-green-dos);
+}
+
+/* Contenedor principal */
+.container {
+  padding: 2em;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Footer */
+.footer {
+  text-align: center;
+  padding: 1em;
+  background-color: var(--wild-green-tres); /* tono claro del primary */
+  margin-top: 2em;
+}
+
+/* Estilos para áreas específicas de resultados del análisis */
+.sentiment-positive {
+  background-color: var(--positive-bg);
+  border: 1px solid var(--positive-border);
+  color: var(--positive-text);
+  padding: 1em;
+  border-radius: 4px;
+  margin: 1em 0;
+}
+
+.sentiment-negative {
+  background-color: var(--negative-bg);
+  border: 1px solid var(--negative-border);
+  color: var(--negative-text);
+  padding: 1em;
+  border-radius: 4px;
+  margin: 1em 0;
+}
+
+.sentiment-neutral {
+  background-color: var(--neutral-bg);
+  border: 1px solid var(--neutral-border);
+  color: var(--neutral-text);
+  padding: 1em;
+  border-radius: 4px;
+  margin: 1em 0;
+}
+
+/* Reglas de responsividad */
+@media (max-width: 600px) {
+  .container {
+    padding: 1em;
+  }
+  
+  .header,
+  .footer {
+    text-align: center;
+  }
+}
+
+@media (min-width: 1024px) {
+  .container {
+    padding: 3em;
+  }
+}
+/* Header y footer más prominentes en pantallas grandes */
+.header {
+font-size: 1.5em;
+}
+
+.footer {
+font-size: 1.2em;
+}
+
+/* styles buttons */
+.mat-mdc-raised-button {
+    padding: 0.5em 1em;
+    background-color: var(--mdc-protected-button-container-color, var(--wild-green-dos));
+    color: var(--mdc-protected-button-label-text-color, var(--wild-green-nueve));
+    border-radius: 0.25rem;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+.mat-mdc-raised-button:hover {
+    background-color: var(--mdc-protected-button-hover-container-color, var(--wild-green-tres));
+    color: var(--mdc-protected-button-label-text-color, var(--wild-green-nueve));
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+.mat-mdc-raised-button:active {
+    background-color: var(--mdc-protected-button-active-container-color, var(--wild-green-cinco));
+    color: var(--mdc-protected-button-label-text-color, var(--wild-green-nueve));
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+.mat-mdc-raised-button:disabled {
+    background-color: var(--mdc-protected-button-disabled-container-color, var(--wild-green-dos));
+    color: var(--mdc-protected-button-disabled-label-text-color, var(--neutral-text));
+    cursor: not-allowed;
+}
+/*estilos de boton cuando no esta hover*/
+.mat-mdc-raised-button:not(:hover) {
+    background-color: var(--mdc-protected-button-container-color, var(--wild-green-dos));
+    color: var(--mdc-protected-button-label-text-color, var(--wild-green-nueve));
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+/* Estilos generales para todos los mat-form-field dentro de .login-form */
+.login-form mat-form-field {
+  width: 100%;
+}
+
+/* Outline por defecto */
+.login-form mat-form-field ::ng-deep .mat-form-field-outline {
+  stroke: var(--wild-green-cuatro);
+}
+
+/* Label en estado normal */
+.login-form mat-form-field ::ng-deep .mat-form-field-label {
+  color: var(--wild-green-ocho);
+}
+
+/* Texto de placeholder / value */
+.login-form mat-form-field ::ng-deep .mat-input-element {
+  color: var(--wild-green-nueve);
+}
+
+/* Hover: oscurecemos un poco el outline */
+.login-form mat-form-field:hover ::ng-deep .mat-form-field-outline {
+  stroke: var(--wild-green-cinco);
+}
+
+/* Focused: cuando el campo está activo */
+.login-form mat-form-field.mat-focused ::ng-deep .mat-form-field-outline {
+  stroke: var(--wild-green-seis);
+  stroke-width: 2px;
+}
+.login-form mat-form-field.mat-focused ::ng-deep .mat-form-field-label {
+  color: var(--wild-green-seis);
+}
+
+/* Estado de error: rojo por defecto, pero puedes sustituirlo por --wild-green-siete si lo prefieres */
+.login-form mat-form-field.ng-invalid.ng-touched ::ng-deep .mat-form-field-outline {
+  stroke: #f44336;
+}
+.login-form mat-form-field.ng-invalid.ng-touched ::ng-deep .mat-form-field-label,
+.login-form mat-form-field.ng-invalid.ng-touched ::ng-deep .mat-error {
+  color: #f44336;
+}
+
+/* Spinner dentro del botón */
+.login-form button .spinner {
+  color: var(--wild-green-cuatro);
+}
