@@ -1,0 +1,12 @@
+{
+    "login": {
+        "title": "Connexion",
+        "email": "E-mail",
+        "password": "Mot de passe",
+        "submit": "Se connecter",
+        "errors": {
+            "required": "Ce champ est requis",
+            "email": "Veuillez entrer une adresse e-mail valide"
+        }
+    }
+}

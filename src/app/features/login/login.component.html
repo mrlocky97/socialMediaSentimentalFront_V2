@@ -1,25 +1,25 @@
 <mat-card class="login-card">
   <mat-card-header class="login-card-header">
-    <mat-card-title>Iniciar sesión</mat-card-title>
+    <mat-card-title *transloco="let t"> {{ t('login.title') }} </mat-card-title>
   </mat-card-header>
   <mat-card-content>
     <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Email</mat-label>
+      <mat-form-field appearance="outline" class="full-width" *transloco="let t">
+        <mat-label> {{ t('login.email') }} </mat-label>
         <input matInput formControlName="email" type="email" autocomplete="username" />
         <mat-error *ngIf="loginForm.get('email')?.hasError('required')">
-          El email es obligatorio
+          {{ t('login.errors.required') }}
         </mat-error>
         <mat-error *ngIf="loginForm.get('email')?.hasError('email')">
-          Formato de email inválido
+          {{ t('login.errors.email') }}
         </mat-error>
       </mat-form-field>
 
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Contraseña</mat-label>
+      <mat-form-field appearance="outline" class="full-width" *transloco="let t">
+        <mat-label> {{ t('login.password') }} </mat-label>
         <input matInput formControlName="password" type="password" autocomplete="current-password" />
         <mat-error *ngIf="loginForm.get('password')?.hasError('required')">
-          La contraseña es obligatoria
+          {{ t('login.errors.required') }}
         </mat-error>
       </mat-form-field>
 

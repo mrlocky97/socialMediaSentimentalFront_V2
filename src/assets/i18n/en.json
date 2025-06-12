@@ -1,0 +1,12 @@
+{
+    "login": {
+        "title": "Login",
+        "email": "Email",
+        "password": "Password",
+        "submit": "Log in",
+        "errors": {
+            "required": "This field is required",
+            "email": "Please enter a valid email address"
+        }
+    }
+}

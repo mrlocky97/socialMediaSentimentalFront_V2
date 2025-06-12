@@ -1,17 +1,18 @@
 /* 2.1 Estilos de la tarjeta */
 .login-card {
-  background-color: var(--wild-green-uno);
+  background-color: var(--white);
   border-radius: 0.5rem;
   box-shadow: 0 4px 12px rgba(0,0,0,0.1);
   padding: 1.5rem;
   width: 100%;
-  max-width: 400px; /* Límite en pantallas grandes */
+  max-width: 800px; /* Límite en pantallas grandes */
   margin: 1rem;
 }
 
 /* 2.2 Cabecera */
 .login-card-header {
   text-align: center;
+  display: flow;
   margin-bottom: 1rem;
 }
 .login-card-header .mat-card-title {
@@ -57,26 +58,22 @@
   color: #f44336;
 }
 
-/* 2.5 Botón principal */
-.main-button {
-  background-color: var(--wild-green-cinco);
-  color: #fff;
-  height: 3rem;
-  font-size: 1rem;
-}
-.main-button:disabled {
-  background-color: var(--wild-green-dos);
-  color: var(--wild-green-ocho);
-}
-.main-button .spinner {
-  color: var(--wild-green-cuatro);
-}
-
 /* 2.6 Mensaje de error genérico */
 .error-message {
   color: #f44336;
   font-size: 0.9rem;
   text-align: center;
+}
+
+/* Adjust the min-width value as needed for your definition of "PC view" */   
+
+@media (min-width: 992px) { 
+  mat-card.mat-mdc-card.mdc-card.login-card {
+    width: 60vw;
+    /* You might also want to center the card horizontally */
+    margin-left: auto;
+    margin-right: auto;
+  }
 }
 
 /* 2.7 Responsividad interna del componente */

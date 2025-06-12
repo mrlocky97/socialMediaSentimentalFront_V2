@@ -4,7 +4,8 @@
   --primary-color: #3f51b5;   /* Indigo */
   --accent-color: #e91e63;    /* Pink */
   --warn-color: #f44336;      /* Red */
-
+  --white: #ffffff;
+  --gray: #808080;             /* Gray */
   /* Variables para los estilos según el sentimiento */
   --positive-bg: #e8f5e9;
   --positive-border: #66bb6a;
@@ -48,7 +49,6 @@ html, body {
 }
 /* 1.1 Estilos generales */
 app-root {
-
   display: flex; /* Already set */
   justify-content: center; /* Centers children horizontally */
   align-items: center;     /* Centers children vertically */
@@ -165,51 +165,6 @@ font-size: 1.2em;
     color: var(--mdc-protected-button-label-text-color, var(--wild-green-nueve));
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
-
-/* Estilos generales para todos los mat-form-field dentro de .login-form */
-.login-form mat-form-field {
-  width: 100%;
-}
-
-/* Outline por defecto */
-.login-form mat-form-field ::ng-deep .mat-form-field-outline {
-  stroke: var(--wild-green-cuatro);
-}
-
-/* Label en estado normal */
-.login-form mat-form-field ::ng-deep .mat-form-field-label {
-  color: var(--wild-green-ocho);
-}
-
-/* Texto de placeholder / value */
-.login-form mat-form-field ::ng-deep .mat-input-element {
-  color: var(--wild-green-nueve);
-}
-
-/* Hover: oscurecemos un poco el outline */
-.login-form mat-form-field:hover ::ng-deep .mat-form-field-outline {
-  stroke: var(--wild-green-cinco);
-}
-
-/* Focused: cuando el campo está activo */
-.login-form mat-form-field.mat-focused ::ng-deep .mat-form-field-outline {
-  stroke: var(--wild-green-seis);
-  stroke-width: 2px;
-}
-.login-form mat-form-field.mat-focused ::ng-deep .mat-form-field-label {
-  color: var(--wild-green-seis);
-}
-
-/* Estado de error: rojo por defecto, pero puedes sustituirlo por --wild-green-siete si lo prefieres */
-.login-form mat-form-field.ng-invalid.ng-touched ::ng-deep .mat-form-field-outline {
-  stroke: #f44336;
-}
-.login-form mat-form-field.ng-invalid.ng-touched ::ng-deep .mat-form-field-label,
-.login-form mat-form-field.ng-invalid.ng-touched ::ng-deep .mat-error {
-  color: #f44336;
-}
-
-/* Spinner dentro del botón */
-.login-form button .spinner {
-  color: var(--wild-green-cuatro);
-}
+button.mat-mdc-raised-button.mat-mdc-button-disabled {
+  color: var(--mdc-protected-button-label-text-color, var(--gray));
+  }

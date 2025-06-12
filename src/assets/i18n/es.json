@@ -1,0 +1,12 @@
+{
+    "login": {
+        "title": "Iniciar sesión",
+        "email": "Correo electrónico",
+        "password": "Contraseña",
+        "submit": "Entrar",
+        "errors": {
+            "required": "Este campo es obligatorio",
+            "email": "Por favor, introduce una dirección de correo electrónico válida"
+        }
+    }
+}

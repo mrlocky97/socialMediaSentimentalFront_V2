@@ -1,0 +1,12 @@
+{
+    "login": {
+        "title": "Anmelden",
+        "email": "E-Mail",
+        "password": "Passwort",
+        "submit": "Einloggen",
+        "errors": {
+            "required": "Dieses Feld ist erforderlich",
+            "email": "Bitte geben Sie eine gültige E-Mail-Adresse ein"
+        }
+    }
+}
