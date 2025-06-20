@@ -48,4 +48,5 @@ Thumbs.db
 /coverage/
 
 # Optional: ignore production environment
+src/environments/environment.ts
 src/environments/environment.prod.ts

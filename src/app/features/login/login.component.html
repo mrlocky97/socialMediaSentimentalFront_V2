@@ -21,20 +21,28 @@
         <mat-error *ngIf="loginForm.get('password')?.hasError('required')">
           {{ t('login.errors.required') }}
         </mat-error>
+        <mat-error *ngIf="loginForm.get('password')?.hasError('minlength')">
+          {{ t('login.errors.minlength') }}
+        </mat-error>
       </mat-form-field>
 
       <div *ngIf="errorMessage()" class="error-message">
         {{ errorMessage() }}
       </div>
 
-      <button mat-raised-button class="full-width main-button" [disabled]="loading() || loginForm.invalid">
+      <button 
+        mat-raised-button 
+        type="submit"
+        class="full-width main-button" 
+        [disabled]="loading() || loginForm.invalid"
+        *transloco="let t">
         <mat-progress-spinner
           *ngIf="loading()"
           mode="indeterminate"
           diameter="20"
           class="spinner">
         </mat-progress-spinner>
-        <span *ngIf="!loading()">Entrar</span>
+        <span *ngIf="!loading()">{{ t('login.submit') }}</span>
       </button>
     </form>
   </mat-card-content>

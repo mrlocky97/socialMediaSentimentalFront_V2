@@ -6,7 +6,8 @@
         "submit": "Einloggen",
         "errors": {
             "required": "Dieses Feld ist erforderlich",
-            "email": "Bitte geben Sie eine gültige E-Mail-Adresse ein"
+            "email": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
+            "minlength": "Das Passwort muss mindestens 6 Zeichen lang sein"
         }
     }
 }

@@ -6,7 +6,8 @@
         "submit": "Se connecter",
         "errors": {
             "required": "Ce champ est requis",
-            "email": "Veuillez entrer une adresse e-mail valide"
+            "email": "Veuillez entrer une adresse e-mail valide",
+            "minlength": "Le mot de passe doit comporter au moins 6 caractères"
         }
     }
 }

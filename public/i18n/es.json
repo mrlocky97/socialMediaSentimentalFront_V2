@@ -6,7 +6,8 @@
         "submit": "Entrar",
         "errors": {
             "required": "Este campo es obligatorio",
-            "email": "Por favor, introduce una dirección de correo electrónico válida"
+            "email": "Por favor, introduce una dirección de correo electrónico válida",
+            "minlength": "La contraseña debe tener al menos 6 caracteres"
         }
     }
 }
