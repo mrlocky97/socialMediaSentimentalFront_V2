@@ -168,3 +168,6 @@ font-size: 1.2em;
 button.mat-mdc-raised-button.mat-mdc-button-disabled {
   color: var(--mdc-protected-button-label-text-color, var(--gray));
   }
+
+html, body { height: 100%; }
+body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
