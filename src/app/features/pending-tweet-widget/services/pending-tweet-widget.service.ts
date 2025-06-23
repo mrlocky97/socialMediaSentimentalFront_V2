@@ -1,5 +1,6 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../../../enviroments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class PendingTweetService {
@@ -16,7 +17,7 @@ export class PendingTweetService {
   loadPending() {
     this.loading.set(true);
     this.error.set(null);
-    this.http.get<any[]>('/tweets/unprocessed').subscribe({
+    this.http.get<any[]>(`${environment.apiUrl}/tweets/unprocessed`).subscribe({
       next: (data) => {
         this.pending.set(Array.isArray(data) ? data.length : 0);
         this.loading.set(false);

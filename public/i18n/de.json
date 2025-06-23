@@ -9,5 +9,28 @@
             "email": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
             "minlength": "Das Passwort muss mindestens 6 Zeichen lang sein"
         }
+    },
+    "widget": {
+        "pending_tweets": {
+            "title": "Ausstehende Tweets",
+            "loading": "Lade ausstehende Tweets...",
+            "refresh": "Aktualisieren",
+            "empty": "Derzeit keine ausstehenden Tweets.",
+            "error": "Fehler beim Laden der ausstehenden Tweets."
+        },
+        "approved_tweets": {
+            "title": "Genehmigte Tweets",
+            "loading": "Lade genehmigte Tweets...",
+            "refresh": "Aktualisieren",
+            "empty": "Derzeit keine genehmigten Tweets.",
+            "error": "Fehler beim Laden der genehmigten Tweets."
+        },
+        "rejected_tweets": {
+            "title": "Abgelehnte Tweets",
+            "loading": "Lade abgelehnte Tweets...",
+            "refresh": "Aktualisieren",
+            "empty": "Derzeit keine abgelehnten Tweets.",
+            "error": "Fehler beim Laden der abgelehnten Tweets."
+        }
     }
 }

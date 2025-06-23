@@ -9,5 +9,28 @@
             "email": "Veuillez entrer une adresse e-mail valide",
             "minlength": "Le mot de passe doit comporter au moins 6 caractères"
         }
+    },
+    "widget": {
+        "pending_tweets": {
+            "title": "Tweets en attente",
+            "loading": "Chargement des tweets en attente...",
+            "refresh": "Rafraîchir",
+            "empty": "Aucun tweet en attente pour le moment.",
+            "error": "Erreur lors du chargement des tweets en attente."
+        },
+        "approved_tweets": {
+            "title": "Tweets approuvés",
+            "loading": "Chargement des tweets approuvés...",
+            "refresh": "Rafraîchir",
+            "empty": "Aucun tweet approuvé pour le moment.",
+            "error": "Erreur lors du chargement des tweets approuvés."
+        },
+        "rejected_tweets": {
+            "title": "Tweets rejetés",
+            "loading": "Chargement des tweets rejetés...",
+            "refresh": "Rafraîchir",
+            "empty": "Aucun tweet rejeté pour le moment.",
+            "error": "Erreur lors du chargement des tweets rejetés."
+        }
     }
 }

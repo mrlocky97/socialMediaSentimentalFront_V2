@@ -9,5 +9,28 @@
             "email": "Por favor, introduce una dirección de correo electrónico válida",
             "minlength": "La contraseña debe tener al menos 6 caracteres"
         }
+    },
+    "widget": {
+        "pending_tweets": {
+            "title": "Tweets Pendientes",
+            "loading": "Cargando tweets pendientes...",
+            "refresh": "Recargar",
+            "empty": "No hay tweets pendientes en este momento.",
+            "error": "Error al cargar tweets pendientes."
+        },
+        "approved_tweets": {
+            "title": "Tweets Aprobados",
+            "loading": "Cargando tweets aprobados...",
+            "refresh": "Recargar",
+            "empty": "No hay tweets aprobados en este momento.",
+            "error": "Error al cargar tweets aprobados."
+        },
+        "rejected_tweets": {
+            "title": "Tweets Rechazados",
+            "loading": "Cargando tweets rechazados...",
+            "refresh": "Recargar",
+            "empty": "No hay tweets rechazados en este momento.",
+            "error": "Error al cargar tweets rechazados."
+        }
     }
 }

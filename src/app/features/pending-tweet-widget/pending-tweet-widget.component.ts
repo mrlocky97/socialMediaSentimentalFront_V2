@@ -2,11 +2,17 @@ import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Component, signal } from '@angular/core';
 import { PendingTweetService } from './services/pending-tweet-widget.service';
+import { TranslocoRootModule } from '../../transloco-loader';
+import { TranslocoModule } from '@ngneat/transloco';
 
 @Component({
   selector: 'app-pending-tweet-widget',
   standalone: true,
-  imports: [CommonModule],
+  imports: [
+    CommonModule, 
+    TranslocoRootModule,
+    TranslocoModule
+  ],
   templateUrl: './pending-tweet-widget.component.html',
   styleUrls: ['./pending-tweet-widget.component.css']
 })
@@ -20,6 +26,6 @@ export class PendingTweetWidgetComponent {
   }
 
   pendingTweets(){
-    return this.pendingTweetService.pending();
+    return this.pendingTweetService.loadPending();
   }
 }

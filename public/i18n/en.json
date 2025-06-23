@@ -9,5 +9,26 @@
             "email": "Please enter a valid email address",
             "minlength": "Password must be at least 6 characters long"
         }
+    },
+    "widget": {
+        "pending_tweets":{
+           "title": "Pending Tweets",
+           "loading": "Loading pending tweets...",
+           "refresh": "Refresh",
+           "empty": "No pending tweets at the moment.",
+           "error": "Error loading pending tweets."
+        },
+        "approved_tweets": {
+            "title": "Approved Tweets",
+            "loading": "Loading approved tweets...",
+            "refresh": "Refresh",
+            "empty": "No approved tweets at the moment.",
+            "error": "Error loading approved tweets."
+        },
+        "rejected_tweets": {
+            "title": "Rejected Tweets",
+            "empty": "No rejected tweets at the moment.",
+            "error": "Error loading rejected tweets."
+        }
     }
 }
