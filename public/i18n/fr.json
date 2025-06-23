@@ -13,6 +13,7 @@
     "widget": {
         "pending_tweets": {
             "title": "Tweets en attente",
+            "subtitle": "Tweets en attente d'approbation",
             "loading": "Chargement des tweets en attente...",
             "refresh": "Rafraîchir",
             "empty": "Aucun tweet en attente pour le moment.",
@@ -20,6 +21,7 @@
         },
         "approved_tweets": {
             "title": "Tweets approuvés",
+            "subtitle": "Tweets approuvés",
             "loading": "Chargement des tweets approuvés...",
             "refresh": "Rafraîchir",
             "empty": "Aucun tweet approuvé pour le moment.",
@@ -27,10 +29,18 @@
         },
         "rejected_tweets": {
             "title": "Tweets rejetés",
+            "subtitle": "Tweets rejetés",
             "loading": "Chargement des tweets rejetés...",
             "refresh": "Rafraîchir",
             "empty": "Aucun tweet rejeté pour le moment.",
             "error": "Erreur lors du chargement des tweets rejetés."
+        }
+    },
+    "shared": {
+        "table": {
+            "filter": "Filtrer",
+            "filter_placeholder": "Filtrer la table...",
+            "no_data": "Aucune donnée disponible"
         }
     }
 }

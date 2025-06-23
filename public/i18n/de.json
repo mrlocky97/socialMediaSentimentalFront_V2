@@ -13,6 +13,7 @@
     "widget": {
         "pending_tweets": {
             "title": "Ausstehende Tweets",
+            "subtitle": "Tweets, die auf Genehmigung warten",
             "loading": "Lade ausstehende Tweets...",
             "refresh": "Aktualisieren",
             "empty": "Derzeit keine ausstehenden Tweets.",
@@ -20,6 +21,7 @@
         },
         "approved_tweets": {
             "title": "Genehmigte Tweets",
+            "subtitle": "Tweets, die genehmigt wurden",
             "loading": "Lade genehmigte Tweets...",
             "refresh": "Aktualisieren",
             "empty": "Derzeit keine genehmigten Tweets.",
@@ -27,10 +29,18 @@
         },
         "rejected_tweets": {
             "title": "Abgelehnte Tweets",
+            "subtitle": "Tweets, die abgelehnt wurden",
             "loading": "Lade abgelehnte Tweets...",
             "refresh": "Aktualisieren",
             "empty": "Derzeit keine abgelehnten Tweets.",
             "error": "Fehler beim Laden der abgelehnten Tweets."
+        }
+    },
+    "shared": {
+        "table": {
+            "filter": "Filter",
+            "filter_placeholder": "Tabelle filtern...",
+            "no_data": "Keine Daten verfügbar"
         }
     }
 }

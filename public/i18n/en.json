@@ -13,6 +13,7 @@
     "widget": {
         "pending_tweets":{
            "title": "Pending Tweets",
+           "subtitle": "Tweets waiting for approval",
            "loading": "Loading pending tweets...",
            "refresh": "Refresh",
            "empty": "No pending tweets at the moment.",
@@ -20,6 +21,7 @@
         },
         "approved_tweets": {
             "title": "Approved Tweets",
+            "subtitle": "Tweets that have been approved",
             "loading": "Loading approved tweets...",
             "refresh": "Refresh",
             "empty": "No approved tweets at the moment.",
@@ -27,8 +29,16 @@
         },
         "rejected_tweets": {
             "title": "Rejected Tweets",
+            "subtitle": "Tweets that have been rejected",
             "empty": "No rejected tweets at the moment.",
             "error": "Error loading rejected tweets."
+        }
+    },
+    "shared": {
+        "table": {
+            "filter": "Filter",
+            "filter_placeholder": "Filter table...",
+            "no_data": "No data available"
         }
     }
 }

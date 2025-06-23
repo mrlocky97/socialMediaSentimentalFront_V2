@@ -4,6 +4,7 @@ import { Component, signal } from '@angular/core';
 import { PendingTweetService } from './services/pending-tweet-widget.service';
 import { TranslocoRootModule } from '../../transloco-loader';
 import { TranslocoModule } from '@ngneat/transloco';
+import { MaterialModule } from '../../shared/material/material.module';
 
 @Component({
   selector: 'app-pending-tweet-widget',
@@ -11,7 +12,8 @@ import { TranslocoModule } from '@ngneat/transloco';
   imports: [
     CommonModule, 
     TranslocoRootModule,
-    TranslocoModule
+    TranslocoModule,
+    MaterialModule
   ],
   templateUrl: './pending-tweet-widget.component.html',
   styleUrls: ['./pending-tweet-widget.component.css']
