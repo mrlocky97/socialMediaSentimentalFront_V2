@@ -1,0 +1,11 @@
+<div class="pending-widget">
+    <h3>Tweets Pendientes</h3>
+    <ng-container *ngIf="loading(); else loaded">
+      <p>Cargando...</p>
+    </ng-container>
+    <ng-template #loaded>
+      <p *ngIf="error()" class="error">{{ error() }}</p>
+      <p *ngIf="!error()" class="pending-count">{{ pending() }}</p>
+      <button (click)="pendingTweets()" [disabled]="loading()">Recargar</button>
+    </ng-template>
+  </div>
