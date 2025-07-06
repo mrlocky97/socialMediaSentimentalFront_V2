@@ -20,8 +20,8 @@
   --neutral-text: #607d8b;
 
   /* Colores de applicación Wild Caribbean Green*/
-  --wild-green-uno: #F2FFFF; 
-  --wild-green-dos: #BDFEFC;
+  --wild-green-uno: #F2FFFF;
+  --wild-green-dos: #BDFEFC; 
   --wild-green-tres: #86F9ED;
   --wild-green-cuatro: #4EE9D1;
   --wild-green-cinco: #1BCCA6;
@@ -48,15 +48,7 @@ html, body {
   padding: 0;
 }
 /* 1.1 Estilos generales */
-app-root {
-  display: flex; /* Already set */
-  justify-content: center; /* Centers children horizontally */
-  align-items: center;     /* Centers children vertically */
 
-  height: 100%;
-  width: 100%;
-  min-height: 100vh;
-}
 /* 1.3 Contenedor centrado (opcional) */
 .app-container {
   display: flex;

@@ -2,10 +2,11 @@
 .login-card {
   background-color: var(--white);
   border-radius: 0.5rem;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   padding: 1.5rem;
   width: 100%;
-  max-width: 800px; /* Límite en pantallas grandes */
+  max-width: 800px;
+  /* Límite en pantallas grandes */
   margin: 1rem;
 }
 
@@ -15,6 +16,7 @@
   display: flow;
   margin-bottom: 1rem;
 }
+
 .login-card-header .mat-card-title {
   font-size: 1.5rem;
   color: var(--wild-green-ocho);
@@ -31,28 +33,36 @@
 .login-form mat-form-field {
   width: 100%;
 }
+
 .login-form mat-form-field ::ng-deep .mat-form-field-outline {
   stroke: var(--wild-green-cuatro);
 }
+
 .login-form mat-form-field ::ng-deep .mat-form-field-label {
   color: var(--wild-green-ocho);
 }
+
 .login-form mat-form-field ::ng-deep .mat-input-element {
   color: var(--wild-green-nueve);
 }
+
 .login-form mat-form-field:hover ::ng-deep .mat-form-field-outline {
   stroke: var(--wild-green-cinco);
 }
+
 .login-form mat-form-field.mat-focused ::ng-deep .mat-form-field-outline {
   stroke: var(--wild-green-seis);
   stroke-width: 2px;
 }
+
 .login-form mat-form-field.mat-focused ::ng-deep .mat-form-field-label {
   color: var(--wild-green-seis);
 }
+
 .login-form mat-form-field.ng-invalid.ng-touched ::ng-deep .mat-form-field-outline {
   stroke: #f44336;
 }
+
 .login-form mat-form-field.ng-invalid.ng-touched ::ng-deep .mat-form-field-label,
 .login-form mat-form-field.ng-invalid.ng-touched ::ng-deep .mat-error {
   color: #f44336;
@@ -65,9 +75,9 @@
   text-align: center;
 }
 
-/* Adjust the min-width value as needed for your definition of "PC view" */   
+/* Adjust the min-width value as needed for your definition of "PC view" */
 
-@media (min-width: 992px) { 
+@media (min-width: 992px) {
   mat-card.mat-mdc-card.mdc-card.login-card {
     width: 60vw;
     /* You might also want to center the card horizontally */
@@ -82,6 +92,7 @@
     max-width: 320px;
     padding: 1rem;
   }
+
   .login-card-header .mat-card-title {
     font-size: 1.25rem;
   }
@@ -92,11 +103,78 @@
     margin: 0.5rem;
     padding: 0.75rem;
   }
+
   .login-form {
     gap: 0.75rem;
   }
+
   .main-button {
     height: 2.5rem;
     font-size: 0.9rem;
   }
+}
+
+:root {
+  --snow-forest: #445460;
+}
+
+html {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  font-weight: bold;
+}
+
+section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  height: 100vh;
+  background: #BDFEFC;
+  background: linear-gradient(131deg, rgba(189, 254, 252, 1) 0%, rgba(78, 233, 209, 1) 50%, rgba(27, 204, 166, 1) 100%);
+  background-size: cover;
+  background-position: center;
+}
+
+@media (max-width: 768px) {
+  section {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto;
+  }
+
+  .left {
+    display: none;
+  }
+}
+
+/* Left column */
+.left {
+  background-color: transparent;
+}
+
+.left .container {
+  color: rgb(114, 111, 111);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.left .container h1 {
+  font-size: 30px;
+}
+
+/* Right column */
+.right {
+  background-color: transparent;
+}
+
+.right .container {
+  color: var(--snow-forest);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.right .container h1 {
+  font-size: 30px;
 }

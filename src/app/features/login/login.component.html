@@ -1,49 +1,52 @@
-<mat-card class="login-card">
-  <mat-card-header class="login-card-header">
-    <mat-card-title *transloco="let t"> {{ t('login.title') }} </mat-card-title>
-  </mat-card-header>
-  <mat-card-content>
-    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
-      <mat-form-field appearance="outline" class="full-width" *transloco="let t">
-        <mat-label> {{ t('login.email') }} </mat-label>
-        <input matInput formControlName="email" type="email" autocomplete="username" />
-        <mat-error *ngIf="loginForm.get('email')?.hasError('required')">
-          {{ t('login.errors.required') }}
-        </mat-error>
-        <mat-error *ngIf="loginForm.get('email')?.hasError('email')">
-          {{ t('login.errors.email') }}
-        </mat-error>
-      </mat-form-field>
+<section>
+  <div class="left">
+    <div class="container">
+      <img src="/img/cerebro.webp" alt="Logo" class="logo" />
+    </div>
+  </div>
+  <div class="right">
+    <div class="container">
+      <mat-card class="login-card">
+        <mat-card-header class="login-card-header">
+          <mat-card-title *transloco="let t"> {{ t('login.title') }} </mat-card-title>
+        </mat-card-header>
+        <mat-card-content>
+          <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+            <mat-form-field appearance="outline" class="full-width" *transloco="let t">
+              <mat-label> {{ t('login.email') }} </mat-label>
+              <input matInput formControlName="email" type="email" autocomplete="username" />
+              <mat-error *ngIf="loginForm.get('email')?.hasError('required')">
+                {{ t('login.errors.required') }}
+              </mat-error>
+              <mat-error *ngIf="loginForm.get('email')?.hasError('email')">
+                {{ t('login.errors.email') }}
+              </mat-error>
+            </mat-form-field>
 
-      <mat-form-field appearance="outline" class="full-width" *transloco="let t">
-        <mat-label> {{ t('login.password') }} </mat-label>
-        <input matInput formControlName="password" type="password" autocomplete="current-password" />
-        <mat-error *ngIf="loginForm.get('password')?.hasError('required')">
-          {{ t('login.errors.required') }}
-        </mat-error>
-        <mat-error *ngIf="loginForm.get('password')?.hasError('minlength')">
-          {{ t('login.errors.minlength') }}
-        </mat-error>
-      </mat-form-field>
+            <mat-form-field appearance="outline" class="full-width" *transloco="let t">
+              <mat-label> {{ t('login.password') }} </mat-label>
+              <input matInput formControlName="password" type="password" autocomplete="current-password" />
+              <mat-error *ngIf="loginForm.get('password')?.hasError('required')">
+                {{ t('login.errors.required') }}
+              </mat-error>
+              <mat-error *ngIf="loginForm.get('password')?.hasError('minlength')">
+                {{ t('login.errors.minlength') }}
+              </mat-error>
+            </mat-form-field>
 
-      <div *ngIf="errorMessage()" class="error-message">
-        {{ errorMessage() }}
-      </div>
+            <div *ngIf="errorMessage()" class="error-message">
+              {{ errorMessage() }}
+            </div>
 
-      <button 
-        mat-raised-button 
-        type="submit"
-        class="full-width main-button" 
-        [disabled]="loading() || loginForm.invalid"
-        *transloco="let t">
-        <mat-progress-spinner
-          *ngIf="loading()"
-          mode="indeterminate"
-          diameter="20"
-          class="spinner">
-        </mat-progress-spinner>
-        <span *ngIf="!loading()">{{ t('login.submit') }}</span>
-      </button>
-    </form>
-  </mat-card-content>
-</mat-card>
+            <button mat-raised-button type="submit" class="full-width main-button"
+              [disabled]="loading() || loginForm.invalid" *transloco="let t">
+              <mat-progress-spinner *ngIf="loading()" mode="indeterminate" diameter="20" class="spinner">
+              </mat-progress-spinner>
+              <span *ngIf="!loading()">{{ t('login.submit') }}</span>
+            </button>
+          </form>
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</section>

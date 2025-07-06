@@ -9,7 +9,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatListModule } from '@angular/material/list';
 import { MatTableModule } from '@angular/material/table';
-
+import { MatSidenavModule } from '@angular/material/sidenav';
 
 
 @NgModule({
@@ -28,7 +28,8 @@ import { MatTableModule } from '@angular/material/table';
     MatInputModule,
     MatFormFieldModule,
     MatSnackBarModule,
-    MatListModule
+    MatListModule,
+    MatSidenavModule
   ],
 })
 export class MaterialModule { }
