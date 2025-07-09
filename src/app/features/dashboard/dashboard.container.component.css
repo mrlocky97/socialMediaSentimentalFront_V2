@@ -1,14 +1,69 @@
 .dashboard-container {
   height: 100vh;
 }
+
 .dashboard-content {
   padding: 16px;
 }
+
 .dashboard-sidenav {
   width: 220px;
+  background: #4ae7ce;
+  /* color principal del menú */
+  color: #fff;
 }
+
 @media (max-width: 767px) {
   .dashboard-sidenav {
     width: 180px;
   }
+}
+
+.dashboard-sidenav .mat-toolbar {
+  background: #2d2d2d;
+  color: #ff8a00;
+}
+
+.mat-nav-list .mat-list-item {
+  color: #fff;
+}
+
+.mat-nav-list .mat-list-item.mat-list-item-active,
+.mat-nav-list .mat-list-item:hover {
+  background: #ff8a00;
+  color: #8e8787;
+}
+
+.dashboard-toolbar {
+  display: flex;
+  justify-content: center;
+  background: #4ae7ce;
+  align-items: center;
+  position: relative;
+}
+
+.app-title {
+  font-size: 1.4em;
+  font-weight: 600;
+  letter-spacing: 1px;
+}
+
+@media (max-width: 767px) {
+  .dashboard-toolbar {
+    justify-content: flex-start;
+  }
+
+  .app-title {
+    margin-left: 16px;
+  }
+}
+
+.sicenav-title {
+  font-size: 1.2em;
+  font-weight: 600;
+  color: #000000;
+  margin-left: 16px;
+  display: flex;
+  text-align: center;
+  margin: auto;
 }

@@ -1,9 +1,10 @@
-<mat-toolbar color="primary">
+<mat-toolbar color="primary" class="dashboard-toolbar">
   <button mat-icon-button (click)="drawer.toggle()">
     <mat-icon>menu</mat-icon>
   </button>
-  <span>Sentimental Social</span>
+  <span class="sicenav-title">Sentimental Social</span>
 </mat-toolbar>
+
 <mat-sidenav-container class="dashboard-container">
 
   <mat-sidenav #drawer [mode]="isMobile ? 'over' : 'side'" [opened]="!isMobile" class="dashboard-sidenav">

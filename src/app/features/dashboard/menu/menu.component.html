@@ -1,5 +1,16 @@
 <mat-nav-list>
-  <a mat-list-item routerLink="/dashboard/home" (click)="onNavigate()">Inicio</a>
-  <a mat-list-item routerLink="/dashboard/profile" (click)="onNavigate()">Perfil</a>
-  <a mat-list-item routerLink="/dashboard/settings" (click)="onNavigate()">Configuración</a>
+    <a mat-list-item routerLink="/dashboard/home" (click)="onNavigate()">
+        <mat-icon aria-hidden="false" aria-label="Example home icon" fontIcon="home"></mat-icon>
+        <span>
+            Inicio
+        </span>
+    </a>
+    <a mat-list-item routerLink="/dashboard/profile" (click)="onNavigate()">
+             <mat-icon aria-hidden="false" aria-label="Example home icon" fontIcon="account_circle"></mat-icon>
+        Perfil
+    </a>
+    <a mat-list-item routerLink="/dashboard/settings" (click)="onNavigate()">
+             <mat-icon aria-hidden="false" aria-label="Example home icon" fontIcon="settings"></mat-icon>
+        Configuración
+    </a>
 </mat-nav-list>
