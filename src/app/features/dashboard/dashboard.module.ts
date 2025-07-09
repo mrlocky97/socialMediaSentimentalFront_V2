@@ -10,6 +10,7 @@ import { CommonModule } from '@angular/common';
 import { HomeModule } from './home/home.module';
 import { RouterModule } from '@angular/router';
 import { routes } from './dashboard.routes';
+import { MenuComponent } from './menu/menu.component';
 
 @NgModule({
   imports: [
@@ -21,7 +22,8 @@ import { routes } from './dashboard.routes';
     MatSidenavModule,
     MatToolbarModule,
     HomeModule,
-    RouterModule.forChild(routes)
+    RouterModule.forChild(routes),
+    MenuComponent
   ],
   exports: [
     MatCardModule,

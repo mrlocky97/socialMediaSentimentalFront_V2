@@ -11,9 +11,11 @@ mat-drawer {
 }
 
 @media (max-width: 768px) {
-/* Desktop */
-  button[mat-icon-button] {
-    display: none !important;
+  mat-drawer {
+    width: 180px;
+  }
+  .hide-on-desktop {
+    display: inline-flex;
   }
 }
 

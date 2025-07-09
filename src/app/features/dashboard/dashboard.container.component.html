@@ -1,22 +1,27 @@
 <div class="example-container" [class.example-is-mobile]="isMobile()">
   <mat-toolbar class="example-toolbar">
-    <button mat-icon-button (click)="snav.toggle()"><mat-icon>menu</mat-icon></button>
-    <h1 class="example-app-name">Responsive App</h1>
+    <button mat-icon-button (click)="drawer.toggle()">
+      <mat-icon>menu</mat-icon>
+    </button>
+    <h1 class="example-app-name">Sentimental social</h1>
   </mat-toolbar>
-
-  <mat-sidenav-container class="example-sidenav-container" [style.marginTop.px]="isMobile() ? 56 : 0">
-    <mat-sidenav #snav [mode]="isMobile() ? 'over' : 'side'" [fixedInViewport]="isMobile()" fixedTopGap="56">
-      <mat-nav-list>
-        @for (nav of fillerNav; track nav) {
-        <a mat-list-item>{{nav}}</a>
-        }
-      </mat-nav-list>
-    </mat-sidenav>
-
-    <mat-sidenav-content>
-      @for (content of fillerContent; track content) {
-      <p>{{content}}</p>
-      }
-    </mat-sidenav-content>
-  </mat-sidenav-container>
 </div>
+
+<mat-sidenav-container class="example-sidenav-container" [style.marginTop.px]="isMobile() ? 56 : 0">
+  <mat-sidenav #drawer [mode]="isMobile() ? 'over' : 'side'" [fixedInViewport]="isMobile()" fixedTopGap="56"
+    class="dashboard-sidenav">
+    <app-menu (navigate)="isMobile() ? drawer.close() : null"></app-menu>
+  </mat-sidenav>
+
+  <mat-sidenav-content>
+    <div class="dashboard-content">
+      <router-outlet></router-outlet>
+      <mat-grid-list cols="4" rowHeight="100px">
+        @for (tile of tiles; track tile) {
+        <mat-grid-tile [colspan]="tile.cols" [rowspan]="tile.rows"
+          [style.background]="tile.color">{{tile.text}}</mat-grid-tile>
+        }
+      </mat-grid-list>
+    </div>
+  </mat-sidenav-content>
+</mat-sidenav-container>
