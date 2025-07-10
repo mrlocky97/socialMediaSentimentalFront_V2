@@ -1,19 +1,21 @@
-<mat-toolbar color="primary" class="dashboard-toolbar">
-  <button mat-icon-button (click)="drawer.toggle()">
-    <mat-icon>menu</mat-icon>
-  </button>
-  <span class="sicenav-title">Sentimental Social</span>
-</mat-toolbar>
+<div class="dashboard-container">
+  <mat-toolbar color="primary" class="dashboard-toolbar">
+    <button mat-icon-button (click)="drawer.toggle()">
+      <mat-icon>menu</mat-icon>
+    </button>
+    <span class="sicenav-title">Sentimental Social</span>
+  </mat-toolbar>
 
-<mat-sidenav-container class="dashboard-container">
+  <mat-sidenav-container class="dashboard-container">
 
-  <mat-sidenav #drawer [mode]="isMobile ? 'over' : 'side'" [opened]="!isMobile" class="dashboard-sidenav">
-    <app-menu (navigate)="isMobile ? drawer.close() : null"></app-menu>
-  </mat-sidenav>
+    <mat-sidenav #drawer [mode]="isMobile ? 'over' : 'side'" [opened]="!isMobile" class="dashboard-sidenav">
+      <app-menu (navigate)="isMobile ? drawer.close() : null"></app-menu>
+    </mat-sidenav>
 
-  <mat-sidenav-content>
-    <div class="dashboard-content">
-      <router-outlet></router-outlet>
-    </div>
-  </mat-sidenav-content>
-</mat-sidenav-container>
+    <mat-sidenav-content>
+      <div class="dashboard-content">
+        <router-outlet></router-outlet>
+      </div>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</div>

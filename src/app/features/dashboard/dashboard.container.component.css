@@ -1,9 +1,13 @@
 .dashboard-container {
   height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .dashboard-content {
-  padding: 16px;
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 .dashboard-sidenav {

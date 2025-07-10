@@ -60,6 +60,7 @@ html, body {
 
 /* Contenedor principal */
 .container {
+  display: contents;
   padding: 2em;
   max-width: 1200px;
   margin: 0 auto;
