@@ -1,7 +1,7 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable, inject, signal, computed, effect } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { Observable, BehaviorSubject, tap, catchError, throwError } from 'rxjs';
+import { Observable, tap, catchError, throwError } from 'rxjs';
 import { AuthState, LoginRequest, LoginResponse, UserInfo } from '../model/auth.model';
 import { environment } from '../../../../enviroments/environment';
 
@@ -20,31 +20,34 @@ export class AuthService {
     token: null
   });
 
+  // Computed signals for easy access
+  readonly isAuthenticated = computed(() => this.authState().isAuthenticated);
+  readonly currentUser = computed(() => this.authState().user);
+  readonly token = computed(() => this.authState().token);
+
   private readonly TOKEN_KEY = 'auth_token';
   private readonly USER_KEY = 'user_info';
 
   constructor() {
     this.loadAuthState();
-  }
-
-  get isAuthenticated(): boolean {
-    return this.authState().isAuthenticated;
-  }
-
-  get currentUser(): UserInfo | null {
-    return this.authState().user;
-  }
-
-  get token(): string | null {
-    return this.authState().token;
+    
+    // Effect to sync with localStorage whenever auth state changes
+    effect(() => {
+      const state = this.authState();
+      if (state.isAuthenticated && state.token && state.user) {
+        localStorage.setItem(this.TOKEN_KEY, state.token);
+        localStorage.setItem(this.USER_KEY, JSON.stringify(state.user));
+      }
+    });
   }
 
   login(credentials: LoginRequest): Observable<LoginResponse> {
-    const formData = new FormData();
-    formData.append('username', credentials.username);
-    formData.append('password', credentials.password);
+    const loginData = {
+      email: credentials.username,
+      password: credentials.password
+    };
 
-    return this.http.post<LoginResponse>(`${environment.apiUrl}/auth/login`, formData)
+    return this.http.post<LoginResponse>(`${environment.apiUrl}/api/v1/auth/login`, loginData)
       .pipe(
         tap(response => {
           this.setAuthState(response.access_token, credentials.username);
@@ -74,9 +77,6 @@ export class AuthService {
       role: 'user' // Esto se puede obtener del token decodificado si es necesario
     };
 
-    localStorage.setItem(this.TOKEN_KEY, token);
-    localStorage.setItem(this.USER_KEY, JSON.stringify(userInfo));
-
     this.authState.set({
       isAuthenticated: true,
       user: userInfo,
@@ -105,6 +105,44 @@ export class AuthService {
 
   // Método para obtener el token para los interceptors
   getToken(): string | null {
-    return this.token;
+    return this.token();
+  }
+
+  // Backward compatibility
+  isLoggedIn(): boolean {
+    return this.isAuthenticated();
+  }
+
+  // Update user info
+  updateUserInfo(userInfo: Partial<UserInfo>): void {
+    const currentState = this.authState();
+    if (currentState.user) {
+      this.authState.update(state => ({
+        ...state,
+        user: { ...state.user!, ...userInfo }
+      }));
+    }
+  }
+
+  // Check if token is expired (basic implementation)
+  isTokenExpired(): boolean {
+    const token = this.getToken();
+    if (!token) return true;
+    
+    try {
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      const exp = payload.exp;
+      const now = Math.floor(Date.now() / 1000);
+      return exp < now;
+    } catch {
+      return true;
+    }
+  }
+
+  // Refresh authentication state
+  refreshAuthState(): void {
+    if (this.isTokenExpired()) {
+      this.logout();
+    }
   }
 }

@@ -2,15 +2,14 @@ import { ApplicationConfig, provideZoneChangeDetection, isDevMode } from '@angul
 import { provideRouter } from '@angular/router';
 import {
   provideHttpClient,
-  withInterceptorsFromDi
+  withInterceptors
 } from '@angular/common/http';
-import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { provideAnimations } from '@angular/platform-browser/animations';
 
 import { routes } from './app.routes';
 import { TranslocoHttpLoader } from './transloco-loader';
-import { provideTransloco, TRANSLOCO_LOADER, TRANSLOCO_CONFIG } from '@ngneat/transloco';
-import { AuthInterceptor } from './core/auth/interceptors/auth.interceptor';
+import { provideTransloco } from '@ngneat/transloco';
+import { authInterceptorFn } from './core/auth/interceptors/auth-functional.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -20,10 +19,15 @@ export const appConfig: ApplicationConfig = {
     // 2) Enrutamiento
     provideRouter(routes),
 
-    // 3) HttpClient con interceptores inyectados automáticamente
-    provideHttpClient(withInterceptorsFromDi()),
+    // 3) HttpClient con interceptores funcionales
+    provideHttpClient(
+      withInterceptors([authInterceptorFn])
+    ),
 
-    // 4) Proveedor de Transloco
+    // 4) Animaciones para Angular Material
+    provideAnimations(),
+
+    // 5) Proveedor de Transloco
     provideTransloco({
       config: {
         availableLangs: ['en', 'es', 'de', 'fr'],
@@ -33,13 +37,6 @@ export const appConfig: ApplicationConfig = {
         prodMode: !isDevMode()
       },
       loader: TranslocoHttpLoader
-    }),
-
-    // 5) Registro explícito del interceptor (multi-provider)
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: AuthInterceptor,
-      multi: true
-    }
+    })
   ]
 };

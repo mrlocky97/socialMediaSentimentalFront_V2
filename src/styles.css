@@ -1,11 +1,15 @@
 /* Definición de variables de tema y de sentimientos */
 :root {
   /* Colores de Angular Material (puedes ajustarlos a tu preferencia) */
-  --primary-color: #3f51b5;   /* Indigo */
-  --accent-color: #e91e63;    /* Pink */
-  --warn-color: #f44336;      /* Red */
+  --primary-color: #3f51b5;
+  /* Indigo */
+  --accent-color: #e91e63;
+  /* Pink */
+  --warn-color: #f44336;
+  /* Red */
   --white: #ffffff;
-  --gray: #808080;             /* Gray */
+  --gray: #808080;
+  /* Gray */
   /* Variables para los estilos según el sentimiento */
   --positive-bg: #e8f5e9;
   --positive-border: #66bb6a;
@@ -21,7 +25,7 @@
 
   /* Colores de applicación Wild Caribbean Green*/
   --wild-green-uno: #F2FFFF;
-  --wild-green-dos: #BDFEFC; 
+  --wild-green-dos: #BDFEFC;
   --wild-green-tres: #86F9ED;
   --wild-green-cuatro: #4EE9D1;
   --wild-green-cinco: #1BCCA6;
@@ -32,7 +36,8 @@
 }
 
 /* Reset de box-sizing para que todos los elementos usen el mismo modelo de caja */
-html, body {
+html,
+body {
   box-sizing: border-box;
   margin: 0;
   font-family: 'Inter', sans-serif;
@@ -42,11 +47,14 @@ html, body {
   width: 100%;
 }
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
   box-sizing: inherit;
   margin: 0;
   padding: 0;
 }
+
 /* 1.1 Estilos generales */
 
 /* 1.3 Contenedor centrado (opcional) */
@@ -70,7 +78,8 @@ html, body {
 .footer {
   text-align: center;
   padding: 1em;
-  background-color: var(--wild-green-tres); /* tono claro del primary */
+  background-color: var(--wild-green-tres);
+  /* tono claro del primary */
   margin-top: 2em;
 }
 
@@ -107,7 +116,7 @@ html, body {
   .container {
     padding: 1em;
   }
-  
+
   .header,
   .footer {
     text-align: center;
@@ -119,48 +128,61 @@ html, body {
     padding: 3em;
   }
 }
+
 /* Header y footer más prominentes en pantallas grandes */
 .header {
-font-size: 1.5em;
+  font-size: 1.5em;
 }
 
 .footer {
-font-size: 1.2em;
+  font-size: 1.2em;
 }
 
 /* styles buttons */
 .mat-mdc-raised-button {
-    padding: 0.5em 1em;
-    background-color: var(--mdc-protected-button-container-color, var(--wild-green-dos));
-    color: var(--mdc-protected-button-label-text-color, var(--wild-green-nueve));
-    border-radius: 0.25rem;
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  padding: 0.5em 1em;
+  background-color: var(--mdc-protected-button-container-color, var(--wild-green-dos));
+  color: var(--mdc-protected-button-label-text-color, var(--wild-green-nueve));
+  border-radius: 0.25rem;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
+
 .mat-mdc-raised-button:hover {
-    background-color: var(--mdc-protected-button-hover-container-color, var(--wild-green-tres));
-    color: var(--mdc-protected-button-label-text-color, var(--wild-green-nueve));
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+  background-color: var(--mdc-protected-button-hover-container-color, var(--wild-green-tres));
+  color: var(--mdc-protected-button-label-text-color, var(--wild-green-nueve));
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
+
 .mat-mdc-raised-button:active {
-    background-color: var(--mdc-protected-button-active-container-color, var(--wild-green-cinco));
-    color: var(--mdc-protected-button-label-text-color, var(--wild-green-nueve));
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  background-color: var(--mdc-protected-button-active-container-color, var(--wild-green-cinco));
+  color: var(--mdc-protected-button-label-text-color, var(--wild-green-nueve));
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
+
 .mat-mdc-raised-button:disabled {
-    background-color: var(--mdc-protected-button-disabled-container-color, var(--wild-green-dos));
-    color: var(--mdc-protected-button-disabled-label-text-color, var(--neutral-text));
-    cursor: not-allowed;
+  background-color: var(--mdc-protected-button-disabled-container-color, var(--wild-green-dos));
+  color: var(--mdc-protected-button-disabled-label-text-color, var(--neutral-text));
+  cursor: not-allowed;
 }
+
 /*estilos de boton cuando no esta hover*/
 .mat-mdc-raised-button:not(:hover) {
-    background-color: var(--mdc-protected-button-container-color, var(--wild-green-dos));
-    color: var(--mdc-protected-button-label-text-color, var(--wild-green-nueve));
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  background-color: var(--mdc-protected-button-container-color, var(--wild-green-dos));
+  color: var(--mdc-protected-button-label-text-color, var(--wild-green-nueve));
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
+
 button.mat-mdc-raised-button.mat-mdc-button-disabled {
   color: var(--mdc-protected-button-label-text-color, var(--gray));
-  }
+}
 
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
