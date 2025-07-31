@@ -28,8 +28,8 @@ export class CampaignFacade {
     this.appState.setLoading(true);
     this.appState.clearError();
 
-    return this.campaignService.getCampaigns(filter).pipe(
-      map(response => {
+    return this.campaignService.getAll(filter).pipe(
+      map((response: any) => {
         if (response.success) {
           this.appState.setCampaigns(response.data.data);
           return response.data.data;
@@ -52,8 +52,22 @@ export class CampaignFacade {
     this.appState.setLoading(true);
     this.appState.clearError();
 
-    return this.campaignService.createCampaign(campaignData).pipe(
-      map(response => {
+    // Convert CreateCampaignRequest to Partial<Campaign>
+    const campaignPayload: Partial<Campaign> = {
+      name: campaignData.name,
+      description: campaignData.description,
+      type: campaignData.type,
+      hashtags: campaignData.hashtags,
+      keywords: campaignData.keywords,
+      mentions: campaignData.mentions,
+      startDate: new Date(campaignData.startDate),
+      endDate: new Date(campaignData.endDate),
+      maxTweets: campaignData.maxTweets,
+      sentimentAnalysis: campaignData.sentimentAnalysis
+    };
+
+    return this.campaignService.create(campaignPayload).pipe(
+      map((response: any) => {
         if (response.success) {
           this.appState.addCampaign(response.data);
           return response.data;
@@ -76,8 +90,20 @@ export class CampaignFacade {
     this.appState.setLoading(true);
     this.appState.clearError();
 
-    return this.campaignService.updateCampaign(id, updateData).pipe(
-      map(response => {
+    // Convert UpdateCampaignRequest to Partial<Campaign>
+    const campaignPayload: Partial<Campaign> = {
+      ...(updateData.name && { name: updateData.name }),
+      ...(updateData.description && { description: updateData.description }),
+      ...(updateData.hashtags && { hashtags: updateData.hashtags }),
+      ...(updateData.keywords && { keywords: updateData.keywords }),
+      ...(updateData.mentions && { mentions: updateData.mentions }),
+      ...(updateData.endDate && { endDate: new Date(updateData.endDate) }),
+      ...(updateData.maxTweets && { maxTweets: updateData.maxTweets }),
+      ...(updateData.sentimentAnalysis !== undefined && { sentimentAnalysis: updateData.sentimentAnalysis })
+    };
+
+    return this.campaignService.update(id, campaignPayload).pipe(
+      map((response: any) => {
         if (response.success) {
           this.appState.updateCampaign(response.data);
           return response.data;
@@ -99,8 +125,8 @@ export class CampaignFacade {
   selectCampaign(campaignId: string): Observable<Campaign | null> {
     this.appState.setLoading(true);
     
-    return this.campaignService.getCampaignById(campaignId).pipe(
-      map(response => {
+    return this.campaignService.getById(campaignId).pipe(
+      map((response: any) => {
         if (response.success) {
           this.appState.setSelectedCampaign(response.data);
           return response.data;
@@ -129,8 +155,8 @@ export class CampaignFacade {
   startCampaign(campaignId: string): Observable<boolean> {
     this.appState.setLoading(true);
     
-    return this.campaignService.startCampaign(campaignId).pipe(
-      map(response => {
+    return this.campaignService.start(campaignId).pipe(
+      map((response: any) => {
         if (response.success) {
           this.appState.updateCampaign(response.data);
           return true;
@@ -152,8 +178,8 @@ export class CampaignFacade {
   stopCampaign(campaignId: string): Observable<boolean> {
     this.appState.setLoading(true);
     
-    return this.campaignService.stopCampaign(campaignId).pipe(
-      map(response => {
+    return this.campaignService.stop(campaignId).pipe(
+      map((response: any) => {
         if (response.success) {
           this.appState.updateCampaign(response.data);
           return true;
@@ -163,6 +189,29 @@ export class CampaignFacade {
       tap(() => this.appState.setLoading(false)),
       catchError(error => {
         this.appState.setError('Error stopping campaign: ' + error.message);
+        this.appState.setLoading(false);
+        return of(false);
+      })
+    );
+  }
+
+  /**
+   * Delete campaign (soft delete)
+   */
+  deleteCampaign(campaignId: string): Observable<boolean> {
+    this.appState.setLoading(true);
+    
+    return this.campaignService.delete(campaignId).pipe(
+      map((response: any) => {
+        if (response.success) {
+          this.appState.removeCampaign(campaignId);
+          return true;
+        }
+        return false;
+      }),
+      tap(() => this.appState.setLoading(false)),
+      catchError(error => {
+        this.appState.setError('Error deleting campaign: ' + error.message);
         this.appState.setLoading(false);
         return of(false);
       })

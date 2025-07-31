@@ -1,0 +1,127 @@
+<div class="table-container">
+  <!-- Search Section -->
+  @if (config.showSearch) {
+    <div class="table-search">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search</mat-label>
+        <input 
+          matInput 
+          (keyup)="applyFilter($event)"
+          placeholder="Type to search..."
+          #searchInput>
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
+    </div>
+  }
+
+  <!-- Selection Actions -->
+  @if (config.showSelection && hasSelection()) {
+    <div class="selection-actions">
+      <span class="selection-count">
+        {{ getSelectionCount() }} item(s) selected
+      </span>
+      <button mat-button (click)="clearSelection()">
+        <mat-icon>clear</mat-icon>
+        Clear Selection
+      </button>
+    </div>
+  }
+
+  <!-- Data Table -->
+  <div class="table-wrapper">
+    <table mat-table [dataSource]="getDataSource()" matSort 
+           (matSortChange)="onSortChange($event)" class="data-table">
+      
+      <!-- Selection Column -->
+      @if (config.showSelection) {
+        <ng-container matColumnDef="select">
+          <th mat-header-cell *matHeaderCellDef>
+            @if (config.multiSelection) {
+              <mat-checkbox 
+                [checked]="isAllSelected()"
+                [indeterminate]="isPartiallySelected()"
+                (change)="toggleAllSelection()">
+              </mat-checkbox>
+            }
+          </th>
+          <td mat-cell *matCellDef="let row">
+            <mat-checkbox 
+              [checked]="isRowSelected(row)"
+              (change)="toggleRowSelection(row)">
+            </mat-checkbox>
+          </td>
+        </ng-container>
+      }
+
+      <!-- Data Columns -->
+      @for (column of columns; track column.key) {
+        <ng-container [matColumnDef]="column.key">
+          <th mat-header-cell *matHeaderCellDef 
+              [attr.mat-sort-header]="column.sortable ? column.key : null"
+              [style.width]="column.width"
+              [style.text-align]="column.align || 'left'">
+            {{ column.label }}
+          </th>
+          <td mat-cell *matCellDef="let element" 
+              [style.text-align]="column.align || 'left'">
+            
+            <!-- Custom Cell Template -->
+            @if (cellTemplate) {
+              <ng-container *ngTemplateOutlet="cellTemplate; context: { 
+                $implicit: element, 
+                column: column,
+                value: getColumnValue(element, column.key)
+              }">
+              </ng-container>
+            } @else {
+              {{ getColumnValue(element, column.key) }}
+            }
+          </td>
+        </ng-container>
+      }
+
+      <!-- Actions Column -->
+      @if (actions && actions.length > 0) {
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Actions</th>
+          <td mat-cell *matCellDef="let element">
+            @for (action of getVisibleActions(element); track action.label) {
+              <button mat-icon-button 
+                      [color]="action.color || 'primary'"
+                      [disabled]="isActionDisabled(action, element)"
+                      (click)="executeAction(action, element)"
+                      [title]="action.label">
+                <mat-icon>{{ action.icon }}</mat-icon>
+              </button>
+            }
+          </td>
+        </ng-container>
+      }
+
+      <!-- Table Rows -->
+      <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns();"
+          (click)="onRowClick(row)"
+          [class.selected-row]="isRowSelected(row)">
+      </tr>
+    </table>
+  </div>
+
+  <!-- No Data State -->
+  @if (data.length === 0) {
+    <div class="no-data">
+      <mat-icon>inbox</mat-icon>
+      <p>No data available</p>
+    </div>
+  }
+
+  <!-- Pagination -->
+  @if (config.showPagination && data.length > 0) {
+    <mat-paginator 
+      [pageSizeOptions]="config.pageSizeOptions || [5, 10, 25, 50]"
+      [pageSize]="config.pageSize || 10"
+      (page)="onPageChange($event)"
+      showFirstLastButtons>
+    </mat-paginator>
+  }
+</div>

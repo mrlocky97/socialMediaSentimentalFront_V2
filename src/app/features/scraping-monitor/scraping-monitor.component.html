@@ -1,0 +1,308 @@
+<div class="scraping-monitor-container">
+  <!-- Header & Overview -->
+  <div class="monitor-header">
+    <div class="header-content">
+      <h1>
+        <mat-icon>monitoring</mat-icon>
+        Scraping Monitor
+      </h1>
+      <p>Real-time monitoring of active social media collection campaigns</p>
+    </div>
+    
+    <div class="header-stats">
+      <div class="stat-card">
+        <mat-icon>campaign</mat-icon>
+        <div class="stat-content">
+          <span class="stat-number">{{ totalActiveCampaigns() }}</span>
+          <span class="stat-label">Active Campaigns</span>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <mat-icon>analytics</mat-icon>
+        <div class="stat-content">
+          <span class="stat-number">{{ totalTweetsCollected() }}</span>
+          <span class="stat-label">Tweets Collected</span>
+        </div>
+      </div>
+      
+      <div class="stat-card">
+        <mat-icon>trending_up</mat-icon>
+        <div class="stat-content">
+          <span class="stat-number">{{ averageProgress() | number:'1.0-0' }}%</span>
+          <span class="stat-label">Average Progress</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Status Overview -->
+  <div class="status-overview">
+    <div class="status-section" *ngIf="runningCampaigns().length > 0">
+      <mat-icon class="status-icon running">play_circle</mat-icon>
+      <span class="status-count">{{ runningCampaigns().length }}</span>
+      <span class="status-label">Running</span>
+    </div>
+    
+    <div class="status-section" *ngIf="completedCampaigns().length > 0">
+      <mat-icon class="status-icon completed">check_circle</mat-icon>
+      <span class="status-count">{{ completedCampaigns().length }}</span>
+      <span class="status-label">Completed</span>
+    </div>
+    
+    <div class="status-section" *ngIf="errorCampaigns().length > 0">
+      <mat-icon class="status-icon error">error</mat-icon>
+      <span class="status-count">{{ errorCampaigns().length }}</span>
+      <span class="status-label">Errors</span>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="loading-container">
+      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+      <p>Loading campaign data...</p>
+    </div>
+  }
+
+  <!-- Campaign Cards -->
+  @if (!isLoading() && activeCampaigns().length > 0) {
+    <div class="campaigns-grid">
+      @for (campaign of activeCampaigns(); track campaign.campaignId) {
+        <mat-card class="campaign-card" [class]="'status-' + campaign.status">
+          
+          <!-- Card Header -->
+          <mat-card-header>
+            <div mat-card-avatar class="campaign-avatar">
+              <mat-icon [color]="getStatusColor(campaign.status)">
+                {{ getStatusIcon(campaign.status) }}
+              </mat-icon>
+            </div>
+            
+            <mat-card-title>{{ campaign.campaignName }}</mat-card-title>
+            <mat-card-subtitle>
+              <mat-chip [color]="getStatusColor(campaign.status)" selected>
+                {{ campaign.status | titlecase }}
+              </mat-chip>
+            </mat-card-subtitle>
+          </mat-card-header>
+
+          <!-- Progress Section -->
+          <mat-card-content>
+            <div class="progress-section">
+              <div class="progress-header">
+                <span class="progress-text">
+                  {{ campaign.progress.completed }} / {{ campaign.progress.total }}
+                </span>
+                <span class="progress-percentage">
+                  {{ campaign.progress.percentage }}%
+                </span>
+              </div>
+              
+              <mat-progress-bar 
+                mode="determinate" 
+                [value]="campaign.progress.percentage"
+                [color]="getProgressColor(campaign.progress.percentage)">
+              </mat-progress-bar>
+              
+              <div class="progress-details">
+                <small class="current-activity">
+                  <mat-icon>info</mat-icon>
+                  {{ campaign.currentActivity }}
+                </small>
+                
+                @if (campaign.estimatedEndTime && campaign.status === 'running') {
+                  <small class="time-remaining">
+                    <mat-icon>schedule</mat-icon>
+                    {{ formatTimeRemaining(campaign) }}
+                  </small>
+                }
+              </div>
+            </div>
+
+            <!-- Metrics Grid -->
+            <div class="metrics-grid">
+              <div class="metric-item">
+                <mat-icon>chat</mat-icon>
+                <div class="metric-content">
+                  <span class="metric-value">{{ campaign.metrics.tweetsCollected }}</span>
+                  <span class="metric-label">Tweets</span>
+                </div>
+              </div>
+              
+              <div class="metric-item">
+                <mat-icon>api</mat-icon>
+                <div class="metric-content">
+                  <span class="metric-value">{{ campaign.metrics.apiCallsUsed }}</span>
+                  <span class="metric-label">API Calls</span>
+                </div>
+              </div>
+              
+              <div class="metric-item">
+                <mat-icon>speed</mat-icon>
+                <div class="metric-content">
+                  <span class="metric-value">{{ campaign.speed.tweetsPerMinute }}</span>
+                  <span class="metric-label">Tweets/min</span>
+                </div>
+              </div>
+              
+              @if (campaign.metrics.errorsEncountered > 0) {
+                <div class="metric-item error-metric">
+                  <mat-icon>warning</mat-icon>
+                  <div class="metric-content">
+                    <span class="metric-value">{{ campaign.metrics.errorsEncountered }}</span>
+                    <span class="metric-label">Errors</span>
+                  </div>
+                </div>
+              }
+            </div>
+
+            <!-- Sentiment Analysis -->
+            @if (campaign.metrics.tweetsCollected > 0) {
+              <div class="sentiment-section">
+                <h4>Sentiment Distribution</h4>
+                <div class="sentiment-bars">
+                  <div class="sentiment-bar positive">
+                    <span class="sentiment-label">
+                      <mat-icon>sentiment_satisfied</mat-icon>
+                      Positive
+                    </span>
+                    <div class="sentiment-progress">
+                      <mat-progress-bar 
+                        mode="determinate" 
+                        [value]="getSentimentDistribution(campaign).positive"
+                        color="primary">
+                      </mat-progress-bar>
+                      <span class="sentiment-percentage">
+                        {{ getSentimentDistribution(campaign).positive }}%
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div class="sentiment-bar negative">
+                    <span class="sentiment-label">
+                      <mat-icon>sentiment_dissatisfied</mat-icon>
+                      Negative
+                    </span>
+                    <div class="sentiment-progress">
+                      <mat-progress-bar 
+                        mode="determinate" 
+                        [value]="getSentimentDistribution(campaign).negative"
+                        color="warn">
+                      </mat-progress-bar>
+                      <span class="sentiment-percentage">
+                        {{ getSentimentDistribution(campaign).negative }}%
+                      </span>
+                    </div>
+                  </div>
+                  
+                  <div class="sentiment-bar neutral">
+                    <span class="sentiment-label">
+                      <mat-icon>sentiment_neutral</mat-icon>
+                      Neutral
+                    </span>
+                    <div class="sentiment-progress">
+                      <mat-progress-bar 
+                        mode="determinate" 
+                        [value]="getSentimentDistribution(campaign).neutral"
+                        color="accent">
+                      </mat-progress-bar>
+                      <span class="sentiment-percentage">
+                        {{ getSentimentDistribution(campaign).neutral }}%
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+
+            <!-- Duration Info -->
+            <div class="duration-info">
+              <div class="duration-item">
+                <mat-icon>play_arrow</mat-icon>
+                <span>Started: {{ campaign.startTime | date:'MMM d, y h:mm a' }}</span>
+              </div>
+              
+              <div class="duration-item">
+                <mat-icon>schedule</mat-icon>
+                <span>Duration: {{ formatDuration(campaign.startTime, campaign.estimatedEndTime) }}</span>
+              </div>
+            </div>
+          </mat-card-content>
+
+          <!-- Card Actions -->
+          <mat-card-actions>
+            <div class="action-buttons">
+              <!-- Control Buttons -->
+              @if (campaign.status === 'running') {
+                <button mat-icon-button 
+                        color="warn" 
+                        (click)="pauseCampaign(campaign.campaignId)"
+                        matTooltip="Pause Campaign">
+                  <mat-icon>pause</mat-icon>
+                </button>
+              }
+              
+              @if (campaign.status === 'paused') {
+                <button mat-icon-button 
+                        color="primary" 
+                        (click)="resumeCampaign(campaign.campaignId)"
+                        matTooltip="Resume Campaign">
+                  <mat-icon>play_arrow</mat-icon>
+                </button>
+              }
+              
+              @if (campaign.status === 'running' || campaign.status === 'paused') {
+                <button mat-icon-button 
+                        color="warn" 
+                        (click)="stopCampaign(campaign.campaignId)"
+                        matTooltip="Stop Campaign">
+                  <mat-icon>stop</mat-icon>
+                </button>
+              }
+
+              <!-- View Details -->
+              <button mat-icon-button 
+                      (click)="viewCampaignDetails(campaign.campaignId)"
+                      matTooltip="View Details">
+                <mat-icon>visibility</mat-icon>
+              </button>
+
+              <!-- Export Progress -->
+              <button mat-icon-button 
+                      (click)="exportCampaignProgress(campaign.campaignId)"
+                      matTooltip="Export Progress">
+                <mat-icon>download</mat-icon>
+              </button>
+            </div>
+          </mat-card-actions>
+        </mat-card>
+      }
+    </div>
+  }
+
+  <!-- Empty State -->
+  @if (!isLoading() && activeCampaigns().length === 0) {
+    <div class="empty-state">
+      <mat-icon>inbox</mat-icon>
+      <h2>No Active Campaigns</h2>
+      <p>There are currently no active scraping campaigns.</p>
+      <button mat-raised-button color="primary" routerLink="/campaigns/create">
+        <mat-icon>add</mat-icon>
+        Create New Campaign
+      </button>
+    </div>
+  }
+
+  <!-- Footer with Last Update -->
+  <div class="monitor-footer">
+    <div class="update-info">
+      <mat-icon>update</mat-icon>
+      <span>Last updated: {{ lastUpdateTime() | date:'h:mm:ss a' }}</span>
+    </div>
+    
+    <button mat-icon-button (click)="initializeMonitoring()" matTooltip="Refresh">
+      <mat-icon>refresh</mat-icon>
+    </button>
+  </div>
+</div>

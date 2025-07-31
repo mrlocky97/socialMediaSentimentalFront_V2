@@ -7,6 +7,8 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../enviroments/environment';
 import { Campaign } from '../state/app.state';
+import { ICampaignRepository } from '../interfaces/repositories.interface';
+import { ApiResponse as CoreApiResponse, PaginatedResponse as CorePaginatedResponse } from '../types';
 
 export interface CreateCampaignRequest {
   name: string;
@@ -56,14 +58,42 @@ export interface ApiResponse<T> {
 @Injectable({
   providedIn: 'root'
 })
-export class CampaignService {
+export class CampaignService implements ICampaignRepository {
   private http = inject(HttpClient);
   private readonly baseUrl = `${environment.apiUrl}/api/v1/campaigns`;
 
   /**
-   * Get all campaigns with filtering and pagination
+   * Get campaign by ID - Implementation of IBaseRepository
    */
-  getCampaigns(
+  getById(id: string): Observable<ApiResponse<Campaign>> {
+    return this.http.get<ApiResponse<Campaign>>(`${this.baseUrl}/${id}`);
+  }
+
+  /**
+   * Create new campaign - Implementation of IBaseRepository
+   */
+  create(campaignData: Partial<Campaign>): Observable<ApiResponse<Campaign>> {
+    return this.http.post<ApiResponse<Campaign>>(this.baseUrl, campaignData);
+  }
+
+  /**
+   * Update existing campaign - Implementation of IBaseRepository
+   */
+  update(id: string, updateData: Partial<Campaign>): Observable<ApiResponse<Campaign>> {
+    return this.http.put<ApiResponse<Campaign>>(`${this.baseUrl}/${id}`, updateData);
+  }
+
+  /**
+   * Delete campaign - Implementation of IBaseRepository
+   */
+  delete(id: string): Observable<ApiResponse<void>> {
+    return this.http.delete<ApiResponse<void>>(`${this.baseUrl}/${id}`);
+  }
+
+  /**
+   * Get all campaigns with filtering and pagination - Implementation of ICampaignRepository
+   */
+  getAll(
     filter: CampaignFilter = {},
     page: number = 1,
     pageSize: number = 10
@@ -73,51 +103,23 @@ export class CampaignService {
   }
 
   /**
-   * Get campaign by ID
+   * Start campaign data collection - Implementation of ICampaignRepository
    */
-  getCampaignById(id: string): Observable<ApiResponse<Campaign>> {
-    return this.http.get<ApiResponse<Campaign>>(`${this.baseUrl}/${id}`);
-  }
-
-  /**
-   * Create new campaign
-   */
-  createCampaign(campaignData: CreateCampaignRequest): Observable<ApiResponse<Campaign>> {
-    return this.http.post<ApiResponse<Campaign>>(this.baseUrl, campaignData);
-  }
-
-  /**
-   * Update existing campaign
-   */
-  updateCampaign(id: string, updateData: UpdateCampaignRequest): Observable<ApiResponse<Campaign>> {
-    return this.http.put<ApiResponse<Campaign>>(`${this.baseUrl}/${id}`, updateData);
-  }
-
-  /**
-   * Delete campaign
-   */
-  deleteCampaign(id: string): Observable<ApiResponse<void>> {
-    return this.http.delete<ApiResponse<void>>(`${this.baseUrl}/${id}`);
-  }
-
-  /**
-   * Start campaign data collection
-   */
-  startCampaign(id: string): Observable<ApiResponse<Campaign>> {
+  start(id: string): Observable<ApiResponse<Campaign>> {
     return this.http.post<ApiResponse<Campaign>>(`${this.baseUrl}/${id}/start`, {});
   }
 
   /**
-   * Stop campaign data collection
+   * Stop campaign data collection - Implementation of ICampaignRepository
    */
-  stopCampaign(id: string): Observable<ApiResponse<Campaign>> {
+  stop(id: string): Observable<ApiResponse<Campaign>> {
     return this.http.post<ApiResponse<Campaign>>(`${this.baseUrl}/${id}/stop`, {});
   }
 
   /**
-   * Get campaign statistics
+   * Get campaign statistics - Implementation of ICampaignRepository
    */
-  getCampaignStats(id: string): Observable<ApiResponse<any>> {
+  getStats(id: string): Observable<ApiResponse<any>> {
     return this.http.get<ApiResponse<any>>(`${this.baseUrl}/${id}/stats`);
   }
 }

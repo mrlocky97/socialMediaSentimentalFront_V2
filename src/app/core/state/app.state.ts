@@ -37,6 +37,8 @@ export interface Campaign {
     };
     topHashtags: Array<{ tag: string; count: number }>;
     topMentions: Array<{ mention: string; count: number }>;
+    topKeywords: Array<{ keyword: string; count: number }>;
+    influencers: Array<{ username: string; followers: number; engagement: number }>;
   };
 }
 
@@ -92,6 +94,14 @@ export class AppStateService {
       campaigns: state.campaigns.map(c => 
         c.id === updatedCampaign.id ? updatedCampaign : c
       )
+    }));
+  }
+
+  removeCampaign(campaignId: string): void {
+    this.state.update(state => ({
+      ...state,
+      campaigns: state.campaigns.filter(c => c.id !== campaignId),
+      selectedCampaign: state.selectedCampaign?.id === campaignId ? null : state.selectedCampaign
     }));
   }
 

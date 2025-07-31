@@ -35,7 +35,7 @@ export const routes: Routes = [
         path: 'analytics',
         canActivate: [authGuard],
         loadComponent: () => 
-            import('./features/analytics/analytics.component').then(c => c.AnalyticsComponent),
+            import('./features/analytics-exporter/analytics-exporter.component').then(c => c.AnalyticsExporterComponent),
         title: 'Analytics - Sentimental Social'
     },
     {
@@ -46,11 +46,18 @@ export const routes: Routes = [
         title: 'Profile - Sentimental Social'
     },
     {
-        path: 'settings',
+        path: 'monitor',
         canActivate: [authGuard],
         loadComponent: () => 
-            import('./features/settings/settings.component').then(c => c.SettingsComponent),
-        title: 'Settings - Sentimental Social'
+            import('./features/scraping-monitor/scraping-monitor.component').then(c => c.ScrapingMonitorComponent),
+        title: 'Monitor - Sentimental Social'
+    },
+    {
+        path: 'wizard',
+        canActivate: [authGuard],
+        loadComponent: () => 
+            import('./features/campaign-wizard/campaign-wizard.component').then(c => c.CampaignWizardComponent),
+        title: 'Campaign Wizard - Sentimental Social'
     },
     { 
         path: '**', 
