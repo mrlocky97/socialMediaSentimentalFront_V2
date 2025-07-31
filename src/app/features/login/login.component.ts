@@ -11,6 +11,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslocoRootModule } from '../../transloco-loader';
 import { TranslocoModule } from '@ngneat/transloco';
 import { AuthService } from '../../core/auth/services/auth.service';
+import { InputSanitizerService } from '../../core/services/input-sanitizer.service';
 import { LoginRequest } from '../../core/auth/model/auth.model';
 
 @Component({
@@ -37,6 +38,7 @@ export class LoginComponent {
   // Using Angular's dependency injection to inject services
   private fb = inject(FormBuilder);
   private authService = inject(AuthService);
+  private inputSanitizer = inject(InputSanitizerService);
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
 
@@ -55,9 +57,33 @@ export class LoginComponent {
       this.loading.set(true);
       this.errorMessage.set('');
 
+      const email = this.loginForm.value.email!;
+      const password = this.loginForm.value.password!;
+
+      // Validación adicional de seguridad
+      if (!this.inputSanitizer.isValidEmail(email)) {
+        this.loading.set(false);
+        this.errorMessage.set('Invalid email format.');
+        this.snackBar.open('Invalid email format.', 'Close', {
+          duration: 3000,
+          panelClass: ['error-snackbar']
+        });
+        return;
+      }
+
+      if (!this.inputSanitizer.isValidPassword(password)) {
+        this.loading.set(false);
+        this.errorMessage.set('Password contains invalid characters.');
+        this.snackBar.open('Password contains invalid characters.', 'Close', {
+          duration: 3000,
+          panelClass: ['error-snackbar']
+        });
+        return;
+      }
+
       const credentials: LoginRequest = {
-        username: this.loginForm.value.email!,
-        password: this.loginForm.value.password!
+        username: email,
+        password: password
       };
 
       this.authService.login(credentials).subscribe({

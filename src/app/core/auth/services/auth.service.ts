@@ -4,14 +4,20 @@ import { Router } from '@angular/router';
 import { Observable, tap, catchError, throwError } from 'rxjs';
 import { AuthState, LoginRequest, LoginResponse, UserInfo } from '../model/auth.model';
 import { environment } from '../../../../enviroments/environment';
+import { SecureStorageService } from '../../services/secure-storage.service';
+import { InputSanitizerService } from '../../services/input-sanitizer.service';
+import { SessionTimeoutService } from '../../services/session-timeout.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  // Inyectamos HttpClient y Router para manejar las peticiones HTTP y la navegación
+  // Inyectamos dependencias
   private http = inject(HttpClient);
   private router = inject(Router);
+  private secureStorage = inject(SecureStorageService);
+  private inputSanitizer = inject(InputSanitizerService);
+  private sessionTimeout = inject(SessionTimeoutService);
 
   // Usamos signals para manejar el estado de autenticación de manera reactiva
   private authState = signal<AuthState>({
@@ -25,26 +31,32 @@ export class AuthService {
   readonly currentUser = computed(() => this.authState().user);
   readonly token = computed(() => this.authState().token);
 
-  private readonly TOKEN_KEY = 'auth_token';
-  private readonly USER_KEY = 'user_info';
-
   constructor() {
     this.loadAuthState();
     
-    // Effect to sync with localStorage whenever auth state changes
+    // Effect to sync with secure storage whenever auth state changes
     effect(() => {
       const state = this.authState();
       if (state.isAuthenticated && state.token && state.user) {
-        localStorage.setItem(this.TOKEN_KEY, state.token);
-        localStorage.setItem(this.USER_KEY, JSON.stringify(state.user));
+        this.secureStorage.setToken(state.token);
+        this.secureStorage.setUserInfo(state.user);
       }
     });
   }
 
   login(credentials: LoginRequest): Observable<LoginResponse> {
+    // Sanitizar entradas
+    const sanitizedEmail = this.inputSanitizer.sanitizeText(credentials.username);
+    const sanitizedPassword = credentials.password; // No sanitizar password para preservar caracteres especiales
+    
+    // Validar email
+    if (!this.inputSanitizer.isValidEmail(sanitizedEmail)) {
+      return throwError(() => new Error('Invalid email format'));
+    }
+
     const loginData = {
-      email: credentials.username,
-      password: credentials.password
+      email: sanitizedEmail,
+      password: sanitizedPassword
     };
 
     return this.http.post<LoginResponse>(`${environment.apiUrl}/api/${environment.apiVersion}/auth/login`, loginData)
@@ -153,8 +165,13 @@ export class AuthService {
   }
 
   logout(): void {
-    localStorage.removeItem(this.TOKEN_KEY);
-    localStorage.removeItem(this.USER_KEY);
+    // Limpiar storage seguro
+    this.secureStorage.removeToken();
+    this.secureStorage.removeUser();
+    
+    // Detener timeout de sesión
+    this.sessionTimeout.stopSession();
+    
     this.authState.set({
       isAuthenticated: false,
       user: null,
@@ -176,13 +193,13 @@ export class AuthService {
       permissions: user.permissions
     };
 
-    // Guardar en localStorage
-    localStorage.setItem(this.TOKEN_KEY, token);
-    localStorage.setItem(this.USER_KEY, JSON.stringify(userInfo));
+    // Guardar usando secure storage
+    this.secureStorage.setToken(token);
+    this.secureStorage.setUserInfo(userInfo);
     if (refreshToken) {
-      localStorage.setItem('refresh_token', refreshToken);
+      this.secureStorage.setRefreshToken(refreshToken);
     }
-    console.log('Saved to localStorage - Token:', localStorage.getItem(this.TOKEN_KEY)); // Debug log
+    console.log('Saved to secure storage - Token exists:', !!this.secureStorage.getToken()); // Debug log
 
     // Actualizar el signal
     this.authState.set({
@@ -191,25 +208,43 @@ export class AuthService {
       token
     });
     
+    // Iniciar timeout de sesión
+    this.sessionTimeout.startSession();
+    
     console.log('Auth state signal updated:', this.authState()); // Debug log
   }
 
   private loadAuthState(): void {
-    const token = localStorage.getItem(this.TOKEN_KEY);
-    const userStr = localStorage.getItem(this.USER_KEY);
+    console.log('🔄 Loading auth state from secure storage...');
+    const token = this.secureStorage.getToken();
+    const user = this.secureStorage.getUserInfo();
+    
+    console.log('📦 Token from secure storage:', !!token);
+    console.log('👤 User from secure storage:', !!user);
 
-    if (token && userStr) {
+    if (token && user) {
       try {
-        const user = JSON.parse(userStr);
         this.authState.set({
           isAuthenticated: true,
           user,
           token
         });
+        
+        // Reiniciar timeout de sesión al cargar estado existente
+        this.sessionTimeout.startSession();
+        
+        console.log('✅ Auth state loaded successfully:', this.authState());
       } catch (error) {
-        console.error('Error parsing user data:', error);
+        console.error('❌ Error parsing user data:', error);
         this.logout();
       }
+    } else {
+      console.log('❌ No auth data found in localStorage');
+      this.authState.set({
+        isAuthenticated: false,
+        user: null,
+        token: null
+      });
     }
   }
 

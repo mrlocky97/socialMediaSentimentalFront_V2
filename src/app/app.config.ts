@@ -10,6 +10,8 @@ import { routes } from './app.routes';
 import { TranslocoHttpLoader } from './transloco-loader';
 import { provideTransloco } from '@ngneat/transloco';
 import { authInterceptorFn } from './core/auth/interceptors/auth-functional.interceptor';
+import { securityHeadersInterceptor } from './core/interceptors/security-headers.interceptor';
+import { errorHandlingInterceptor } from './core/interceptors/error-handling.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -19,9 +21,13 @@ export const appConfig: ApplicationConfig = {
     // 2) Enrutamiento
     provideRouter(routes),
 
-    // 3) HttpClient con interceptores funcionales
+    // 3) HttpClient con interceptores funcionales (orden importa)
     provideHttpClient(
-      withInterceptors([authInterceptorFn])
+      withInterceptors([
+        securityHeadersInterceptor,    // 1. Headers de seguridad
+        errorHandlingInterceptor,      // 2. Manejo de errores
+        authInterceptorFn              // 3. Autenticación
+      ])
     ),
 
     // 4) Animaciones para Angular Material
