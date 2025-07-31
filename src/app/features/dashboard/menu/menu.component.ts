@@ -1,5 +1,8 @@
 import { Component, Output, EventEmitter } from '@angular/core';
-import { MaterialModule } from '../../../shared/material/material.module';
+import { CommonModule } from '@angular/common';
+import { MatListModule } from '@angular/material/list';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
 import { RouterModule } from '@angular/router';
 
 export interface NavItem {
@@ -11,7 +14,7 @@ export interface NavItem {
 
 @Component({
   selector: 'app-menu',
-  imports: [MaterialModule, RouterModule],
+  imports: [CommonModule, MatListModule, MatIconModule, MatButtonModule, RouterModule],
   templateUrl: './menu.component.html',
   styleUrl: './menu.component.css'
 })

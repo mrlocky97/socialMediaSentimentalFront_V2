@@ -1,7 +1,11 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, HostListener, inject, signal, ViewChild } from '@angular/core';
 import { MediaMatcher } from '@angular/cdk/layout';
-import { MaterialModule } from '../../shared/material/material.module';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatGridListModule } from '@angular/material/grid-list';
 import { RouterOutlet } from '@angular/router';
 import { MenuComponent } from "./menu/menu.component";
 
@@ -15,7 +19,16 @@ export interface Tile {
 @Component({
   selector: 'app-dashboard.container',
   standalone: true,
-  imports: [CommonModule, MaterialModule, RouterOutlet, MenuComponent],
+  imports: [
+    CommonModule, 
+    MatSidenavModule,
+    MatToolbarModule,
+    MatButtonModule,
+    MatIconModule,
+    MatGridListModule,
+    RouterOutlet, 
+    MenuComponent
+  ],
   templateUrl: './dashboard.container.component.html',
   styleUrl: './dashboard.container.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush // Use OnPush change detection strategy for better performance

@@ -1,5 +1,5 @@
 import { ApplicationConfig, provideZoneChangeDetection, isDevMode } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withPreloading } from '@angular/router';
 import {
   provideHttpClient,
   withInterceptors
@@ -12,14 +12,16 @@ import { provideTransloco } from '@ngneat/transloco';
 import { authInterceptorFn } from './core/auth/interceptors/auth-functional.interceptor';
 import { securityHeadersInterceptor } from './core/interceptors/security-headers.interceptor';
 import { errorHandlingInterceptor } from './core/interceptors/error-handling.interceptor';
+import { SelectivePreloadingStrategy } from './core/routing/selective-preloading.strategy';
+import { provideServiceWorker } from '@angular/service-worker';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     //  1) Detección de cambios con Zone.js
     provideZoneChangeDetection({ eventCoalescing: true }),
 
-    // 2) Enrutamiento
-    provideRouter(routes),
+    // 2) Enrutamiento con preloading selectivo
+    provideRouter(routes, withPreloading(SelectivePreloadingStrategy)),
 
     // 3) HttpClient con interceptores funcionales (orden importa)
     provideHttpClient(
@@ -43,6 +45,9 @@ export const appConfig: ApplicationConfig = {
         prodMode: !isDevMode()
       },
       loader: TranslocoHttpLoader
-    })
+    }), provideServiceWorker('ngsw-worker.js', {
+            enabled: !isDevMode(),
+            registrationStrategy: 'registerWhenStable:30000'
+          })
   ]
 };

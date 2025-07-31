@@ -34,6 +34,15 @@ export class AuthService {
   constructor() {
     this.loadAuthState();
     
+    // Configurar callback de logout para SessionTimeoutService
+    this.sessionTimeout.setLogoutCallback(() => this.logout());
+    
+    // Suscribirse a eventos de logout del SessionTimeout
+    this.sessionTimeout.logoutRequested$.subscribe(() => {
+      // Realizar logout silencioso (ya manejado por el callback)
+      console.log('Session timeout logout requested');
+    });
+    
     // Effect to sync with secure storage whenever auth state changes
     effect(() => {
       const state = this.authState();

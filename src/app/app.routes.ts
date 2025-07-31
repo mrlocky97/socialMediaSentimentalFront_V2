@@ -1,6 +1,4 @@
 import { Routes } from '@angular/router';
-import { LoginComponent } from './features/login/login.component';
-import { RegisterComponent } from './features/register/register.component';
 import { authGuard } from './core/auth/guard/auth.guard';
 
 export const routes: Routes = [
@@ -11,12 +9,12 @@ export const routes: Routes = [
     },
     {
         path: 'login',
-        component: LoginComponent,
+        loadComponent: () => import('./features/login/login.component').then(m => m.LoginComponent),
         title: 'Login - Sentimental Social'
     },
     {
         path: 'register',
-        component: RegisterComponent,
+        loadComponent: () => import('./features/register/register.component').then(m => m.RegisterComponent),
         title: 'Register - Sentimental Social'
     },
     {

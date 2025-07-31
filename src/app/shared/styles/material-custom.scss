@@ -1,0 +1,34 @@
+/* Custom lightweight Material theme */
+@use '@angular/material' as mat;
+
+// Include core styles
+@include mat.core();
+
+// Define custom palettes (más ligeras)
+$custom-primary: mat.m2-define-palette(mat.$m2-blue-grey-palette, 600);
+$custom-accent: mat.m2-define-palette(mat.$m2-teal-palette, A200);
+$custom-warn: mat.m2-define-palette(mat.$m2-red-palette);
+
+// Create theme with reduced density
+$custom-theme: mat.m2-define-light-theme((
+  color: (
+    primary: $custom-primary,
+    accent: $custom-accent,
+    warn: $custom-warn,
+  ),
+  typography: mat.m2-define-typography-config(),
+  density: -1, // More compact
+));
+
+// Only include styles for components we actually use
+@include mat.button-theme($custom-theme);
+@include mat.card-theme($custom-theme);
+@include mat.form-field-theme($custom-theme);
+@include mat.input-theme($custom-theme);
+@include mat.icon-theme($custom-theme);
+@include mat.toolbar-theme($custom-theme);
+@include mat.sidenav-theme($custom-theme);
+@include mat.list-theme($custom-theme);
+@include mat.snack-bar-theme($custom-theme);
+@include mat.progress-spinner-theme($custom-theme);
+@include mat.tooltip-theme($custom-theme);

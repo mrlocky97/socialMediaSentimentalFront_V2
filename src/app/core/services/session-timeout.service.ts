@@ -1,12 +1,11 @@
 import { Injectable, signal, inject, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
-import { AuthService } from '../auth/services/auth.service';
+import { Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SessionTimeoutService implements OnDestroy {
-  private authService = inject(AuthService);
   private router = inject(Router);
   
   // Configuración de timeout (en minutos)
@@ -16,6 +15,13 @@ export class SessionTimeoutService implements OnDestroy {
   private timeoutId: any;
   private warningTimeoutId: any;
   private lastActivity = signal<Date>(new Date());
+  
+  // Subject para emitir eventos de logout
+  private logoutRequested = new Subject<void>();
+  public logoutRequested$ = this.logoutRequested.asObservable();
+  
+  // Callback para logout personalizado
+  private logoutCallback?: () => void;
   
   // Events que resetean el timer
   private readonly ACTIVITY_EVENTS = [
@@ -40,6 +46,11 @@ export class SessionTimeoutService implements OnDestroy {
     console.log('🛑 Session timeout stopped');
     this.clearTimers();
     this.removeActivityListeners();
+  }
+
+  // Método para registrar callback de logout
+  setLogoutCallback(callback: () => void): void {
+    this.logoutCallback = callback;
   }
 
   private initActivityListeners(): void {
@@ -104,8 +115,13 @@ export class SessionTimeoutService implements OnDestroy {
     // Mostrar mensaje al usuario
     alert('Su sesión ha expirado por inactividad. Será redirigido al login.');
     
-    // Realizar logout
-    this.authService.logout();
+    // Llamar callback de logout si está registrado
+    if (this.logoutCallback) {
+      this.logoutCallback();
+    }
+    
+    // Emitir evento de logout
+    this.logoutRequested.next();
     
     // Detener el servicio
     this.stopSession();

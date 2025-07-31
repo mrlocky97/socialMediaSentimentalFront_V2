@@ -38,8 +38,12 @@
               {{ errorMessage() }}
             </div>
 
+            <div *ngIf="isLockedOut()" class="lockout-message">
+              🔒 Cuenta bloqueada por seguridad. Tiempo restante: {{ lockoutTimeRemaining() }} minutos
+            </div>
+
             <button mat-raised-button type="submit" class="full-width main-button"
-              [disabled]="loading() || loginForm.invalid" *transloco="let t">
+              [disabled]="loading() || loginForm.invalid || isLockedOut()" *transloco="let t">
               <mat-progress-spinner *ngIf="loading()" mode="indeterminate" diameter="20" class="spinner">
               </mat-progress-spinner>
               <span *ngIf="!loading()">{{ t('login.submit') }}</span>
