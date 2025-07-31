@@ -47,13 +47,106 @@ export class AuthService {
       password: credentials.password
     };
 
-    return this.http.post<LoginResponse>(`${environment.apiUrl}/api/v1/auth/login`, loginData)
+    return this.http.post<LoginResponse>(`${environment.apiUrl}/api/${environment.apiVersion}/auth/login`, loginData)
       .pipe(
         tap(response => {
-          this.setAuthState(response.access_token, credentials.username);
+          console.log('Login response:', response); // Debug log
+          console.log('Access token:', response.data.accessToken); // Debug log
+          this.setAuthState(response.data.accessToken, response.data.user, response.data.refreshToken);
+          console.log('Auth state updated, navigating to dashboard...'); // Debug log
         }),
         catchError(error => {
           console.error('Login error:', error);
+          return throwError(() => error);
+        })
+      );
+  }
+
+  register(userData: { email: string; password: string; firstName?: string; lastName?: string }): Observable<any> {
+    return this.http.post<any>(`${environment.apiUrl}/api/${environment.apiVersion}/auth/register`, userData)
+      .pipe(
+        catchError(error => {
+          console.error('Register error:', error);
+          return throwError(() => error);
+        })
+      );
+  }
+
+  logoutFromServer(): Observable<any> {
+    return this.http.post<any>(`${environment.apiUrl}/api/${environment.apiVersion}/auth/logout`, {})
+      .pipe(
+        tap(() => {
+          this.logout(); // Call local logout after server logout
+        }),
+        catchError(error => {
+          console.error('Server logout error:', error);
+          this.logout(); // Still logout locally even if server fails
+          return throwError(() => error);
+        })
+      );
+  }
+
+  refreshToken(): Observable<any> {
+    return this.http.post<any>(`${environment.apiUrl}/api/${environment.apiVersion}/auth/refresh`, {})
+      .pipe(
+        tap(response => {
+          if (response.data && response.data.accessToken) {
+            const currentUser = this.currentUser();
+            if (currentUser) {
+              this.setAuthState(response.data.accessToken, currentUser);
+            }
+          }
+        }),
+        catchError(error => {
+          console.error('Token refresh error:', error);
+          this.logout();
+          return throwError(() => error);
+        })
+      );
+  }
+
+  forgotPassword(email: string): Observable<any> {
+    return this.http.post<any>(`${environment.apiUrl}/api/${environment.apiVersion}/auth/forgot-password`, { email })
+      .pipe(
+        catchError(error => {
+          console.error('Forgot password error:', error);
+          return throwError(() => error);
+        })
+      );
+  }
+
+  resetPassword(token: string, newPassword: string): Observable<any> {
+    return this.http.post<any>(`${environment.apiUrl}/api/${environment.apiVersion}/auth/reset-password`, { 
+      token, 
+      newPassword 
+    })
+      .pipe(
+        catchError(error => {
+          console.error('Reset password error:', error);
+          return throwError(() => error);
+        })
+      );
+  }
+
+  changePassword(currentPassword: string, newPassword: string): Observable<any> {
+    return this.http.post<any>(`${environment.apiUrl}/api/${environment.apiVersion}/auth/change-password`, { 
+      currentPassword, 
+      newPassword 
+    })
+      .pipe(
+        catchError(error => {
+          console.error('Change password error:', error);
+          return throwError(() => error);
+        })
+      );
+  }
+
+  verifyToken(): Observable<any> {
+    return this.http.post<any>(`${environment.apiUrl}/api/${environment.apiVersion}/auth/verify-token`, {})
+      .pipe(
+        catchError(error => {
+          console.error('Token verification error:', error);
+          this.logout();
           return throwError(() => error);
         })
       );
@@ -70,18 +163,35 @@ export class AuthService {
     this.router.navigate(['/login']);
   }
 
-  private setAuthState(token: string, email: string): void {
+  private setAuthState(token: string, user: any, refreshToken?: string): void {
+    console.log('Setting auth state with token:', token); // Debug log
+    console.log('Setting auth state with user:', user); // Debug log
+    
     const userInfo: UserInfo = {
-      email,
-      username: email.split('@')[0],
-      role: 'user' // Esto se puede obtener del token decodificado si es necesario
+      email: user.email,
+      username: user.username,
+      role: user.role,
+      displayName: user.displayName,
+      id: user.id,
+      permissions: user.permissions
     };
 
+    // Guardar en localStorage
+    localStorage.setItem(this.TOKEN_KEY, token);
+    localStorage.setItem(this.USER_KEY, JSON.stringify(userInfo));
+    if (refreshToken) {
+      localStorage.setItem('refresh_token', refreshToken);
+    }
+    console.log('Saved to localStorage - Token:', localStorage.getItem(this.TOKEN_KEY)); // Debug log
+
+    // Actualizar el signal
     this.authState.set({
       isAuthenticated: true,
       user: userInfo,
       token
     });
+    
+    console.log('Auth state signal updated:', this.authState()); // Debug log
   }
 
   private loadAuthState(): void {

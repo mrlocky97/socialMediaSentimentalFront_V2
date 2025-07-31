@@ -9,7 +9,12 @@ export const authInterceptorFn: HttpInterceptorFn = (req: HttpRequest<unknown>, 
   const router = inject(Router);
 
   // List of URLs that don't require authentication
-  const publicUrls = ['/auth/login', '/auth/register', '/auth/forgot-password'];
+  const publicUrls = [
+    '/api/v1/auth/login', 
+    '/api/v1/auth/register', 
+    '/api/v1/auth/forgot-password',
+    '/api/v1/auth/reset-password'
+  ];
   const isPublicUrl = publicUrls.some(url => req.url.includes(url));
 
   let authReq = req;

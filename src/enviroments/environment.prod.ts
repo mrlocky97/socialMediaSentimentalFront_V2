@@ -1,4 +1,5 @@
 export const environment = {
   production: true,
-  apiUrl: 'http://127.0.0.1:300'
+  apiUrl: 'https://tu-backend-production.com',
+  apiVersion: 'v1'
 };
