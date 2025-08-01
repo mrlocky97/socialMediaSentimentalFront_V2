@@ -59,6 +59,13 @@ export const routes: Routes = [
             import('./features/campaign-wizard/campaign-wizard.component').then(c => c.CampaignWizardComponent),
         title: 'Campaign Wizard - Sentimental Social'
     },
+    {
+        path: 'rxjs-demo',
+        canActivate: [authGuard],
+        loadComponent: () => 
+            import('./features/rxjs-demo/rxjs-demo.component').then(c => c.RxjsDemoComponent),
+        title: 'RxJS Demo - Sentimental Social'
+    },
     { 
         path: '**', 
         loadComponent: () => 

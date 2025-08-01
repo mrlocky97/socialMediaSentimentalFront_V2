@@ -1,4 +1,4 @@
-import { Component, signal, computed } from '@angular/core';
+import { Component, signal, computed, inject, DestroyRef, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
 import { MatStepperModule } from '@angular/material/stepper';
@@ -9,7 +9,36 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatCardModule } from '@angular/material/card';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatChipsModule } from '@angular/material/chips';
 import { Router } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+
+// RxJS imports
+import { 
+  Observable, 
+  BehaviorSubject, 
+  Subject,
+  combineLatest,
+  merge,
+  of,
+  timer
+} from 'rxjs';
+import {
+  debounceTime,
+  distinctUntilChanged,
+  switchMap,
+  map,
+  filter,
+  startWith,
+  tap,
+  catchError,
+  shareReplay,
+  throttleTime,
+  take
+} from 'rxjs/operators';
+
+import { RxjsBaseService } from '../../core/services/rxjs-base.service';
 
 export interface CampaignStep {
   id: string;
@@ -50,7 +79,9 @@ export interface CampaignFormData {
     MatCheckboxModule,
     MatButtonModule,
     MatIconModule,
-    MatCardModule
+    MatCardModule,
+    MatProgressSpinnerModule,
+    MatChipsModule
   ],
   template: `
     <div class="campaign-wizard-container">
@@ -364,18 +395,47 @@ export interface CampaignFormData {
     }
   `]
 })
-export class CampaignWizardComponent {
-  private fb = new FormBuilder();
+export class CampaignWizardComponent implements OnInit {
+  // Dependency injection with modern Angular patterns
+  private readonly fb = inject(FormBuilder);
+  private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
+  private readonly rxjsService = inject(RxjsBaseService);
 
-  // Reactive state
+  // ================================
+  // REACTIVE STATE WITH SIGNALS
+  // ================================
+  
   currentStep = signal(0);
   isLoading = signal(false);
   validationErrors = signal<string[]>([]);
+  nameValidationStatus = signal<'idle' | 'checking' | 'valid' | 'invalid'>('idle');
+  autoSaveStatus = signal<'idle' | 'saving' | 'saved' | 'error'>('idle');
 
-  // Form groups
+  // ================================
+  // RXJS SUBJECTS FOR REACTIVE FLOWS
+  // ================================
+  
+  private readonly nameValidationSubject = new BehaviorSubject<string>('');
+  private readonly stepChangeSubject = new Subject<number>();
+  private readonly saveProgressSubject = new Subject<void>();
+
+  // ================================
+  // FORM GROUPS
+  // ================================
+  
   basicInfoForm: FormGroup;
   targetingForm: FormGroup;
   settingsForm: FormGroup;
+
+  // ================================
+  // REACTIVE STREAMS (INITIALIZED IN ngOnInit)
+  // ================================
+
+  nameValidation$!: Observable<{ name: string; isValid: boolean }>;
+  stepValidation$!: Observable<{ isValid: boolean; errors: string[] }>;
+  autoSave$!: Observable<boolean>;
+  formData$!: Observable<CampaignFormData>;
 
   // Steps configuration
   steps: CampaignStep[] = [
@@ -405,18 +465,26 @@ export class CampaignWizardComponent {
     }
   ];
 
-  // Computed properties
+  // ================================
+  // COMPUTED PROPERTIES
+  // ================================
+  
   canProceedToNext = computed(() => {
     const currentStepIndex = this.currentStep();
     switch (currentStepIndex) {
-      case 0: return this.basicInfoForm.valid;
-      case 1: return this.targetingForm.valid;
-      case 2: return this.settingsForm.valid;
+      case 0: return this.basicInfoForm?.valid && this.nameValidationStatus() !== 'invalid';
+      case 1: return this.targetingForm?.valid && this.hasValidTargeting();
+      case 2: return this.settingsForm?.valid;
       default: return false;
     }
   });
 
-  constructor(private router: Router) {
+  ngOnInit(): void {
+    this.setupReactiveStreams();
+    this.loadSavedProgress();
+  }
+
+  constructor() {
     // Initialize forms
     this.basicInfoForm = this.fb.group({
       name: ['', [Validators.required, Validators.minLength(3)]],
@@ -437,6 +505,202 @@ export class CampaignWizardComponent {
     });
 
     this.setupFormValidation();
+  }
+
+  // ================================
+  // REACTIVE SETUP METHODS
+  // ================================
+
+  private setupReactiveStreams(): void {
+    // Real-time name validation with debounce
+    this.nameValidation$ = this.nameValidationSubject.pipe(
+      debounceTime(500),
+      distinctUntilChanged(),
+      filter(name => name.length >= 3),
+      tap(() => this.nameValidationStatus.set('checking')),
+      switchMap(name => 
+        this.rxjsService.validateAsync(name, 'validate-campaign-name').pipe(
+          map(isValid => ({ name, isValid })),
+          catchError(() => of({ name, isValid: false }))
+        )
+      ),
+      tap(result => {
+        this.nameValidationStatus.set(result.isValid ? 'valid' : 'invalid');
+        if (!result.isValid) {
+          this.basicInfoForm.get('name')?.setErrors({ 'nameTaken': true });
+        } else {
+          // Clear name validation error if valid
+          const nameControl = this.basicInfoForm.get('name');
+          if (nameControl?.hasError('nameTaken')) {
+            const errors = { ...nameControl.errors };
+            delete errors['nameTaken'];
+            nameControl.setErrors(Object.keys(errors).length ? errors : null);
+          }
+        }
+      }),
+      shareReplay(1)
+    );
+
+    // Step validation streams
+    this.stepValidation$ = this.stepChangeSubject.pipe(
+      switchMap(stepIndex => this.validateStepAsync(stepIndex)),
+      tap(({ isValid, errors }) => {
+        if (!isValid) {
+          this.validationErrors.set(errors);
+        } else {
+          this.validationErrors.set([]);
+        }
+      })
+    );
+
+    // Auto-save progress every 30 seconds
+    this.autoSave$ = this.saveProgressSubject.pipe(
+      throttleTime(2000), // Prevent too frequent saves
+      tap(() => this.autoSaveStatus.set('saving')),
+      switchMap(() => this.saveFormProgress()),
+      tap(success => {
+        this.autoSaveStatus.set(success ? 'saved' : 'error');
+        // Reset status after 3 seconds
+        timer(3000).pipe(take(1)).subscribe(() => {
+          this.autoSaveStatus.set('idle');
+        });
+      }),
+      catchError(error => {
+        console.warn('Auto-save failed:', error);
+        this.autoSaveStatus.set('error');
+        return of(false);
+      })
+    );
+
+    // Combined form data stream
+    this.formData$ = combineLatest([
+      this.basicInfoForm.valueChanges.pipe(startWith(this.basicInfoForm.value)),
+      this.targetingForm.valueChanges.pipe(startWith(this.targetingForm.value)),
+      this.settingsForm.valueChanges.pipe(startWith(this.settingsForm.value))
+    ]).pipe(
+      map(([basic, targeting, settings]) => ({
+        basic,
+        targeting: {
+          hashtags: targeting.hashtags?.filter((h: string) => h.trim()) || [],
+          keywords: targeting.keywords?.filter((k: string) => k.trim()) || [],
+          mentions: targeting.mentions?.filter((m: string) => m.trim()) || []
+        },
+        settings
+      } as CampaignFormData)),
+      shareReplay(1)
+    );
+
+    // Subscribe to name changes for validation
+    this.basicInfoForm.get('name')?.valueChanges.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(name => {
+      if (name && name.length >= 3) {
+        this.nameValidationSubject.next(name);
+      }
+    });
+
+    // Subscribe to auto-save trigger
+    this.autoSave$.pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe();
+  }
+
+  private validateStepAsync(stepIndex: number): Observable<{ isValid: boolean; errors: string[] }> {
+    const errors: string[] = [];
+    let isValid = true;
+
+    switch (stepIndex) {
+      case 0:
+        if (!this.basicInfoForm.valid) {
+          isValid = false;
+          if (this.basicInfoForm.get('name')?.hasError('required')) {
+            errors.push('Campaign name is required');
+          }
+          if (this.basicInfoForm.get('name')?.hasError('minlength')) {
+            errors.push('Campaign name must be at least 3 characters');
+          }
+          if (this.basicInfoForm.get('description')?.hasError('required')) {
+            errors.push('Description is required');
+          }
+          if (this.basicInfoForm.get('type')?.hasError('required')) {
+            errors.push('Campaign type is required');
+          }
+        }
+        break;
+      case 1:
+        if (!this.hasValidTargeting()) {
+          isValid = false;
+          errors.push('At least one targeting option (hashtag, keyword, or mention) is required');
+        }
+        break;
+      case 2:
+        if (!this.settingsForm.valid) {
+          isValid = false;
+          if (this.settingsForm.get('startDate')?.hasError('required')) {
+            errors.push('Start date is required');
+          }
+          if (this.settingsForm.get('endDate')?.hasError('required')) {
+            errors.push('End date is required');
+          }
+          if (this.settingsForm.get('maxTweets')?.hasError('min')) {
+            errors.push('Maximum tweets must be at least 100');
+          }
+        }
+        break;
+    }
+
+    return of({ isValid, errors });
+  }
+
+  private saveFormProgress(): Observable<boolean> {
+    try {
+      const formData = {
+        basic: this.basicInfoForm.value,
+        targeting: this.targetingForm.value,
+        settings: this.settingsForm.value,
+        currentStep: this.currentStep(),
+        timestamp: new Date().toISOString()
+      };
+      
+      localStorage.setItem('campaign-wizard-progress', JSON.stringify(formData));
+      return of(true);
+    } catch (error) {
+      console.error('Failed to save progress:', error);
+      return of(false);
+    }
+  }
+
+  private loadSavedProgress(): void {
+    try {
+      const savedData = localStorage.getItem('campaign-wizard-progress');
+      if (savedData) {
+        const progress = JSON.parse(savedData);
+        
+        // Restore form values
+        if (progress.basic) {
+          this.basicInfoForm.patchValue(progress.basic);
+        }
+        if (progress.targeting) {
+          this.targetingForm.patchValue(progress.targeting);
+        }
+        if (progress.settings) {
+          this.settingsForm.patchValue(progress.settings);
+        }
+        
+        // Restore current step
+        if (progress.currentStep) {
+          this.currentStep.set(progress.currentStep);
+        }
+      }
+    } catch (error) {
+      console.warn('Failed to load saved progress:', error);
+    }
+  }
+
+  private hasValidTargeting(): boolean {
+    const hashtags = this.hashtags.value.filter((h: string) => h.trim()).length > 0;
+    const keywords = this.keywords.value.filter((k: string) => k.trim()).length > 0;
+    return hashtags || keywords;
   }
 
   private setupFormValidation(): void {

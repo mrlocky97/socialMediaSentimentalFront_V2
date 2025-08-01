@@ -67,7 +67,7 @@ import {
 
 // Open/Closed Principle - Extensible through configuration
 @Component({
-  selector: 'app-solid-data-table',
+  selector: 'app-solid-data-table-rxjs',
   standalone: true,
   imports: [
     CommonModule,
@@ -87,10 +87,213 @@ import {
     TableDataService,
     TableSelectionService
   ],
-  templateUrl: './solid-data-table.component.html',
-  styleUrl: './solid-data-table.component.css'
+  template: `
+    <div class="table-container">
+      <!-- Table Header with Controls -->
+      <div class="table-header" *ngIf="config.showSearch || hasFilters()">
+        <div class="search-controls">
+          <mat-form-field appearance="outline" *ngIf="config.showSearch">
+            <mat-label>Search</mat-label>
+            <input matInput 
+                   [value]="currentSearchTerm()"
+                   (input)="onSearchChange($event)"
+                   placeholder="Search in table...">
+            <mat-icon matSuffix>search</mat-icon>
+          </mat-form-field>
+          
+          <button mat-button 
+                  *ngIf="hasFilters()"
+                  (click)="clearAllFilters()"
+                  color="warn">
+            <mat-icon>clear</mat-icon>
+            Clear Filters
+          </button>
+        </div>
+
+        <!-- Table Stats -->
+        <div class="table-stats">
+          <span class="item-count">
+            {{ filteredItemCount() }} of {{ totalItemCount() }} items
+          </span>
+          <span class="selection-count" *ngIf="hasSelection()">
+            ({{ getSelectionCount() }} selected)
+          </span>
+        </div>
+      </div>
+
+      <!-- Loading Indicator -->
+      <div class="loading-container" *ngIf="isLoading()">
+        <mat-spinner diameter="40"></mat-spinner>
+        <span>Loading...</span>
+      </div>
+
+      <!-- Error Display -->
+      <div class="error-container" *ngIf="hasError()" class="error-message">
+        <mat-icon color="warn">error</mat-icon>
+        <span>{{ errorMessage() }}</span>
+        <button mat-button (click)="refreshData()" color="primary">
+          <mat-icon>refresh</mat-icon>
+          Retry
+        </button>
+      </div>
+
+      <!-- Data Table -->
+      <div class="table-wrapper" *ngIf="!isLoading() && !hasError()">
+        <table mat-table 
+               [dataSource]="getDataSource()" 
+               matSort
+               (matSortChange)="onSortChange($event)"
+               class="full-width">
+
+          <!-- Selection Column -->
+          <ng-container matColumnDef="select" *ngIf="config.showSelection">
+            <th mat-header-cell *matHeaderCellDef>
+              <mat-checkbox 
+                *ngIf="config.multiSelection"
+                [checked]="isAllSelected()"
+                [indeterminate]="isPartiallySelected()"
+                (change)="toggleAllSelection()">
+              </mat-checkbox>
+            </th>
+            <td mat-cell *matCellDef="let row">
+              <mat-checkbox 
+                [checked]="isRowSelected(row)"
+                (click)="$event.stopPropagation()"
+                (change)="toggleRowSelection(row)">
+              </mat-checkbox>
+            </td>
+          </ng-container>
+
+          <!-- Dynamic Data Columns -->
+          <ng-container *ngFor="let column of columns" [matColumnDef]="column.key">
+            <th mat-header-cell 
+                *matHeaderCellDef 
+                [mat-sort-header]="column.sortable !== false ? column.key : ''"
+                [style.width]="column.width"
+                [style.text-align]="column.align || 'left'">
+              {{ column.label }}
+            </th>
+            <td mat-cell 
+                *matCellDef="let element" 
+                [style.text-align]="column.align || 'left'"
+                (click)="onRowClick(element)">
+              {{ getFormattedValue(element, column) }}
+            </td>
+          </ng-container>
+
+          <!-- Actions Column -->
+          <ng-container matColumnDef="actions" *ngIf="actions.length > 0">
+            <th mat-header-cell *matHeaderCellDef>Actions</th>
+            <td mat-cell *matCellDef="let element">
+              <button mat-icon-button 
+                      *ngFor="let action of getVisibleActions(element)"
+                      [disabled]="isActionDisabled(action, element)"
+                      [color]="action.color"
+                      [title]="action.label"
+                      (click)="$event.stopPropagation(); executeAction(action, element)">
+                <mat-icon>{{ action.icon }}</mat-icon>
+              </button>
+            </td>
+          </ng-container>
+
+          <tr mat-header-row *matHeaderRowDef="displayedColumns()"></tr>
+          <tr mat-row 
+              *matRowDef="let row; columns: displayedColumns();"
+              [class.selected]="isRowSelected(row)"
+              (click)="onRowClick(row)">
+          </tr>
+        </table>
+
+        <!-- Paginator -->
+        <mat-paginator 
+          *ngIf="config.showPagination"
+          [length]="totalItemCount()"
+          [pageSize]="config.pageSize || 10"
+          [pageSizeOptions]="config.pageSizeOptions || [5, 10, 25, 50]"
+          (page)="onPageChange($event)"
+          showFirstLastButtons>
+        </mat-paginator>
+      </div>
+
+      <!-- Selection Actions Bar -->
+      <div class="selection-actions" *ngIf="hasSelection()">
+        <span>{{ getSelectionCount() }} items selected</span>
+        <button mat-button (click)="clearSelection()">Clear Selection</button>
+        <button mat-raised-button color="primary" (click)="exportData()">
+          <mat-icon>download</mat-icon>
+          Export Selected
+        </button>
+      </div>
+    </div>
+  `,
+  styles: [`
+    .table-container {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .table-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .search-controls {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .table-stats {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .loading-container, .error-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      padding: 32px;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+    }
+
+    .full-width {
+      width: 100%;
+    }
+
+    tr.mat-row:hover {
+      background-color: #f5f5f5;
+    }
+
+    tr.selected {
+      background-color: #e3f2fd;
+    }
+
+    .selection-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px;
+      background-color: #f0f0f0;
+      border-radius: 4px;
+    }
+
+    .error-message {
+      color: #f44336;
+    }
+  `]
 })
-export class SolidDataTableComponent<T = any> implements OnInit, AfterViewInit, OnChanges {
+export class SolidDataTableRxjsComponent<T = any> implements OnInit, AfterViewInit, OnChanges {
   // Dependency Injection - Services provided at component level
   private readonly dataService = inject(TableDataService<T>);
   private readonly selectionService = inject(TableSelectionService<T>);
@@ -141,17 +344,6 @@ export class SolidDataTableComponent<T = any> implements OnInit, AfterViewInit, 
   activeFilters = signal<Map<string, any>>(new Map());
   isRefreshing = signal<boolean>(false);
   lastRefreshTime = signal<Date | null>(null);
-  tableStats = signal<{
-    totalItems: number;
-    filteredItems: number;
-    selectedItems: number;
-    currentPage: number;
-  }>({
-    totalItems: 0,
-    filteredItems: 0,
-    selectedItems: 0,
-    currentPage: 0
-  });
 
   // ================================
   // REACTIVE STREAMS
@@ -162,7 +354,6 @@ export class SolidDataTableComponent<T = any> implements OnInit, AfterViewInit, 
     tap(state => {
       if (state) {
         this.stateChange.emit(state);
-        this.updateTableStats(state);
       }
     })
   );
@@ -171,7 +362,6 @@ export class SolidDataTableComponent<T = any> implements OnInit, AfterViewInit, 
   readonly selectionChanges$ = this.selectionService.getSelectionChange().pipe(
     tap(selection => {
       this.selectionChange.emit(selection);
-      this.updateSelectionStats(selection);
     })
   );
 
@@ -181,17 +371,6 @@ export class SolidDataTableComponent<T = any> implements OnInit, AfterViewInit, 
     tap(() => {
       this.isRefreshing.set(true);
       this.refreshData();
-    })
-  );
-
-  // Error handling stream
-  readonly errorHandling$ = of(this.dataService.error()).pipe(
-    filter(error => !!error),
-    tap(error => {
-      this.snackBar.open(`Table Error: ${error}`, 'Close', {
-        duration: 5000,
-        panelClass: ['error-snackbar']
-      });
     })
   );
 
@@ -308,24 +487,6 @@ export class SolidDataTableComponent<T = any> implements OnInit, AfterViewInit, 
     this.dataService.applyFilter(filterValue);
   }
 
-  onColumnFilterChange(column: string, value: any): void {
-    const newFilters = new Map(this.activeFilters());
-    if (value === null || value === undefined || value === '') {
-      newFilters.delete(column);
-    } else {
-      newFilters.set(column, value);
-    }
-    
-    this.activeFilters.set(newFilters);
-    this.dataService.applyColumnFilter(column, value);
-    
-    this.filterChange.emit({
-      column,
-      value,
-      type: 'text' // Could be determined by column configuration
-    });
-  }
-
   clearAllFilters(): void {
     this.currentSearchTerm.set('');
     this.activeFilters.set(new Map());
@@ -347,7 +508,6 @@ export class SolidDataTableComponent<T = any> implements OnInit, AfterViewInit, 
 
   onPageChange(event: PageEvent): void {
     this.pageChange.emit(event);
-    this.updatePageStats(event);
   }
 
   // Selection methods
@@ -388,7 +548,6 @@ export class SolidDataTableComponent<T = any> implements OnInit, AfterViewInit, 
 
   executeAction(action: TableAction<T>, item: T): void {
     if (action.confirm) {
-      // Could integrate with a confirmation dialog service
       const confirmed = confirm(`Are you sure you want to ${action.label.toLowerCase()}?`);
       if (!confirmed) return;
     }
@@ -409,7 +568,6 @@ export class SolidDataTableComponent<T = any> implements OnInit, AfterViewInit, 
   }
 
   exportData(): void {
-    // Could be extended to export filtered data
     const data = this.hasSelection() 
       ? this.getSelectedItems()
       : this.dataService.filteredData();
@@ -439,32 +597,5 @@ export class SolidDataTableComponent<T = any> implements OnInit, AfterViewInit, 
         takeUntilDestroyed(this.destroyRef)
       ).subscribe();
     }
-
-    // Subscribe to error handling
-    this.errorHandling$.pipe(
-      takeUntilDestroyed(this.destroyRef)
-    ).subscribe();
-  }
-
-  private updateTableStats(state: Partial<TableState<T>>): void {
-    this.tableStats.update(stats => ({
-      ...stats,
-      totalItems: state.data?.length || 0,
-      filteredItems: state.filteredData?.length || 0
-    }));
-  }
-
-  private updateSelectionStats(selection: SelectionEvent<T>): void {
-    this.tableStats.update(stats => ({
-      ...stats,
-      selectedItems: selection.selected.length
-    }));
-  }
-
-  private updatePageStats(pageEvent: PageEvent): void {
-    this.tableStats.update(stats => ({
-      ...stats,
-      currentPage: pageEvent.pageIndex
-    }));
   }
 }

@@ -54,6 +54,50 @@ ng e2e
 
 Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
 
+## 📚 Project Documentation
+
+All project documentation has been organized in the [`docs/`](./docs/) folder:
+
+### 🎯 **Quick Start:**
+- 📖 **[Complete Documentation Index](./docs/README.md)** - Start here for all documentation
+- ✨ **[RxJS Implementation Guide](./docs/RXJS_IMPLEMENTATION_COMPLETE.md)** - **Most Important!** Complete reactive architecture guide
+
+### 🚀 **Key Features Implemented:**
+- ✅ **Reactive Architecture with RxJS** - Complete implementation
+- ✅ **SOLID Data Table Component** - Advanced reactive table with filtering, sorting, pagination
+- ✅ **Enhanced UI/UX** - Modern, responsive design
+- ✅ **Security Improvements** - Authentication and data protection
+- ✅ **Clean Architecture** - Following SOLID principles
+
+### 📂 **Documentation Structure:**
+```
+docs/
+├── README.md                           # 📚 Documentation index
+├── RXJS_IMPLEMENTATION_COMPLETE.md     # ✨ Complete RxJS guide
+├── ARCHITECTURE_ANALYSIS.md            # 🏗️ Architecture overview
+├── IMPLEMENTACION_UX_RESUMEN.md        # 🎨 UX improvements
+└── [other documentation files...]
+```
+
+## 🛠️ **Enhanced Development Workflow**
+
+### Prerequisites
+- Node.js 18+
+- Angular CLI 19.2+
+- Material Design Components
+
+### Enhanced Scripts
+```bash
+# Start development server with auto-refresh
+npm run start
+
+# Run tests with coverage
+npm run test
+
+# Build for production
+npm run build
+```
+
 ## Additional Resources
 
 For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
