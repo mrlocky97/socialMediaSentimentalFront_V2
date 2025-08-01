@@ -21,7 +21,7 @@ export const routes: Routes = [
         path: 'dashboard',
         canActivate: [authGuard],
         loadChildren: () =>
-            import('./features/dashboard/dashboard.module').then(m => m.DashboardModule),
+            import('./features/dashboard/dashboard.routes').then(r => r.routes),
         title: 'Dashboard - Sentimental Social'
     },
     {

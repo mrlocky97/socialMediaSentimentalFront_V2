@@ -1,10 +1,13 @@
 import { Component } from '@angular/core';
-import { DashboardModule } from '../dashboard.module';
+import { CommonModule } from '@angular/common';
+import { MATERIAL_BASIC } from '../../../shared/material/material-imports';
 
 @Component({
   selector: 'app-home',
+  standalone: true,
   imports: [
-    DashboardModule
+    CommonModule,
+    ...MATERIAL_BASIC
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.css'

@@ -1,13 +1,9 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, HostListener, inject, signal, ViewChild } from '@angular/core';
 import { MediaMatcher } from '@angular/cdk/layout';
-import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatGridListModule } from '@angular/material/grid-list';
 import { RouterOutlet } from '@angular/router';
 import { MenuComponent } from "./menu/menu.component";
+import { MATERIAL_IMPORTS } from '../../shared/material/material-imports';
 
 export interface Tile {
   color: string;
@@ -21,13 +17,9 @@ export interface Tile {
   standalone: true,
   imports: [
     CommonModule, 
-    MatSidenavModule,
-    MatToolbarModule,
-    MatButtonModule,
-    MatIconModule,
-    MatGridListModule,
     RouterOutlet, 
-    MenuComponent
+    MenuComponent,
+    ...MATERIAL_IMPORTS
   ],
   templateUrl: './dashboard.container.component.html',
   styleUrl: './dashboard.container.component.css',
