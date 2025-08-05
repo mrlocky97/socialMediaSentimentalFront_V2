@@ -1,19 +1,19 @@
-import { ApplicationConfig, provideZoneChangeDetection, isDevMode } from '@angular/core';
-import { provideRouter, withPreloading } from '@angular/router';
 import {
   provideHttpClient,
   withInterceptors
 } from '@angular/common/http';
+import { ApplicationConfig, isDevMode, provideZoneChangeDetection } from '@angular/core';
 import { provideAnimations } from '@angular/platform-browser/animations';
+import { provideRouter, withPreloading } from '@angular/router';
 
-import { routes } from './app.routes';
-import { TranslocoHttpLoader } from './transloco-loader';
-import { provideTransloco } from '@ngneat/transloco';
-import { authInterceptorFn } from './core/auth/interceptors/auth-functional.interceptor';
-import { securityHeadersInterceptor } from './core/interceptors/security-headers.interceptor';
-import { errorHandlingInterceptor } from './core/interceptors/error-handling.interceptor';
-import { SelectivePreloadingStrategy } from './core/routing/selective-preloading.strategy';
 import { provideServiceWorker } from '@angular/service-worker';
+import { provideTransloco } from '@ngneat/transloco';
+import { routes } from './app.routes';
+import { authInterceptor } from './core/auth/interceptors/auth.interceptor';
+import { errorHandlingInterceptor } from './core/interceptors/error-handling.interceptor';
+import { securityHeadersInterceptor } from './core/interceptors/security-headers.interceptor';
+import { SelectivePreloadingStrategy } from './core/routing/selective-preloading.strategy';
+import { TranslocoHttpLoader } from './transloco-loader';
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -28,7 +28,7 @@ export const appConfig: ApplicationConfig = {
       withInterceptors([
         securityHeadersInterceptor,    // 1. Headers de seguridad
         errorHandlingInterceptor,      // 2. Manejo de errores
-        authInterceptorFn              // 3. Autenticación
+        authInterceptor              // 3. Autenticación
       ])
     ),
 
@@ -46,8 +46,8 @@ export const appConfig: ApplicationConfig = {
       },
       loader: TranslocoHttpLoader
     }), provideServiceWorker('ngsw-worker.js', {
-            enabled: !isDevMode(),
-            registrationStrategy: 'registerWhenStable:30000'
-          })
+      enabled: !isDevMode(),
+      registrationStrategy: 'registerWhenStable:30000'
+    })
   ]
 };

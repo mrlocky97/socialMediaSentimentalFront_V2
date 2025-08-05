@@ -1,56 +1,124 @@
-<section>
-  <div class="left">
-    <div class="container">
-      <img src="/img/cerebro.webp" alt="Logo" class="logo" />
-    </div>
-  </div>
-  <div class="right">
-    <div class="container">
-      <mat-card class="login-card">
-        <mat-card-header class="login-card-header">
-          <mat-card-title *transloco="let t"> {{ t('login.title') }} </mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
-            <mat-form-field appearance="outline" class="full-width" *transloco="let t">
-              <mat-label> {{ t('login.email') }} </mat-label>
-              <input matInput formControlName="email" type="email" autocomplete="username" />
-              <mat-error *ngIf="loginForm.get('email')?.hasError('required')">
-                {{ t('login.errors.required') }}
-              </mat-error>
-              <mat-error *ngIf="loginForm.get('email')?.hasError('email')">
-                {{ t('login.errors.email') }}
-              </mat-error>
+<div class="login-container">
+  <div class="login-card-wrapper">
+    <mat-card class="login-card">
+      <mat-card-header class="login-header">
+        <div class="logo-section">
+          <div class="custom-logo">
+            <svg viewBox="0 0 100 100" class="logo-svg">
+              <!-- Chart Bars -->
+              <rect x="15" y="70" width="12" height="25" rx="2" fill="currentColor" opacity="0.7" />
+              <rect x="35" y="50" width="12" height="45" rx="2" fill="currentColor" opacity="0.8" />
+              <rect x="55" y="60" width="12" height="35" rx="2" fill="currentColor" opacity="0.9" />
+              <rect x="75" y="35" width="12" height="60" rx="2" fill="currentColor" />
+
+              <!-- Trend Line -->
+              <path
+                d="M 21 82 Q 41 62 41 62 Q 61 72 61 72 Q 81 47 81 47"
+                stroke="currentColor"
+                stroke-width="2.5"
+                fill="none"
+                opacity="0.9"
+                stroke-linecap="round"
+              />
+
+              <!-- Data Points -->
+              <circle cx="21" cy="82" r="3" fill="currentColor" />
+              <circle cx="41" cy="62" r="3" fill="currentColor" />
+              <circle cx="61" cy="72" r="3" fill="currentColor" />
+              <circle cx="81" cy="47" r="3" fill="currentColor" />
+
+              <!-- Analytics Symbol -->
+              <g transform="translate(50, 20)">
+                <circle cx="0" cy="0" r="8" fill="none" stroke="currentColor" stroke-width="2" opacity="0.6" />
+                <path
+                  d="M -4,-2 L 0,2 L 4,-2"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  fill="none"
+                  stroke-linecap="round"
+                  opacity="0.8"
+                />
+              </g>
+            </svg>
+          </div>
+          <h1>SentimentalSocial</h1>
+          <p class="subtitle">Análisis de Sentimientos Empresarial</p>
+        </div>
+      </mat-card-header>
+
+      <mat-card-content class="login-content">
+        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+          <!-- Email Field -->
+          <div class="form-field-wrapper">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Email corporativo</mat-label>
+              <input
+                matInput
+                type="email"
+                formControlName="email"
+                placeholder="usuario@empresa.com"
+                autocomplete="email"
+              />
+              <mat-icon matSuffix>email</mat-icon>
+              <mat-error *ngIf="emailError">{{ emailError }}</mat-error>
             </mat-form-field>
+          </div>
 
-            <mat-form-field appearance="outline" class="full-width" *transloco="let t">
-              <mat-label> {{ t('login.password') }} </mat-label>
-              <input matInput formControlName="password" type="password" autocomplete="current-password" />
-              <mat-error *ngIf="loginForm.get('password')?.hasError('required')">
-                {{ t('login.errors.required') }}
-              </mat-error>
-              <mat-error *ngIf="loginForm.get('password')?.hasError('minlength')">
-                {{ t('login.errors.minlength') }}
-              </mat-error>
+          <!-- Password Field -->
+          <div class="form-field-wrapper">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Contraseña</mat-label>
+              <input
+                matInput
+                [type]="showPassword() ? 'text' : 'password'"
+                formControlName="password"
+                placeholder="Ingrese su contraseña"
+                autocomplete="current-password"
+              />
+              <button
+                mat-icon-button
+                matSuffix
+                type="button"
+                (click)="togglePasswordVisibility()"
+                [attr.aria-label]="'Mostrar contraseña'"
+                [attr.aria-pressed]="showPassword()"
+              >
+                <mat-icon>{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+              </button>
+              <mat-error *ngIf="passwordError">{{ passwordError }}</mat-error>
             </mat-form-field>
+          </div>
 
-            <div *ngIf="errorMessage()" class="error-message">
-              {{ errorMessage() }}
-            </div>
+          <!-- Submit Button -->
+          <button
+            mat-raised-button
+            color="primary"
+            type="submit"
+            class="login-button full-width"
+            [disabled]="!loginForm.valid || isLoading()"
+          >
+            <mat-spinner *ngIf="isLoading()" diameter="20" class="button-spinner"> </mat-spinner>
 
-            <div *ngIf="isLockedOut()" class="lockout-message">
-              🔒 Cuenta bloqueada por seguridad. Tiempo restante: {{ lockoutTimeRemaining() }} minutos
-            </div>
+            <span *ngIf="!isLoading()">Iniciar Sesión</span>
+            <span *ngIf="isLoading()">Iniciando sesión...</span>
+          </button>
+        </form>
+      </mat-card-content>
 
-            <button mat-raised-button type="submit" class="full-width main-button"
-              [disabled]="loading() || loginForm.invalid || isLockedOut()" *transloco="let t">
-              <mat-progress-spinner *ngIf="loading()" mode="indeterminate" diameter="20" class="spinner">
-              </mat-progress-spinner>
-              <span *ngIf="!loading()">{{ t('login.submit') }}</span>
-            </button>
-          </form>
-        </mat-card-content>
-      </mat-card>
-    </div>
+      <mat-card-actions class="login-actions">
+        <div class="action-links">
+          <button mat-button color="accent" (click)="navigateToRegister()" class="register-link">
+            ¿No tienes cuenta? Regístrate
+          </button>
+        </div>
+      </mat-card-actions>
+    </mat-card>
   </div>
-</section>
+
+  <!-- Background decoration -->
+  <div class="background-decoration">
+    <div class="decoration-circle circle-1"></div>
+    <div class="decoration-circle circle-2"></div>
+    <div class="decoration-circle circle-3"></div>
+  </div>
+</div>

@@ -1,16 +1,17 @@
-/* Definición de variables de tema y de sentimientos */
+/* =====================================
+   SENTIMENTAL SOCIAL - MAIN STYLES
+   Imports and Application-specific styles
+   ===================================== */
+
+/* Import Global Design System */
+@import './styles/globals.css';
+
+/* Import Angular Material Theme */
+@import '@angular/material/prebuilt-themes/indigo-pink.css';
+
+/* ===== APPLICATION-SPECIFIC VARIABLES ===== */
 :root {
-  /* Colores de Angular Material (puedes ajustarlos a tu preferencia) */
-  --primary-color: #3f51b5;
-  /* Indigo */
-  --accent-color: #e91e63;
-  /* Pink */
-  --warn-color: #f44336;
-  /* Red */
-  --white: #ffffff;
-  --gray: #808080;
-  /* Gray */
-  /* Variables para los estilos según el sentimiento */
+  /* Legacy Sentiment Colors - will be migrated to global system */
   --positive-bg: #e8f5e9;
   --positive-border: #66bb6a;
   --positive-text: #388e3c;
@@ -23,17 +24,19 @@
   --neutral-border: #90a4ae;
   --neutral-text: #607d8b;
 
-  /* Colores de applicación Wild Caribbean Green*/
-  --wild-green-uno: #F2FFFF;
-  --wild-green-dos: #BDFEFC;
-  --wild-green-tres: #86F9ED;
-  --wild-green-cuatro: #4EE9D1;
-  --wild-green-cinco: #1BCCA6;
-  --wild-green-seis: #09A378;
+  /* Wild Caribbean Green Palette - Legacy */
+  --wild-green-uno: #f2ffff;
+  --wild-green-dos: #bdfefc;
+  --wild-green-tres: #86f9ed;
+  --wild-green-cuatro: #4ee9d1;
+  --wild-green-cinco: #1bcca6;
+  --wild-green-seis: #09a378;
   --wild-green-siete: #027951;
   --wild-green-ocho: #005031;
   --wild-green-nueve: #002615;
 }
+
+/* ===== APPLICATION OVERRIDES ===== */
 
 /* Reset de box-sizing para que todos los elementos usen el mismo modelo de caja */
 html,
@@ -184,5 +187,5 @@ body {
 
 body {
   margin: 0;
-  font-family: Roboto, "Helvetica Neue", sans-serif;
+  font-family: Roboto, 'Helvetica Neue', sans-serif;
 }
