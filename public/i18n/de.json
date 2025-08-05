@@ -1,46 +1,59 @@
 {
-    "login": {
-        "title": "Anmelden",
-        "email": "E-Mail",
-        "password": "Passwort",
-        "submit": "Einloggen",
-        "errors": {
-            "required": "Dieses Feld ist erforderlich",
-            "email": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
-            "minlength": "Das Passwort muss mindestens 6 Zeichen lang sein"
-        }
-    },
-    "widget": {
-        "pending_tweets": {
-            "title": "Ausstehende Tweets",
-            "subtitle": "Tweets, die auf Genehmigung warten",
-            "loading": "Lade ausstehende Tweets...",
-            "refresh": "Aktualisieren",
-            "empty": "Derzeit keine ausstehenden Tweets.",
-            "error": "Fehler beim Laden der ausstehenden Tweets."
-        },
-        "approved_tweets": {
-            "title": "Genehmigte Tweets",
-            "subtitle": "Tweets, die genehmigt wurden",
-            "loading": "Lade genehmigte Tweets...",
-            "refresh": "Aktualisieren",
-            "empty": "Derzeit keine genehmigten Tweets.",
-            "error": "Fehler beim Laden der genehmigten Tweets."
-        },
-        "rejected_tweets": {
-            "title": "Abgelehnte Tweets",
-            "subtitle": "Tweets, die abgelehnt wurden",
-            "loading": "Lade abgelehnte Tweets...",
-            "refresh": "Aktualisieren",
-            "empty": "Derzeit keine abgelehnten Tweets.",
-            "error": "Fehler beim Laden der abgelehnten Tweets."
-        }
-    },
-    "shared": {
-        "table": {
-            "filter": "Filter",
-            "filter_placeholder": "Tabelle filtern...",
-            "no_data": "Keine Daten verfügbar"
-        }
+  "login": {
+    "app_name": "SentimentalSocial",
+    "subtitle": "Unternehmens-Sentiment-Analyse",
+    "title": "Anmelden",
+    "email": "Unternehmens-E-Mail",
+    "email_placeholder": "benutzer@unternehmen.com",
+    "password": "Passwort",
+    "password_placeholder": "Geben Sie Ihr Passwort ein",
+    "submit": "Anmelden",
+    "submitting": "Wird angemeldet...",
+    "register_link": "Kein Konto? Registrieren Sie sich",
+    "show_password": "Passwort anzeigen",
+    "hide_password": "Passwort ausblenden",
+    "welcome_message": "Willkommen {{name}}! Anmeldung läuft...",
+    "connection_error": "Verbindungsfehler. Bitte versuchen Sie es erneut.",
+    "too_many_attempts": "Zu viele fehlgeschlagene Versuche. Konto vorübergehend gesperrt.",
+    "attempts_remaining": "{{message}}. {{remaining}} Versuche verbleibend.",
+    "close": "Schließen",
+    "errors": {
+      "required": "Dieses Feld ist erforderlich",
+      "email": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
+      "minlength": "Das Passwort muss mindestens 6 Zeichen lang sein"
     }
+  },
+  "widget": {
+    "pending_tweets": {
+      "title": "Ausstehende Tweets",
+      "subtitle": "Tweets, die auf Genehmigung warten",
+      "loading": "Lade ausstehende Tweets...",
+      "refresh": "Aktualisieren",
+      "empty": "Derzeit keine ausstehenden Tweets.",
+      "error": "Fehler beim Laden der ausstehenden Tweets."
+    },
+    "approved_tweets": {
+      "title": "Genehmigte Tweets",
+      "subtitle": "Tweets, die genehmigt wurden",
+      "loading": "Lade genehmigte Tweets...",
+      "refresh": "Aktualisieren",
+      "empty": "Derzeit keine genehmigten Tweets.",
+      "error": "Fehler beim Laden der genehmigten Tweets."
+    },
+    "rejected_tweets": {
+      "title": "Abgelehnte Tweets",
+      "subtitle": "Tweets, die abgelehnt wurden",
+      "loading": "Lade abgelehnte Tweets...",
+      "refresh": "Aktualisieren",
+      "empty": "Derzeit keine abgelehnten Tweets.",
+      "error": "Fehler beim Laden der abgelehnten Tweets."
+    }
+  },
+  "shared": {
+    "table": {
+      "filter": "Filter",
+      "filter_placeholder": "Tabelle filtern...",
+      "no_data": "Keine Daten verfügbar"
+    }
+  }
 }

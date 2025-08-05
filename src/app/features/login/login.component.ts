@@ -9,6 +9,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
+import { TranslocoModule, TranslocoService } from '@ngneat/transloco';
 
 import { AuthService } from '../../core/auth/services/auth.service';
 
@@ -24,7 +25,8 @@ import { AuthService } from '../../core/auth/services/auth.service';
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    TranslocoModule
   ],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
@@ -34,6 +36,7 @@ export class LoginComponent implements OnInit {
   private authService = inject(AuthService);
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
+  private transloco = inject(TranslocoService);
 
   // Signals para estado del componente
   private _isLoading = signal(false);
@@ -54,10 +57,10 @@ export class LoginComponent implements OnInit {
   get emailError(): string | null {
     const emailControl = this.loginForm.get('email');
     if (emailControl?.hasError('required') && emailControl?.touched) {
-      return 'El email es requerido';
+      return this.transloco.translate('login.errors.required');
     }
     if (emailControl?.hasError('email') && emailControl?.touched) {
-      return 'Ingrese un email válido';
+      return this.transloco.translate('login.errors.email');
     }
     return null;
   }
@@ -65,10 +68,10 @@ export class LoginComponent implements OnInit {
   get passwordError(): string | null {
     const passwordControl = this.loginForm.get('password');
     if (passwordControl?.hasError('required') && passwordControl?.touched) {
-      return 'La contraseña es requerida';
+      return this.transloco.translate('login.errors.required');
     }
     if (passwordControl?.hasError('minlength') && passwordControl?.touched) {
-      return 'La contraseña debe tener al menos 6 caracteres';
+      return this.transloco.translate('login.errors.minlength');
     }
     return null;
   }
@@ -111,7 +114,8 @@ export class LoginComponent implements OnInit {
 
       if (user) {
         // Login exitoso
-        this.showSuccessMessage(`¡Bienvenido ${user.displayName}! Iniciando sesión...`);
+        const welcomeMessage = this.transloco.translate('login.welcome_message', { name: user.displayName });
+        this.showSuccessMessage(welcomeMessage);
 
         // Reset intentos
         this._loginAttempts.set(0);
@@ -127,7 +131,8 @@ export class LoginComponent implements OnInit {
 
     } catch (error: any) {
       console.error('Login error:', error);
-      this.handleLoginError(error?.message || 'Error de conexión. Intente nuevamente.');
+      const errorMessage = error?.message || this.transloco.translate('login.connection_error');
+      this.handleLoginError(errorMessage);
     } finally {
       this._isLoading.set(false);
     }
@@ -141,7 +146,8 @@ export class LoginComponent implements OnInit {
     // Verificar bloqueo temporal
     if (newAttempts >= 5) {
       this._isLockedOut.set(true);
-      this.showErrorMessage('Demasiados intentos fallidos. Cuenta bloqueada temporalmente.');
+      const lockoutMessage = this.transloco.translate('login.too_many_attempts');
+      this.showErrorMessage(lockoutMessage);
 
       // Desbloquear después de 15 minutos (900000 ms)
       setTimeout(() => {
@@ -151,7 +157,11 @@ export class LoginComponent implements OnInit {
 
     } else {
       const remainingAttempts = 5 - newAttempts;
-      this.showErrorMessage(`${message}. ${remainingAttempts} intentos restantes.`);
+      const errorMessage = this.transloco.translate('login.attempts_remaining', {
+        message: message,
+        remaining: remainingAttempts
+      });
+      this.showErrorMessage(errorMessage);
     }
 
     // Limpiar formulario en caso de error
@@ -159,7 +169,8 @@ export class LoginComponent implements OnInit {
   }
 
   private showSuccessMessage(message: string): void {
-    this.snackBar.open(message, 'Cerrar', {
+    const closeLabel = this.transloco.translate('login.close');
+    this.snackBar.open(message, closeLabel, {
       duration: 3000,
       horizontalPosition: 'center',
       verticalPosition: 'top',
@@ -168,7 +179,8 @@ export class LoginComponent implements OnInit {
   }
 
   private showErrorMessage(message: string): void {
-    this.snackBar.open(message, 'Cerrar', {
+    const closeLabel = this.transloco.translate('login.close');
+    this.snackBar.open(message, closeLabel, {
       duration: 5000,
       horizontalPosition: 'center',
       verticalPosition: 'top',

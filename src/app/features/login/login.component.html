@@ -41,8 +41,8 @@
               </g>
             </svg>
           </div>
-          <h1>SentimentalSocial</h1>
-          <p class="subtitle">Análisis de Sentimientos Empresarial</p>
+          <h1>{{ 'login.app_name' | transloco }}</h1>
+          <p class="subtitle">{{ 'login.subtitle' | transloco }}</p>
         </div>
       </mat-card-header>
 
@@ -51,12 +51,12 @@
           <!-- Email Field -->
           <div class="form-field-wrapper">
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Email corporativo</mat-label>
+              <mat-label>{{ 'login.email' | transloco }}</mat-label>
               <input
                 matInput
                 type="email"
                 formControlName="email"
-                placeholder="usuario@empresa.com"
+                [placeholder]="'login.email_placeholder' | transloco"
                 autocomplete="email"
               />
               <mat-icon matSuffix>email</mat-icon>
@@ -67,12 +67,12 @@
           <!-- Password Field -->
           <div class="form-field-wrapper">
             <mat-form-field appearance="outline" class="full-width">
-              <mat-label>Contraseña</mat-label>
+              <mat-label>{{ 'login.password' | transloco }}</mat-label>
               <input
                 matInput
                 [type]="showPassword() ? 'text' : 'password'"
                 formControlName="password"
-                placeholder="Ingrese su contraseña"
+                [placeholder]="'login.password_placeholder' | transloco"
                 autocomplete="current-password"
               />
               <button
@@ -80,7 +80,9 @@
                 matSuffix
                 type="button"
                 (click)="togglePasswordVisibility()"
-                [attr.aria-label]="'Mostrar contraseña'"
+                [attr.aria-label]="
+                  showPassword() ? ('login.hide_password' | transloco) : ('login.show_password' | transloco)
+                "
                 [attr.aria-pressed]="showPassword()"
               >
                 <mat-icon>{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
@@ -99,8 +101,8 @@
           >
             <mat-spinner *ngIf="isLoading()" diameter="20" class="button-spinner"> </mat-spinner>
 
-            <span *ngIf="!isLoading()">Iniciar Sesión</span>
-            <span *ngIf="isLoading()">Iniciando sesión...</span>
+            <span *ngIf="!isLoading()">{{ 'login.submit' | transloco }}</span>
+            <span *ngIf="isLoading()">{{ 'login.submitting' | transloco }}</span>
           </button>
         </form>
       </mat-card-content>
@@ -108,7 +110,7 @@
       <mat-card-actions class="login-actions">
         <div class="action-links">
           <button mat-button color="accent" (click)="navigateToRegister()" class="register-link">
-            ¿No tienes cuenta? Regístrate
+            {{ 'login.register_link' | transloco }}
           </button>
         </div>
       </mat-card-actions>

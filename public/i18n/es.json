@@ -1,46 +1,59 @@
 {
-    "login": {
-        "title": "Iniciar sesión",
-        "email": "Correo electrónico",
-        "password": "Contraseña",
-        "submit": "Entrar",
-        "errors": {
-            "required": "Este campo es obligatorio",
-            "email": "Por favor, introduce una dirección de correo electrónico válida",
-            "minlength": "La contraseña debe tener al menos 6 caracteres"
-        }
-    },
-    "widget": {
-        "pending_tweets": {
-            "title": "Tweets Pendientes",
-            "subtitle": "Tweets esperando aprobación",
-            "loading": "Cargando tweets pendientes...",
-            "refresh": "Recargar",
-            "empty": "No hay tweets pendientes en este momento.",
-            "error": "Error al cargar tweets pendientes."
-        },
-        "approved_tweets": {
-            "title": "Tweets Aprobados",
-            "subtitle": "Tweets que han sido aprobados",
-            "loading": "Cargando tweets aprobados...",
-            "refresh": "Recargar",
-            "empty": "No hay tweets aprobados en este momento.",
-            "error": "Error al cargar tweets aprobados."
-        },
-        "rejected_tweets": {
-            "title": "Tweets Rechazados",
-            "subtitle": "Tweets que han sido rechazados",
-            "loading": "Cargando tweets rechazados...",
-            "refresh": "Recargar",
-            "empty": "No hay tweets rechazados en este momento.",
-            "error": "Error al cargar tweets rechazados."
-        }
-    },
-    "shared": {
-        "table": {
-            "filter": "Filtrar",
-            "filter_placeholder": "Filtrar tabla...",
-            "no_data": "No hay datos disponibles"
-        }
+  "login": {
+    "app_name": "SentimentalSocial",
+    "subtitle": "Análisis de Sentimientos Empresarial",
+    "title": "Iniciar sesión",
+    "email": "Email corporativo",
+    "email_placeholder": "usuario@empresa.com",
+    "password": "Contraseña",
+    "password_placeholder": "Ingrese su contraseña",
+    "submit": "Iniciar Sesión",
+    "submitting": "Iniciando sesión...",
+    "register_link": "¿No tienes cuenta? Regístrate",
+    "show_password": "Mostrar contraseña",
+    "hide_password": "Ocultar contraseña",
+    "welcome_message": "¡Bienvenido {{name}}! Iniciando sesión...",
+    "connection_error": "Error de conexión. Intente nuevamente.",
+    "too_many_attempts": "Demasiados intentos fallidos. Cuenta bloqueada temporalmente.",
+    "attempts_remaining": "{{message}}. {{remaining}} intentos restantes.",
+    "close": "Cerrar",
+    "errors": {
+      "required": "Este campo es obligatorio",
+      "email": "Por favor, introduce una dirección de correo electrónico válida",
+      "minlength": "La contraseña debe tener al menos 6 caracteres"
     }
+  },
+  "widget": {
+    "pending_tweets": {
+      "title": "Tweets Pendientes",
+      "subtitle": "Tweets esperando aprobación",
+      "loading": "Cargando tweets pendientes...",
+      "refresh": "Recargar",
+      "empty": "No hay tweets pendientes en este momento.",
+      "error": "Error al cargar tweets pendientes."
+    },
+    "approved_tweets": {
+      "title": "Tweets Aprobados",
+      "subtitle": "Tweets que han sido aprobados",
+      "loading": "Cargando tweets aprobados...",
+      "refresh": "Recargar",
+      "empty": "No hay tweets aprobados en este momento.",
+      "error": "Error al cargar tweets aprobados."
+    },
+    "rejected_tweets": {
+      "title": "Tweets Rechazados",
+      "subtitle": "Tweets que han sido rechazados",
+      "loading": "Cargando tweets rechazados...",
+      "refresh": "Recargar",
+      "empty": "No hay tweets rechazados en este momento.",
+      "error": "Error al cargar tweets rechazados."
+    }
+  },
+  "shared": {
+    "table": {
+      "filter": "Filtrar",
+      "filter_placeholder": "Filtrar tabla...",
+      "no_data": "No hay datos disponibles"
+    }
+  }
 }

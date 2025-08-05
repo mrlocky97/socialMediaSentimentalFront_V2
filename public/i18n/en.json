@@ -1,44 +1,57 @@
 {
-    "login": {
-        "title": "Login",
-        "email": "Email",
-        "password": "Password",
-        "submit": "Log in",
-        "errors": {
-            "required": "This field is required",
-            "email": "Please enter a valid email address",
-            "minlength": "Password must be at least 6 characters long"
-        }
-    },
-    "widget": {
-        "pending_tweets":{
-           "title": "Pending Tweets",
-           "subtitle": "Tweets waiting for approval",
-           "loading": "Loading pending tweets...",
-           "refresh": "Refresh",
-           "empty": "No pending tweets at the moment.",
-           "error": "Error loading pending tweets."
-        },
-        "approved_tweets": {
-            "title": "Approved Tweets",
-            "subtitle": "Tweets that have been approved",
-            "loading": "Loading approved tweets...",
-            "refresh": "Refresh",
-            "empty": "No approved tweets at the moment.",
-            "error": "Error loading approved tweets."
-        },
-        "rejected_tweets": {
-            "title": "Rejected Tweets",
-            "subtitle": "Tweets that have been rejected",
-            "empty": "No rejected tweets at the moment.",
-            "error": "Error loading rejected tweets."
-        }
-    },
-    "shared": {
-        "table": {
-            "filter": "Filter",
-            "filter_placeholder": "Filter table...",
-            "no_data": "No data available"
-        }
+  "login": {
+    "app_name": "SentimentalSocial",
+    "subtitle": "Enterprise Sentiment Analysis",
+    "title": "Login",
+    "email": "Corporate Email",
+    "email_placeholder": "user@company.com",
+    "password": "Password",
+    "password_placeholder": "Enter your password",
+    "submit": "Sign In",
+    "submitting": "Signing in...",
+    "register_link": "Don't have an account? Sign up",
+    "show_password": "Show password",
+    "hide_password": "Hide password",
+    "welcome_message": "Welcome {{name}}! Signing in...",
+    "connection_error": "Connection error. Please try again.",
+    "too_many_attempts": "Too many failed attempts. Account temporarily locked.",
+    "attempts_remaining": "{{message}}. {{remaining}} attempts remaining.",
+    "close": "Close",
+    "errors": {
+      "required": "This field is required",
+      "email": "Please enter a valid email address",
+      "minlength": "Password must be at least 6 characters long"
     }
+  },
+  "widget": {
+    "pending_tweets": {
+      "title": "Pending Tweets",
+      "subtitle": "Tweets waiting for approval",
+      "loading": "Loading pending tweets...",
+      "refresh": "Refresh",
+      "empty": "No pending tweets at the moment.",
+      "error": "Error loading pending tweets."
+    },
+    "approved_tweets": {
+      "title": "Approved Tweets",
+      "subtitle": "Tweets that have been approved",
+      "loading": "Loading approved tweets...",
+      "refresh": "Refresh",
+      "empty": "No approved tweets at the moment.",
+      "error": "Error loading approved tweets."
+    },
+    "rejected_tweets": {
+      "title": "Rejected Tweets",
+      "subtitle": "Tweets that have been rejected",
+      "empty": "No rejected tweets at the moment.",
+      "error": "Error loading rejected tweets."
+    }
+  },
+  "shared": {
+    "table": {
+      "filter": "Filter",
+      "filter_placeholder": "Filter table...",
+      "no_data": "No data available"
+    }
+  }
 }

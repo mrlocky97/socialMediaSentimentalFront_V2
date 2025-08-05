@@ -1,46 +1,59 @@
 {
-    "login": {
-        "title": "Connexion",
-        "email": "E-mail",
-        "password": "Mot de passe",
-        "submit": "Se connecter",
-        "errors": {
-            "required": "Ce champ est requis",
-            "email": "Veuillez entrer une adresse e-mail valide",
-            "minlength": "Le mot de passe doit comporter au moins 6 caractères"
-        }
-    },
-    "widget": {
-        "pending_tweets": {
-            "title": "Tweets en attente",
-            "subtitle": "Tweets en attente d'approbation",
-            "loading": "Chargement des tweets en attente...",
-            "refresh": "Rafraîchir",
-            "empty": "Aucun tweet en attente pour le moment.",
-            "error": "Erreur lors du chargement des tweets en attente."
-        },
-        "approved_tweets": {
-            "title": "Tweets approuvés",
-            "subtitle": "Tweets approuvés",
-            "loading": "Chargement des tweets approuvés...",
-            "refresh": "Rafraîchir",
-            "empty": "Aucun tweet approuvé pour le moment.",
-            "error": "Erreur lors du chargement des tweets approuvés."
-        },
-        "rejected_tweets": {
-            "title": "Tweets rejetés",
-            "subtitle": "Tweets rejetés",
-            "loading": "Chargement des tweets rejetés...",
-            "refresh": "Rafraîchir",
-            "empty": "Aucun tweet rejeté pour le moment.",
-            "error": "Erreur lors du chargement des tweets rejetés."
-        }
-    },
-    "shared": {
-        "table": {
-            "filter": "Filtrer",
-            "filter_placeholder": "Filtrer la table...",
-            "no_data": "Aucune donnée disponible"
-        }
+  "login": {
+    "app_name": "SentimentalSocial",
+    "subtitle": "Analyse de Sentiment d'Entreprise",
+    "title": "Connexion",
+    "email": "Email corporatif",
+    "email_placeholder": "utilisateur@entreprise.com",
+    "password": "Mot de passe",
+    "password_placeholder": "Entrez votre mot de passe",
+    "submit": "Se connecter",
+    "submitting": "Connexion en cours...",
+    "register_link": "Pas de compte ? Inscrivez-vous",
+    "show_password": "Afficher le mot de passe",
+    "hide_password": "Masquer le mot de passe",
+    "welcome_message": "Bienvenue {{name}} ! Connexion en cours...",
+    "connection_error": "Erreur de connexion. Veuillez réessayer.",
+    "too_many_attempts": "Trop de tentatives échouées. Compte temporairement verrouillé.",
+    "attempts_remaining": "{{message}}. {{remaining}} tentatives restantes.",
+    "close": "Fermer",
+    "errors": {
+      "required": "Ce champ est requis",
+      "email": "Veuillez entrer une adresse e-mail valide",
+      "minlength": "Le mot de passe doit comporter au moins 6 caractères"
     }
+  },
+  "widget": {
+    "pending_tweets": {
+      "title": "Tweets en attente",
+      "subtitle": "Tweets en attente d'approbation",
+      "loading": "Chargement des tweets en attente...",
+      "refresh": "Rafraîchir",
+      "empty": "Aucun tweet en attente pour le moment.",
+      "error": "Erreur lors du chargement des tweets en attente."
+    },
+    "approved_tweets": {
+      "title": "Tweets approuvés",
+      "subtitle": "Tweets approuvés",
+      "loading": "Chargement des tweets approuvés...",
+      "refresh": "Rafraîchir",
+      "empty": "Aucun tweet approuvé pour le moment.",
+      "error": "Erreur lors du chargement des tweets approuvés."
+    },
+    "rejected_tweets": {
+      "title": "Tweets rejetés",
+      "subtitle": "Tweets rejetés",
+      "loading": "Chargement des tweets rejetés...",
+      "refresh": "Rafraîchir",
+      "empty": "Aucun tweet rejeté pour le moment.",
+      "error": "Erreur lors du chargement des tweets rejetés."
+    }
+  },
+  "shared": {
+    "table": {
+      "filter": "Filtrer",
+      "filter_placeholder": "Filtrer la table...",
+      "no_data": "Aucune donnée disponible"
+    }
+  }
 }
