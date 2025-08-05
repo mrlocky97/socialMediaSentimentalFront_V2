@@ -1,0 +1,353 @@
+<!-- =====================================
+     CAMPAIGN LIST COMPONENT TEMPLATE
+     Enterprise data table with advanced filtering
+     ===================================== -->
+
+<div class="campaign-list-container">
+  <!-- Header Section -->
+  <div class="campaign-header">
+    <div class="header-title">
+      <h1>{{ 'campaigns.title' | transloco }}</h1>
+      <p class="subtitle">{{ 'campaigns.subtitle' | transloco }}</p>
+    </div>
+
+    <div class="header-actions">
+      <button mat-raised-button color="primary" [routerLink]="['/campaigns/create']" class="create-button">
+        <mat-icon>add</mat-icon>
+        {{ 'campaigns.create' | transloco }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Filters Section -->
+  <mat-card class="filters-card">
+    <form [formGroup]="filterForm" class="filters-form">
+      <div class="filter-row">
+        <!-- Search -->
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-label>{{ 'campaigns.search' | transloco }}</mat-label>
+          <input matInput formControlName="search" [placeholder]="'campaigns.searchPlaceholder' | transloco" />
+          <mat-icon matSuffix>search</mat-icon>
+        </mat-form-field>
+
+        <!-- Status Filter -->
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'campaigns.status' | transloco }}</mat-label>
+          <mat-select formControlName="status" multiple>
+            <mat-option [value]="CampaignStatus.ACTIVE">
+              {{ 'campaigns.status.active' | transloco }}
+            </mat-option>
+            <mat-option [value]="CampaignStatus.PAUSED">
+              {{ 'campaigns.status.paused' | transloco }}
+            </mat-option>
+            <mat-option [value]="CampaignStatus.COMPLETED">
+              {{ 'campaigns.status.completed' | transloco }}
+            </mat-option>
+            <mat-option [value]="CampaignStatus.DRAFT">
+              {{ 'campaigns.status.draft' | transloco }}
+            </mat-option>
+            <mat-option [value]="CampaignStatus.SCHEDULED">
+              {{ 'campaigns.status.scheduled' | transloco }}
+            </mat-option>
+            <mat-option [value]="CampaignStatus.CANCELLED">
+              {{ 'campaigns.status.cancelled' | transloco }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Type Filter -->
+        <mat-form-field appearance="outline">
+          <mat-label>{{ 'campaigns.type' | transloco }}</mat-label>
+          <mat-select formControlName="type" multiple>
+            <mat-option [value]="CampaignType.BRAND_AWARENESS">
+              {{ 'campaigns.type.brandAwareness' | transloco }}
+            </mat-option>
+            <mat-option [value]="CampaignType.LEAD_GENERATION">
+              {{ 'campaigns.type.leadGeneration' | transloco }}
+            </mat-option>
+            <mat-option [value]="CampaignType.SALES_CONVERSION">
+              {{ 'campaigns.type.salesConversion' | transloco }}
+            </mat-option>
+            <mat-option [value]="CampaignType.ENGAGEMENT">
+              {{ 'campaigns.type.engagement' | transloco }}
+            </mat-option>
+            <mat-option [value]="CampaignType.TRAFFIC_DRIVE">
+              {{ 'campaigns.type.trafficDrive' | transloco }}
+            </mat-option>
+            <mat-option [value]="CampaignType.APP_PROMOTION">
+              {{ 'campaigns.type.appPromotion' | transloco }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+
+        <!-- Clear Filters Button -->
+        <button mat-stroked-button type="button" (click)="clearFilters()" class="clear-filters-btn">
+          <mat-icon>clear</mat-icon>
+          {{ 'campaigns.clearFilters' | transloco }}
+        </button>
+      </div>
+    </form>
+  </mat-card>
+
+  <!-- Bulk Actions -->
+  <div class="bulk-actions" *ngIf="hasSelectedCampaigns()">
+    <mat-card class="bulk-actions-card">
+      <div class="bulk-actions-content">
+        <span class="selected-count"> {{ selectedCampaigns().size }} {{ 'campaigns.selected' | transloco }} </span>
+
+        <div class="bulk-buttons">
+          <button mat-button (click)="bulkUpdateStatus(CampaignStatus.ACTIVE)">
+            <mat-icon>play_arrow</mat-icon>
+            {{ 'campaigns.actions.activate' | transloco }}
+          </button>
+
+          <button mat-button (click)="bulkUpdateStatus(CampaignStatus.PAUSED)">
+            <mat-icon>pause</mat-icon>
+            {{ 'campaigns.actions.pause' | transloco }}
+          </button>
+
+          <button mat-button color="warn">
+            <mat-icon>delete</mat-icon>
+            {{ 'campaigns.actions.delete' | transloco }}
+          </button>
+        </div>
+      </div>
+    </mat-card>
+  </div>
+
+  <!-- Data Table -->
+  <mat-card class="table-card">
+    <!-- Loading Spinner -->
+    <div class="loading-overlay" *ngIf="loading()">
+      <mat-spinner diameter="40"></mat-spinner>
+    </div>
+
+    <!-- Error Message -->
+    <div class="error-message" *ngIf="error()">
+      <mat-icon color="warn">error</mat-icon>
+      <span>{{ error() }}</span>
+    </div>
+
+    <!-- Table -->
+    <div class="table-container" *ngIf="!loading() && !error()">
+      <table mat-table [dataSource]="campaigns()" matSort class="campaigns-table">
+        <!-- Selection Column -->
+        <ng-container matColumnDef="select">
+          <th mat-header-cell *matHeaderCellDef>
+            <mat-checkbox
+              [checked]="isAllSelected()"
+              [indeterminate]="hasSelectedCampaigns() && !isAllSelected()"
+              (change)="toggleAllSelection()"
+            >
+            </mat-checkbox>
+          </th>
+          <td mat-cell *matCellDef="let campaign">
+            <mat-checkbox
+              [checked]="selectedCampaigns().has(campaign.id)"
+              (change)="toggleCampaignSelection(campaign.id)"
+            >
+            </mat-checkbox>
+          </td>
+        </ng-container>
+
+        <!-- Name Column -->
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            {{ 'campaigns.table.name' | transloco }}
+          </th>
+          <td mat-cell *matCellDef="let campaign">
+            <div class="campaign-name">
+              <strong [routerLink]="['/campaigns', campaign.id]">{{ campaign.name }}</strong>
+              <p class="campaign-description">{{ campaign.description }}</p>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Status Column -->
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            {{ 'campaigns.table.status' | transloco }}
+          </th>
+          <td mat-cell *matCellDef="let campaign">
+            <mat-chip-set>
+              <mat-chip [ngClass]="'status-' + getStatusColor(campaign.status)">
+                {{ 'campaigns.status.' + campaign.status | transloco }}
+              </mat-chip>
+            </mat-chip-set>
+          </td>
+        </ng-container>
+
+        <!-- Type Column -->
+        <ng-container matColumnDef="type">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            {{ 'campaigns.table.type' | transloco }}
+          </th>
+          <td mat-cell *matCellDef="let campaign">
+            {{ 'campaigns.type.' + campaign.type | transloco }}
+          </td>
+        </ng-container>
+
+        <!-- Platforms Column -->
+        <ng-container matColumnDef="platforms">
+          <th mat-header-cell *matHeaderCellDef>
+            {{ 'campaigns.table.platforms' | transloco }}
+          </th>
+          <td mat-cell *matCellDef="let campaign">
+            <div class="platform-icons">
+              <mat-icon
+                *ngFor="let platform of campaign.platforms"
+                [matTooltip]="'campaigns.platforms.' + platform | transloco"
+                class="platform-icon"
+              >
+                {{ getPlatformIcon(platform) }}
+              </mat-icon>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Budget Column -->
+        <ng-container matColumnDef="budget">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            {{ 'campaigns.table.budget' | transloco }}
+          </th>
+          <td mat-cell *matCellDef="let campaign">
+            <div class="budget-info">
+              <div class="budget-spent">
+                {{ formatCurrency(campaign.budget.spent, campaign.budget.currency) }}
+              </div>
+              <div class="budget-total">/ {{ formatCurrency(campaign.budget.total, campaign.budget.currency) }}</div>
+              <div class="budget-progress">
+                <mat-progress-bar mode="determinate" [value]="(campaign.budget.spent / campaign.budget.total) * 100">
+                </mat-progress-bar>
+              </div>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Performance Column -->
+        <ng-container matColumnDef="performance">
+          <th mat-header-cell *matHeaderCellDef>
+            {{ 'campaigns.table.performance' | transloco }}
+          </th>
+          <td mat-cell *matCellDef="let campaign">
+            <div class="performance-metrics">
+              <div class="metric">
+                <span class="metric-label">CTR:</span>
+                <span class="metric-value">{{ formatPercentage(campaign.metrics.ctr) }}</span>
+              </div>
+              <div class="metric">
+                <span class="metric-label">CPC:</span>
+                <span class="metric-value">{{ formatCurrency(campaign.metrics.cpc) }}</span>
+              </div>
+              <div class="metric">
+                <span class="metric-label">{{ 'campaigns.conversions' | transloco }}:</span>
+                <span class="metric-value">{{ campaign.metrics.conversions | number }}</span>
+              </div>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Timeline Column -->
+        <ng-container matColumnDef="timeline">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>
+            {{ 'campaigns.table.timeline' | transloco }}
+          </th>
+          <td mat-cell *matCellDef="let campaign">
+            <div class="timeline-info">
+              <div class="timeline-dates">
+                {{ campaign.timeline.startDate | date : 'shortDate' }} -
+                {{ campaign.timeline.endDate | date : 'shortDate' }}
+              </div>
+              <div class="timeline-duration">
+                <!-- Calculate and show remaining days -->
+              </div>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>
+            {{ 'campaigns.table.actions' | transloco }}
+          </th>
+          <td mat-cell *matCellDef="let campaign">
+            <button mat-icon-button [matMenuTriggerFor]="actionMenu">
+              <mat-icon>more_vert</mat-icon>
+            </button>
+
+            <mat-menu #actionMenu="matMenu">
+              <button mat-menu-item [routerLink]="['/campaigns', campaign.id]">
+                <mat-icon>visibility</mat-icon>
+                {{ 'campaigns.actions.view' | transloco }}
+              </button>
+
+              <button mat-menu-item [routerLink]="['/campaigns', campaign.id, 'edit']">
+                <mat-icon>edit</mat-icon>
+                {{ 'campaigns.actions.edit' | transloco }}
+              </button>
+
+              <button mat-menu-item (click)="duplicateCampaign(campaign)">
+                <mat-icon>content_copy</mat-icon>
+                {{ 'campaigns.actions.duplicate' | transloco }}
+              </button>
+
+              <mat-divider></mat-divider>
+
+              <button
+                mat-menu-item
+                *ngIf="campaign.status !== CampaignStatus.ACTIVE"
+                (click)="updateCampaignStatus(campaign.id, CampaignStatus.ACTIVE)"
+              >
+                <mat-icon>play_arrow</mat-icon>
+                {{ 'campaigns.actions.activate' | transloco }}
+              </button>
+
+              <button
+                mat-menu-item
+                *ngIf="campaign.status === CampaignStatus.ACTIVE"
+                (click)="updateCampaignStatus(campaign.id, CampaignStatus.PAUSED)"
+              >
+                <mat-icon>pause</mat-icon>
+                {{ 'campaigns.actions.pause' | transloco }}
+              </button>
+
+              <mat-divider></mat-divider>
+
+              <button mat-menu-item (click)="deleteCampaign(campaign.id)" class="delete-action">
+                <mat-icon>delete</mat-icon>
+                {{ 'campaigns.actions.delete' | transloco }}
+              </button>
+            </mat-menu>
+          </td>
+        </ng-container>
+
+        <!-- Table Header and Rows -->
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+      </table>
+
+      <!-- No Data State -->
+      <div class="no-data" *ngIf="campaigns().length === 0">
+        <mat-icon class="no-data-icon">campaign</mat-icon>
+        <h3>{{ 'campaigns.noData.title' | transloco }}</h3>
+        <p>{{ 'campaigns.noData.message' | transloco }}</p>
+        <button mat-raised-button color="primary" [routerLink]="['/campaigns/create']">
+          <mat-icon>add</mat-icon>
+          {{ 'campaigns.create' | transloco }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <mat-paginator
+      *ngIf="campaigns().length > 0"
+      [length]="totalCount()"
+      [pageSize]="pageSize()"
+      [pageIndex]="currentPage()"
+      [pageSizeOptions]="[5, 10, 25, 50, 100]"
+      (page)="onPageChange($event)"
+      showFirstLastButtons
+    >
+    </mat-paginator>
+  </mat-card>
+</div>

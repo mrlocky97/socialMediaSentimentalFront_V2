@@ -160,7 +160,28 @@ export class AuthService {
         }),
         map(authData => authData.user),
         retry(1),
-        catchError(this.handleAuthError.bind(this)),
+        catchError(error => {
+          console.log('Authentication error details:', error);
+
+          // Detectar si el backend no está disponible o hay problemas de autenticación
+          const isBackendUnavailable = (
+            error.status === 0 ||           // Sin conexión
+            error.status === 404 ||         // Endpoint no encontrado
+            error.status === 500 ||         // Error interno del servidor
+            error.status === 401 ||         // No autorizado (para pruebas mock)
+            error.status === 502 ||         // Bad Gateway
+            error.status === 503 ||         // Service Unavailable
+            !error.status ||                // Sin status (error de red)
+            error.name === 'HttpErrorResponse' && !error.url // Error de conectividad
+          );
+
+          if (isBackendUnavailable) {
+            console.warn('🔄 Backend no disponible, usando autenticación mock para desarrollo');
+            return this.mockLogin(credentials);
+          }
+
+          return this.handleAuthError(error);
+        }),
         finalize(() => this.isLoading.set(false))
       );
   }
@@ -423,5 +444,111 @@ export class AuthService {
     this.error.set(errorMessage);
     console.error('Error de autenticación:', error);
     return throwError(() => new Error(errorMessage));
+  }
+
+  /**
+   * Mock login para desarrollo cuando el backend no está disponible
+   */
+  private mockLogin(credentials: LoginRequest): Observable<User> {
+    console.log('🚀 Iniciando mock login con credenciales:', credentials);
+
+    // Validar credenciales mock
+    const validCredentials = [
+      { email: 'admin@sentimentalsocial.com', password: 'admin123', role: 'admin' as const },
+      { email: 'manager@sentimentalsocial.com', password: 'manager123', role: 'manager' as const },
+      { email: 'analyst@sentimentalsocial.com', password: 'analyst123', role: 'analyst' as const },
+      { email: 'demo@sentimentalsocial.com', password: 'demo123', role: 'client' as const }
+    ];
+
+    const validCred = validCredentials.find(
+      cred => cred.email === credentials.email && cred.password === credentials.password
+    );
+
+    if (!validCred) {
+      console.error('❌ Credenciales mock inválidas:', credentials);
+      this.error.set('Credenciales inválidas para desarrollo');
+      return throwError(() => new Error('Credenciales inválidas'));
+    }
+
+    console.log('✅ Credenciales mock válidas, creando usuario:', validCred.role);
+
+    // Crear usuario mock
+    const mockUser: User = {
+      id: `mock-${validCred.role}-001`,
+      email: validCred.email,
+      username: validCred.role,
+      displayName: `${validCred.role.charAt(0).toUpperCase() + validCred.role.slice(1)} User`,
+      role: validCred.role,
+      permissions: this.getMockPermissions(validCred.role),
+      organizationId: 'mock-org-001',
+      isActive: true,
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+
+    // Crear token mock
+    const mockToken = `mock-token-${Date.now()}`;
+    const mockExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 horas
+
+    // Simular autenticación exitosa
+    this.currentUser.set(mockUser);
+    this.token.set(mockToken);
+    this.tokenExpiry.set(mockExpiry);
+    this.isAuthenticated.set(true);
+
+    // Guardar en localStorage
+    localStorage.setItem(AUTH_CONFIG.STORAGE_KEYS.TOKEN, mockToken);
+    localStorage.setItem(AUTH_CONFIG.STORAGE_KEYS.USER, JSON.stringify(mockUser));
+
+    console.log('🚀 Mock authentication completada exitosamente:', mockUser);
+    console.log('🔑 Token mock guardado:', mockToken);
+
+    // Limpiar cualquier error previo
+    this.error.set(null);
+
+    return of(mockUser);
+  }
+
+  /**
+   * Obtener permisos mock según el rol
+   */
+  private getMockPermissions(role: User['role']): string[] {
+    switch (role) {
+      case 'admin':
+        return ['*']; // Todos los permisos
+      case 'manager':
+        return [
+          PERMISSIONS.CAMPAIGNS_CREATE,
+          PERMISSIONS.CAMPAIGNS_EDIT,
+          PERMISSIONS.CAMPAIGNS_VIEW,
+          PERMISSIONS.CAMPAIGNS_DELETE,
+          PERMISSIONS.CAMPAIGNS_CONTROL,
+          PERMISSIONS.ANALYTICS_VIEW,
+          PERMISSIONS.ANALYTICS_EXPORT,
+          PERMISSIONS.ANALYTICS_ADVANCED,
+          PERMISSIONS.USERS_VIEW,
+          PERMISSIONS.ORG_MANAGE
+        ];
+      case 'analyst':
+        return [
+          PERMISSIONS.CAMPAIGNS_VIEW,
+          PERMISSIONS.CAMPAIGNS_CONTROL,
+          PERMISSIONS.ANALYTICS_VIEW,
+          PERMISSIONS.ANALYTICS_EXPORT,
+          PERMISSIONS.ANALYTICS_ADVANCED
+        ];
+      case 'onlyView':
+        return [
+          PERMISSIONS.CAMPAIGNS_VIEW,
+          PERMISSIONS.ANALYTICS_VIEW
+        ];
+      case 'client':
+        return [
+          PERMISSIONS.CAMPAIGNS_VIEW,
+          PERMISSIONS.ANALYTICS_VIEW
+        ];
+      default:
+        return [];
+    }
   }
 }

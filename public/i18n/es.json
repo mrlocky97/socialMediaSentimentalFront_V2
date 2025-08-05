@@ -49,6 +49,180 @@
       "error": "Error al cargar tweets rechazados."
     }
   },
+  "campaigns": {
+    "title": "Gestión de Campañas",
+    "subtitle": "Administra tus campañas de marketing social",
+    "create": "Crear Campaña",
+    "search": "Buscar campañas",
+    "searchPlaceholder": "Buscar por nombre, descripción o etiquetas...",
+    "clearFilters": "Limpiar Filtros",
+    "selected": "seleccionadas",
+    "conversions": "Conversiones",
+    "status": {
+      "active": "Activa",
+      "paused": "Pausada",
+      "completed": "Completada",
+      "cancelled": "Cancelada",
+      "draft": "Borrador",
+      "scheduled": "Programada"
+    },
+    "type": {
+      "brandAwareness": "Conocimiento de Marca",
+      "leadGeneration": "Generación de Leads",
+      "salesConversion": "Conversión de Ventas",
+      "engagement": "Engagement",
+      "trafficDrive": "Tráfico Web",
+      "appPromotion": "Promoción de App"
+    },
+    "platforms": {
+      "twitter": "Twitter",
+      "facebook": "Facebook",
+      "instagram": "Instagram",
+      "linkedin": "LinkedIn",
+      "tiktok": "TikTok",
+      "youtube": "YouTube"
+    },
+    "table": {
+      "name": "Nombre",
+      "status": "Estado",
+      "type": "Tipo",
+      "platforms": "Plataformas",
+      "budget": "Presupuesto",
+      "performance": "Rendimiento",
+      "timeline": "Cronograma",
+      "actions": "Acciones"
+    },
+    "actions": {
+      "view": "Ver Detalles",
+      "edit": "Editar",
+      "duplicate": "Duplicar",
+      "activate": "Activar",
+      "pause": "Pausar",
+      "delete": "Eliminar"
+    },
+    "noData": {
+      "title": "No hay campañas creadas",
+      "message": "Comienza creando tu primera campaña de marketing social para gestionar tu presencia digital."
+    },
+    "summary": {
+      "title": "Resumen de Campañas",
+      "subtitle": "Métricas y rendimiento general",
+      "loading": "Cargando datos de campañas...",
+      "totalCampaigns": "Total de Campañas",
+      "activeCampaigns": "Campañas Activas",
+      "budgetOverview": "Resumen de Presupuesto",
+      "impressions": "Impresiones",
+      "conversions": "Conversiones",
+      "avgCTR": "CTR Promedio",
+      "avgROAS": "ROAS Promedio",
+      "recentCampaigns": "Campañas Recientes"
+    },
+    "viewAll": "Ver Todas las Campañas",
+    "wizard": {
+      "title": "Crear Nueva Campaña",
+      "subtitle": "Sigue estos pasos para crear tu campaña de marketing social",
+      "step": "Paso",
+      "of": "de",
+      "next": "Siguiente",
+      "previous": "Anterior",
+      "cancel": "Cancelar",
+      "create": "Crear Campaña",
+      "creating": "Creando campaña...",
+      "steps": {
+        "basicInfo": "Información Básica",
+        "basicInfoDesc": "Define el nombre, tipo y plataformas de tu campaña",
+        "targeting": "Audiencia",
+        "targetingDesc": "Configura a quién quieres llegar con tu campaña",
+        "budget": "Presupuesto y Cronograma",
+        "budgetDesc": "Establece el presupuesto y las fechas de tu campaña",
+        "content": "Contenido",
+        "contentDesc": "Crea el contenido publicitario y llamadas a la acción",
+        "review": "Revisión",
+        "reviewDesc": "Revisa todos los detalles antes de crear la campaña"
+      },
+      "basicInfo": {
+        "title": "Información General",
+        "name": "Nombre de la Campaña",
+        "namePlaceholder": "Ej: Campaña de Verano 2025",
+        "type": "Tipo de Campaña",
+        "description": "Descripción",
+        "descriptionPlaceholder": "Describe los objetivos y características de tu campaña...",
+        "tags": "Etiquetas",
+        "tagsPlaceholder": "marketing, verano, promocion",
+        "platforms": "Plataformas Sociales"
+      },
+      "platforms": {
+        "twitterDesc": "Ideal para conversaciones y noticias",
+        "facebookDesc": "Amplio alcance demográfico",
+        "instagramDesc": "Contenido visual atractivo",
+        "linkedinDesc": "Audiencia profesional y B2B",
+        "tiktokDesc": "Contenido viral y audiencia joven",
+        "youtubeDesc": "Videos de formato largo"
+      },
+      "targeting": {
+        "demographics": "Demografía",
+        "ageMin": "Edad Mínima",
+        "ageMax": "Edad Máxima",
+        "gender": "Género",
+        "genderAll": "Todos",
+        "genderMale": "Masculino",
+        "genderFemale": "Femenino",
+        "languages": "Idiomas",
+        "geographic": "Ubicación Geográfica",
+        "countries": "Países",
+        "interests": "Intereses",
+        "interestsPlaceholder": "tecnología, deportes, música, viajes..."
+      },
+      "budget": {
+        "title": "Configuración de Presupuesto",
+        "total": "Presupuesto Total",
+        "daily": "Presupuesto Diario",
+        "strategy": "Estrategia de Puja",
+        "automatic": "Automática",
+        "manual": "Manual",
+        "targetCPC": "CPC Objetivo",
+        "targetROAS": "ROAS Objetivo"
+      },
+      "timeline": {
+        "title": "Programación",
+        "startDate": "Fecha de Inicio",
+        "endDate": "Fecha de Fin"
+      },
+      "content": {
+        "creatives": "Creativos Publicitarios",
+        "creative": "Creativo",
+        "addCreative": "Agregar Creativo",
+        "creativeType": "Tipo de Creativo",
+        "image": "Imagen",
+        "video": "Video",
+        "carousel": "Carrusel",
+        "title": "Título",
+        "description": "Descripción",
+        "callToAction": "Llamada a la Acción",
+        "ctaText": "Texto del Botón",
+        "ctaUrl": "URL de Destino",
+        "adText": "Texto del Anuncio",
+        "hashtags": "Hashtags",
+        "hashtagsPlaceholder": "#marketing #social #campaña"
+      },
+      "review": {
+        "name": "Nombre",
+        "type": "Tipo",
+        "platforms": "Plataformas",
+        "budget": "Presupuesto",
+        "dailyBudget": "diario",
+        "timeline": "Duración",
+        "terms": "Acepto los términos y condiciones y las políticas de publicidad",
+        "startOptions": "Inicio de Campaña",
+        "startImmediately": "Iniciar inmediatamente",
+        "startScheduled": "Iniciar en fecha programada"
+      }
+    }
+  },
+  "dashboard": {
+    "welcome": "Bienvenido a SentimentalSocial",
+    "subtitle": "Plataforma de análisis de sentimientos en redes sociales"
+  },
   "shared": {
     "table": {
       "filter": "Filtrar",

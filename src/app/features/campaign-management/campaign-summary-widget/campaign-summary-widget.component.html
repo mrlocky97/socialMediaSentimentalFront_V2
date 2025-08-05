@@ -1,0 +1,131 @@
+<!-- =====================================
+     CAMPAIGN SUMMARY WIDGET TEMPLATE
+     Dashboard widget showing campaign overview
+     ===================================== -->
+
+<mat-card class="campaign-summary-widget">
+  <mat-card-header>
+    <div class="widget-header">
+      <div class="header-info">
+        <mat-card-title>{{ 'campaigns.summary.title' | transloco }}</mat-card-title>
+        <mat-card-subtitle>{{ 'campaigns.summary.subtitle' | transloco }}</mat-card-subtitle>
+      </div>
+      <button mat-icon-button [routerLink]="['/campaigns']" [attr.aria-label]="'campaigns.viewAll' | transloco">
+        <mat-icon>arrow_forward</mat-icon>
+      </button>
+    </div>
+  </mat-card-header>
+
+  <mat-card-content>
+    <div class="summary-metrics" *ngIf="!loading(); else loadingTemplate">
+      <!-- Top Metrics Row -->
+      <div class="metrics-row">
+        <div class="metric-card">
+          <div class="metric-icon">
+            <mat-icon>campaign</mat-icon>
+          </div>
+          <div class="metric-info">
+            <div class="metric-value">{{ summary().totalCampaigns }}</div>
+            <div class="metric-label">{{ 'campaigns.summary.totalCampaigns' | transloco }}</div>
+          </div>
+        </div>
+
+        <div class="metric-card">
+          <div class="metric-icon active">
+            <mat-icon>play_circle</mat-icon>
+          </div>
+          <div class="metric-info">
+            <div class="metric-value">{{ summary().activeCampaigns }}</div>
+            <div class="metric-label">{{ 'campaigns.summary.activeCampaigns' | transloco }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Budget Overview -->
+      <div class="budget-overview">
+        <div class="budget-header">
+          <span class="budget-title">{{ 'campaigns.summary.budgetOverview' | transloco }}</span>
+          <span class="budget-percentage">{{ getBudgetPercentage() }}%</span>
+        </div>
+        <mat-progress-bar mode="determinate" [value]="getBudgetPercentage()" class="budget-progress">
+        </mat-progress-bar>
+        <div class="budget-details">
+          <span class="budget-spent">{{ formatCurrency(summary().totalSpent) }}</span>
+          <span class="budget-total">/ {{ formatCurrency(summary().totalBudget) }}</span>
+        </div>
+      </div>
+
+      <!-- Performance Metrics -->
+      <div class="performance-metrics">
+        <div class="performance-item">
+          <mat-icon class="performance-icon">visibility</mat-icon>
+          <div class="performance-data">
+            <div class="performance-value">{{ formatNumber(summary().totalImpressions) }}</div>
+            <div class="performance-label">{{ 'campaigns.summary.impressions' | transloco }}</div>
+          </div>
+        </div>
+
+        <div class="performance-item">
+          <mat-icon class="performance-icon">trending_up</mat-icon>
+          <div class="performance-data">
+            <div class="performance-value">{{ summary().totalConversions }}</div>
+            <div class="performance-label">{{ 'campaigns.summary.conversions' | transloco }}</div>
+          </div>
+        </div>
+
+        <div class="performance-item">
+          <mat-icon class="performance-icon">mouse</mat-icon>
+          <div class="performance-data">
+            <div class="performance-value">{{ formatPercentage(summary().averageCTR) }}</div>
+            <div class="performance-label">{{ 'campaigns.summary.avgCTR' | transloco }}</div>
+          </div>
+        </div>
+
+        <div class="performance-item">
+          <mat-icon class="performance-icon">account_balance</mat-icon>
+          <div class="performance-data">
+            <div class="performance-value">{{ summary().averageROAS.toFixed(1) }}x</div>
+            <div class="performance-label">{{ 'campaigns.summary.avgROAS' | transloco }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Campaigns -->
+      <div class="recent-campaigns" *ngIf="recentCampaigns().length > 0">
+        <h4>{{ 'campaigns.summary.recentCampaigns' | transloco }}</h4>
+        <div class="campaign-list">
+          <div *ngFor="let campaign of recentCampaigns(); trackBy: trackByCampaignId" class="campaign-item">
+            <div class="campaign-info">
+              <div class="campaign-name">{{ campaign.name }}</div>
+              <div class="campaign-type">{{ 'campaigns.type.' + campaign.type | transloco }}</div>
+            </div>
+            <mat-chip-set>
+              <mat-chip [ngClass]="'status-' + getStatusColor(campaign.status)">
+                {{ 'campaigns.status.' + campaign.status | transloco }}
+              </mat-chip>
+            </mat-chip-set>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading Template -->
+    <ng-template #loadingTemplate>
+      <div class="loading-state">
+        <mat-icon class="loading-icon">hourglass_empty</mat-icon>
+        <p>{{ 'campaigns.summary.loading' | transloco }}</p>
+      </div>
+    </ng-template>
+  </mat-card-content>
+
+  <mat-card-actions>
+    <button mat-button [routerLink]="['/campaigns']">
+      <mat-icon>list</mat-icon>
+      {{ 'campaigns.viewAll' | transloco }}
+    </button>
+    <button mat-button [routerLink]="['/campaigns/create']" color="primary">
+      <mat-icon>add</mat-icon>
+      {{ 'campaigns.create' | transloco }}
+    </button>
+  </mat-card-actions>
+</mat-card>

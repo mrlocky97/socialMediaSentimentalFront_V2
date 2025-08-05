@@ -1,0 +1,509 @@
+<!-- =====================================
+     CAMPAIGN WIZARD TEMPLATE
+     Step-by-step campaign creation wizard
+     ===================================== -->
+
+<div class="campaign-wizard">
+  <div class="wizard-container">
+    <!-- Wizard Header -->
+    <div class="wizard-header">
+      <h1 class="title">{{ 'campaigns.wizard.title' | transloco }}</h1>
+      <p class="subtitle">{{ 'campaigns.wizard.subtitle' | transloco }}</p>
+
+      <div class="progress-info">
+        <span class="step-counter">
+          {{ 'campaigns.wizard.step' | transloco }} {{ currentStep() + 1 }} {{ 'campaigns.wizard.of' | transloco }}
+          {{ steps.length }}
+        </span>
+        <div class="total-progress">
+          <div class="progress-fill" [style.width.%]="((currentStep() + 1) / steps.length) * 100"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Stepper -->
+    <mat-card class="wizard-stepper">
+      <mat-stepper #stepper [selectedIndex]="currentStep()" orientation="horizontal" [linear]="false">
+        <!-- Step 1: Basic Information -->
+        <mat-step [stepControl]="basicInfoForm" [completed]="steps[0].completed">
+          <ng-template matStepLabel>{{ steps[0].label | transloco }}</ng-template>
+
+          <div class="step-content">
+            <h2 class="step-title">{{ steps[0].label | transloco }}</h2>
+            <p class="step-description">{{ steps[0].description | transloco }}</p>
+
+            <form [formGroup]="basicInfoForm">
+              <div class="form-section">
+                <h3 class="section-title">
+                  <mat-icon>info</mat-icon>
+                  {{ 'campaigns.wizard.basicInfo.title' | transloco }}
+                </h3>
+
+                <div class="form-grid">
+                  <mat-form-field>
+                    <mat-label>{{ 'campaigns.wizard.basicInfo.name' | transloco }}</mat-label>
+                    <input
+                      matInput
+                      formControlName="name"
+                      [placeholder]="'campaigns.wizard.basicInfo.namePlaceholder' | transloco"
+                    />
+                  </mat-form-field>
+
+                  <mat-form-field>
+                    <mat-label>{{ 'campaigns.wizard.basicInfo.type' | transloco }}</mat-label>
+                    <mat-select formControlName="type">
+                      <mat-option value="brandAwareness">{{ 'campaigns.type.brandAwareness' | transloco }}</mat-option>
+                      <mat-option value="leadGeneration">{{ 'campaigns.type.leadGeneration' | transloco }}</mat-option>
+                      <mat-option value="salesConversion">{{
+                        'campaigns.type.salesConversion' | transloco
+                      }}</mat-option>
+                      <mat-option value="engagement">{{ 'campaigns.type.engagement' | transloco }}</mat-option>
+                      <mat-option value="trafficDrive">{{ 'campaigns.type.trafficDrive' | transloco }}</mat-option>
+                      <mat-option value="appPromotion">{{ 'campaigns.type.appPromotion' | transloco }}</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field class="full-width">
+                    <mat-label>{{ 'campaigns.wizard.basicInfo.description' | transloco }}</mat-label>
+                    <textarea
+                      matInput
+                      formControlName="description"
+                      rows="3"
+                      [placeholder]="'campaigns.wizard.basicInfo.descriptionPlaceholder' | transloco"
+                    >
+                    </textarea>
+                  </mat-form-field>
+
+                  <mat-form-field class="full-width">
+                    <mat-label>{{ 'campaigns.wizard.basicInfo.tags' | transloco }}</mat-label>
+                    <input
+                      matInput
+                      formControlName="tags"
+                      [placeholder]="'campaigns.wizard.basicInfo.tagsPlaceholder' | transloco"
+                    />
+                  </mat-form-field>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <h3 class="section-title">
+                  <mat-icon>share</mat-icon>
+                  {{ 'campaigns.wizard.basicInfo.platforms' | transloco }}
+                </h3>
+
+                <div class="platform-selection">
+                  <div
+                    *ngFor="
+                      let platform of [
+                        { key: 'twitter', name: 'Twitter', desc: 'campaigns.wizard.platforms.twitterDesc' },
+                        { key: 'facebook', name: 'Facebook', desc: 'campaigns.wizard.platforms.facebookDesc' },
+                        { key: 'instagram', name: 'Instagram', desc: 'campaigns.wizard.platforms.instagramDesc' },
+                        { key: 'linkedin', name: 'LinkedIn', desc: 'campaigns.wizard.platforms.linkedinDesc' },
+                        { key: 'tiktok', name: 'TikTok', desc: 'campaigns.wizard.platforms.tiktokDesc' },
+                        { key: 'youtube', name: 'YouTube', desc: 'campaigns.wizard.platforms.youtubeDesc' }
+                      ]
+                    "
+                    class="platform-option"
+                    [class.selected]="basicInfoForm.get('platforms')?.value?.includes(platform.key)"
+                    (click)="togglePlatform(platform.key)"
+                  >
+                    <div class="platform-icon">
+                      <mat-icon>{{ getPlatformIcon(platform.key) }}</mat-icon>
+                    </div>
+                    <div class="platform-info">
+                      <div class="platform-name">{{ platform.name }}</div>
+                      <div class="platform-desc">{{ platform.desc | transloco }}</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </form>
+          </div>
+        </mat-step>
+
+        <!-- Step 2: Targeting -->
+        <mat-step [stepControl]="targetingForm" [completed]="steps[1].completed">
+          <ng-template matStepLabel>{{ steps[1].label | transloco }}</ng-template>
+
+          <div class="step-content">
+            <h2 class="step-title">{{ steps[1].label | transloco }}</h2>
+            <p class="step-description">{{ steps[1].description | transloco }}</p>
+
+            <form [formGroup]="targetingForm">
+              <div class="form-section">
+                <h3 class="section-title">
+                  <mat-icon>people</mat-icon>
+                  {{ 'campaigns.wizard.targeting.demographics' | transloco }}
+                </h3>
+
+                <div class="form-grid">
+                  <mat-form-field>
+                    <mat-label>{{ 'campaigns.wizard.targeting.ageMin' | transloco }}</mat-label>
+                    <input matInput type="number" formControlName="ageMin" min="13" max="100" />
+                  </mat-form-field>
+
+                  <mat-form-field>
+                    <mat-label>{{ 'campaigns.wizard.targeting.ageMax' | transloco }}</mat-label>
+                    <input matInput type="number" formControlName="ageMax" min="13" max="100" />
+                  </mat-form-field>
+
+                  <mat-form-field>
+                    <mat-label>{{ 'campaigns.wizard.targeting.gender' | transloco }}</mat-label>
+                    <mat-select formControlName="gender">
+                      <mat-option value="all">{{ 'campaigns.wizard.targeting.genderAll' | transloco }}</mat-option>
+                      <mat-option value="male">{{ 'campaigns.wizard.targeting.genderMale' | transloco }}</mat-option>
+                      <mat-option value="female">{{
+                        'campaigns.wizard.targeting.genderFemale' | transloco
+                      }}</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field>
+                    <mat-label>{{ 'campaigns.wizard.targeting.languages' | transloco }}</mat-label>
+                    <mat-select formControlName="languages" multiple>
+                      <mat-option value="en">English</mat-option>
+                      <mat-option value="es">Español</mat-option>
+                      <mat-option value="fr">Français</mat-option>
+                      <mat-option value="de">Deutsch</mat-option>
+                      <mat-option value="pt">Português</mat-option>
+                      <mat-option value="it">Italiano</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <h3 class="section-title">
+                  <mat-icon>location_on</mat-icon>
+                  {{ 'campaigns.wizard.targeting.geographic' | transloco }}
+                </h3>
+
+                <div class="form-grid">
+                  <mat-form-field class="full-width">
+                    <mat-label>{{ 'campaigns.wizard.targeting.countries' | transloco }}</mat-label>
+                    <mat-select formControlName="countries" multiple>
+                      <mat-option value="US">United States</mat-option>
+                      <mat-option value="CA">Canada</mat-option>
+                      <mat-option value="GB">United Kingdom</mat-option>
+                      <mat-option value="DE">Germany</mat-option>
+                      <mat-option value="FR">France</mat-option>
+                      <mat-option value="ES">Spain</mat-option>
+                      <mat-option value="IT">Italy</mat-option>
+                      <mat-option value="BR">Brazil</mat-option>
+                      <mat-option value="MX">Mexico</mat-option>
+                      <mat-option value="AR">Argentina</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <h3 class="section-title">
+                  <mat-icon>interests</mat-icon>
+                  {{ 'campaigns.wizard.targeting.interests' | transloco }}
+                </h3>
+
+                <div class="form-grid">
+                  <mat-form-field class="full-width">
+                    <mat-label>{{ 'campaigns.wizard.targeting.interestsPlaceholder' | transloco }}</mat-label>
+                    <input
+                      matInput
+                      formControlName="interests"
+                      [placeholder]="'campaigns.wizard.targeting.interestsPlaceholder' | transloco"
+                    />
+                  </mat-form-field>
+                </div>
+              </div>
+            </form>
+          </div>
+        </mat-step>
+
+        <!-- Step 3: Budget & Timeline -->
+        <mat-step [stepControl]="budgetForm" [completed]="steps[2].completed">
+          <ng-template matStepLabel>{{ steps[2].label | transloco }}</ng-template>
+
+          <div class="step-content">
+            <h2 class="step-title">{{ steps[2].label | transloco }}</h2>
+            <p class="step-description">{{ steps[2].description | transloco }}</p>
+
+            <form [formGroup]="budgetForm">
+              <div class="form-section">
+                <h3 class="section-title">
+                  <mat-icon>account_balance_wallet</mat-icon>
+                  {{ 'campaigns.wizard.budget.title' | transloco }}
+                </h3>
+
+                <div class="form-grid">
+                  <mat-form-field>
+                    <mat-label>{{ 'campaigns.wizard.budget.total' | transloco }}</mat-label>
+                    <input matInput type="number" formControlName="totalBudget" min="10" step="10" />
+                    <span matPrefix>$</span>
+                  </mat-form-field>
+
+                  <mat-form-field>
+                    <mat-label>{{ 'campaigns.wizard.budget.daily' | transloco }}</mat-label>
+                    <input matInput type="number" formControlName="dailyBudget" min="1" step="1" />
+                    <span matPrefix>$</span>
+                  </mat-form-field>
+
+                  <mat-form-field>
+                    <mat-label>{{ 'campaigns.wizard.budget.strategy' | transloco }}</mat-label>
+                    <mat-select formControlName="bidStrategy">
+                      <mat-option value="automatic">{{ 'campaigns.wizard.budget.automatic' | transloco }}</mat-option>
+                      <mat-option value="manual">{{ 'campaigns.wizard.budget.manual' | transloco }}</mat-option>
+                      <mat-option value="target_cpc">{{ 'campaigns.wizard.budget.targetCPC' | transloco }}</mat-option>
+                      <mat-option value="target_roas">{{
+                        'campaigns.wizard.budget.targetROAS' | transloco
+                      }}</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <h3 class="section-title">
+                  <mat-icon>schedule</mat-icon>
+                  {{ 'campaigns.wizard.timeline.title' | transloco }}
+                </h3>
+
+                <div class="form-grid">
+                  <mat-form-field>
+                    <mat-label>{{ 'campaigns.wizard.timeline.startDate' | transloco }}</mat-label>
+                    <input matInput [matDatepicker]="startPicker" formControlName="startDate" />
+                    <mat-datepicker-toggle matIconSuffix [for]="startPicker"></mat-datepicker-toggle>
+                    <mat-datepicker #startPicker></mat-datepicker>
+                  </mat-form-field>
+
+                  <mat-form-field>
+                    <mat-label>{{ 'campaigns.wizard.timeline.endDate' | transloco }}</mat-label>
+                    <input matInput [matDatepicker]="endPicker" formControlName="endDate" />
+                    <mat-datepicker-toggle matIconSuffix [for]="endPicker"></mat-datepicker-toggle>
+                    <mat-datepicker #endPicker></mat-datepicker>
+                  </mat-form-field>
+                </div>
+              </div>
+            </form>
+          </div>
+        </mat-step>
+
+        <!-- Step 4: Content -->
+        <mat-step [stepControl]="contentForm" [completed]="steps[3].completed">
+          <ng-template matStepLabel>{{ steps[3].label | transloco }}</ng-template>
+
+          <div class="step-content">
+            <h2 class="step-title">{{ steps[3].label | transloco }}</h2>
+            <p class="step-description">{{ steps[3].description | transloco }}</p>
+
+            <form [formGroup]="contentForm">
+              <div class="form-section">
+                <h3 class="section-title">
+                  <mat-icon>image</mat-icon>
+                  {{ 'campaigns.wizard.content.creatives' | transloco }}
+                </h3>
+
+                <div class="creative-list">
+                  <div
+                    *ngFor="let creative of creatives.controls; let i = index"
+                    class="creative-item"
+                    [formGroup]="getCreativeAt(i)"
+                  >
+                    <div class="creative-header">
+                      <span class="creative-title"
+                        >{{ 'campaigns.wizard.content.creative' | transloco }} {{ i + 1 }}</span
+                      >
+                      <button
+                        mat-icon-button
+                        class="remove-creative"
+                        (click)="removeCreative(i)"
+                        [disabled]="creatives.length <= 1"
+                      >
+                        <mat-icon>delete</mat-icon>
+                      </button>
+                    </div>
+
+                    <div class="creative-form">
+                      <mat-form-field>
+                        <mat-label>{{ 'campaigns.wizard.content.creativeType' | transloco }}</mat-label>
+                        <mat-select formControlName="type">
+                          <mat-option value="image">{{ 'campaigns.wizard.content.image' | transloco }}</mat-option>
+                          <mat-option value="video">{{ 'campaigns.wizard.content.video' | transloco }}</mat-option>
+                          <mat-option value="carousel">{{
+                            'campaigns.wizard.content.carousel' | transloco
+                          }}</mat-option>
+                        </mat-select>
+                      </mat-form-field>
+
+                      <mat-form-field>
+                        <mat-label>{{ 'campaigns.wizard.content.title' | transloco }}</mat-label>
+                        <input matInput formControlName="title" />
+                      </mat-form-field>
+
+                      <mat-form-field class="full-width">
+                        <mat-label>{{ 'campaigns.wizard.content.description' | transloco }}</mat-label>
+                        <textarea matInput formControlName="description" rows="2"></textarea>
+                      </mat-form-field>
+                    </div>
+                  </div>
+
+                  <div class="add-creative" (click)="addCreative()">
+                    <mat-icon>add</mat-icon>
+                    <span>{{ 'campaigns.wizard.content.addCreative' | transloco }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="form-section">
+                <h3 class="section-title">
+                  <mat-icon>link</mat-icon>
+                  {{ 'campaigns.wizard.content.callToAction' | transloco }}
+                </h3>
+
+                <div class="form-grid">
+                  <mat-form-field>
+                    <mat-label>{{ 'campaigns.wizard.content.ctaText' | transloco }}</mat-label>
+                    <input matInput formControlName="ctaText" />
+                  </mat-form-field>
+
+                  <mat-form-field>
+                    <mat-label>{{ 'campaigns.wizard.content.ctaUrl' | transloco }}</mat-label>
+                    <input matInput formControlName="ctaUrl" type="url" />
+                  </mat-form-field>
+
+                  <mat-form-field class="full-width">
+                    <mat-label>{{ 'campaigns.wizard.content.adText' | transloco }}</mat-label>
+                    <textarea matInput formControlName="adText" rows="3" maxlength="280"> </textarea>
+                    <mat-hint>{{ contentForm.get('adText')?.value?.length || 0 }}/280</mat-hint>
+                  </mat-form-field>
+
+                  <mat-form-field class="full-width">
+                    <mat-label>{{ 'campaigns.wizard.content.hashtags' | transloco }}</mat-label>
+                    <input
+                      matInput
+                      formControlName="hashtags"
+                      [placeholder]="'campaigns.wizard.content.hashtagsPlaceholder' | transloco"
+                    />
+                  </mat-form-field>
+                </div>
+              </div>
+            </form>
+          </div>
+        </mat-step>
+
+        <!-- Step 5: Review -->
+        <mat-step [stepControl]="reviewForm" [completed]="steps[4].completed">
+          <ng-template matStepLabel>{{ steps[4].label | transloco }}</ng-template>
+
+          <div class="step-content">
+            <h2 class="step-title">{{ steps[4].label | transloco }}</h2>
+            <p class="step-description">{{ steps[4].description | transloco }}</p>
+
+            <div class="review-section">
+              <div class="campaign-summary">
+                <div class="summary-item">
+                  <div class="summary-label">{{ 'campaigns.wizard.review.name' | transloco }}</div>
+                  <div class="summary-value">{{ basicInfoForm.get('name')?.value }}</div>
+                </div>
+
+                <div class="summary-item">
+                  <div class="summary-label">{{ 'campaigns.wizard.review.type' | transloco }}</div>
+                  <div class="summary-value">
+                    {{ 'campaigns.type.' + basicInfoForm.get('type')?.value | transloco }}
+                  </div>
+                </div>
+
+                <div class="summary-item">
+                  <div class="summary-label">{{ 'campaigns.wizard.review.platforms' | transloco }}</div>
+                  <div class="summary-value">
+                    <mat-chip-set>
+                      <mat-chip *ngFor="let platform of basicInfoForm.get('platforms')?.value">
+                        {{ 'campaigns.platforms.' + platform | transloco }}
+                      </mat-chip>
+                    </mat-chip-set>
+                  </div>
+                </div>
+
+                <div class="summary-item">
+                  <div class="summary-label">{{ 'campaigns.wizard.review.budget' | transloco }}</div>
+                  <div class="summary-value">
+                    ${{ budgetForm.get('totalBudget')?.value }} ({{
+                      'campaigns.wizard.review.dailyBudget' | transloco
+                    }}: ${{ budgetForm.get('dailyBudget')?.value }})
+                  </div>
+                </div>
+
+                <div class="summary-item">
+                  <div class="summary-label">{{ 'campaigns.wizard.review.timeline' | transloco }}</div>
+                  <div class="summary-value">
+                    {{ budgetForm.get('startDate')?.value | date }} - {{ budgetForm.get('endDate')?.value | date }}
+                  </div>
+                </div>
+              </div>
+
+              <form [formGroup]="reviewForm">
+                <div class="terms-section">
+                  <div class="terms-checkbox">
+                    <mat-checkbox formControlName="agreedToTerms">
+                      {{ 'campaigns.wizard.review.terms' | transloco }}
+                    </mat-checkbox>
+                  </div>
+                </div>
+
+                <mat-form-field>
+                  <mat-label>{{ 'campaigns.wizard.review.startOptions' | transloco }}</mat-label>
+                  <mat-select formControlName="immediateStart">
+                    <mat-option [value]="true">{{ 'campaigns.wizard.review.startImmediately' | transloco }}</mat-option>
+                    <mat-option [value]="false">{{ 'campaigns.wizard.review.startScheduled' | transloco }}</mat-option>
+                  </mat-select>
+                </mat-form-field>
+              </form>
+            </div>
+          </div>
+        </mat-step>
+      </mat-stepper>
+    </mat-card>
+
+    <!-- Navigation Actions -->
+    <div class="wizard-actions">
+      <div class="left-actions">
+        <button mat-button class="nav-button danger" (click)="cancel()">
+          {{ 'campaigns.wizard.cancel' | transloco }}
+        </button>
+      </div>
+
+      <div class="right-actions">
+        <button mat-button class="nav-button secondary" (click)="previousStep()" [disabled]="currentStep() === 0">
+          {{ 'campaigns.wizard.previous' | transloco }}
+        </button>
+
+        <button
+          mat-raised-button
+          class="nav-button primary"
+          (click)="nextStep()"
+          [disabled]="!isCurrentStepValid()"
+          *ngIf="currentStep() < steps.length - 1"
+        >
+          {{ 'campaigns.wizard.next' | transloco }}
+        </button>
+
+        <button
+          mat-raised-button
+          class="nav-button primary"
+          (click)="submitCampaign()"
+          [disabled]="!isAllStepsValid() || isSubmitting()"
+          *ngIf="currentStep() === steps.length - 1"
+        >
+          <mat-icon *ngIf="isSubmitting()">hourglass_empty</mat-icon>
+          {{ isSubmitting() ? ('campaigns.wizard.creating' | transloco) : ('campaigns.wizard.create' | transloco) }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" *ngIf="isSubmitting()">
+    <div class="loading-content">
+      <mat-icon>hourglass_empty</mat-icon>
+      <div class="loading-text">{{ 'campaigns.wizard.creating' | transloco }}</div>
+    </div>
+  </div>
+</div>

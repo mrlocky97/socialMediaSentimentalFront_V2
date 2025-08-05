@@ -9,15 +9,21 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
+import { Router, RouterModule } from '@angular/router';
+import { TranslocoModule } from '@ngneat/transloco';
 
 import { AuthService, User } from '../../../core/auth/services/auth.service';
 import { Campaign, MarketingInsights, ScrapingStatus, SentimentAnalysisService } from '../../../core/services/sentiment-analysis.service';
+import { CampaignSummaryWidgetComponent } from '../../campaign-management/campaign-summary-widget/campaign-summary-widget.component';
+import { PendingTweetWidgetComponent } from '../../pending-tweet-widget/pending-tweet-widget.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
   imports: [
     CommonModule,
+    RouterModule,
+    TranslocoModule,
     MatCardModule,
     MatIconModule,
     MatButtonModule,
@@ -25,7 +31,9 @@ import { Campaign, MarketingInsights, ScrapingStatus, SentimentAnalysisService }
     MatChipsModule,
     MatTabsModule,
     MatGridListModule,
-    MatDividerModule
+    MatDividerModule,
+    CampaignSummaryWidgetComponent,
+    PendingTweetWidgetComponent
   ],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
@@ -34,6 +42,7 @@ export class HomeComponent implements OnInit {
   private authService = inject(AuthService);
   private sentimentService = inject(SentimentAnalysisService);
   private snackBar = inject(MatSnackBar);
+  private router = inject(Router);
 
   // Signals para estado del componente
   private _isLoading = signal(false);
@@ -87,21 +96,59 @@ export class HomeComponent implements OnInit {
     return user && ['admin', 'manager'].includes(user.role);
   });
 
+  // Additional computed properties for dashboard metrics
+  avgSentiment = computed(() => {
+    const campaigns = this.campaigns();
+    if (!campaigns || campaigns.length === 0) return 0;
+    const sum = campaigns.reduce((acc, campaign) => acc + (campaign.stats?.averageSentiment || 0), 0);
+    return sum / campaigns.length;
+  });
+
+  totalEngagement = computed(() => {
+    const campaigns = this.campaigns();
+    if (!campaigns || campaigns.length === 0) return 0;
+    return campaigns.reduce((acc, campaign) => acc + (campaign.stats?.totalEngagement || 0), 0);
+  });
+
+  positiveSentiment = computed(() => {
+    const campaigns = this.campaigns();
+    if (!campaigns || campaigns.length === 0) return 0;
+    const sum = campaigns.reduce((acc, campaign) =>
+      acc + (campaign.stats?.sentimentDistribution?.positive || 0), 0);
+    return sum / campaigns.length;
+  });
+
+  neutralSentiment = computed(() => {
+    const campaigns = this.campaigns();
+    if (!campaigns || campaigns.length === 0) return 0;
+    const sum = campaigns.reduce((acc, campaign) =>
+      acc + (campaign.stats?.sentimentDistribution?.neutral || 0), 0);
+    return sum / campaigns.length;
+  });
+
+  negativeSentiment = computed(() => {
+    const campaigns = this.campaigns();
+    if (!campaigns || campaigns.length === 0) return 0;
+    const sum = campaigns.reduce((acc, campaign) =>
+      acc + (campaign.stats?.sentimentDistribution?.negative || 0), 0);
+    return sum / campaigns.length;
+  });
+
+  constructor() {
+    // Initialize effect in constructor (injection context)
+    effect(() => {
+      const user = this.authService.currentUser();
+      this._currentUser.set(user);
+    });
+  }
+
   ngOnInit(): void {
-    this.loadCurrentUser();
     this.loadDashboardData();
 
     // Auto-refresh every 30 seconds
     setInterval(() => {
       this.refreshScrapingStatus();
     }, 30000);
-  }
-
-  private loadCurrentUser(): void {
-    effect(() => {
-      const user = this.authService.currentUser();
-      this._currentUser.set(user);
-    });
   }
 
   private async loadDashboardData(): Promise<void> {
@@ -195,8 +242,14 @@ export class HomeComponent implements OnInit {
 
   // UI Action Methods
   async onCreateCampaign(): Promise<void> {
-    // Navigate to campaign creation - will implement in next step
-    this.showInfo('Funcionalidad de creación de campañas próximamente');
+    try {
+      // Navigate to campaign wizard
+      await this.router.navigate(['/dashboard/campaigns/wizard']);
+      this.showInfo('Navegando al creador de campañas...');
+    } catch (error) {
+      console.error('Error navigating to campaign wizard:', error);
+      this.showError('Error al navegar al creador de campañas');
+    }
   }
 
   async onRefreshData(): Promise<void> {

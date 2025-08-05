@@ -1,44 +1,44 @@
-import { Component, signal, computed, inject, DestroyRef, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ReactiveFormsModule, FormBuilder, FormGroup, Validators, FormArray } from '@angular/forms';
-import { MatStepperModule } from '@angular/material/stepper';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatCardModule } from '@angular/material/card';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatChipsModule } from '@angular/material/chips';
-import { Router } from '@angular/router';
+import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormArray, FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
+import { MatStepperModule } from '@angular/material/stepper';
+import { Router } from '@angular/router';
 
 // RxJS imports
-import { 
-  Observable, 
-  BehaviorSubject, 
+import {
+  BehaviorSubject,
+  Observable,
   Subject,
   combineLatest,
-  merge,
   of,
   timer
 } from 'rxjs';
 import {
+  catchError,
   debounceTime,
   distinctUntilChanged,
-  switchMap,
-  map,
   filter,
-  startWith,
-  tap,
-  catchError,
+  map,
   shareReplay,
-  throttleTime,
-  take
+  startWith,
+  switchMap,
+  take,
+  tap,
+  throttleTime
 } from 'rxjs/operators';
 
 import { RxjsBaseService } from '../../core/services/rxjs-base.service';
+import { CampaignWizardService } from './services/campaign-wizard.service';
 
 export interface CampaignStep {
   id: string;
@@ -96,11 +96,11 @@ export interface CampaignFormData {
 
       <!-- Stepper -->
       <mat-stepper #stepper [selectedIndex]="currentStep()" orientation="horizontal" linear>
-        
+
         <!-- Step 1: Basic Information -->
         <mat-step [completed]="steps[0].isCompleted">
           <ng-template matStepLabel>{{ steps[0].title }}</ng-template>
-          
+
           <div class="step-content">
             <h2>{{ steps[0].title }}</h2>
             <p>{{ steps[0].description }}</p>
@@ -136,14 +136,14 @@ export interface CampaignFormData {
         <!-- Step 2: Targeting Setup -->
         <mat-step [completed]="steps[1].isCompleted">
           <ng-template matStepLabel>{{ steps[1].title }}</ng-template>
-          
+
           <div class="step-content">
             <h2>{{ steps[1].title }}</h2>
             <p>{{ steps[1].description }}</p>
 
             <form [formGroup]="targetingForm" class="step-form">
               <div class="targeting-grid">
-                
+
                 <!-- Hashtags -->
                 <mat-card>
                   <mat-card-header>
@@ -201,7 +201,7 @@ export interface CampaignFormData {
         <!-- Step 3: Settings -->
         <mat-step [completed]="steps[2].isCompleted">
           <ng-template matStepLabel>{{ steps[2].title }}</ng-template>
-          
+
           <div class="step-content">
             <h2>{{ steps[2].title }}</h2>
             <p>{{ steps[2].description }}</p>
@@ -238,7 +238,7 @@ export interface CampaignFormData {
         <!-- Step 4: Review -->
         <mat-step [completed]="steps[3].isCompleted">
           <ng-template matStepLabel>{{ steps[3].title }}</ng-template>
-          
+
           <div class="step-content">
             <h2>{{ steps[3].title }}</h2>
             <p>{{ steps[3].description }}</p>
@@ -250,7 +250,7 @@ export interface CampaignFormData {
                   <p><strong>Name:</strong> {{ basicInfoForm.get('name')?.value }}</p>
                   <p><strong>Type:</strong> {{ basicInfoForm.get('type')?.value }}</p>
                   <p><strong>Max Tweets:</strong> {{ settingsForm.get('maxTweets')?.value }}</p>
-                  
+
                   @if (validationErrors().length > 0) {
                     <div class="error-list">
                       <h4>Please fix these issues:</h4>
@@ -384,11 +384,11 @@ export interface CampaignFormData {
       .campaign-wizard-container {
         padding: 16px;
       }
-      
+
       .targeting-grid {
         grid-template-columns: 1fr;
       }
-      
+
       .settings-grid {
         grid-template-columns: 1fr;
       }
@@ -401,11 +401,12 @@ export class CampaignWizardComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   private readonly rxjsService = inject(RxjsBaseService);
+  private readonly campaignWizardService = inject(CampaignWizardService);
 
   // ================================
   // REACTIVE STATE WITH SIGNALS
   // ================================
-  
+
   currentStep = signal(0);
   isLoading = signal(false);
   validationErrors = signal<string[]>([]);
@@ -415,7 +416,7 @@ export class CampaignWizardComponent implements OnInit {
   // ================================
   // RXJS SUBJECTS FOR REACTIVE FLOWS
   // ================================
-  
+
   private readonly nameValidationSubject = new BehaviorSubject<string>('');
   private readonly stepChangeSubject = new Subject<number>();
   private readonly saveProgressSubject = new Subject<void>();
@@ -423,7 +424,7 @@ export class CampaignWizardComponent implements OnInit {
   // ================================
   // FORM GROUPS
   // ================================
-  
+
   basicInfoForm: FormGroup;
   targetingForm: FormGroup;
   settingsForm: FormGroup;
@@ -468,7 +469,7 @@ export class CampaignWizardComponent implements OnInit {
   // ================================
   // COMPUTED PROPERTIES
   // ================================
-  
+
   canProceedToNext = computed(() => {
     const currentStepIndex = this.currentStep();
     switch (currentStepIndex) {
@@ -518,7 +519,7 @@ export class CampaignWizardComponent implements OnInit {
       distinctUntilChanged(),
       filter(name => name.length >= 3),
       tap(() => this.nameValidationStatus.set('checking')),
-      switchMap(name => 
+      switchMap(name =>
         this.rxjsService.validateAsync(name, 'validate-campaign-name').pipe(
           map(isValid => ({ name, isValid })),
           catchError(() => of({ name, isValid: false }))
@@ -661,7 +662,7 @@ export class CampaignWizardComponent implements OnInit {
         currentStep: this.currentStep(),
         timestamp: new Date().toISOString()
       };
-      
+
       localStorage.setItem('campaign-wizard-progress', JSON.stringify(formData));
       return of(true);
     } catch (error) {
@@ -675,7 +676,7 @@ export class CampaignWizardComponent implements OnInit {
       const savedData = localStorage.getItem('campaign-wizard-progress');
       if (savedData) {
         const progress = JSON.parse(savedData);
-        
+
         // Restore form values
         if (progress.basic) {
           this.basicInfoForm.patchValue(progress.basic);
@@ -686,7 +687,7 @@ export class CampaignWizardComponent implements OnInit {
         if (progress.settings) {
           this.settingsForm.patchValue(progress.settings);
         }
-        
+
         // Restore current step
         if (progress.currentStep) {
           this.currentStep.set(progress.currentStep);
@@ -776,7 +777,7 @@ export class CampaignWizardComponent implements OnInit {
   }
 
   // Campaign creation
-  createCampaign(): void {
+  async createCampaign(): Promise<void> {
     if (!this.canCreateCampaign()) {
       this.validationErrors.set(['Please complete all required fields']);
       return;
@@ -795,13 +796,21 @@ export class CampaignWizardComponent implements OnInit {
       settings: this.settingsForm.value
     };
 
-    // Simulate API call
-    setTimeout(() => {
-      console.log('Campaign created:', campaignData);
+    try {
+      // Use the campaign wizard service with backend fallback
+      const result = await this.campaignWizardService.createCampaign(campaignData);
+      console.log('Campaign created successfully:', result);
+
+      // Clear saved progress after successful creation
+      localStorage.removeItem('campaign-wizard-progress');
+
+      // Navigate to campaigns list or dashboard
+      await this.router.navigate(['/dashboard/home']);
+    } catch (error) {
+      console.error('Error creating campaign:', error);
+      this.validationErrors.set(['Error creating campaign. Please try again.']);
+    } finally {
       this.isLoading.set(false);
-      
-      // Navigate to campaigns list
-      this.router.navigate(['/dashboard']);
-    }, 2000);
+    }
   }
 }

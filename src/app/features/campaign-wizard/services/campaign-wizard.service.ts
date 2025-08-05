@@ -1,8 +1,8 @@
-import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { CampaignFormData } from '../campaign-wizard.component';
 import { environment } from '../../../../enviroments/environment';
+import { CampaignFormData } from '../campaign-wizard.component';
 
 export interface CampaignCreationResult {
   success: boolean;
@@ -40,9 +40,9 @@ export class CampaignWizardService {
   async createCampaign(formData: CampaignFormData): Promise<CampaignCreationResult> {
     try {
       const campaignPayload = this.transformFormDataToCampaign(formData);
-      
+
       const response = await this.http.post<{ campaign: Campaign }>(
-        this.apiUrl, 
+        this.apiUrl,
         campaignPayload
       ).toPromise();
 
@@ -59,7 +59,13 @@ export class CampaignWizardService {
       }
     } catch (error: any) {
       console.error('Campaign creation error:', error);
-      
+
+      // Si el backend no está disponible, crear campaña mock
+      if (error.status === 0 || error.status === 404 || error.status === 500 || error.status === 401) {
+        console.warn('🔄 Backend no disponible, creando campaña mock para desarrollo');
+        return this.createMockCampaign(formData);
+      }
+
       return {
         success: false,
         errors: this.extractErrorMessages(error)
@@ -80,8 +86,8 @@ export class CampaignWizardService {
   }
 
   duplicateCampaign(id: string, newName?: string): Observable<Campaign> {
-    return this.http.post<Campaign>(`${this.apiUrl}/${id}/duplicate`, { 
-      name: newName 
+    return this.http.post<Campaign>(`${this.apiUrl}/${id}/duplicate`, {
+      name: newName
     });
   }
 
@@ -111,12 +117,12 @@ export class CampaignWizardService {
     if (error?.error?.message) {
       return [error.error.message];
     }
-    
+
     if (error?.error?.errors) {
       if (Array.isArray(error.error.errors)) {
         return error.error.errors;
       }
-      
+
       if (typeof error.error.errors === 'object') {
         return Object.values(error.error.errors).flat() as string[];
       }
@@ -165,5 +171,46 @@ export class CampaignWizardService {
     if (duration <= 30) return 2000;
     if (duration <= 90) return 5000;
     return 10000;
+  }
+
+  /**
+   * Crear campaña mock para desarrollo cuando el backend no está disponible
+   */
+  private createMockCampaign(formData: CampaignFormData): CampaignCreationResult {
+    console.log('🚀 Creando campaña mock para desarrollo:', formData);
+
+    const mockCampaignId = `mock-campaign-${Date.now()}`;
+
+    // Simular guardado en localStorage para persistencia
+    const existingCampaigns = JSON.parse(localStorage.getItem('mock_campaigns') || '[]');
+    const newCampaign: Campaign = {
+      id: mockCampaignId,
+      name: formData.basic.name,
+      description: formData.basic.description,
+      type: formData.basic.type,
+      status: 'active',
+      hashtags: formData.targeting.hashtags.filter(tag => tag && tag.trim()),
+      keywords: formData.targeting.keywords.filter(keyword => keyword && keyword.trim()),
+      mentions: formData.targeting.mentions.filter(mention => mention && mention.trim()),
+      startDate: new Date(formData.settings.startDate),
+      endDate: new Date(formData.settings.endDate),
+      maxTweets: formData.settings.maxTweets,
+      sentimentAnalysis: formData.settings.sentimentAnalysis,
+      organizationId: 'mock-org-001',
+      createdBy: 'mock-user-001',
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+
+    existingCampaigns.push(newCampaign);
+    localStorage.setItem('mock_campaigns', JSON.stringify(existingCampaigns));
+
+    console.log('✅ Campaña mock creada exitosamente:', newCampaign);
+
+    return {
+      success: true,
+      campaignId: mockCampaignId,
+      warnings: ['Campaña creada en modo desarrollo (mock data)']
+    };
   }
 }

@@ -47,6 +47,180 @@
       "error": "Error loading rejected tweets."
     }
   },
+  "campaigns": {
+    "title": "Campaign Management",
+    "subtitle": "Manage your social marketing campaigns",
+    "create": "Create Campaign",
+    "search": "Search campaigns",
+    "searchPlaceholder": "Search by name, description or tags...",
+    "clearFilters": "Clear Filters",
+    "selected": "selected",
+    "conversions": "Conversions",
+    "status": {
+      "active": "Active",
+      "paused": "Paused",
+      "completed": "Completed",
+      "cancelled": "Cancelled",
+      "draft": "Draft",
+      "scheduled": "Scheduled"
+    },
+    "type": {
+      "brandAwareness": "Brand Awareness",
+      "leadGeneration": "Lead Generation",
+      "salesConversion": "Sales Conversion",
+      "engagement": "Engagement",
+      "trafficDrive": "Traffic Drive",
+      "appPromotion": "App Promotion"
+    },
+    "platforms": {
+      "twitter": "Twitter",
+      "facebook": "Facebook",
+      "instagram": "Instagram",
+      "linkedin": "LinkedIn",
+      "tiktok": "TikTok",
+      "youtube": "YouTube"
+    },
+    "table": {
+      "name": "Name",
+      "status": "Status",
+      "type": "Type",
+      "platforms": "Platforms",
+      "budget": "Budget",
+      "performance": "Performance",
+      "timeline": "Timeline",
+      "actions": "Actions"
+    },
+    "actions": {
+      "view": "View Details",
+      "edit": "Edit",
+      "duplicate": "Duplicate",
+      "activate": "Activate",
+      "pause": "Pause",
+      "delete": "Delete"
+    },
+    "noData": {
+      "title": "No campaigns created",
+      "message": "Start by creating your first social marketing campaign to manage your digital presence."
+    },
+    "summary": {
+      "title": "Campaign Summary",
+      "subtitle": "Overview of performance and metrics",
+      "loading": "Loading campaign data...",
+      "totalCampaigns": "Total Campaigns",
+      "activeCampaigns": "Active Campaigns",
+      "budgetOverview": "Budget Overview",
+      "impressions": "Impressions",
+      "conversions": "Conversions",
+      "avgCTR": "Avg CTR",
+      "avgROAS": "Avg ROAS",
+      "recentCampaigns": "Recent Campaigns"
+    },
+    "viewAll": "View All Campaigns",
+    "wizard": {
+      "title": "Create New Campaign",
+      "subtitle": "Follow these steps to create your social marketing campaign",
+      "step": "Step",
+      "of": "of",
+      "next": "Next",
+      "previous": "Previous",
+      "cancel": "Cancel",
+      "create": "Create Campaign",
+      "creating": "Creating campaign...",
+      "steps": {
+        "basicInfo": "Basic Information",
+        "basicInfoDesc": "Define the name, type and platforms for your campaign",
+        "targeting": "Audience",
+        "targetingDesc": "Configure who you want to reach with your campaign",
+        "budget": "Budget & Timeline",
+        "budgetDesc": "Set the budget and dates for your campaign",
+        "content": "Content",
+        "contentDesc": "Create advertising content and calls to action",
+        "review": "Review",
+        "reviewDesc": "Review all details before creating the campaign"
+      },
+      "basicInfo": {
+        "title": "General Information",
+        "name": "Campaign Name",
+        "namePlaceholder": "e.g: Summer Campaign 2025",
+        "type": "Campaign Type",
+        "description": "Description",
+        "descriptionPlaceholder": "Describe the objectives and characteristics of your campaign...",
+        "tags": "Tags",
+        "tagsPlaceholder": "marketing, summer, promotion",
+        "platforms": "Social Platforms"
+      },
+      "platforms": {
+        "twitterDesc": "Ideal for conversations and news",
+        "facebookDesc": "Wide demographic reach",
+        "instagramDesc": "Attractive visual content",
+        "linkedinDesc": "Professional and B2B audience",
+        "tiktokDesc": "Viral content and young audience",
+        "youtubeDesc": "Long-form video content"
+      },
+      "targeting": {
+        "demographics": "Demographics",
+        "ageMin": "Minimum Age",
+        "ageMax": "Maximum Age",
+        "gender": "Gender",
+        "genderAll": "All",
+        "genderMale": "Male",
+        "genderFemale": "Female",
+        "languages": "Languages",
+        "geographic": "Geographic Location",
+        "countries": "Countries",
+        "interests": "Interests",
+        "interestsPlaceholder": "technology, sports, music, travel..."
+      },
+      "budget": {
+        "title": "Budget Configuration",
+        "total": "Total Budget",
+        "daily": "Daily Budget",
+        "strategy": "Bidding Strategy",
+        "automatic": "Automatic",
+        "manual": "Manual",
+        "targetCPC": "Target CPC",
+        "targetROAS": "Target ROAS"
+      },
+      "timeline": {
+        "title": "Scheduling",
+        "startDate": "Start Date",
+        "endDate": "End Date"
+      },
+      "content": {
+        "creatives": "Ad Creatives",
+        "creative": "Creative",
+        "addCreative": "Add Creative",
+        "creativeType": "Creative Type",
+        "image": "Image",
+        "video": "Video",
+        "carousel": "Carousel",
+        "title": "Title",
+        "description": "Description",
+        "callToAction": "Call to Action",
+        "ctaText": "Button Text",
+        "ctaUrl": "Destination URL",
+        "adText": "Ad Text",
+        "hashtags": "Hashtags",
+        "hashtagsPlaceholder": "#marketing #social #campaign"
+      },
+      "review": {
+        "name": "Name",
+        "type": "Type",
+        "platforms": "Platforms",
+        "budget": "Budget",
+        "dailyBudget": "daily",
+        "timeline": "Duration",
+        "terms": "I agree to the terms and conditions and advertising policies",
+        "startOptions": "Campaign Start",
+        "startImmediately": "Start immediately",
+        "startScheduled": "Start on scheduled date"
+      }
+    }
+  },
+  "dashboard": {
+    "welcome": "Welcome to SentimentalSocial",
+    "subtitle": "Social media sentiment analysis platform"
+  },
   "shared": {
     "table": {
       "filter": "Filter",

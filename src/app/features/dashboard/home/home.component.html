@@ -1,0 +1,121 @@
+<!-- =====================================
+     DASHBOARD HOME COMPONENT
+     Main dashboard with campaign summary
+     ===================================== -->
+
+<div class="home-dashboard">
+  <!-- Dashboard Header -->
+  <header class="dashboard-header">
+    <div class="header-content">
+      <div class="welcome-section">
+        <h1 class="welcome-title">{{ 'dashboard.welcome' | transloco }}</h1>
+        <p class="welcome-subtitle">{{ 'dashboard.subtitle' | transloco }}</p>
+      </div>
+      <div class="header-actions">
+        <button mat-raised-button color="primary" (click)="onCreateCampaign()" class="create-campaign-btn">
+          <mat-icon>add</mat-icon>
+          {{ 'campaigns.create' | transloco }}
+        </button>
+        <button mat-stroked-button color="accent" [routerLink]="['/dashboard/campaigns']" class="view-campaigns-btn">
+          <mat-icon>list</mat-icon>
+          Ver Campañas
+        </button>
+        <button mat-icon-button (click)="onRefreshData()" title="Refresh Data" class="refresh-btn">
+          <mat-icon>refresh</mat-icon>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Dashboard Widgets Grid -->
+  <div class="dashboard-grid">
+    <!-- Campaign Summary Widget -->
+    <div class="widget-container campaign-summary">
+      <app-campaign-summary-widget></app-campaign-summary-widget>
+    </div>
+
+    <!-- Pending Tweet Widget -->
+    <div class="widget-container pending-tweets">
+      <app-pending-tweet-widget></app-pending-tweet-widget>
+    </div>
+
+    <!-- Analytics Overview Widget -->
+    <div class="widget-container analytics-preview">
+      <mat-card class="dashboard-stats-widget">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>analytics</mat-icon>
+            Analytics Overview
+          </mat-card-title>
+          <mat-card-subtitle>Real-time metrics</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          @if (isLoading()) {
+          <div class="loading-container">
+            <mat-progress-spinner diameter="40"></mat-progress-spinner>
+          </div>
+          } @else {
+          <div class="stats-grid">
+            <div class="stat-item">
+              <div class="stat-number">{{ formatNumber(totalTweets()) }}</div>
+              <div class="stat-label">Total Tweets</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number">{{ (avgSentiment() * 100).toFixed(1) }}%</div>
+              <div class="stat-label">Avg Sentiment</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number">{{ campaigns().length }}</div>
+              <div class="stat-label">Active Campaigns</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number">{{ formatNumber(totalEngagement()) }}</div>
+              <div class="stat-label">Engagement</div>
+            </div>
+          </div>
+          }
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Sentiment Analysis Widget -->
+    <div class="widget-container sentiment-analysis">
+      <mat-card class="dashboard-sentiment-widget">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon [style.color]="getSentimentColor(avgSentiment())">{{
+              getSentimentIcon(avgSentiment())
+            }}</mat-icon>
+            Sentiment Analysis
+          </mat-card-title>
+          <mat-card-subtitle>Latest campaign sentiment</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          @if (isLoading()) {
+          <div class="loading-container">
+            <mat-progress-spinner diameter="40"></mat-progress-spinner>
+          </div>
+          } @else {
+          <div class="sentiment-breakdown">
+            <div class="sentiment-item positive">
+              <mat-icon>sentiment_very_satisfied</mat-icon>
+              <span class="sentiment-percentage">{{ (positiveSentiment() * 100).toFixed(1) }}%</span>
+              <span class="sentiment-label">Positive</span>
+            </div>
+            <div class="sentiment-item neutral">
+              <mat-icon>sentiment_neutral</mat-icon>
+              <span class="sentiment-percentage">{{ (neutralSentiment() * 100).toFixed(1) }}%</span>
+              <span class="sentiment-label">Neutral</span>
+            </div>
+            <div class="sentiment-item negative">
+              <mat-icon>sentiment_very_dissatisfied</mat-icon>
+              <span class="sentiment-percentage">{{ (negativeSentiment() * 100).toFixed(1) }}%</span>
+              <span class="sentiment-label">Negative</span>
+            </div>
+          </div>
+          }
+        </mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</div>

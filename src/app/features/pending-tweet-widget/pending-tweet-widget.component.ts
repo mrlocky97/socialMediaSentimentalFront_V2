@@ -1,33 +1,36 @@
 import { CommonModule } from '@angular/common';
-import { Component, signal, computed, inject, OnInit, DestroyRef } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { 
-  Observable, 
-  combineLatest, 
-  timer,
-  of
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { TranslocoModule } from '@ngneat/transloco';
+import {
+  of,
+  timer
 } from 'rxjs';
 import {
-  map,
-  startWith,
-  switchMap,
   catchError,
-  tap,
-  distinctUntilChanged
+  distinctUntilChanged,
+  map,
+  switchMap,
+  tap
 } from 'rxjs/operators';
-import { PendingTweetService, PendingTweetData } from './services/pending-tweet-widget.service';
-import { TranslocoRootModule } from '../../transloco-loader';
-import { TranslocoModule } from '@ngneat/transloco';
-import { MaterialModule } from '../../shared/material/material.module';
+import { PendingTweetService } from './services/pending-tweet-widget.service';
 
 @Component({
   selector: 'app-pending-tweet-widget',
   standalone: true,
   imports: [
-    CommonModule, 
-    TranslocoRootModule,
+    CommonModule,
     TranslocoModule,
-    MaterialModule
+    MatCardModule,
+    MatButtonModule,
+    MatIconModule,
+    MatProgressSpinnerModule,
+    MatChipsModule
   ],
   templateUrl: './pending-tweet-widget.component.html',
   styleUrls: ['./pending-tweet-widget.component.css']
@@ -39,7 +42,7 @@ export class PendingTweetWidgetComponent implements OnInit {
   // ================================
   // REACTIVE STATE WITH SIGNALS
   // ================================
-  
+
   pending = signal<number | null>(null);
   loading = signal<boolean>(false);
   error = signal<string | null>(null);
@@ -53,7 +56,7 @@ export class PendingTweetWidgetComponent implements OnInit {
 
   // Stream for pending tweets data
   readonly pendingData$ = this.pendingTweetService.getPendingTweetsStream().pipe(
-    distinctUntilChanged((prev, curr) => 
+    distinctUntilChanged((prev, curr) =>
       prev?.count === curr?.count && prev?.lastUpdated === curr?.lastUpdated
     ),
     tap(data => {
@@ -84,7 +87,7 @@ export class PendingTweetWidgetComponent implements OnInit {
   // ================================
   // COMPUTED PROPERTIES
   // ================================
-  
+
   statusMessage = computed(() => {
     const status = this.connectionStatus();
     const lastUpdate = this.lastUpdated();
@@ -93,7 +96,7 @@ export class PendingTweetWidgetComponent implements OnInit {
     if (status === 'error') {
       return 'Connection error - Data may be outdated';
     }
-    
+
     if (status === 'disconnected') {
       return 'Connecting...';
     }
@@ -101,7 +104,7 @@ export class PendingTweetWidgetComponent implements OnInit {
     if (lastUpdate) {
       const timeDiff = Date.now() - lastUpdate.getTime();
       const minutesAgo = Math.floor(timeDiff / (1000 * 60));
-      
+
       if (minutesAgo === 0) {
         return 'Just updated';
       } else if (minutesAgo === 1) {
@@ -117,7 +120,7 @@ export class PendingTweetWidgetComponent implements OnInit {
   isStale = computed(() => {
     const lastUpdate = this.lastUpdated();
     if (!lastUpdate) return false;
-    
+
     const timeDiff = Date.now() - lastUpdate.getTime();
     return timeDiff > 5 * 60 * 1000; // More than 5 minutes
   });
@@ -187,7 +190,7 @@ export class PendingTweetWidgetComponent implements OnInit {
     // Sync loading and error state with service signals
     // Note: In a real app, you might want to convert signals to observables
     // or use effect() to watch signal changes
-    
+
     // Initial load
     this.pendingTweetService.loadPending();
   }

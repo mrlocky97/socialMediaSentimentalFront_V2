@@ -57,6 +57,16 @@
   --color-primary-alpha-40: rgba(102, 126, 234, 0.4);
   --color-primary-alpha-60: rgba(102, 126, 234, 0.6);
 
+  /* State Color Variations */
+  --color-success-alpha-10: rgba(76, 175, 80, 0.1);
+  --color-success-alpha-20: rgba(76, 175, 80, 0.2);
+  --color-error-alpha-10: rgba(244, 67, 54, 0.1);
+  --color-error-alpha-20: rgba(244, 67, 54, 0.2);
+  --color-warning-alpha-10: rgba(255, 152, 0, 0.1);
+  --color-warning-alpha-20: rgba(255, 152, 0, 0.2);
+  --color-info-alpha-10: rgba(33, 150, 243, 0.1);
+  --color-info-alpha-20: rgba(33, 150, 243, 0.2);
+
   /* ===== SPACING SYSTEM ===== */
   --spacing-0: 0px;
   --spacing-1: 2px;

@@ -49,6 +49,80 @@
       "error": "Fehler beim Laden der abgelehnten Tweets."
     }
   },
+  "campaigns": {
+    "title": "Kampagnen-Management",
+    "subtitle": "Verwalten Sie Ihre Social-Marketing-Kampagnen",
+    "create": "Kampagne Erstellen",
+    "search": "Kampagnen suchen",
+    "searchPlaceholder": "Nach Name, Beschreibung oder Tags suchen...",
+    "clearFilters": "Filter Löschen",
+    "selected": "ausgewählt",
+    "conversions": "Konversionen",
+    "status": {
+      "active": "Aktiv",
+      "paused": "Pausiert",
+      "completed": "Abgeschlossen",
+      "cancelled": "Abgebrochen",
+      "draft": "Entwurf",
+      "scheduled": "Geplant"
+    },
+    "type": {
+      "brandAwareness": "Markenbekanntheit",
+      "leadGeneration": "Lead-Generierung",
+      "salesConversion": "Sales-Konversion",
+      "engagement": "Engagement",
+      "trafficDrive": "Traffic-Generierung",
+      "appPromotion": "App-Promotion"
+    },
+    "platforms": {
+      "twitter": "Twitter",
+      "facebook": "Facebook",
+      "instagram": "Instagram",
+      "linkedin": "LinkedIn",
+      "tiktok": "TikTok",
+      "youtube": "YouTube"
+    },
+    "table": {
+      "name": "Name",
+      "status": "Status",
+      "type": "Typ",
+      "platforms": "Plattformen",
+      "budget": "Budget",
+      "performance": "Leistung",
+      "timeline": "Zeitplan",
+      "actions": "Aktionen"
+    },
+    "actions": {
+      "view": "Details Anzeigen",
+      "edit": "Bearbeiten",
+      "duplicate": "Duplizieren",
+      "activate": "Aktivieren",
+      "pause": "Pausieren",
+      "delete": "Löschen"
+    },
+    "noData": {
+      "title": "Keine Kampagnen erstellt",
+      "message": "Beginnen Sie mit der Erstellung Ihrer ersten Social-Marketing-Kampagne, um Ihre digitale Präsenz zu verwalten."
+    },
+    "summary": {
+      "title": "Kampagnen-Übersicht",
+      "subtitle": "Überblick über Leistung und Metriken",
+      "loading": "Lade Kampagnendaten...",
+      "totalCampaigns": "Gesamt Kampagnen",
+      "activeCampaigns": "Aktive Kampagnen",
+      "budgetOverview": "Budget-Übersicht",
+      "impressions": "Impressionen",
+      "conversions": "Konversionen",
+      "avgCTR": "Durchschn. CTR",
+      "avgROAS": "Durchschn. ROAS",
+      "recentCampaigns": "Kürzliche Kampagnen"
+    },
+    "viewAll": "Alle Kampagnen Anzeigen"
+  },
+  "dashboard": {
+    "welcome": "Willkommen bei SentimentalSocial",
+    "subtitle": "Social Media Sentiment-Analyse-Plattform"
+  },
   "shared": {
     "table": {
       "filter": "Filter",

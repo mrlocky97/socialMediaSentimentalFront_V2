@@ -24,6 +24,7 @@ describe('AppComponent', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('h1')?.textContent).toContain('Hello, socialMediaSentimental_V2');
+    // El componente AppComponent solo tiene router-outlet, no renderiza el título directamente
+    expect(compiled.querySelector('router-outlet')).toBeTruthy();
   });
 });
