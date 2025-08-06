@@ -63,13 +63,15 @@
   background: var(--color-primary-gradient);
   color: var(--color-white);
   padding: var(--spacing-3xl) var(--spacing-xl);
-  margin: var(--spacing-8) 0;
+  margin: 0;
   text-align: center;
-  border-radius: 0;
+  border-radius: var(--radius-3xl) var(--radius-3xl) 0 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .logo-section {
@@ -133,10 +135,10 @@
 /* ===== CONTENT SECTION ===== */
 .login-content {
   padding: var(--spacing-5xl) var(--spacing-3xl);
-  margin: 10px;
+  margin: 0;
   background: var(--color-white);
   position: relative;
-  border-radius: var(--radius-lg);
+  border-radius: 0;
 }
 
 .login-form {
@@ -195,14 +197,14 @@
 
 /* ===== ACTIONS SECTION ===== */
 .login-actions {
-  padding: var(--spacing-2xl) var(--spacing-3xl) var(--spacing-4xl);
-  margin: 10px;
+  padding: var(--spacing-2xl) var(--spacing-3xl) var(--spacing-lg);
+  margin: 0;
   display: flex;
   justify-content: center;
   align-items: center;
   background: var(--color-gray-50);
   border-top: 1px solid var(--color-gray-200);
-  border-radius: var(--radius-lg);
+  border-radius: 0 0 var(--radius-3xl) var(--radius-3xl);
 }
 
 .action-links {
@@ -591,12 +593,13 @@
 
   .login-header {
     padding: var(--spacing-2xl) var(--spacing-lg);
-    margin: 14px 0;
+    margin: 0;
+    width: 100%;
   }
 
   .login-content {
     padding: var(--spacing-4xl) var(--spacing-lg);
-    margin: 9px;
+    margin: 0;
   }
 
   .login-form {
@@ -605,7 +608,7 @@
 
   .login-actions {
     padding: var(--spacing-xl) var(--spacing-lg) var(--spacing-3xl);
-    margin: 9px;
+    margin: 0;
   }
 
   .form-field-wrapper {
@@ -685,12 +688,13 @@
 
   .login-header {
     padding: var(--spacing-5xl) var(--spacing-3xl);
-    margin: 18px 0;
+    margin: 0;
+    width: 100%;
   }
 
   .login-content {
     padding: var(--spacing-6xl) var(--spacing-4xl);
-    margin: 12px;
+    margin: 0;
   }
 
   .login-form {
@@ -699,7 +703,7 @@
 
   .login-actions {
     padding: var(--spacing-3xl) var(--spacing-4xl) var(--spacing-6xl);
-    margin: 12px;
+    margin: 0;
   }
 
   .form-field-wrapper {

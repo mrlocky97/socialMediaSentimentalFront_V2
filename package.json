@@ -1,6 +1,7 @@
 {
   "name": "social-media-sentimental-v2",
-  "version": "0.0.0",
+  "version": "1.0.0-stable",
+  "description": "Social Media Sentiment Analysis - Dashboard estable con servicios mock integrados",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
