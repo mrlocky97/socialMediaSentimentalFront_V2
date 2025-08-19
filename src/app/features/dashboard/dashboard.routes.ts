@@ -16,18 +16,19 @@ export const routes: Routes = [
         children: [
           {
             path: '',
+            // Use consolidated campaigns module
             loadComponent: () =>
-              import('../campaign-management/campaign-list/campaign-list.component').then(c => c.CampaignListComponent)
+              import('../campaigns/campaign-list/campaign-list.component').then(c => c.CampaignListComponent)
           },
           {
             path: 'wizard',
             loadComponent: () =>
-              import('../campaign-wizard/campaign-wizard.component').then(c => c.CampaignWizardComponent)
+              import('../campaign-wizard/campaign-wizard-simple.component').then(c => c.CampaignWizardComponent)
           },
           {
             path: ':id',
             loadComponent: () =>
-              import('../campaign-management/campaign-detail/campaign-detail.component').then(c => c.CampaignDetailComponent)
+              import('../campaigns/campaign-detail/campaign-detail.component').then(c => c.CampaignDetailComponent)
           }
         ]
       },

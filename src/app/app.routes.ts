@@ -26,7 +26,8 @@ export const routes: Routes = [
   {
     path: 'campaigns',
     canActivate: [authGuard],
-    loadChildren: () => import('./features/campaign-management/campaign.routes').then((r) => r.campaignRoutes),
+    // Consolidated campaigns routes (use features/campaigns)
+    loadChildren: () => import('./features/campaigns/campaign.routes').then((r) => r.campaignRoutes),
     title: 'Campaigns - Sentimental Social',
   },
   {
@@ -53,7 +54,7 @@ export const routes: Routes = [
     path: 'wizard',
     canActivate: [authGuard],
     loadComponent: () =>
-      import('./features/campaign-wizard/campaign-wizard.component').then((c) => c.CampaignWizardComponent),
+      import('./features/campaign-wizard/campaign-wizard-simple.component').then((c) => c.CampaignWizardComponent),
     title: 'Campaign Wizard - Sentimental Social',
   },
   {

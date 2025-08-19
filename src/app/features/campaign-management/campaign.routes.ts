@@ -14,19 +14,19 @@ export const campaignRoutes: Routes = [
       {
         path: '',
         loadComponent: () =>
-          import('./campaign-list/campaign-list.component').then(m => m.CampaignListComponent),
+          import('../campaigns/campaign-list/campaign-list.component').then(m => m.CampaignListComponent),
         title: 'Campaign Management - SentimentalSocial'
       },
       {
         path: 'create',
         loadComponent: () =>
-          import('./campaign-wizard/campaign-wizard.component').then(m => m.CampaignWizardComponent),
+          import('../campaign-wizard/campaign-wizard-simple.component').then(m => m.CampaignWizardComponent),
         title: 'Create Campaign - SentimentalSocial'
       },
       {
         path: ':id',
         loadComponent: () =>
-          import('./campaign-detail/campaign-detail.component').then(m => m.CampaignDetailComponent),
+          import('../campaigns/campaign-detail/campaign-detail.component').then(m => m.CampaignDetailComponent),
         title: 'Campaign Details - SentimentalSocial'
       },
       {
