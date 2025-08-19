@@ -1,11 +1,15 @@
-/* ===== UNIFIED DASHBOARD CONTAINER ===== */
+/* ===== MODERN DASHBOARD CONTAINER ===== */
 .dashboard-container {
   height: 100vh;
   display: flex;
   flex-direction: column;
   
-  /* Unified background gradient */
-  background: var(--color-primary-gradient);
+  /* Premium gradient background */
+  background: linear-gradient(135deg, 
+    #667eea 0%, 
+    #764ba2 50%, 
+    #f093fb 100%
+  );
   position: relative;
   overflow: hidden;
 }
@@ -18,10 +22,23 @@
   right: 0;
   bottom: 0;
   background: 
-    radial-gradient(circle at 20% 20%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 80% 80%, rgba(14, 165, 233, 0.1) 0%, transparent 50%);
+    radial-gradient(circle at 20% 30%, rgba(102, 126, 234, 0.15) 0%, transparent 60%),
+    radial-gradient(circle at 80% 70%, rgba(240, 147, 251, 0.15) 0%, transparent 60%),
+    radial-gradient(circle at 40% 80%, rgba(118, 75, 162, 0.1) 0%, transparent 50%);
   pointer-events: none;
   z-index: 0;
+  animation: gradientShift 15s ease-in-out infinite;
+}
+
+@keyframes gradientShift {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05) rotate(1deg);
+  }
 }
 
 .dashboard-content {
@@ -32,123 +49,285 @@
   z-index: 1;
 }
 
-/* ===== SIDEBAR STYLING ===== */
+/* ===== PREMIUM SIDEBAR STYLING ===== */
 .dashboard-sidenav {
-  width: 280px;
+  width: 300px;
   
-  /* Unified glassmorphism sidebar */
-  background: var(--color-white-alpha-95);
-  backdrop-filter: blur(20px);
-  border-right: 1px solid var(--color-white-alpha-20);
-  box-shadow: var(--shadow-glassmorphism);
+  /* Advanced glassmorphism with premium effects */
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(35px) saturate(180%);
+  border-right: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    0 1px 0 rgba(255, 255, 255, 0.2) inset,
+    0 -1px 0 rgba(255, 255, 255, 0.1) inset;
   
-  /* Remove old colors */
-  color: var(--color-gray-700);
+  /* Typography */
+  color: rgba(255, 255, 255, 0.95);
   
-  /* Animation */
-  transition: all var(--transition-normal);
+  /* Premium animation */
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  position: relative;
+  overflow: hidden;
+}
+
+.dashboard-sidenav::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    145deg,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0.02) 50%,
+    rgba(255, 255, 255, 0.06) 100%
+  );
+  pointer-events: none;
+  z-index: -1;
 }
 
 @media (max-width: 767px) {
   .dashboard-sidenav {
-    width: 250px;
+    width: 280px;
   }
 }
 
-/* ===== SIDEBAR TOOLBAR ===== */
-.dashboard-sidenav .mat-toolbar {
-  /* Unified glassmorphism header */
-  background: rgba(248, 250, 252, 0.8);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--color-white-alpha-20);
-  
-  /* Typography */
-  color: var(--color-gray-800);
-  padding: var(--spacing-lg) var(--spacing-xl);
-  
-  /* Remove old orange color */
-  box-shadow: none;
-}
-
-/* ===== NAVIGATION LIST ===== */
+/* ===== PREMIUM NAVIGATION STYLING ===== */
 .mat-nav-list .mat-list-item {
-  color: var(--color-gray-700);
-  transition: all var(--transition-normal);
+  color: rgba(255, 255, 255, 0.9);
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  border-radius: 16px;
+  margin: 8px 16px;
+  backdrop-filter: blur(10px);
 }
 
 .mat-nav-list .mat-list-item.mat-list-item-active,
 .mat-nav-list .mat-list-item:hover {
-  /* Replace old orange background with glassmorphism */
-  background: var(--color-white-alpha-95);
-  backdrop-filter: blur(20px);
-  box-shadow: var(--shadow-glassmorphism);
-  border: 1px solid var(--color-white-alpha-20);
-  color: var(--color-primary);
+  /* Premium glassmorphism active state */
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(30px) saturate(180%);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.1),
+    0 1px 0 rgba(255, 255, 255, 0.2) inset,
+    0 -1px 0 rgba(255, 255, 255, 0.1) inset;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #ffffff;
   
-  /* Remove old colors */
-  border-radius: var(--radius-xl);
-  margin: var(--spacing-xs) var(--spacing-md);
+  transform: translateX(8px) scale(1.02);
+  animation: menuItemGlow 0.3s ease-out;
 }
 
-/* ===== TOP TOOLBAR ===== */
+@keyframes menuItemGlow {
+  0% {
+    box-shadow: 
+      0 8px 32px rgba(0, 0, 0, 0.1),
+      0 1px 0 rgba(255, 255, 255, 0.2) inset;
+  }
+  50% {
+    box-shadow: 
+      0 12px 40px rgba(0, 0, 0, 0.15),
+      0 1px 0 rgba(255, 255, 255, 0.3) inset,
+      0 0 20px rgba(255, 255, 255, 0.1);
+  }
+  100% {
+    box-shadow: 
+      0 8px 32px rgba(0, 0, 0, 0.1),
+      0 1px 0 rgba(255, 255, 255, 0.2) inset;
+  }
+}
+
+/* ===== SIDEBAR HEADER PREMIUM ===== */
+.dashboard-sidenav .mat-toolbar {
+  /* Premium glassmorphism header */
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(25px) saturate(150%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  
+  /* Typography */
+  color: rgba(255, 255, 255, 0.95);
+  padding: 24px 32px;
+  
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+/* ===== PREMIUM TOP TOOLBAR ===== */
 .dashboard-toolbar {
   display: flex;
   justify-content: center;
   align-items: center;
   position: relative;
-  padding: var(--spacing-lg) var(--spacing-xl);
+  padding: 20px 32px;
+  min-height: 80px;
   
-  /* Unified glassmorphism top bar */
-  background: var(--color-white-alpha-95);
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--color-white-alpha-20);
-  box-shadow: var(--shadow-glassmorphism);
+  /* Premium glassmorphism toolbar */
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(40px) saturate(200%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.12),
+    0 1px 0 rgba(255, 255, 255, 0.3) inset;
   
-  /* Remove old turquoise color */
   z-index: 10;
+  transition: all 0.3s ease;
 }
 
+.dashboard-toolbar::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.1) 0%,
+    rgba(255, 255, 255, 0.05) 50%,
+    rgba(255, 255, 255, 0.1) 100%
+  );
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* Menu button with premium styling */
+.dashboard-toolbar button {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  width: 48px;
+  height: 48px;
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.dashboard-toolbar button:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 
+    0 8px 25px rgba(0, 0, 0, 0.15),
+    0 0 20px rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.dashboard-toolbar button mat-icon {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+}
+
+/* ===== PREMIUM APP TITLE ===== */
 .app-title {
-  /* Unified typography with gradient text */
-  font-size: clamp(1.25rem, 2.5vw, 1.5rem);
-  font-weight: var(--font-bold);
-  letter-spacing: 0.05em;
+  /* Premium typography with enhanced gradient */
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  font-weight: 800;
+  letter-spacing: 0.02em;
   
-  /* Gradient text like login */
-  background: var(--color-primary-gradient);
+  /* Multi-layered gradient text */
+  background: linear-gradient(
+    135deg,
+    #ffffff 0%,
+    #f0f9ff 25%,
+    #e0f2fe 50%,
+    #ffffff 75%,
+    #f8fafc 100%
+  );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   
+  /* Premium text shadow */
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  
   /* Animation */
-  animation: fadeInDown 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: titleGlow 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@media (max-width: 767px) {
-  .dashboard-toolbar {
-    justify-content: flex-start;
-    padding: var(--spacing-md) var(--spacing-lg);
+@keyframes titleGlow {
+  from {
+    opacity: 0;
+    transform: translateY(-20px) scale(0.95);
   }
-
-  .app-title {
-    margin-left: var(--spacing-md);
-    font-size: 1.25rem;
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 }
 
-/* ===== SIDEBAR TITLE ===== */
+/* ===== PREMIUM SIDEBAR TITLE ===== */
 .sicenav-title {
-  /* Unified sidebar title styling */
-  font-size: 1.125rem;
-  font-weight: var(--font-semibold);
-  color: var(--color-gray-800);
+  /* Premium sidebar title styling */
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.95);
   
   /* Layout */
   margin: auto;
   display: flex;
   text-align: center;
   
-  /* Remove old black color, use design system */
+  /* Premium text effects */
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  letter-spacing: 0.025em;
+}
+
+@media (max-width: 767px) {
+  /* Premium mobile container */
+  .dashboard-container {
+    background: 
+      radial-gradient(circle at 20% 30%, rgba(59, 130, 246, 0.15) 0%, transparent 50%),
+      radial-gradient(circle at 80% 70%, rgba(168, 85, 247, 0.15) 0%, transparent 50%),
+      radial-gradient(circle at 40% 90%, rgba(16, 185, 129, 0.1) 0%, transparent 50%),
+      linear-gradient(135deg, #0f0f23 0%, #1a1a2e 50%, #16213e 100%);
+  }
+
+  /* Premium mobile toolbar */
+  .dashboard-toolbar {
+    justify-content: flex-start;
+    padding: 16px 20px;
+    min-height: 70px;
+    backdrop-filter: blur(25px) saturate(150%);
+    background: rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  /* Enhanced app title for mobile */
+  .app-title {
+    margin-left: 16px;
+    font-size: 1.5rem;
+    background: linear-gradient(
+      135deg,
+      #ffffff 0%,
+      #e0f2fe 50%,
+      #ffffff 100%
+    );
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* Premium mobile sidebar */
+  .dashboard-sidenav-container .mat-drawer {
+    width: 280px;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(35px) saturate(180%);
+    border-right: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  /* Mobile navigation items */
+  .mat-nav-list .mat-list-item {
+    margin: 6px 12px;
+    font-size: 15px;
+    border-radius: 14px;
+  }
+
+  /* Mobile sidebar header */
+  .dashboard-sidenav .mat-toolbar {
+    padding: 20px 24px;
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(20px);
+  }
 }
 
 /* ===== ANIMATIONS ===== */
