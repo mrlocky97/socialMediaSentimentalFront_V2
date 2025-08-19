@@ -1,125 +1,195 @@
-/* Modern Dashboard */
-:root {
-  --primary: #1976d2;
-  --accent: #ff4081;
-  --success: #4caf50;
-  --warning: #ff9800;
-  --danger: #f44336;
-  --surface: rgba(255, 255, 255, 0.95);
-  --text: #212121;
-  --text-secondary: #757575;
-  --bg: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  --shadow: 0 8px 32px rgba(31, 38, 135, 0.15);
-  --ease: ease;
-}
+/* =====================================
+   DASHBOARD HOME - UNIFIED DESIGN SYSTEM
+   Consistent with Login Component styling
+   Mobile-First Responsive Design
+   ===================================== */
 
+/* =====================================
+   1. MAIN LAYOUT & CONTAINER
+   ===================================== */
 .home-dashboard {
+  /* Layout */
   min-height: 100vh;
-  background: var(--bg);
-  padding: 2rem;
-  overflow-x: auto;
+  display: flex;
+  flex-direction: column;
+  
+  /* Background - Same gradient as login */
+  background: var(--color-primary-gradient);
+  
+  /* Spacing - Responsive padding */
+  padding: var(--spacing-md);
+  
+  /* Positioning */
   position: relative;
+  overflow-x: hidden;
+  box-sizing: border-box;
 }
 
+/* Background decoration - consistent with login */
 .home-dashboard::before {
   content: '';
   position: fixed;
   inset: 0;
-  background: radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+  background: 
+    radial-gradient(circle at 25% 25%, var(--color-white-alpha-05) 0%, transparent 70%),
+    radial-gradient(circle at 75% 75%, var(--color-white-alpha-03) 0%, transparent 70%);
   pointer-events: none;
   z-index: 0;
 }
 
-/* Dashboard Header */
+/* =====================================
+   2. HEADER SECTION
+   ===================================== */
 .dashboard-header {
-  margin-bottom: 2rem;
-  animation: slideInDown 0.8s var(--ease);
+  /* Layout */
+  width: 100%;
+  margin-bottom: var(--spacing-xl);
+  
+  /* Positioning */
   position: relative;
-  z-index: 1;
+  z-index: var(--z-sticky);
+  
+  /* Animation */
+  animation: slideInDown 0.6s ease-out;
 }
 
 .header-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  flex-wrap: wrap;
-  gap: 2rem;
-  background: rgba(255, 255, 255, 0.15);
+  /* Structure - Same card styling as login */
+  background: var(--color-white-alpha-95);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  border-radius: 20px;
-  padding: 2rem;
-  box-shadow: var(--shadow);
-  transition: all 0.3s var(--ease);
+  border-radius: var(--radius-3xl);
+  box-shadow: var(--shadow-glassmorphism);
+  border: 1px solid var(--color-white-alpha-20);
+  
+  /* Layout */
+  padding: var(--spacing-2xl);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-lg);
+  text-align: center;
+  
+  /* Behavior */
+  transition: all var(--transition-normal);
+  overflow: hidden;
 }
 
 .header-content:hover {
-  box-shadow: 0 12px 40px rgba(31, 38, 135, 0.25);
+  box-shadow: var(--shadow-glassmorphism-hover);
   transform: translateY(-2px);
-  background: rgba(255, 255, 255, 0.2);
 }
 
 .welcome-section {
-  flex: 1;
-  min-width: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-sm);
+  width: 100%;
 }
 
 .welcome-title {
-  font-size: 2.75rem;
-  font-weight: 700;
-  color: white;
-  margin: 0 0 0.5rem 0;
-  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-  animation: titleGlow 3s ease-in-out infinite alternate;
+  /* Typography - Same as login title */
+  font-size: clamp(var(--text-2xl), 5vw, var(--text-4xl));
+  font-weight: var(--font-bold);
+  letter-spacing: -0.5px;
+  line-height: var(--leading-tight);
+  
+  /* Colors */
+  background: var(--color-primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  
+  /* Spacing */
+  margin: 0;
+  
+  /* Effects */
+  text-shadow: 0 2px 4px var(--color-black-alpha-10);
 }
 
 .welcome-subtitle {
-  font-size: 1.2rem;
-  color: rgba(255, 255, 255, 0.95);
+  /* Typography */
+  font-size: clamp(var(--text-sm), 3vw, var(--text-lg));
+  font-weight: var(--font-normal);
+  color: var(--color-gray-600);
+  line-height: var(--leading-normal);
+  
+  /* Spacing */
   margin: 0;
-  font-weight: 400;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+  
+  /* Effects */
+  opacity: 0.8;
 }
 
+/* Header Actions */
 .header-actions {
   display: flex;
-  gap: 1rem;
-  align-items: center;
+  gap: var(--spacing-sm);
   flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+  margin-top: var(--spacing-md);
 }
 
+/* =====================================
+   3. BUTTONS & ACTIONS
+   ===================================== */
 .modern-btn {
-  border-radius: 12px;
-  font-weight: 600;
+  /* Size - Same as login button */
+  height: var(--button-height-lg);
+  padding: 0 var(--spacing-xl);
+  min-width: 140px;
+  
+  /* Layout */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  
+  /* Visual - Same styling as login */
+  border-radius: var(--radius-xl);
+  font-size: var(--text-sm);
+  font-weight: var(--font-semibold);
   text-transform: none;
-  transition: all 0.3s var(--ease);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(10px);
-  min-height: 40px;
-  padding: 0 20px;
+  
+  /* Behavior */
+  transition: all var(--transition-normal);
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  border: none;
+  outline: none;
 }
 
-.modern-btn:hover {
+.modern-btn:focus {
+  outline: 2px solid var(--color-primary-alpha-50);
+  outline-offset: 2px;
+}
+
+/* Primary Button */
+.btn-primary, .create-campaign-btn {
+  background: var(--color-primary-gradient);
+  color: var(--color-white);
+  box-shadow: var(--shadow-primary-md);
+}
+
+.btn-primary:hover, .create-campaign-btn:hover {
+  box-shadow: var(--shadow-primary-lg);
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
 }
 
-.modern-btn mat-icon {
-  margin-right: 8px;
+/* Secondary Button */
+.btn-secondary, .view-campaigns-btn {
+  background: var(--color-white);
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary-alpha-20);
+  box-shadow: var(--shadow-sm);
 }
 
-.create-campaign-btn {
-  background: linear-gradient(135deg, var(--primary), #42a5f5);
-  color: white;
-  min-width: 160px;
-}
-
-.view-campaigns-btn {
-  background: rgba(255, 255, 255, 0.2);
-  color: white;
-  border: 2px solid rgba(255, 255, 255, 0.4);
-  font-weight: 600;
+.btn-secondary:hover, .view-campaigns-btn:hover {
+  background: var(--color-primary-alpha-05);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
 }
 
 .modern-icon-btn {
