@@ -1,5 +1,10 @@
+/**
+ * ===== OPTIMIZED HOME DASHBOARD COMPONENT =====
+ * Refactored to use DataManagerService unified approach
+ */
+
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, computed, effect, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
@@ -12,8 +17,8 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { Router, RouterModule } from '@angular/router';
 import { TranslocoModule } from '@ngneat/transloco';
 
-import { AuthService, User } from '../../../core/auth/services/auth.service';
-import { Campaign, MarketingInsights, ScrapingStatus, SentimentAnalysisService } from '../../../core/services/sentiment-analysis.service';
+import { AuthService } from '../../../core/auth/services/auth.service';
+import { DataManagerService } from '../../../core/services/data-manager.service';
 import { CampaignSummaryWidgetComponent } from '../../campaign-management/campaign-summary-widget/campaign-summary-widget.component';
 import { PendingTweetWidgetComponent } from '../../pending-tweet-widget/pending-tweet-widget.component';
 
@@ -39,78 +44,58 @@ import { PendingTweetWidgetComponent } from '../../pending-tweet-widget/pending-
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit {
-  public authService = inject(AuthService); // Público para usar en template
-  private sentimentService = inject(SentimentAnalysisService);
-  private snackBar = inject(MatSnackBar);
-  private router = inject(Router);
+  // ===== DEPENDENCY INJECTION =====
+  public readonly authService = inject(AuthService);
+  private readonly dataManager = inject(DataManagerService);
+  private readonly snackBar = inject(MatSnackBar);
+  private readonly router = inject(Router);
 
-  // Signals para estado del componente
-  private _isLoading = signal(false);
-  private _campaigns = signal<Campaign[]>([]);
-  private _scrapingStatus = signal<ScrapingStatus | null>(null);
-  private _marketingInsights = signal<MarketingInsights | null>(null);
-  private _currentUser = signal<User | null>(null);
+  // ===== COMPUTED STATE FROM DATA MANAGER (eliminates duplication) =====
+  public readonly isLoading = this.dataManager.isLoading;
+  public readonly campaigns = this.dataManager.campaigns;
+  public readonly isOnline = this.dataManager.isOnline;
+  public readonly metrics = this.dataManager.dashboardMetrics;
+  
+  // ===== COMPUTED DASHBOARD METRICS =====
+  public readonly activeCampaigns = this.dataManager.activeCampaigns;
+  public readonly totalTweets = this.dataManager.totalTweets;
+  public readonly overallSentiment = this.dataManager.overallSentiment;
 
-  // Computed properties
-  isLoading = computed(() => this._isLoading());
-  campaigns = computed(() => this._campaigns());
-  scrapingStatus = computed(() => this._scrapingStatus());
-  marketingInsights = computed(() => this._marketingInsights());
-  currentUser = computed(() => this._currentUser());
-
-  // Dashboard metrics computed
-  activeCampaigns = computed(() =>
-    this.campaigns().filter(c => c.status === 'active').length
-  );
-
-  totalTweets = computed(() =>
-    this.campaigns().reduce((total, campaign) => total + (campaign.stats?.totalTweets || 0), 0)
-  );
-
-  averageSentiment = computed(() => {
-    const campaigns = this.campaigns();
-    if (campaigns.length === 0) return 0;
-    const totalSentiment = campaigns.reduce((sum, c) => sum + (c.stats?.averageSentiment || 0), 0);
-    return Math.round((totalSentiment / campaigns.length) * 100) / 100;
-  });
-
-  recentCampaigns = computed(() =>
+  // Additional computed values
+  public readonly recentCampaigns = computed(() =>
     this.campaigns()
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
       .slice(0, 5)
   );
 
-  // Role-based UI visibility
-  canManageCampaigns = computed(() => {
-    const user = this.currentUser();
-    return user && ['admin', 'manager', 'analyst'].includes(user.role);
+  public readonly sentimentColor = computed(() => {
+    const sentiment = this.overallSentiment();
+    if (sentiment > 0.3) return 'primary';
+    if (sentiment > -0.3) return 'accent';
+    return 'warn';
   });
 
-  canViewAnalytics = computed(() => {
-    const user = this.currentUser();
-    return user && ['admin', 'manager', 'analyst', 'onlyView'].includes(user.role);
+  public readonly systemStatus = computed(() => {
+    if (!this.isOnline()) return '📴 Offline Mode';
+    if (this.isLoading()) return '⏳ Loading...';
+    return '✅ Online';
   });
 
-  canManageUsers = computed(() => {
-    const user = this.currentUser();
-    return user && ['admin', 'manager'].includes(user.role);
-  });
-
-  // Additional computed properties for dashboard metrics
-  avgSentiment = computed(() => {
+  // ===== ADDITIONAL COMPUTED METRICS FOR TEMPLATE =====
+  
+  public readonly avgSentiment = computed(() => {
     const campaigns = this.campaigns();
     if (!campaigns || campaigns.length === 0) return 0;
     const sum = campaigns.reduce((acc, campaign) => acc + (campaign.stats?.averageSentiment || 0), 0);
     return sum / campaigns.length;
   });
 
-  totalEngagement = computed(() => {
+  public readonly totalEngagement = computed(() => {
     const campaigns = this.campaigns();
-    if (!campaigns || campaigns.length === 0) return 0;
-    return campaigns.reduce((acc, campaign) => acc + (campaign.stats?.totalEngagement || 0), 0);
+    return campaigns.reduce((acc, campaign) => acc + (campaign.stats?.engagementRate || 0), 0);
   });
 
-  positiveSentiment = computed(() => {
+  public readonly positiveSentiment = computed(() => {
     const campaigns = this.campaigns();
     if (!campaigns || campaigns.length === 0) return 0;
     const sum = campaigns.reduce((acc, campaign) =>
@@ -118,7 +103,7 @@ export class HomeComponent implements OnInit {
     return sum / campaigns.length;
   });
 
-  neutralSentiment = computed(() => {
+  public readonly neutralSentiment = computed(() => {
     const campaigns = this.campaigns();
     if (!campaigns || campaigns.length === 0) return 0;
     const sum = campaigns.reduce((acc, campaign) =>
@@ -126,7 +111,7 @@ export class HomeComponent implements OnInit {
     return sum / campaigns.length;
   });
 
-  negativeSentiment = computed(() => {
+  public readonly negativeSentiment = computed(() => {
     const campaigns = this.campaigns();
     if (!campaigns || campaigns.length === 0) return 0;
     const sum = campaigns.reduce((acc, campaign) =>
@@ -134,173 +119,160 @@ export class HomeComponent implements OnInit {
     return sum / campaigns.length;
   });
 
-  constructor() {
-    // Initialize effect in constructor (injection context)
-    effect(() => {
-      const user = this.authService.currentUser();
-      this._currentUser.set(user);
-    });
-  }
+  // ===== PERMISSION-BASED UI =====
+  public readonly currentUser = this.authService.currentUser;
+  
+  public readonly canManageCampaigns = computed(() => {
+    const user = this.currentUser();
+    return user && ['admin', 'manager', 'analyst'].includes(user.role);
+  });
+
+  public readonly canViewAnalytics = computed(() => {
+    const user = this.currentUser();
+    return user && ['admin', 'manager', 'analyst', 'onlyView'].includes(user.role);
+  });
+
+  public readonly canManageUsers = computed(() => {
+    const user = this.currentUser();
+    return user && ['admin', 'manager'].includes(user.role);
+  });
+
+  // ===== LIFECYCLE =====
 
   ngOnInit(): void {
-    // DESACTIVADO COMPLETAMENTE: No cargar datos automáticamente para evitar errores 401
-    console.log('  Dashboard data loading COMPLETAMENTE DESACTIVADO para evitar errores 401');
-    console.log('ℹ️  Los datos se cargarán solo cuando el usuario haga clic en "Refresh" o similar');
-
-    // DESACTIVADO: Auto-refresh para evitar saturación del backend
-    console.log('  Dashboard auto-refresh DESACTIVADO para evitar saturación del backend');
-    // setInterval(() => {
-    //   console.log('🔄 Dashboard - refreshing scraping status');
-    //   this.refreshScrapingStatus();
-    // }, 120000); // Cambiado de 30000 a 120000
+    // Cargar datos iniciales
+    this.loadDashboardData();
   }
 
   /**
    * Método público para cargar datos después del login exitoso
    */
   public initializeDashboardAfterAuth(): void {
-    console.log('🚀 Inicializando dashboard después de autenticación exitosa');
     this.loadDashboardData();
   }
 
-  private async loadDashboardData(): Promise<void> {
-    this._isLoading.set(true);
+  // ===== PUBLIC METHODS (optimized) =====
 
-    try {
-      // Load data in parallel
-      await Promise.all([
-        this.loadCampaigns(),
-        this.loadScrapingStatus(),
-        this.loadMarketingInsights()
-      ]);
-    } catch (error) {
-      console.error('Error loading dashboard data:', error);
-      this.showError('Error cargando datos del dashboard');
-    } finally {
-      this._isLoading.set(false);
-    }
-  }
-
-  private async loadCampaigns(): Promise<void> {
-    try {
-      // Load campaigns using the service's loadDashboardData method
-      await this.sentimentService.loadDashboardData().toPromise();
-      // Get campaigns from the service's signal
-      const campaigns = this.sentimentService.campaigns();
-      this._campaigns.set(campaigns || []);
-    } catch (error) {
-      console.error('Error loading campaigns:', error);
-    }
-  }
-
-  private async loadScrapingStatus(): Promise<void> {
-    try {
-      // Load data first, then get status from signal
-      await this.sentimentService.loadDashboardData().toPromise();
-      const status = this.sentimentService.scrapingStatus();
-      this._scrapingStatus.set(status);
-    } catch (error) {
-      console.error('Error loading scraping status:', error);
-    }
-  }
-
-  private async loadMarketingInsights(): Promise<void> {
-    if (!this.canViewAnalytics()) return;
-
-    try {
-      // Use dashboard metrics
-      const dashboardData = await this.sentimentService.loadDashboardData().toPromise();
-      if (!dashboardData) return;
-
-      // Extract insights from dashboard data
-      const insights: MarketingInsights = {
-        campaignId: 'dashboard',
-        period: {
-          from: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000), // 30 days ago
-          to: new Date()
-        },
-        summary: {
-          totalMentions: dashboardData.totalCampaigns,
-          sentimentScore: dashboardData.overallSentiment,
-          engagementRate: 0.05, // Default
-          reachEstimate: dashboardData.totalUsers
-        },
-        trends: dashboardData.trendsData.map(trend => ({
-          date: trend.date,
-          sentiment: trend.sentiment,
-          volume: trend.volume,
-          engagement: 0.05 // Default engagement rate
-        })),
-        topInfluencers: [],
-        recommendations: []
-      };
-      this._marketingInsights.set(insights);
-    } catch (error) {
-      console.error('Error loading marketing insights:', error);
-    }
-  }
-
-  private async refreshScrapingStatus(): Promise<void> {
-    try {
-      // Refresh data and get updated status
-      await this.sentimentService.loadDashboardData().toPromise();
-      const status = this.sentimentService.scrapingStatus();
-      this._scrapingStatus.set(status);
-    } catch (error) {
-      // Silent error for background refresh
-      console.warn('Error refreshing scraping status:', error);
-    }
-  }
-
-  // UI Action Methods
-  async onCreateCampaign(): Promise<void> {
-    try {
-      // Navigate to campaign wizard
-      await this.router.navigate(['/dashboard/campaigns/wizard']);
-      this.showInfo('Navegando al creador de campañas...');
-    } catch (error) {
-      console.error('Error navigating to campaign wizard:', error);
-      this.showError('Error al navegar al creador de campañas');
-    }
-  }
-
-  async onRefreshData(): Promise<void> {
-    await this.loadDashboardData();
-    this.showSuccess('Datos actualizados');
-  }
-
-  getSentimentColor(score: number): string {
-    if (score >= 0.6) return 'success';
-    if (score >= 0.4) return 'accent';
-    return 'warn';
-  }
-
-  getSentimentIcon(score: number): string {
-    if (score >= 0.6) return 'sentiment_very_satisfied';
-    if (score >= 0.4) return 'sentiment_neutral';
-    return 'sentiment_very_dissatisfied';
-  }
-
-  getStatusColor(status: string): string {
-    switch (status) {
-      case 'active': return 'primary';
-      case 'completed': return 'accent';
-      case 'paused': return 'warn';
-      default: return 'basic';
-    }
-  }
-
-  formatDate(dateString: string): string {
-    return new Date(dateString).toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+  /**
+   * Cargar todos los datos del dashboard
+   */
+  public loadDashboardData(): void {
+    this.dataManager.loadDashboardData().subscribe({
+      next: (data) => {
+        console.log('✅ Dashboard data loaded:', data);
+      },
+      error: (error) => {
+        console.error('❌ Error loading dashboard data:', error);
+        this.showError('Error cargando datos del dashboard');
+      }
     });
   }
 
-  formatNumber(num: number): string {
+  /**
+   * Refrescar datos manualmente
+   */
+  public refreshDashboard(): void {
+    this.dataManager.refresh();
+  }
+
+  /**
+   * Refrescar datos (método alternativo para template)
+   */
+  public onRefreshData(): void {
+    this.refreshDashboard();
+  }
+
+  /**
+   * Crear nueva campaña
+   */
+  public async onCreateCampaign(): Promise<void> {
+    if (!this.canManageCampaigns()) {
+      this.showError('No tienes permisos para crear campañas');
+      return;
+    }
+
+    try {
+      await this.router.navigate(['/dashboard/campaigns/wizard']);
+    } catch (error) {
+      console.error('Error navegando a wizard:', error);
+      this.showError('Error al navegar');
+    }
+  }
+
+  /**
+   * Ver todas las campañas
+   */
+  public async onViewAllCampaigns(): Promise<void> {
+    try {
+      await this.router.navigate(['/dashboard/campaigns']);
+    } catch (error) {
+      console.error('Error navegando a campañas:', error);
+      this.showError('Error al navegar');
+    }
+  }
+
+  /**
+   * Ver analytics
+   */
+  public async onViewAnalytics(): Promise<void> {
+    if (!this.canViewAnalytics()) {
+      this.showError('No tienes permisos para ver analytics');
+      return;
+    }
+
+    try {
+      await this.router.navigate(['/dashboard/analytics']);
+    } catch (error) {
+      console.error('Error navegando a analytics:', error);
+      this.showError('Error al navegar');
+    }
+  }
+
+  /**
+   * Ver configuración de usuario
+   */
+  public async onUserSettings(): Promise<void> {
+    try {
+      await this.router.navigate(['/dashboard/profile']);
+    } catch (error) {
+      console.error('Error navegando a perfil:', error);
+      this.showError('Error al navegar');
+    }
+  }
+
+  // ===== UTILITY METHODS =====
+
+  /**
+   * Obtener clase CSS para sentiment score
+   */
+  public getSentimentClass(score: number): string {
+    if (score > 0.3) return 'positive';
+    if (score > -0.3) return 'neutral';
+    return 'negative';
+  }
+
+  /**
+   * Obtener color para sentiment score
+   */
+  public getSentimentColor(score: number): string {
+    if (score > 0.3) return '#4caf50'; // Green
+    if (score > -0.3) return '#ff9800'; // Orange
+    return '#f44336'; // Red
+  }
+
+  /**
+   * Obtener icono para sentiment score
+   */
+  public getSentimentIcon(score: number): string {
+    if (score > 0.3) return 'sentiment_very_satisfied';
+    if (score > -0.3) return 'sentiment_neutral';
+    return 'sentiment_very_dissatisfied';
+  }
+
+  /**
+   * Formatear números para display
+   */
+  public formatNumber(num: number): string {
     if (num >= 1000000) {
       return (num / 1000000).toFixed(1) + 'M';
     }
@@ -310,37 +282,33 @@ export class HomeComponent implements OnInit {
     return num.toString();
   }
 
-  // Notification methods
-  private showSuccess(message: string): void {
-    this.snackBar.open(message, 'Cerrar', {
-      duration: 3000,
-      panelClass: ['success-snackbar']
-    });
+  /**
+   * Obtener tiempo relativo
+   */
+  public getRelativeTime(date: Date): string {
+    const now = new Date();
+    const diff = now.getTime() - date.getTime();
+    const hours = Math.floor(diff / (1000 * 60 * 60));
+    
+    if (hours < 1) return 'Ahora';
+    if (hours === 1) return 'Hace 1 hora';
+    if (hours < 24) return `Hace ${hours} horas`;
+    
+    const days = Math.floor(hours / 24);
+    if (days === 1) return 'Hace 1 día';
+    return `Hace ${days} días`;
   }
 
-  private showError(message: string): void {
-    this.snackBar.open(message, 'Cerrar', {
-      duration: 5000,
-      panelClass: ['error-snackbar']
-    });
-  }
+  // ===== TEMPLATE GETTERS =====
 
-  private showInfo(message: string): void {
-    this.snackBar.open(message, 'Cerrar', {
-      duration: 4000,
-      panelClass: ['info-snackbar']
-    });
-  }
-
-  // Getters for template
-  get welcomeMessage(): string {
+  public get welcomeMessage(): string {
     const user = this.currentUser();
     const hour = new Date().getHours();
     const greeting = hour < 12 ? 'Buenos días' : hour < 18 ? 'Buenas tardes' : 'Buenas noches';
     return `${greeting}, ${user?.displayName || 'Usuario'}`;
   }
 
-  get userRoleDisplay(): string {
+  public get userRoleDisplay(): string {
     const user = this.currentUser();
     if (!user) return '';
 
@@ -352,6 +320,30 @@ export class HomeComponent implements OnInit {
       client: 'Cliente'
     };
 
-    return roleNames[user.role] || user.role;
+    return roleNames[user.role as keyof typeof roleNames] || user.role;
+  }
+
+  // ===== PRIVATE METHODS =====
+
+  /**
+   * Mostrar mensaje de error
+   */
+  private showError(message: string): void {
+    this.snackBar.open(message, 'Cerrar', {
+      duration: 5000,
+      horizontalPosition: 'end',
+      verticalPosition: 'top'
+    });
+  }
+
+  /**
+   * Mostrar mensaje de éxito
+   */
+  private showSuccess(message: string): void {
+    this.snackBar.open(message, 'Cerrar', {
+      duration: 3000,
+      horizontalPosition: 'end',
+      verticalPosition: 'top'
+    });
   }
 }
