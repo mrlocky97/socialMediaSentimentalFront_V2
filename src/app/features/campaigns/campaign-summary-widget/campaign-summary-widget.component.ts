@@ -14,7 +14,7 @@ import { RouterModule } from '@angular/router';
 import { TranslocoModule } from '@ngneat/transloco';
 import { Subject, takeUntil } from 'rxjs';
 
-import { Campaign, CampaignStatus } from '../models/campaign.model';
+import { Campaign, CampaignStatus, CampaignListResponse } from '../models/campaign.model';
 import { CampaignService } from '../services/campaign.service';
 
 interface CampaignSummary {
@@ -116,7 +116,7 @@ export class CampaignSummaryWidgetComponent implements OnInit, OnDestroy {
     // Load first page with larger size to get overview
     this.campaignService.getCampaigns(1, 20)
       .pipe(takeUntil(this.destroy$))
-      .subscribe(response => {
+      .subscribe((response: CampaignListResponse) => {
         this.campaigns.set(response.campaigns);
         this.loading.set(false);
       });

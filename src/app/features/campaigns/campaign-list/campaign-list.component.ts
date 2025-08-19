@@ -1,297 +1,381 @@
-/**
- * Campaign List Container Component
- * Smart component that handles business logic and state
- */
+/* =====================================
+   CAMPAIGN LIST COMPONENT
+   Enterprise data table with advanced filtering
+   ===================================== */
+
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatMenuModule } from '@angular/material/menu';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSortModule, Sort } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
-import { Router } from '@angular/router';
-import { CampaignFacade } from '../../../core/facades/campaign.facade';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { RouterModule } from '@angular/router';
+import { TranslocoModule, TranslocoService } from '@ngneat/transloco';
+import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
+
+import {
+  Campaign,
+  CampaignFilters,
+  CampaignSortOptions,
+  CampaignStatus,
+  CampaignType,
+  SocialPlatform
+} from '../models/campaign.model';
+import { CampaignService } from '../services/campaign.service';
 
 @Component({
   selector: 'app-campaign-list',
   standalone: true,
   imports: [
     CommonModule,
-    MatButtonModule,
-    MatCardModule,
-    MatIconModule,
+    ReactiveFormsModule,
+    RouterModule,
+    TranslocoModule,
     MatTableModule,
-    MatProgressSpinnerModule
+    MatButtonModule,
+    MatIconModule,
+    MatInputModule,
+    MatSelectModule,
+    MatChipsModule,
+    MatMenuModule,
+    MatCheckboxModule,
+    MatPaginatorModule,
+    MatSortModule,
+    MatProgressSpinnerModule,
+    MatCardModule,
+    MatBadgeModule,
+    MatTooltipModule,
+    MatProgressBarModule,
+    MatDividerModule
   ],
-  template: `
-    <div class="campaign-list-container">
-      <div class="header">
-        <h2>Campaigns</h2>
-        <button mat-raised-button color="primary" (click)="createCampaign()">
-          <mat-icon>add</mat-icon>
-          New Campaign
-        </button>
-      </div>
-
-      @if (campaignFacade.loading$()) {
-        <div class="loading-container">
-          <mat-spinner></mat-spinner>
-        </div>
-      }
-
-      @if (campaignFacade.error$() && !campaignFacade.loading$()) {
-        <div class="error-container">
-          <mat-icon>error</mat-icon>
-          <span>{{ campaignFacade.error$() }}</span>
-          <button mat-button (click)="campaignFacade.clearError()">Dismiss</button>
-        </div>
-      }
-
-      @if (campaigns().length > 0 && !campaignFacade.loading$()) {
-        <div class="campaigns-grid">
-          @for (campaign of campaigns(); track campaign.id) {
-            <mat-card class="campaign-card" (click)="selectCampaign(campaign.id)">
-              <mat-card-header>
-                <mat-card-title>{{ campaign.name }}</mat-card-title>
-                <mat-card-subtitle>{{ campaign.type | titlecase }}</mat-card-subtitle>
-                <div class="status-badge" [class]="'status-' + campaign.status">
-                  {{ campaign.status | titlecase }}
-                </div>
-              </mat-card-header>
-
-              <mat-card-content>
-                <p>{{ campaign.description || 'No description available' }}</p>
-
-                <div class="campaign-details">
-                  <div class="detail-item">
-                    <mat-icon>local_offer</mat-icon>
-                    <span>{{ campaign.hashtags.length }} hashtags</span>
-                  </div>
-                  <div class="detail-item">
-                    <mat-icon>search</mat-icon>
-                    <span>{{ campaign.keywords.length }} keywords</span>
-                  </div>
-                  <div class="detail-item">
-                    <mat-icon>timeline</mat-icon>
-                    <span>{{ campaign.maxTweets }} max tweets</span>
-                  </div>
-                </div>
-
-                <div class="date-range">
-                  <small>{{ formatDate(campaign.startDate) }} - {{ formatDate(campaign.endDate) }}</small>
-                </div>
-              </mat-card-content>
-
-              <mat-card-actions>
-                @if (campaign.status === 'inactive') {
-                  <button mat-button color="primary" (click)="startCampaign($event, campaign.id)">
-                    <mat-icon>play_arrow</mat-icon>
-                    Start
-                  </button>
-                }
-                @if (campaign.status === 'active') {
-                  <button mat-button color="warn" (click)="stopCampaign($event, campaign.id)">
-                    <mat-icon>stop</mat-icon>
-                    Stop
-                  </button>
-                }
-                <button mat-button (click)="editCampaign($event, campaign.id)">
-                  <mat-icon>edit</mat-icon>
-                  Edit
-                </button>
-              </mat-card-actions>
-            </mat-card>
-          }
-        </div>
-      }
-
-      @if (campaigns().length === 0 && !campaignFacade.loading$()) {
-        <div class="empty-state">
-          <mat-icon>campaign</mat-icon>
-          <h3>No campaigns found</h3>
-          <p>Create your first campaign to start monitoring social media sentiment.</p>
-          <button mat-raised-button color="primary" (click)="createCampaign()">
-            Create Campaign
-          </button>
-        </div>
-      }
-    </div>
-  `,
-  styles: [`
-    .campaign-list-container {
-      padding: 24px;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 24px;
-    }
-
-    .loading-container {
-      display: flex;
-      justify-content: center;
-      padding: 48px;
-    }
-
-    .error-container {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 16px;
-      background-color: #ffebee;
-      border-radius: 4px;
-      color: #c62828;
-      margin-bottom: 24px;
-    }
-
-    .campaigns-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
-      gap: 24px;
-    }
-
-    .campaign-card {
-      cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-    .campaign-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    }
-
-    .campaign-details {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin: 16px 0;
-    }
-
-    .detail-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 14px;
-    }
-
-    .detail-item mat-icon {
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
-      color: #666;
-    }
-
-    .status-badge {
-      padding: 4px 8px;
-      border-radius: 12px;
-      font-size: 12px;
-      font-weight: 500;
-      text-transform: uppercase;
-    }
-
-    .status-active {
-      background-color: #e8f5e8;
-      color: #2e7d32;
-    }
-
-    .status-inactive {
-      background-color: #fff3e0;
-      color: #f57c00;
-    }
-
-    .status-completed {
-      background-color: #e3f2fd;
-      color: #1976d2;
-    }
-
-    .date-range {
-      margin-top: 16px;
-      color: #666;
-    }
-
-    .empty-state {
-      text-align: center;
-      padding: 48px;
-    }
-
-    .empty-state mat-icon {
-      font-size: 64px;
-      width: 64px;
-      height: 64px;
-      color: #ccc;
-      margin-bottom: 16px;
-    }
-
-    .empty-state h3 {
-      margin: 16px 0 8px;
-      color: #666;
-    }
-
-    .empty-state p {
-      color: #999;
-      margin-bottom: 24px;
-    }
-
-    mat-card-actions {
-      display: flex;
-      gap: 8px;
-    }
-  `]
+  templateUrl: './campaign-list.component.html',
+  styleUrls: ['./campaign-list.component.css']
 })
-export class CampaignListComponent implements OnInit {
-  private router = inject(Router);
-  private snackBar = inject(MatSnackBar);
+export class CampaignListComponent implements OnInit, OnDestroy {
+  private readonly campaignService = inject(CampaignService);
+  private readonly translocoService = inject(TranslocoService);
+  private readonly fb = inject(FormBuilder);
+  private readonly destroy$ = new Subject<void>();
 
-  campaignFacade = inject(CampaignFacade);
-  campaigns = this.campaignFacade.campaigns$;
+  // Signals for reactive state management
+  campaigns = signal<Campaign[]>([]);
+  loading = signal<boolean>(false);
+  error = signal<string | null>(null);
+  selectedCampaigns = signal<Set<string>>(new Set());
+  totalCount = signal<number>(0);
+  currentPage = signal<number>(0);
+  pageSize = signal<number>(10);
+
+  // Table configuration
+  displayedColumns: string[] = [
+    'select',
+    'name',
+    'status',
+    'type',
+    'platforms',
+    'budget',
+    'performance',
+    'timeline',
+    'actions'
+  ];
+
+  // Filter form
+  filterForm: FormGroup;
+
+  // Computed values
+  hasSelectedCampaigns = computed(() => this.selectedCampaigns().size > 0);
+  isAllSelected = computed(() =>
+    this.campaigns().length > 0 &&
+    this.selectedCampaigns().size === this.campaigns().length
+  );
+
+  // Enum references for template
+  CampaignStatus = CampaignStatus;
+  CampaignType = CampaignType;
+  SocialPlatform = SocialPlatform;
+
+  constructor() {
+    // Initialize filter form
+    this.filterForm = this.fb.group({
+      search: [''],
+      status: [[]],
+      type: [[]],
+      platforms: [[]],
+      dateRange: [null]
+    });
+
+    // Setup search debouncing
+    this.filterForm.get('search')?.valueChanges
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        takeUntil(this.destroy$)
+      )
+      .subscribe(() => this.applyFilters());
+
+    // Setup other filter changes
+    this.filterForm.valueChanges
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => this.applyFilters());
+  }
 
   ngOnInit(): void {
     // DESACTIVADO: No cargar campañas automáticamente para evitar errores 401
-    console.log('  Campaign List - loadCampaigns DESACTIVADO para evitar errores 401');
+    console.log('  Campaign Management List - loadCampaigns DESACTIVADO para evitar errores 401');
     // this.loadCampaigns();
+    this.subscribeToUpdates();
   }
 
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  /**
+   * Load campaigns with current filters and pagination
+   */
   loadCampaigns(): void {
-    this.campaignFacade.loadCampaigns().subscribe();
+    const filters = this.buildFilters();
+    const sort: CampaignSortOptions = {
+      field: 'updatedAt',
+      direction: 'desc'
+    };
+
+    this.campaignService.getCampaigns(
+      this.currentPage() + 1,
+      this.pageSize(),
+      filters,
+      sort
+    ).pipe(takeUntil(this.destroy$))
+      .subscribe(response => {
+        this.campaigns.set(response.campaigns);
+        this.totalCount.set(response.totalCount);
+        this.selectedCampaigns.set(new Set());
+      });
   }
 
-  createCampaign(): void {
-    this.router.navigate(['/dashboard/campaigns/create']);
+  /**
+   * Subscribe to service state updates
+   */
+  private subscribeToUpdates(): void {
+    this.campaignService.loading$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(loading => this.loading.set(loading));
+
+    this.campaignService.error$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(error => this.error.set(error));
   }
 
-  selectCampaign(campaignId: string): void {
-    this.router.navigate(['/dashboard/campaigns', campaignId]);
+  /**
+   * Build filters from form values
+   */
+  private buildFilters(): CampaignFilters {
+    const formValue = this.filterForm.value;
+    const filters: CampaignFilters = {};
+
+    if (formValue.search?.trim()) {
+      filters.search = formValue.search.trim();
+    }
+
+    if (formValue.status?.length) {
+      filters.status = formValue.status;
+    }
+
+    if (formValue.type?.length) {
+      filters.type = formValue.type;
+    }
+
+    if (formValue.platforms?.length) {
+      filters.platforms = formValue.platforms;
+    }
+
+    if (formValue.dateRange) {
+      filters.dateRange = formValue.dateRange;
+    }
+
+    return filters;
   }
 
-  editCampaign(event: Event, campaignId: string): void {
-    event.stopPropagation();
-    this.router.navigate(['/dashboard/campaigns', campaignId, 'edit']);
+  /**
+   * Apply current filters
+   */
+  applyFilters(): void {
+    this.currentPage.set(0);
+    this.loadCampaigns();
   }
 
-  startCampaign(event: Event, campaignId: string): void {
-    event.stopPropagation();
-    this.campaignFacade.startCampaign(campaignId).subscribe(success => {
-      if (success) {
-        this.snackBar.open('Campaign started successfully', 'Close', { duration: 3000 });
-      }
+  /**
+   * Clear all filters
+   */
+  clearFilters(): void {
+    this.filterForm.reset({
+      search: '',
+      status: [],
+      type: [],
+      platforms: [],
+      dateRange: null
     });
   }
 
-  stopCampaign(event: Event, campaignId: string): void {
-    event.stopPropagation();
-    this.campaignFacade.stopCampaign(campaignId).subscribe(success => {
-      if (success) {
-        this.snackBar.open('Campaign stopped successfully', 'Close', { duration: 3000 });
-      }
-    });
+  /**
+   * Handle page change
+   */
+  onPageChange(event: PageEvent): void {
+    this.currentPage.set(event.pageIndex);
+    this.pageSize.set(event.pageSize);
+    this.loadCampaigns();
   }
 
-  formatDate(date: Date): string {
-    return new Date(date).toLocaleDateString();
+  /**
+   * Handle sort change
+   */
+  onSortChange(sort: Sort): void {
+    // Implement sorting logic
+    console.log('Sort changed:', sort);
+  }
+
+  /**
+   * Toggle campaign selection
+   */
+  toggleCampaignSelection(campaignId: string): void {
+    const selected = new Set(this.selectedCampaigns());
+    if (selected.has(campaignId)) {
+      selected.delete(campaignId);
+    } else {
+      selected.add(campaignId);
+    }
+    this.selectedCampaigns.set(selected);
+  }
+
+  /**
+   * Toggle all campaigns selection
+   */
+  toggleAllSelection(): void {
+    if (this.isAllSelected()) {
+      this.selectedCampaigns.set(new Set());
+    } else {
+      const allIds = new Set(this.campaigns().map(c => c.id));
+      this.selectedCampaigns.set(allIds);
+    }
+  }
+
+  /**
+   * Update campaign status
+   */
+  updateCampaignStatus(campaignId: string, status: CampaignStatus): void {
+    this.campaignService.updateCampaignStatus(campaignId, status)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(success => {
+        if (success) {
+          // Status updated successfully
+          console.log('Campaign status updated');
+        }
+      });
+  }
+
+  /**
+   * Bulk update status for selected campaigns
+   */
+  bulkUpdateStatus(status: CampaignStatus): void {
+    const selectedIds = Array.from(this.selectedCampaigns());
+    if (selectedIds.length === 0) return;
+
+    this.campaignService.bulkUpdateStatus(selectedIds, status)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(success => {
+        if (success) {
+          this.selectedCampaigns.set(new Set());
+          console.log('Bulk status update completed');
+        }
+      });
+  }
+
+  /**
+   * Delete campaign
+   */
+  deleteCampaign(campaignId: string): void {
+    // Add confirmation dialog here
+    this.campaignService.deleteCampaign(campaignId)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(success => {
+        if (success) {
+          console.log('Campaign deleted');
+        }
+      });
+  }
+
+  /**
+   * Duplicate campaign
+   */
+  duplicateCampaign(campaign: Campaign): void {
+    const newName = `${campaign.name} (Copy)`;
+    this.campaignService.duplicateCampaign(campaign.id, newName)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(duplicated => {
+        if (duplicated) {
+          console.log('Campaign duplicated');
+        }
+      });
+  }
+
+  /**
+   * Get status color for display
+   */
+  getStatusColor(status: CampaignStatus): string {
+    const colors = {
+      [CampaignStatus.ACTIVE]: 'success',
+      [CampaignStatus.PAUSED]: 'warning',
+      [CampaignStatus.COMPLETED]: 'primary',
+      [CampaignStatus.CANCELLED]: 'danger',
+      [CampaignStatus.DRAFT]: 'secondary',
+      [CampaignStatus.SCHEDULED]: 'info'
+    };
+    return colors[status] || 'secondary';
+  }
+
+  /**
+   * Format currency for display
+   */
+  formatCurrency(amount: number, currency: string = 'USD'): string {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency
+    }).format(amount);
+  }
+
+  /**
+   * Format percentage for display
+   */
+  formatPercentage(value: number): string {
+    return `${(value * 100).toFixed(1)}%`;
+  }
+
+  /**
+   * Get platform icon
+   */
+  getPlatformIcon(platform: SocialPlatform): string {
+    const icons = {
+      [SocialPlatform.TWITTER]: 'twitter',
+      [SocialPlatform.FACEBOOK]: 'facebook',
+      [SocialPlatform.INSTAGRAM]: 'instagram',
+      [SocialPlatform.LINKEDIN]: 'linkedin',
+      [SocialPlatform.TIKTOK]: 'music_note',
+      [SocialPlatform.YOUTUBE]: 'play_circle'
+    };
+    return icons[platform] || 'public';
   }
 }

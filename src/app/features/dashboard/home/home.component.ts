@@ -12,7 +12,7 @@ import { TranslocoModule } from '@ngneat/transloco';
 
 import { AuthService } from '../../../core/auth/services/auth.service';
 
-import { CampaignSummaryWidgetComponent } from '../../campaign-management/campaign-summary-widget/campaign-summary-widget.component';
+import { CampaignSummaryWidgetComponent } from '../../campaigns/campaign-summary-widget/campaign-summary-widget.component';
 import { PendingTweetWidgetComponent } from '../../pending-tweet-widget/pending-tweet-widget.component';
 import { DashboardService } from '../service/dashboard.container.service';
 import { HomeService } from './service/home.service';
