@@ -1,8 +1,7 @@
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
+import { HttpBackend, HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Router } from '@angular/router';
-import { Observable, of, throwError, timer } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { catchError, finalize, map, retry, tap } from 'rxjs/operators';
 
 // ===== CONFIGURACIÓN DE AUTENTICACIÓN =====
@@ -103,11 +102,13 @@ export const PERMISSIONS = {
   providedIn: 'root'
 })
 export class AuthService {
-  private readonly http = inject(HttpClient);
+  private readonly http: HttpClient;
+  private readonly httpBackend = inject(HttpBackend);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
 
   private tokenRefreshTimer?: ReturnType<typeof setTimeout>;
+  private isRefreshingToken = false; // Flag para evitar múltiples refreshes simultáneos
 
   // ===== SIGNALS PÚBLICOS =====
   public readonly isAuthenticated = signal<boolean>(false);
@@ -117,15 +118,10 @@ export class AuthService {
   public readonly token = signal<string | null>(null);
   public readonly tokenExpiry = signal<Date | null>(null);
 
-  // Computed values
-  public readonly userRole = computed(() => this.currentUser()?.role);
-  public readonly userPermissions = computed(() => this.currentUser()?.permissions || []);
-  public readonly isAdmin = computed(() => this.userRole() === 'admin');
-  public readonly isManager = computed(() => ['admin', 'manager'].includes(this.userRole() || ''));
-  public readonly organizationId = computed(() => this.currentUser()?.organizationId);
-  public readonly hasOrganization = computed(() => !!this.organizationId());
-
   constructor() {
+    // Crear HttpClient sin interceptores para evitar dependencia circular
+    this.http = new HttpClient(this.httpBackend);
+
     // Inicializar estado desde localStorage
     this.initializeFromStorage();
 
@@ -137,6 +133,14 @@ export class AuthService {
       this.clearTokenRefreshTimer();
     });
   }
+
+  // Computed values
+  public readonly userRole = computed(() => this.currentUser()?.role);
+  public readonly userPermissions = computed(() => this.currentUser()?.permissions || []);
+  public readonly isAdmin = computed(() => this.userRole() === 'admin');
+  public readonly isManager = computed(() => ['admin', 'manager'].includes(this.userRole() || ''));
+  public readonly organizationId = computed(() => this.currentUser()?.organizationId);
+  public readonly hasOrganization = computed(() => !!this.organizationId());
 
   // ===== MÉTODOS PÚBLICOS =====
 
@@ -161,25 +165,7 @@ export class AuthService {
         map(authData => authData.user),
         retry(1),
         catchError(error => {
-          console.log('Authentication error details:', error);
-
-          // Detectar si el backend no está disponible o hay problemas de autenticación
-          const isBackendUnavailable = (
-            error.status === 0 ||           // Sin conexión
-            error.status === 404 ||         // Endpoint no encontrado
-            error.status === 500 ||         // Error interno del servidor
-            error.status === 401 ||         // No autorizado (para pruebas mock)
-            error.status === 502 ||         // Bad Gateway
-            error.status === 503 ||         // Service Unavailable
-            !error.status ||                // Sin status (error de red)
-            error.name === 'HttpErrorResponse' && !error.url // Error de conectividad
-          );
-
-          if (isBackendUnavailable) {
-            console.warn('🔄 Backend no disponible, usando autenticación mock para desarrollo');
-            return this.mockLogin(credentials);
-          }
-
+          console.error('Authentication error details:', error);
           return this.handleAuthError(error);
         }),
         finalize(() => this.isLoading.set(false))
@@ -231,12 +217,21 @@ export class AuthService {
    * Renovar token
    */
   public refreshToken(): Observable<boolean> {
+    // Evitar múltiples refreshes simultáneos
+    if (this.isRefreshingToken) {
+      console.log('🔄 Token refresh ya en progreso, saltando...');
+      return of(false);
+    }
+
     const refreshToken = localStorage.getItem(AUTH_CONFIG.STORAGE_KEYS.REFRESH_TOKEN);
 
     if (!refreshToken) {
       this.logout();
       return of(false);
     }
+
+    this.isRefreshingToken = true;
+    console.log('🔄 Iniciando refresh de token...');
 
     return this.http.post<RefreshResponse>(`${AUTH_CONFIG.BASE_URL}${AUTH_CONFIG.ENDPOINTS.REFRESH}`, {
       refreshToken
@@ -258,12 +253,17 @@ export class AuthService {
 
         // Reprogramar refresh
         this.scheduleTokenRefresh(expiry);
+
+        console.log('✅ Token refreshed exitosamente. Nueva expiración:', expiry.toLocaleTimeString());
       }),
       map(() => true),
       catchError(error => {
         console.error('Error renovando token:', error);
         this.logout();
         return of(false);
+      }),
+      finalize(() => {
+        this.isRefreshingToken = false; // Liberar flag
       })
     );
   }
@@ -364,20 +364,23 @@ export class AuthService {
   }
 
   private setupTokenRefresh(): void {
-    // Verificar cada minuto si necesitamos renovar el token
-    timer(0, 60000)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe(() => {
-        const expiry = this.tokenExpiry();
-        if (expiry && this.isAuthenticated()) {
-          const timeUntilExpiry = expiry.getTime() - Date.now();
+    // DESACTIVADO: Token refresh automático para evitar saturación del backend
+    // Solo haremos refresh cuando sea absolutamente necesario (manual o al hacer peticiones)
+    console.log('  Token refresh automático DESACTIVADO para evitar saturación del backend');
 
-          // Si faltan menos de 5 minutos para expirar, renovar
-          if (timeUntilExpiry < AUTH_CONFIG.TOKEN_REFRESH_BUFFER) {
-            this.refreshToken().subscribe();
-          }
-        }
-      });
+    // Comentado temporalmente:
+    // timer(0, 120000) // Cambiado de 60000 a 120000 (2 minutos)
+    //   .pipe(takeUntilDestroyed(this.destroyRef))
+    //   .subscribe(() => {
+    //     const expiry = this.tokenExpiry();
+    //     if (expiry && this.isAuthenticated()) {
+    //       const timeUntilExpiry = expiry.getTime() - Date.now();
+    //       if (timeUntilExpiry < AUTH_CONFIG.TOKEN_REFRESH_BUFFER) {
+    //         console.log('🔄 Token refresh necesario. Tiempo restante:', Math.round(timeUntilExpiry / 60000), 'minutos');
+    //         this.refreshToken().subscribe();
+    //       }
+    //     }
+    //   });
   }
 
   private scheduleTokenRefresh(expiry: Date): void {
@@ -428,127 +431,35 @@ export class AuthService {
 
   private handleAuthError(error: HttpErrorResponse): Observable<never> {
     let errorMessage = 'Error de autenticación';
-
-    if (error.status === 401) {
-      errorMessage = 'Credenciales inválidas';
-    } else if (error.status === 403) {
-      errorMessage = 'Acceso denegado';
-    } else if (error.status === 404) {
-      errorMessage = 'Usuario no encontrado';
-    } else if (error.status === 422) {
-      errorMessage = 'Datos inválidos';
-    } else if (error.error?.message) {
-      errorMessage = error.error.message;
+    switch (error.status) {
+      case 400:
+        errorMessage = 'Solicitud incorrecta. Verifique sus datos.';
+        break;
+      case 401:
+        errorMessage = 'Credenciales inválidas';
+        break;
+      case 403:
+        errorMessage = 'Acceso denegado';
+        break;
+      case 404:
+        errorMessage = 'Usuario no encontrado';
+        break;
+      case 422:
+        errorMessage = 'Datos inválidos';
+        break;
+      case 429:
+        errorMessage = 'Demasiadas peticiones. Intente nuevamente en unos momentos';
+        console.warn('Rate limit alcanzado. Considere implementar throttling.');
+        break;
+      case 500:
+        errorMessage = 'Error interno del servidor';
+        break;
+      default:
+        errorMessage = error.error?.message || 'Error desconocido';
     }
 
     this.error.set(errorMessage);
     console.error('Error de autenticación:', error);
     return throwError(() => new Error(errorMessage));
-  }
-
-  /**
-   * Mock login para desarrollo cuando el backend no está disponible
-   */
-  private mockLogin(credentials: LoginRequest): Observable<User> {
-    console.log('🚀 Iniciando mock login con credenciales:', credentials);
-
-    // Validar credenciales mock
-    const validCredentials = [
-      { email: 'admin@sentimentalsocial.com', password: 'admin123', role: 'admin' as const },
-      { email: 'manager@sentimentalsocial.com', password: 'manager123', role: 'manager' as const },
-      { email: 'analyst@sentimentalsocial.com', password: 'analyst123', role: 'analyst' as const },
-      { email: 'demo@sentimentalsocial.com', password: 'demo123', role: 'client' as const }
-    ];
-
-    const validCred = validCredentials.find(
-      cred => cred.email === credentials.email && cred.password === credentials.password
-    );
-
-    if (!validCred) {
-      console.error('❌ Credenciales mock inválidas:', credentials);
-      this.error.set('Credenciales inválidas para desarrollo');
-      return throwError(() => new Error('Credenciales inválidas'));
-    }
-
-    console.log('✅ Credenciales mock válidas, creando usuario:', validCred.role);
-
-    // Crear usuario mock
-    const mockUser: User = {
-      id: `mock-${validCred.role}-001`,
-      email: validCred.email,
-      username: validCred.role,
-      displayName: `${validCred.role.charAt(0).toUpperCase() + validCred.role.slice(1)} User`,
-      role: validCred.role,
-      permissions: this.getMockPermissions(validCred.role),
-      organizationId: 'mock-org-001',
-      isActive: true,
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-
-    // Crear token mock
-    const mockToken = `mock-token-${Date.now()}`;
-    const mockExpiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 horas
-
-    // Simular autenticación exitosa
-    this.currentUser.set(mockUser);
-    this.token.set(mockToken);
-    this.tokenExpiry.set(mockExpiry);
-    this.isAuthenticated.set(true);
-
-    // Guardar en localStorage
-    localStorage.setItem(AUTH_CONFIG.STORAGE_KEYS.TOKEN, mockToken);
-    localStorage.setItem(AUTH_CONFIG.STORAGE_KEYS.USER, JSON.stringify(mockUser));
-
-    console.log('🚀 Mock authentication completada exitosamente:', mockUser);
-    console.log('🔑 Token mock guardado:', mockToken);
-
-    // Limpiar cualquier error previo
-    this.error.set(null);
-
-    return of(mockUser);
-  }
-
-  /**
-   * Obtener permisos mock según el rol
-   */
-  private getMockPermissions(role: User['role']): string[] {
-    switch (role) {
-      case 'admin':
-        return ['*']; // Todos los permisos
-      case 'manager':
-        return [
-          PERMISSIONS.CAMPAIGNS_CREATE,
-          PERMISSIONS.CAMPAIGNS_EDIT,
-          PERMISSIONS.CAMPAIGNS_VIEW,
-          PERMISSIONS.CAMPAIGNS_DELETE,
-          PERMISSIONS.CAMPAIGNS_CONTROL,
-          PERMISSIONS.ANALYTICS_VIEW,
-          PERMISSIONS.ANALYTICS_EXPORT,
-          PERMISSIONS.ANALYTICS_ADVANCED,
-          PERMISSIONS.USERS_VIEW,
-          PERMISSIONS.ORG_MANAGE
-        ];
-      case 'analyst':
-        return [
-          PERMISSIONS.CAMPAIGNS_VIEW,
-          PERMISSIONS.CAMPAIGNS_CONTROL,
-          PERMISSIONS.ANALYTICS_VIEW,
-          PERMISSIONS.ANALYTICS_EXPORT,
-          PERMISSIONS.ANALYTICS_ADVANCED
-        ];
-      case 'onlyView':
-        return [
-          PERMISSIONS.CAMPAIGNS_VIEW,
-          PERMISSIONS.ANALYTICS_VIEW
-        ];
-      case 'client':
-        return [
-          PERMISSIONS.CAMPAIGNS_VIEW,
-          PERMISSIONS.ANALYTICS_VIEW
-        ];
-      default:
-        return [];
-    }
   }
 }

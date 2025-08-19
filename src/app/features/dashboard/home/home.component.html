@@ -1,121 +1,278 @@
 <!-- =====================================
      DASHBOARD HOME COMPONENT
-     Main dashboard with campaign summary
+     Modern dashboard with enhanced UX
      ===================================== -->
 
 <div class="home-dashboard">
-  <!-- Dashboard Header -->
+  <!-- Enhanced Dashboard Header -->
   <header class="dashboard-header">
     <div class="header-content">
       <div class="welcome-section">
         <h1 class="welcome-title">{{ 'dashboard.welcome' | transloco }}</h1>
         <p class="welcome-subtitle">{{ 'dashboard.subtitle' | transloco }}</p>
       </div>
+
       <div class="header-actions">
-        <button mat-raised-button color="primary" (click)="onCreateCampaign()" class="create-campaign-btn">
-          <mat-icon>add</mat-icon>
+        <button mat-raised-button color="primary" (click)="onCreateCampaign()" class="create-campaign-btn modern-btn">
+          <mat-icon>add_circle_outline</mat-icon>
           {{ 'campaigns.create' | transloco }}
         </button>
-        <button mat-stroked-button color="accent" [routerLink]="['/dashboard/campaigns']" class="view-campaigns-btn">
-          <mat-icon>list</mat-icon>
-          Ver Campañas
+        <button
+          mat-stroked-button
+          color="accent"
+          [routerLink]="['/dashboard/campaigns']"
+          class="view-campaigns-btn modern-btn"
+        >
+          <mat-icon>campaign</mat-icon>
+          {{ 'campaigns.viewAll' | transloco }}
         </button>
-        <button mat-icon-button (click)="onRefreshData()" title="Refresh Data" class="refresh-btn">
+        <button
+          mat-icon-button
+          (click)="onRefreshData()"
+          [title]="'shared.actions.refresh' | transloco"
+          class="refresh-btn modern-icon-btn"
+        >
           <mat-icon>refresh</mat-icon>
         </button>
       </div>
     </div>
   </header>
 
-  <!-- Dashboard Widgets Grid -->
+  <!-- Enhanced Dashboard Widgets Grid -->
   <div class="dashboard-grid">
-    <!-- Campaign Summary Widget -->
+    <!-- Campaign Summary Widget - Enhanced with better UX -->
+    @if (authService.isAuthenticated()) {
     <div class="widget-container campaign-summary">
       <app-campaign-summary-widget></app-campaign-summary-widget>
     </div>
+    } @else {
+    <div class="widget-container campaign-summary">
+      <mat-card class="auth-required-card">
+        <mat-card-header>
+          <div mat-card-avatar class="auth-icon">
+            <mat-icon>lock_outline</mat-icon>
+          </div>
+          <mat-card-title>{{ 'campaigns.summary.title' | transloco }}</mat-card-title>
+          <mat-card-subtitle>{{ 'dashboard.auth_required' | transloco }}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <p class="auth-message">{{ 'dashboard.login_to_view_campaigns' | transloco }}</p>
+          <button mat-raised-button color="primary" [routerLink]="['/login']" class="login-cta">
+            <mat-icon>login</mat-icon>
+            {{ 'login.title' | transloco }}
+          </button>
+        </mat-card-content>
+      </mat-card>
+    </div>
+    }
 
-    <!-- Pending Tweet Widget -->
+    <!-- Pending Tweet Widget - Enhanced with better UX -->
+    @if (authService.isAuthenticated()) {
     <div class="widget-container pending-tweets">
       <app-pending-tweet-widget></app-pending-tweet-widget>
     </div>
+    } @else {
+    <div class="widget-container pending-tweets">
+      <mat-card class="auth-required-card">
+        <mat-card-header>
+          <div mat-card-avatar class="auth-icon">
+            <mat-icon>pending_actions</mat-icon>
+          </div>
+          <mat-card-title>{{ 'widget.pending_tweets.title' | transloco }}</mat-card-title>
+          <mat-card-subtitle>{{ 'dashboard.auth_required' | transloco }}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <p class="auth-message">{{ 'dashboard.login_to_view_tweets' | transloco }}</p>
+          <button mat-raised-button color="primary" [routerLink]="['/login']" class="login-cta">
+            <mat-icon>login</mat-icon>
+            {{ 'login.title' | transloco }}
+          </button>
+        </mat-card-content>
+      </mat-card>
+    </div>
+    }
 
-    <!-- Analytics Overview Widget -->
+    <!-- Enhanced Analytics Overview Widget -->
+    @if (authService.isAuthenticated()) {
     <div class="widget-container analytics-preview">
-      <mat-card class="dashboard-stats-widget">
+      <mat-card class="dashboard-stats-widget modern-card">
         <mat-card-header>
-          <mat-card-title>
+          <div mat-card-avatar class="stats-icon">
             <mat-icon>analytics</mat-icon>
-            Analytics Overview
-          </mat-card-title>
-          <mat-card-subtitle>Real-time metrics</mat-card-subtitle>
+          </div>
+          <mat-card-title>{{ 'dashboard.analytics.title' | transloco }}</mat-card-title>
+          <mat-card-subtitle>{{ 'dashboard.analytics.subtitle' | transloco }}</mat-card-subtitle>
         </mat-card-header>
         <mat-card-content>
           @if (isLoading()) {
-          <div class="loading-container">
-            <mat-progress-spinner diameter="40"></mat-progress-spinner>
+          <div class="loading-container modern-loading">
+            <div class="skeleton-stats">
+              <div class="skeleton-item"></div>
+              <div class="skeleton-item"></div>
+              <div class="skeleton-item"></div>
+              <div class="skeleton-item"></div>
+            </div>
           </div>
           } @else {
-          <div class="stats-grid">
+          <div class="stats-grid modern-stats">
             <div class="stat-item">
-              <div class="stat-number">{{ formatNumber(totalTweets()) }}</div>
-              <div class="stat-label">Total Tweets</div>
+              <div class="stat-icon-wrapper">
+                <mat-icon class="stat-icon">forum</mat-icon>
+              </div>
+              <div class="stat-content">
+                <div class="stat-number">{{ formatNumber(totalTweets()) }}</div>
+                <div class="stat-label">{{ 'dashboard.stats.total_tweets' | transloco }}</div>
+              </div>
             </div>
             <div class="stat-item">
-              <div class="stat-number">{{ (avgSentiment() * 100).toFixed(1) }}%</div>
-              <div class="stat-label">Avg Sentiment</div>
+              <div
+                class="stat-icon-wrapper sentiment"
+                [class]="avgSentiment() > 0.6 ? 'positive' : avgSentiment() > 0.4 ? 'neutral' : 'negative'"
+              >
+                <mat-icon class="stat-icon">{{ getSentimentIcon(avgSentiment()) }}</mat-icon>
+              </div>
+              <div class="stat-content">
+                <div class="stat-number">{{ (avgSentiment() * 100).toFixed(1) }}%</div>
+                <div class="stat-label">{{ 'dashboard.stats.avg_sentiment' | transloco }}</div>
+              </div>
             </div>
             <div class="stat-item">
-              <div class="stat-number">{{ campaigns().length }}</div>
-              <div class="stat-label">Active Campaigns</div>
+              <div class="stat-icon-wrapper">
+                <mat-icon class="stat-icon">campaign</mat-icon>
+              </div>
+              <div class="stat-content">
+                <div class="stat-number">{{ campaigns().length }}</div>
+                <div class="stat-label">{{ 'dashboard.stats.active_campaigns' | transloco }}</div>
+              </div>
             </div>
             <div class="stat-item">
-              <div class="stat-number">{{ formatNumber(totalEngagement()) }}</div>
-              <div class="stat-label">Engagement</div>
+              <div class="stat-icon-wrapper">
+                <mat-icon class="stat-icon">trending_up</mat-icon>
+              </div>
+              <div class="stat-content">
+                <div class="stat-number">{{ formatNumber(totalEngagement()) }}</div>
+                <div class="stat-label">{{ 'dashboard.stats.engagement' | transloco }}</div>
+              </div>
             </div>
           </div>
           }
         </mat-card-content>
       </mat-card>
     </div>
-
-    <!-- Sentiment Analysis Widget -->
-    <div class="widget-container sentiment-analysis">
-      <mat-card class="dashboard-sentiment-widget">
+    } @else {
+    <div class="widget-container analytics-preview">
+      <mat-card class="auth-required-card">
         <mat-card-header>
-          <mat-card-title>
-            <mat-icon [style.color]="getSentimentColor(avgSentiment())">{{
-              getSentimentIcon(avgSentiment())
-            }}</mat-icon>
-            Sentiment Analysis
-          </mat-card-title>
-          <mat-card-subtitle>Latest campaign sentiment</mat-card-subtitle>
+          <div mat-card-avatar class="auth-icon">
+            <mat-icon>analytics</mat-icon>
+          </div>
+          <mat-card-title>{{ 'dashboard.analytics.title' | transloco }}</mat-card-title>
+          <mat-card-subtitle>{{ 'dashboard.auth_required' | transloco }}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <p class="auth-message">{{ 'dashboard.login_to_view_analytics' | transloco }}</p>
+          <button mat-raised-button color="primary" [routerLink]="['/login']" class="login-cta">
+            <mat-icon>login</mat-icon>
+            {{ 'login.title' | transloco }}
+          </button>
+        </mat-card-content>
+      </mat-card>
+    </div>
+    }
+
+    <!-- Enhanced Sentiment Analysis Widget -->
+    @if (authService.isAuthenticated()) {
+    <div class="widget-container sentiment-analysis">
+      <mat-card class="dashboard-sentiment-widget modern-card">
+        <mat-card-header>
+          <div mat-card-avatar class="sentiment-icon" [style.color]="getSentimentColor(avgSentiment())">
+            <mat-icon>{{ getSentimentIcon(avgSentiment()) }}</mat-icon>
+          </div>
+          <mat-card-title>{{ 'dashboard.sentiment.title' | transloco }}</mat-card-title>
+          <mat-card-subtitle>{{ 'dashboard.sentiment.subtitle' | transloco }}</mat-card-subtitle>
         </mat-card-header>
         <mat-card-content>
           @if (isLoading()) {
-          <div class="loading-container">
-            <mat-progress-spinner diameter="40"></mat-progress-spinner>
+          <div class="loading-container modern-loading">
+            <div class="skeleton-sentiment">
+              <div class="skeleton-circle"></div>
+              <div class="skeleton-bars">
+                <div class="skeleton-bar"></div>
+                <div class="skeleton-bar"></div>
+                <div class="skeleton-bar"></div>
+              </div>
+            </div>
           </div>
           } @else {
-          <div class="sentiment-breakdown">
-            <div class="sentiment-item positive">
-              <mat-icon>sentiment_very_satisfied</mat-icon>
-              <span class="sentiment-percentage">{{ (positiveSentiment() * 100).toFixed(1) }}%</span>
-              <span class="sentiment-label">Positive</span>
+          <div class="sentiment-breakdown modern-sentiment">
+            <div class="sentiment-overview">
+              <div class="overall-sentiment" [style.color]="getSentimentColor(avgSentiment())">
+                <div class="sentiment-score">{{ (avgSentiment() * 100).toFixed(1) }}%</div>
+                <div class="sentiment-label">{{ 'dashboard.sentiment.overall' | transloco }}</div>
+              </div>
             </div>
-            <div class="sentiment-item neutral">
-              <mat-icon>sentiment_neutral</mat-icon>
-              <span class="sentiment-percentage">{{ (neutralSentiment() * 100).toFixed(1) }}%</span>
-              <span class="sentiment-label">Neutral</span>
-            </div>
-            <div class="sentiment-item negative">
-              <mat-icon>sentiment_very_dissatisfied</mat-icon>
-              <span class="sentiment-percentage">{{ (negativeSentiment() * 100).toFixed(1) }}%</span>
-              <span class="sentiment-label">Negative</span>
+            <div class="sentiment-details">
+              <div class="sentiment-item positive">
+                <div class="sentiment-icon-wrapper">
+                  <mat-icon>sentiment_very_satisfied</mat-icon>
+                </div>
+                <div class="sentiment-info">
+                  <span class="sentiment-percentage">{{ (positiveSentiment() * 100).toFixed(1) }}%</span>
+                  <span class="sentiment-label">{{ 'dashboard.sentiment.positive' | transloco }}</span>
+                </div>
+                <div class="sentiment-progress">
+                  <div class="progress-bar positive" [style.width.%]="positiveSentiment() * 100"></div>
+                </div>
+              </div>
+              <div class="sentiment-item neutral">
+                <div class="sentiment-icon-wrapper">
+                  <mat-icon>sentiment_neutral</mat-icon>
+                </div>
+                <div class="sentiment-info">
+                  <span class="sentiment-percentage">{{ (neutralSentiment() * 100).toFixed(1) }}%</span>
+                  <span class="sentiment-label">{{ 'dashboard.sentiment.neutral' | transloco }}</span>
+                </div>
+                <div class="sentiment-progress">
+                  <div class="progress-bar neutral" [style.width.%]="neutralSentiment() * 100"></div>
+                </div>
+              </div>
+              <div class="sentiment-item negative">
+                <div class="sentiment-icon-wrapper">
+                  <mat-icon>sentiment_very_dissatisfied</mat-icon>
+                </div>
+                <div class="sentiment-info">
+                  <span class="sentiment-percentage">{{ (negativeSentiment() * 100).toFixed(1) }}%</span>
+                  <span class="sentiment-label">{{ 'dashboard.sentiment.negative' | transloco }}</span>
+                </div>
+                <div class="sentiment-progress">
+                  <div class="progress-bar negative" [style.width.%]="negativeSentiment() * 100"></div>
+                </div>
+              </div>
             </div>
           </div>
           }
         </mat-card-content>
       </mat-card>
     </div>
+    } @else {
+    <div class="widget-container sentiment-analysis">
+      <mat-card class="auth-required-card">
+        <mat-card-header>
+          <div mat-card-avatar class="auth-icon">
+            <mat-icon>psychology</mat-icon>
+          </div>
+          <mat-card-title>{{ 'dashboard.sentiment.title' | transloco }}</mat-card-title>
+          <mat-card-subtitle>{{ 'dashboard.auth_required' | transloco }}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <p class="auth-message">{{ 'dashboard.login_to_view_sentiment' | transloco }}</p>
+          <button mat-raised-button color="primary" [routerLink]="['/login']" class="login-cta">
+            <mat-icon>login</mat-icon>
+            {{ 'login.title' | transloco }}
+          </button>
+        </mat-card-content>
+      </mat-card>
+    </div>
+    }
   </div>
 </div>

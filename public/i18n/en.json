@@ -66,7 +66,12 @@
     },
     "type": {
       "brandAwareness": "Brand Awareness",
+      "brand_awareness": "Brand Awareness",
       "leadGeneration": "Lead Generation",
+      "lead_generation": "Lead Generation",
+      "brand-monitoring": "Brand Monitoring",
+      "competitor-analysis": "Competitor Analysis",
+      "market-research": "Market Research",
       "salesConversion": "Sales Conversion",
       "engagement": "Engagement",
       "trafficDrive": "Traffic Drive",
@@ -219,13 +224,43 @@
   },
   "dashboard": {
     "welcome": "Welcome to SentimentalSocial",
-    "subtitle": "Social media sentiment analysis platform"
+    "subtitle": "Social media sentiment analysis platform",
+    "auth_required": "Authentication required",
+    "login_to_view_campaigns": "Please log in to view campaign summary.",
+    "login_to_view_tweets": "Please log in to view pending tweets.",
+    "login_to_view_analytics": "Please log in to view real-time metrics.",
+    "login_to_view_sentiment": "Please log in to view sentiment analysis.",
+    "analytics": {
+      "title": "Analytics Overview",
+      "subtitle": "Real-time metrics"
+    },
+    "sentiment": {
+      "title": "Sentiment Analysis",
+      "subtitle": "Latest campaign sentiment",
+      "overall": "Overall",
+      "positive": "Positive",
+      "neutral": "Neutral",
+      "negative": "Negative"
+    },
+    "stats": {
+      "total_tweets": "Total Tweets",
+      "avg_sentiment": "Avg Sentiment",
+      "active_campaigns": "Active Campaigns",
+      "engagement": "Engagement"
+    }
   },
   "shared": {
     "table": {
       "filter": "Filter",
       "filter_placeholder": "Filter table...",
       "no_data": "No data available"
+    },
+    "actions": {
+      "refresh": "Refresh data",
+      "login": "Log in",
+      "create": "Create",
+      "edit": "Edit",
+      "delete": "Delete"
     }
   }
 }

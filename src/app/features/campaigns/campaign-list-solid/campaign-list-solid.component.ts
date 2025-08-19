@@ -1,33 +1,33 @@
 /**
  * SOLID Campaign List Component
  * Demonstrates all SOLID principles in Angular component architecture
- * 
+ *
  * S - Single Responsibility: Only handles UI coordination
- * O - Open/Closed: Extensible through service injection  
+ * O - Open/Closed: Extensible through service injection
  * L - Liskov Substitution: Services can be substituted
  * I - Interface Segregation: Uses focused service interfaces
  * D - Dependency Inversion: Depends on service abstractions
  */
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, OnInit, computed, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { CampaignFacade } from '../../../core/facades/campaign.facade';
 import { Campaign } from '../../../core/state/app.state';
-import { 
+import {
+  CampaignActionService,
   CampaignDisplayService,
   CampaignFilterService,
-  CampaignSortService,
-  CampaignActionService
+  CampaignSortService
 } from '../services/campaign-presentation.services';
 
 @Component({
@@ -60,7 +60,7 @@ import {
       <div class="filters-section">
         <mat-form-field appearance="outline" class="search-field">
           <mat-label>Search campaigns</mat-label>
-          <input matInput 
+          <input matInput
                  [value]="filterService.searchTerm()"
                  (input)="onSearchChange($event)"
                  placeholder="Search by name, description, hashtags...">
@@ -98,7 +98,7 @@ import {
       <!-- Sort Controls -->
       <div class="sort-section">
         <span class="sort-label">Sort by:</span>
-        <button mat-button 
+        <button mat-button
                 [class.active]="sortService.sortBy() === 'name'"
                 (click)="sortBy('name')">
           Name
@@ -106,7 +106,7 @@ import {
             <mat-icon>{{ sortService.sortDirection() === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
           }
         </button>
-        <button mat-button 
+        <button mat-button
                 [class.active]="sortService.sortBy() === 'startDate'"
                 (click)="sortBy('startDate')">
           Start Date
@@ -114,7 +114,7 @@ import {
             <mat-icon>{{ sortService.sortDirection() === 'asc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
           }
         </button>
-        <button mat-button 
+        <button mat-button
                 [class.active]="sortService.sortBy() === 'status'"
                 (click)="sortBy('status')">
           Status
@@ -165,10 +165,10 @@ import {
                   </span>
                 </div>
               </mat-card-header>
-              
+
               <mat-card-content>
                 <p class="description">{{ campaign.description || 'No description available' }}</p>
-                
+
                 <div class="campaign-details">
                   <div class="detail-item">
                     <mat-icon>local_offer</mat-icon>
@@ -193,21 +193,21 @@ import {
                 @for (action of getAvailableActions(campaign); track action) {
                   @switch (action) {
                     @case ('start') {
-                      <button mat-button color="primary" 
+                      <button mat-button color="primary"
                               (click)="executeAction($event, campaign, 'start')">
                         <mat-icon>play_arrow</mat-icon>
                         Start
                       </button>
                     }
                     @case ('stop') {
-                      <button mat-button color="warn" 
+                      <button mat-button color="warn"
                               (click)="executeAction($event, campaign, 'stop')">
                         <mat-icon>stop</mat-icon>
                         Stop
                       </button>
                     }
                     @case ('edit') {
-                      <button mat-button 
+                      <button mat-button
                               (click)="executeAction($event, campaign, 'edit')">
                         <mat-icon>edit</mat-icon>
                         Edit
@@ -415,7 +415,7 @@ export class CampaignListSolidComponent implements OnInit {
   // Service Dependencies - Dependency Inversion Principle
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
-  
+
   // Domain Services - Single Responsibility
   campaignFacade = inject(CampaignFacade);
   displayService = inject(CampaignDisplayService);
@@ -434,7 +434,9 @@ export class CampaignListSolidComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.loadCampaigns();
+    // DESACTIVADO: No cargar campañas automáticamente para evitar errores 401
+    console.log('Campaign List (Solid) - loadCampaigns DESACTIVADO para evitar errores 401');
+    // this.loadCampaigns();
   }
 
   // Event Handlers - Delegating to appropriate services

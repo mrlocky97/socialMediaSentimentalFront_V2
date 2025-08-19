@@ -133,7 +133,9 @@ export class CampaignListComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.loadCampaigns();
+    // DESACTIVADO: No cargar campañas automáticamente para evitar errores 401
+    console.log('  Campaign Management List - loadCampaigns DESACTIVADO para evitar errores 401');
+    // this.loadCampaigns();
     this.subscribeToUpdates();
   }
 

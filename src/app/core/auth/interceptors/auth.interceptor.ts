@@ -10,12 +10,21 @@ import { AuthService } from '../services/auth.service';
 export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, next: HttpHandlerFn) => {
   const authService = inject(AuthService);
 
-  // URLs que no requieren autenticación
-  const publicUrls = ['/auth/login', '/auth/register', '/auth/refresh'];
-  const isPublicUrl = publicUrls.some(url => req.url.includes(url));
+  // URLs que no requieren autenticación (usar rutas completas para mayor precisión)
+  const publicUrls = [
+    '/auth/login',
+    '/auth/register',
+    '/auth/refresh',
+    '/auth/logout'
+  ];
 
-  // Si es una URL pública, continuar sin token
+  const isPublicUrl = publicUrls.some(url =>
+    req.url.includes(url) || req.url.endsWith(url)
+  );
+
+  // Si es una URL pública o de autenticación, continuar sin token
   if (isPublicUrl) {
+    console.log('🔓 URL pública detectada, saltando interceptor:', req.url);
     return next(req);
   }
 
@@ -24,6 +33,7 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, ne
 
   // Si no hay token y no es URL pública, dejar pasar (el backend manejará el 401)
   if (!token) {
+    console.log('  No hay token disponible para:', req.url);
     return next(req);
   }
 
@@ -38,11 +48,16 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, ne
   // Enviar request con token
   return next(authReq).pipe(
     catchError(error => {
-      // Si es error 401 (token expirado), intentar renovar
+      console.log('❌ Error en interceptor:', error.status, 'para URL:', req.url);
+
+      // Si es error 401 (token expirado) y tenemos usuario autenticado, intentar renovar
       if (error.status === 401 && authService.isAuthenticated()) {
+        console.log('🔄 Token expirado, intentando renovar...');
+
         return authService.refreshToken().pipe(
           switchMap(success => {
             if (success) {
+              console.log('✅ Token renovado exitosamente, reintentando petición');
               // Token renovado, reintentar request original con nuevo token
               const newToken = authService.token();
               const retryReq = req.clone({
@@ -53,12 +68,14 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<unknown>, ne
               });
               return next(retryReq);
             } else {
+              console.log('❌ No se pudo renovar token, ejecutando logout');
               // No se pudo renovar, logout automático
               authService.logout();
               return throwError(() => error);
             }
           }),
-          catchError(() => {
+          catchError(refreshError => {
+            console.log('❌ Error al renovar token:', refreshError);
             // Error renovando token, logout
             authService.logout();
             return throwError(() => error);

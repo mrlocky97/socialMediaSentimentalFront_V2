@@ -1,8 +1,7 @@
 import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { BehaviorSubject, interval, Observable, of, Subject, throwError } from 'rxjs';
-import { catchError, debounceTime, finalize, map, retry, switchMap, tap } from 'rxjs/operators';
+import { BehaviorSubject, Observable, of, Subject, throwError } from 'rxjs';
+import { catchError, finalize, map, retry, switchMap, tap } from 'rxjs/operators';
 
 // ===== CONFIGURACIÓN DE LA API =====
 const API_CONFIG = {
@@ -365,8 +364,9 @@ export class SentimentAnalysisService {
       this.destroy$.complete();
     });
 
-    // Inicializar monitoreo automático
-    this.setupAutoRefresh();
+    // DESACTIVADO: Monitoreo automático para evitar peticiones HTTP no autorizadas
+    console.log('  SentimentAnalysisService - setupAutoRefresh DESACTIVADO para evitar errores 401');
+    // this.setupAutoRefresh();
   }
 
   // ===== MÉTODOS PÚBLICOS =====
@@ -493,20 +493,21 @@ export class SentimentAnalysisService {
   }
 
   /**
-   * Iniciar monitoreo en tiempo real
+   * Iniciar monitoreo en tiempo real - DESACTIVADO para evitar errores 401
    */
   public startRealTimeMonitoring(): void {
-    // Trigger refresh cada 30 segundos
-    interval(30000)
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        switchMap(() => this.loadDashboardData()),
-        catchError(error => {
-          console.warn('Error en monitoreo en tiempo real:', error);
-          return of(null);
-        })
-      )
-      .subscribe();
+    console.log('  SentimentAnalysisService - startRealTimeMonitoring DESACTIVADO para evitar errores 401');
+    // Trigger refresh cada 30 segundos - DESACTIVADO
+    // interval(30000)
+    //   .pipe(
+    //     takeUntilDestroyed(this.destroyRef),
+    //     switchMap(() => this.loadDashboardData()),
+    //     catchError(error => {
+    //       console.warn('Error en monitoreo en tiempo real:', error);
+    //       return of(null);
+    //     })
+    //   )
+    //   .subscribe();
   }
 
   /**
@@ -526,18 +527,20 @@ export class SentimentAnalysisService {
   // ===== MÉTODOS PRIVADOS =====
 
   private setupAutoRefresh(): void {
-    // Auto-refresh cada 2 minutos
-    this.refreshTrigger$
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-        debounceTime(1000),
-        switchMap(() => this.loadDashboardData()),
-        catchError(error => {
-          console.error('Error en auto-refresh:', error);
-          return of(null);
-        })
-      )
-      .subscribe();
+    // DESACTIVADO: Auto-refresh para evitar peticiones HTTP no autorizadas
+    console.log('  SentimentAnalysisService - setupAutoRefresh DESACTIVADO para evitar errores 401');
+    // Auto-refresh cada 2 minutos - DESACTIVADO
+    // this.refreshTrigger$
+    //   .pipe(
+    //     takeUntilDestroyed(this.destroyRef),
+    //     debounceTime(1000),
+    //     switchMap(() => this.loadDashboardData()),
+    //     catchError(error => {
+    //       console.error('Error en auto-refresh:', error);
+    //       return of(null);
+    //     })
+    //   )
+    //   .subscribe();
   }
 
   private buildDashboardMetrics(): DashboardMetrics {

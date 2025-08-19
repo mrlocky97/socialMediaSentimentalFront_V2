@@ -8,14 +8,11 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { TranslocoModule } from '@ngneat/transloco';
 import {
-  of,
-  timer
+  of
 } from 'rxjs';
 import {
   catchError,
   distinctUntilChanged,
-  map,
-  switchMap,
   tap
 } from 'rxjs/operators';
 import { PendingTweetService } from './services/pending-tweet-widget.service';
@@ -74,11 +71,9 @@ export class PendingTweetWidgetComponent implements OnInit {
     })
   );
 
-  // Stream for connection health monitoring
-  readonly connectionHealth$ = timer(0, 60000).pipe( // Check every minute
-    switchMap(() => this.pendingTweetService.getPendingTweetsStream()),
-    map(data => data !== null),
-    distinctUntilChanged(),
+  // Stream for connection health monitoring - DESACTIVADO para evitar saturación
+  readonly connectionHealth$ = of(true).pipe( // Siempre retorna healthy
+    tap(() => console.log('  Connection health monitoring DESACTIVADO para evitar saturación del backend')),
     tap(isHealthy => {
       this.connectionStatus.set(isHealthy ? 'connected' : 'error');
     })
@@ -135,7 +130,9 @@ export class PendingTweetWidgetComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.initializeReactiveStreams();
+    // DESACTIVADO: No inicializar streams automáticamente para evitar peticiones HTTP
+    console.log('  PendingTweetWidget - initializeReactiveStreams DESACTIVADO para evitar peticiones 404');
+    // this.initializeReactiveStreams();
   }
 
   // ================================

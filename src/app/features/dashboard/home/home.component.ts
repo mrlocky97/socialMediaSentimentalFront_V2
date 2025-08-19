@@ -39,7 +39,7 @@ import { PendingTweetWidgetComponent } from '../../pending-tweet-widget/pending-
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit {
-  private authService = inject(AuthService);
+  public authService = inject(AuthService); // Público para usar en template
   private sentimentService = inject(SentimentAnalysisService);
   private snackBar = inject(MatSnackBar);
   private router = inject(Router);
@@ -143,12 +143,24 @@ export class HomeComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.loadDashboardData();
+    // DESACTIVADO COMPLETAMENTE: No cargar datos automáticamente para evitar errores 401
+    console.log('  Dashboard data loading COMPLETAMENTE DESACTIVADO para evitar errores 401');
+    console.log('ℹ️  Los datos se cargarán solo cuando el usuario haga clic en "Refresh" o similar');
 
-    // Auto-refresh every 30 seconds
-    setInterval(() => {
-      this.refreshScrapingStatus();
-    }, 30000);
+    // DESACTIVADO: Auto-refresh para evitar saturación del backend
+    console.log('  Dashboard auto-refresh DESACTIVADO para evitar saturación del backend');
+    // setInterval(() => {
+    //   console.log('🔄 Dashboard - refreshing scraping status');
+    //   this.refreshScrapingStatus();
+    // }, 120000); // Cambiado de 30000 a 120000
+  }
+
+  /**
+   * Método público para cargar datos después del login exitoso
+   */
+  public initializeDashboardAfterAuth(): void {
+    console.log('🚀 Inicializando dashboard después de autenticación exitosa');
+    this.loadDashboardData();
   }
 
   private async loadDashboardData(): Promise<void> {

@@ -68,7 +68,12 @@
     },
     "type": {
       "brandAwareness": "Conocimiento de Marca",
+      "brand_awareness": "Conocimiento de Marca",
       "leadGeneration": "Generación de Leads",
+      "lead_generation": "Generación de Leads",
+      "brand-monitoring": "Monitoreo de Marca",
+      "competitor-analysis": "Análisis de Competencia",
+      "market-research": "Investigación de Mercado",
       "salesConversion": "Conversión de Ventas",
       "engagement": "Engagement",
       "trafficDrive": "Tráfico Web",
@@ -221,13 +226,43 @@
   },
   "dashboard": {
     "welcome": "Bienvenido a SentimentalSocial",
-    "subtitle": "Plataforma de análisis de sentimientos en redes sociales"
+    "subtitle": "Plataforma de análisis de sentimientos en redes sociales",
+    "auth_required": "Autenticación requerida",
+    "login_to_view_campaigns": "Inicia sesión para ver el resumen de campañas.",
+    "login_to_view_tweets": "Inicia sesión para ver tweets pendientes.",
+    "login_to_view_analytics": "Inicia sesión para ver métricas en tiempo real.",
+    "login_to_view_sentiment": "Inicia sesión para ver análisis de sentimientos.",
+    "analytics": {
+      "title": "Resumen Analítico",
+      "subtitle": "Métricas en tiempo real"
+    },
+    "sentiment": {
+      "title": "Análisis de Sentimientos",
+      "subtitle": "Sentimiento de campañas recientes",
+      "overall": "General",
+      "positive": "Positivo",
+      "neutral": "Neutral",
+      "negative": "Negativo"
+    },
+    "stats": {
+      "total_tweets": "Total Tweets",
+      "avg_sentiment": "Sentimiento Promedio",
+      "active_campaigns": "Campañas Activas",
+      "engagement": "Engagement"
+    }
   },
   "shared": {
     "table": {
       "filter": "Filtrar",
       "filter_placeholder": "Filtrar tabla...",
       "no_data": "No hay datos disponibles"
+    },
+    "actions": {
+      "refresh": "Actualizar datos",
+      "login": "Iniciar sesión",
+      "create": "Crear",
+      "edit": "Editar",
+      "delete": "Eliminar"
     }
   }
 }

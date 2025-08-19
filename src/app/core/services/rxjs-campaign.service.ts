@@ -2,31 +2,27 @@
  * Campaign Service con RxJS - Ejemplo práctico
  * Implementa patterns específicos para el manejo de campañas
  */
-import { Injectable, inject, signal, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { 
-  Observable, 
-  BehaviorSubject, 
+import { Injectable, computed, inject, signal } from '@angular/core';
+import {
+  BehaviorSubject,
+  Observable,
   Subject,
   combineLatest,
-  timer,
   of,
   throwError
 } from 'rxjs';
 import {
-  map,
-  filter,
-  switchMap,
-  mergeMap,
+  catchError,
   debounceTime,
   distinctUntilChanged,
-  shareReplay,
-  catchError,
-  tap,
-  scan,
-  startWith,
+  finalize,
+  map,
+  mergeMap,
   retry,
-  finalize
+  shareReplay,
+  switchMap,
+  tap
 } from 'rxjs/operators';
 import { environment } from '../../../enviroments/environment';
 import { Campaign } from '../../core/state/app.state';
@@ -63,7 +59,7 @@ export class RxjsCampaignService {
   // ================================
   // STATE MANAGEMENT WITH SIGNALS
   // ================================
-  
+
   private readonly stateSignal = signal<CampaignListState>({
     campaigns: [],
     filteredCampaigns: [],
@@ -103,23 +99,23 @@ export class RxjsCampaignService {
   // REACTIVE STREAMS SETUP
   // ================================
 
-  // Stream principal de campañas
+  // Stream principal de campañas - SIN inicialización automática
   readonly campaigns$ = this.refreshSubject.pipe(
-    startWith(null), // Trigger inicial
+    // REMOVIDO: startWith(null) para evitar peticiones automáticas al inicializar
     tap(() => this.updateState({ loading: true, error: null })),
     switchMap(() => this.fetchCampaigns()),
     tap(campaigns => {
       const stats = this.calculateStats(campaigns);
-      this.updateState({ 
-        campaigns, 
+      this.updateState({
+        campaigns,
         stats,
-        loading: false 
+        loading: false
       });
     }),
     catchError(error => {
-      this.updateState({ 
-        loading: false, 
-        error: error.message 
+      this.updateState({
+        loading: false,
+        error: error.message
       });
       return of([]);
     }),
@@ -147,7 +143,7 @@ export class RxjsCampaignService {
     this.campaigns$,
     this.filters$
   ]).pipe(
-    map(([campaigns, filters]) => 
+    map(([campaigns, filters]) =>
       this.applyFilters(campaigns, filters)
     ),
     tap(filteredCampaigns => {
@@ -158,7 +154,7 @@ export class RxjsCampaignService {
 
   // Stream de actualizaciones de campañas
   readonly campaignUpdates$ = this.campaignUpdateSubject.pipe(
-    mergeMap(updatedCampaign => 
+    mergeMap(updatedCampaign =>
       this.updateCampaign(updatedCampaign).pipe(
         tap(() => this.refresh()),
         catchError(error => {
@@ -171,7 +167,7 @@ export class RxjsCampaignService {
 
   // Stream de eliminaciones
   readonly campaignDeletions$ = this.campaignDeleteSubject.pipe(
-    mergeMap(campaignId => 
+    mergeMap(campaignId =>
       this.deleteCampaign(campaignId).pipe(
         tap(() => this.refresh()),
         catchError(error => {
@@ -182,16 +178,17 @@ export class RxjsCampaignService {
     )
   );
 
-  // Real-time updates cada 30 segundos
-  readonly realtimeUpdates$ = timer(0, 30000).pipe(
-    tap(() => this.refresh())
+  // Real-time updates DESACTIVADO para evitar saturación del backend
+  readonly realtimeUpdates$ = of(null).pipe(
+    tap(() => console.log('� Campaign real-time updates DESACTIVADO para evitar saturación del backend'))
   );
 
   constructor() {
-    // Inicializar subscriptions
-    this.filteredCampaigns$.subscribe();
-    this.campaignUpdates$.subscribe();
-    this.campaignDeletions$.subscribe();
+    // DESACTIVADO: No inicializar suscripciones automáticas para evitar peticiones inmediatas
+    console.log('  CampaignService initialized WITHOUT automatic subscriptions');
+    // this.filteredCampaigns$.subscribe();
+    // this.campaignUpdates$.subscribe();
+    // this.campaignDeletions$.subscribe();
   }
 
   // ================================
@@ -241,16 +238,16 @@ export class RxjsCampaignService {
    */
   createCampaign(campaignData: Partial<Campaign>): Observable<Campaign> {
     this.updateState({ loading: true });
-    
+
     return this.http.post<Campaign>(`${environment.apiUrl}/campaigns`, campaignData)
       .pipe(
         tap(() => {
           this.refresh(); // Recargar lista
         }),
         catchError(error => {
-          this.updateState({ 
-            loading: false, 
-            error: 'Failed to create campaign' 
+          this.updateState({
+            loading: false,
+            error: 'Failed to create campaign'
           });
           return throwError(() => error);
         }),
@@ -295,11 +292,11 @@ export class RxjsCampaignService {
    */
   findSimilarCampaigns(campaign: Campaign): Observable<Campaign[]> {
     return this.campaigns$.pipe(
-      map(campaigns => 
-        campaigns.filter(c => 
-          c.id !== campaign.id && 
-          (c.type === campaign.type || 
-           c.hashtags.some(tag => campaign.hashtags.includes(tag)))
+      map(campaigns =>
+        campaigns.filter(c =>
+          c.id !== campaign.id &&
+          (c.type === campaign.type ||
+            c.hashtags.some(tag => campaign.hashtags.includes(tag)))
         )
       )
     );
@@ -319,7 +316,7 @@ export class RxjsCampaignService {
 
   private updateCampaign(campaign: Campaign): Observable<Campaign> {
     return this.http.put<Campaign>(
-      `${environment.apiUrl}/campaigns/${campaign.id}`, 
+      `${environment.apiUrl}/campaigns/${campaign.id}`,
       campaign
     );
   }
@@ -331,18 +328,18 @@ export class RxjsCampaignService {
   private applyFilters(campaigns: Campaign[], filters: any): Campaign[] {
     return campaigns.filter(campaign => {
       // Filtro de búsqueda
-      const matchesSearch = !filters.search || 
+      const matchesSearch = !filters.search ||
         campaign.name.toLowerCase().includes(filters.search) ||
         campaign.description?.toLowerCase().includes(filters.search) ||
         campaign.hashtags.some(tag => tag.toLowerCase().includes(filters.search)) ||
         campaign.keywords.some(keyword => keyword.toLowerCase().includes(filters.search));
 
       // Filtro de estado
-      const matchesStatus = filters.status === 'all' || 
+      const matchesStatus = filters.status === 'all' ||
         campaign.status === filters.status;
 
       // Filtro de tipo
-      const matchesType = filters.type === 'all' || 
+      const matchesType = filters.type === 'all' ||
         campaign.type === filters.type;
 
       return matchesSearch && matchesStatus && matchesType;
@@ -353,7 +350,7 @@ export class RxjsCampaignService {
     const total = campaigns.length;
     const active = campaigns.filter(c => c.status === 'active').length;
     const completed = campaigns.filter(c => c.status === 'completed').length;
-    const averageTweets = total > 0 ? 
+    const averageTweets = total > 0 ?
       campaigns.reduce((sum, c) => sum + (c.maxTweets || 0), 0) / total : 0;
 
     return { total, active, completed, averageTweets };

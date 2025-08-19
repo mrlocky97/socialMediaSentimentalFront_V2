@@ -1,68 +1,61 @@
 /**
  * SOLID Generic Data Table Component with Advanced RxJS Integration
  * Demonstrates SOLID principles with reactive programming patterns
- * 
+ *
  * S - Single Responsibility: Only handles table display and basic interactions
  * O - Open/Closed: Extensible through configuration and templates
  * L - Liskov Substitution: Can work with any data type through generics
  * I - Interface Segregation: Uses specific interfaces for different concerns
  * D - Dependency Inversion: Depends on abstractions, not concretions
  */
-import { 
-  Component, 
-  Input, 
-  Output, 
-  EventEmitter, 
-  ViewChild, 
+import { CommonModule } from '@angular/common';
+import {
   AfterViewInit,
+  Component,
+  ContentChild,
+  DestroyRef,
+  EventEmitter,
+  Input,
   OnChanges,
   OnInit,
+  Output,
   SimpleChanges,
   TemplateRef,
-  ContentChild,
+  ViewChild,
   computed,
-  signal,
   inject,
-  DestroyRef
+  signal
 } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { MatTableModule, MatTableDataSource } from '@angular/material/table';
-import { MatSortModule, MatSort, Sort } from '@angular/material/sort';
-import { MatPaginatorModule, MatPaginator, PageEvent } from '@angular/material/paginator';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
 import { MatCheckboxModule } from '@angular/material/checkbox';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatChipsModule } from '@angular/material/chips';
-import { MatSnackBarModule, MatSnackBar } from '@angular/material/snack-bar';
-import { 
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
+import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import {
   Observable,
-  combineLatest,
-  timer,
   of
 } from 'rxjs';
 import {
-  map,
-  switchMap,
-  tap,
-  debounceTime,
-  distinctUntilChanged,
-  startWith,
-  filter
+  filter,
+  tap
 } from 'rxjs/operators';
-import { 
-  TableColumn, 
-  TableConfig, 
-  TableAction, 
-  SortEvent, 
-  SelectionEvent,
+import {
   FilterEvent,
-  TableState,
+  SelectionEvent,
+  SortEvent,
+  TableAction,
+  TableColumn,
+  TableConfig,
   TableDataService,
-  TableSelectionService
+  TableSelectionService,
+  TableState
 } from './table-services';
 
 // Open/Closed Principle - Extensible through configuration
@@ -136,7 +129,7 @@ export class SolidDataTableComponent<T = any> implements OnInit, AfterViewInit, 
   // ================================
   // REACTIVE STATE WITH SIGNALS
   // ================================
-  
+
   currentSearchTerm = signal<string>('');
   activeFilters = signal<Map<string, any>>(new Map());
   isRefreshing = signal<boolean>(false);
@@ -175,13 +168,9 @@ export class SolidDataTableComponent<T = any> implements OnInit, AfterViewInit, 
     })
   );
 
-  // Auto-refresh stream (if enabled)
-  readonly autoRefresh$ = timer(0, this.config.refreshInterval || 30000).pipe(
-    filter(() => !!this.config.autoRefresh),
-    tap(() => {
-      this.isRefreshing.set(true);
-      this.refreshData();
-    })
+  // Auto-refresh stream (if enabled) - DESACTIVADO para evitar saturación del backend
+  readonly autoRefresh$ = of(null).pipe(
+    tap(() => console.log('  Table auto-refresh DESACTIVADO para evitar saturación del backend'))
   );
 
   // Error handling stream
@@ -198,38 +187,38 @@ export class SolidDataTableComponent<T = any> implements OnInit, AfterViewInit, 
   // ================================
   // COMPUTED PROPERTIES
   // ================================
-  
+
   readonly displayedColumns = computed(() => {
     const cols: string[] = [];
-    
+
     if (this.config.showSelection) cols.push('select');
     cols.push(...this.columns.map(col => col.key));
     if (this.actions && this.actions.length > 0) cols.push('actions');
-    
+
     return cols;
   });
 
-  readonly isLoading = computed(() => 
+  readonly isLoading = computed(() =>
     this.loading || this.dataService.isLoading() || this.isRefreshing()
   );
 
-  readonly hasError = computed(() => 
+  readonly hasError = computed(() =>
     !!this.error || !!this.dataService.error()
   );
 
-  readonly errorMessage = computed(() => 
+  readonly errorMessage = computed(() =>
     this.error || this.dataService.error() || 'Unknown error'
   );
 
-  readonly hasFilters = computed(() => 
+  readonly hasFilters = computed(() =>
     this.currentSearchTerm().length > 0 || this.activeFilters().size > 0
   );
 
-  readonly filteredItemCount = computed(() => 
+  readonly filteredItemCount = computed(() =>
     this.dataService.filteredData().length
   );
 
-  readonly totalItemCount = computed(() => 
+  readonly totalItemCount = computed(() =>
     this.data.length
   );
 
@@ -251,7 +240,7 @@ export class SolidDataTableComponent<T = any> implements OnInit, AfterViewInit, 
       this.dataService.setData(this.data);
       this.lastRefreshTime.set(new Date());
     }
-    
+
     if (changes['config'] && this.config.showSelection) {
       this.selectionService.initializeSelection(this.config.multiSelection);
     }
@@ -315,10 +304,10 @@ export class SolidDataTableComponent<T = any> implements OnInit, AfterViewInit, 
     } else {
       newFilters.set(column, value);
     }
-    
+
     this.activeFilters.set(newFilters);
     this.dataService.applyColumnFilter(column, value);
-    
+
     this.filterChange.emit({
       column,
       value,
@@ -377,7 +366,7 @@ export class SolidDataTableComponent<T = any> implements OnInit, AfterViewInit, 
 
   // Action methods
   getVisibleActions(item: T): TableAction<T>[] {
-    return this.actions.filter(action => 
+    return this.actions.filter(action =>
       !action.visible || action.visible(item)
     );
   }
@@ -400,7 +389,7 @@ export class SolidDataTableComponent<T = any> implements OnInit, AfterViewInit, 
   refreshData(): void {
     this.isRefreshing.set(true);
     this.dataService.refreshData();
-    
+
     // Simulate async refresh completion
     setTimeout(() => {
       this.isRefreshing.set(false);
@@ -410,10 +399,10 @@ export class SolidDataTableComponent<T = any> implements OnInit, AfterViewInit, 
 
   exportData(): void {
     // Could be extended to export filtered data
-    const data = this.hasSelection() 
+    const data = this.hasSelection()
       ? this.getSelectedItems()
       : this.dataService.filteredData();
-    
+
     console.log('Exporting data:', data);
     this.snackBar.open('Data export started', 'Close', { duration: 3000 });
   }

@@ -2,17 +2,16 @@
  * Campaign List Container Component
  * Smart component that handles business logic and state
  */
-import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Component, OnInit, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
-import { MatTableModule } from '@angular/material/table';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTableModule } from '@angular/material/table';
 import { Router } from '@angular/router';
 import { CampaignFacade } from '../../../core/facades/campaign.facade';
-import { Campaign } from '../../../core/state/app.state';
 
 @Component({
   selector: 'app-campaign-list',
@@ -60,10 +59,10 @@ import { Campaign } from '../../../core/state/app.state';
                   {{ campaign.status | titlecase }}
                 </div>
               </mat-card-header>
-              
+
               <mat-card-content>
                 <p>{{ campaign.description || 'No description available' }}</p>
-                
+
                 <div class="campaign-details">
                   <div class="detail-item">
                     <mat-icon>local_offer</mat-icon>
@@ -247,12 +246,14 @@ import { Campaign } from '../../../core/state/app.state';
 export class CampaignListComponent implements OnInit {
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
-  
+
   campaignFacade = inject(CampaignFacade);
   campaigns = this.campaignFacade.campaigns$;
 
   ngOnInit(): void {
-    this.loadCampaigns();
+    // DESACTIVADO: No cargar campañas automáticamente para evitar errores 401
+    console.log('  Campaign List - loadCampaigns DESACTIVADO para evitar errores 401');
+    // this.loadCampaigns();
   }
 
   loadCampaigns(): void {

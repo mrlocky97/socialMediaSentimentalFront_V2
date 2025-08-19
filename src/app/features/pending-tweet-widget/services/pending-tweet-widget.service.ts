@@ -5,16 +5,13 @@ import {
   BehaviorSubject,
   EMPTY,
   Observable,
-  of,
-  timer
+  of
 } from 'rxjs';
 import {
   catchError,
   debounceTime,
   map,
-  retry,
   share,
-  startWith,
   switchMap,
   tap
 } from 'rxjs/operators';
@@ -52,15 +49,11 @@ export class PendingTweetService {
   // REACTIVE STREAMS
   // ================================
 
-  // Real-time polling for pending tweets (every 30 seconds)
+  // Real-time polling DESACTIVADO para evitar saturación del backend
   readonly pendingTweets$ = this.realTimeToggleSubject.pipe(
     switchMap(isEnabled =>
-      isEnabled
-        ? timer(0, 30000).pipe( // Poll every 30 seconds
-          switchMap(() => this.fetchPendingTweets()),
-          retry({ count: 3, delay: 5000 }) // Retry up to 3 times with 5s delay
-        )
-        : EMPTY
+      // DESACTIVADO: No hacer polling automático
+      EMPTY
     ),
     share() // Share the subscription among multiple subscribers
   );
@@ -75,9 +68,9 @@ export class PendingTweetService {
     })
   );
 
-  // Combined data stream
-  readonly data$ = this.pendingTweets$.pipe(
-    startWith(null), // Start with null
+  // Combined data stream - SOLO MANUAL, sin polling automático
+  readonly data$ = this.manualRefresh$.pipe(
+    // REMOVIDO: startWith(null) para evitar peticiones automáticas al inicializar
     tap(data => {
       if (data) {
         this.pending.set(data.count);
@@ -95,8 +88,8 @@ export class PendingTweetService {
   );
 
   constructor() {
-    // Initialize real-time updates
-    this.initializeRealTimeUpdates();
+    // DESACTIVADO: No inicializar actualizaciones automáticas para evitar peticiones inmediatas
+    console.log('  PendingTweetService initialized WITHOUT automatic updates');
   }
 
   // ================================
