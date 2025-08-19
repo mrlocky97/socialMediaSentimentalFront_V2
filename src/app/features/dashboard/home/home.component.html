@@ -1,34 +1,42 @@
 <!-- =====================================
-     DASHBOARD HOME COMPONENT
-     Modern dashboard with enhanced UX
+     OPTIMIZED DASHBOARD HOME COMPONENT
+     Improved structure and performance
      ===================================== -->
 
 <div class="home-dashboard">
-  <!-- Enhanced Dashboard Header -->
+  <!-- Dashboard Header -->
   <header class="dashboard-header">
     <div class="header-content">
       <div class="welcome-section">
-        <h1 class="welcome-title">{{ 'dashboard.welcome' | transloco }}</h1>
+        <h1 class="welcome-title">{{ 'dashboard.welcome'  | transloco}}</h1>
         <p class="welcome-subtitle">{{ 'dashboard.subtitle' | transloco }}</p>
       </div>
 
       <div class="header-actions">
-        <button mat-raised-button color="primary" (click)="onCreateCampaign()" class="create-campaign-btn modern-btn">
+        <button 
+          mat-raised-button 
+          color="primary" 
+          (click)="handleNavigation('/dashboard/campaigns/wizard')" 
+          *ngIf="canManageCampaigns()"
+          class="create-campaign-btn modern-btn"
+        >
           <mat-icon>add_circle_outline</mat-icon>
           {{ 'campaigns.create' | transloco }}
         </button>
+        
         <button
           mat-stroked-button
           color="accent"
-          [routerLink]="['/dashboard/campaigns']"
+          (click)="handleNavigation('/dashboard/campaigns')"
           class="view-campaigns-btn modern-btn"
         >
           <mat-icon>campaign</mat-icon>
           {{ 'campaigns.viewAll' | transloco }}
         </button>
+        
         <button
           mat-icon-button
-          (click)="onRefreshData()"
+          (click)="dashboardService.refreshData()"
           [title]="'shared.actions.refresh' | transloco"
           class="refresh-btn modern-icon-btn"
         >
@@ -38,241 +46,226 @@
     </div>
   </header>
 
-  <!-- Enhanced Dashboard Widgets Grid -->
+  <!-- Dashboard Widgets Grid -->
   <div class="dashboard-grid">
-    <!-- Campaign Summary Widget - Enhanced with better UX -->
-    @if (authService.isAuthenticated()) {
+    <!-- Widget Container Template -->
+    <ng-template #authRequiredCard let-title="title" let-icon="icon" let-message="message">
+      <mat-card class="auth-required-card">
+        <mat-card-header>
+          <div mat-card-avatar class="auth-icon">
+            <mat-icon>{{ icon }}</mat-icon>
+          </div>
+          <mat-card-title>{{ title | transloco }}</mat-card-title>
+          <mat-card-subtitle>{{ 'dashboard.auth_required' | transloco }}</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content>
+          <p class="auth-message">{{ message | transloco }}</p>
+          <button mat-raised-button color="primary" (click)="handleNavigation('/login')" class="login-cta">
+            <mat-icon>login</mat-icon>
+            {{ 'login.title' | transloco }}
+          </button>
+        </mat-card-content>
+      </mat-card>
+    </ng-template>
+
+    <!-- Campaign Summary Widget -->
     <div class="widget-container campaign-summary">
-      <app-campaign-summary-widget></app-campaign-summary-widget>
+      @if (authService.isAuthenticated()) {
+        <app-campaign-summary-widget></app-campaign-summary-widget>
+      } @else {
+        <ng-container 
+          *ngTemplateOutlet="authRequiredCard; 
+          context: {
+            title: 'campaigns.summary.title',
+            icon: 'lock_outline',
+            message: 'dashboard.login_to_view_campaigns'
+          }"
+        ></ng-container>
+      }
     </div>
-    } @else {
-    <div class="widget-container campaign-summary">
-      <mat-card class="auth-required-card">
-        <mat-card-header>
-          <div mat-card-avatar class="auth-icon">
-            <mat-icon>lock_outline</mat-icon>
-          </div>
-          <mat-card-title>{{ 'campaigns.summary.title' | transloco }}</mat-card-title>
-          <mat-card-subtitle>{{ 'dashboard.auth_required' | transloco }}</mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content>
-          <p class="auth-message">{{ 'dashboard.login_to_view_campaigns' | transloco }}</p>
-          <button mat-raised-button color="primary" [routerLink]="['/login']" class="login-cta">
-            <mat-icon>login</mat-icon>
-            {{ 'login.title' | transloco }}
-          </button>
-        </mat-card-content>
-      </mat-card>
-    </div>
-    }
 
-    <!-- Pending Tweet Widget - Enhanced with better UX -->
-    @if (authService.isAuthenticated()) {
+    <!-- Pending Tweet Widget -->
     <div class="widget-container pending-tweets">
-      <app-pending-tweet-widget></app-pending-tweet-widget>
+      @if (authService.isAuthenticated()) {
+        <app-pending-tweet-widget></app-pending-tweet-widget>
+      } @else {
+        <ng-container 
+          *ngTemplateOutlet="authRequiredCard; 
+          context: {
+            title: 'widget.pending_tweets.title',
+            icon: 'pending_actions',
+            message: 'dashboard.login_to_view_tweets'
+          }"
+        ></ng-container>
+      }
     </div>
-    } @else {
-    <div class="widget-container pending-tweets">
-      <mat-card class="auth-required-card">
-        <mat-card-header>
-          <div mat-card-avatar class="auth-icon">
-            <mat-icon>pending_actions</mat-icon>
-          </div>
-          <mat-card-title>{{ 'widget.pending_tweets.title' | transloco }}</mat-card-title>
-          <mat-card-subtitle>{{ 'dashboard.auth_required' | transloco }}</mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content>
-          <p class="auth-message">{{ 'dashboard.login_to_view_tweets' | transloco }}</p>
-          <button mat-raised-button color="primary" [routerLink]="['/login']" class="login-cta">
-            <mat-icon>login</mat-icon>
-            {{ 'login.title' | transloco }}
-          </button>
-        </mat-card-content>
-      </mat-card>
-    </div>
-    }
 
-    <!-- Enhanced Analytics Overview Widget -->
-    @if (authService.isAuthenticated()) {
+    <!-- Analytics Preview Widget -->
     <div class="widget-container analytics-preview">
-      <mat-card class="dashboard-stats-widget modern-card">
-        <mat-card-header>
-          <div mat-card-avatar class="stats-icon">
-            <mat-icon>analytics</mat-icon>
-          </div>
-          <mat-card-title>{{ 'dashboard.analytics.title' | transloco }}</mat-card-title>
-          <mat-card-subtitle>{{ 'dashboard.analytics.subtitle' | transloco }}</mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content>
-          @if (isLoading()) {
-          <div class="loading-container modern-loading">
-            <div class="skeleton-stats">
-              <div class="skeleton-item"></div>
-              <div class="skeleton-item"></div>
-              <div class="skeleton-item"></div>
-              <div class="skeleton-item"></div>
+      @if (authService.isAuthenticated()) {
+        <mat-card class="dashboard-stats-widget modern-card">
+          <mat-card-header>
+            <div mat-card-avatar class="stats-icon">
+              <mat-icon>analytics</mat-icon>
             </div>
-          </div>
-          } @else {
-          <div class="stats-grid modern-stats">
-            <div class="stat-item">
-              <div class="stat-icon-wrapper">
-                <mat-icon class="stat-icon">forum</mat-icon>
+            <mat-card-title>{{ 'dashboard.analytics.title' | transloco }}</mat-card-title>
+            <mat-card-subtitle>{{ 'dashboard.analytics.subtitle' | transloco }}</mat-card-subtitle>
+          </mat-card-header>
+          
+          <mat-card-content>
+            @if (dashboardService.isLoading()) {
+              <div class="loading-container modern-loading">
+                <div class="skeleton-stats">
+                  <div class="skeleton-item"></div>
+                  <div class="skeleton-item"></div>
+                  <div class="skeleton-item"></div>
+                  <div class="skeleton-item"></div>
+                </div>
               </div>
-              <div class="stat-content">
-                <div class="stat-number">{{ formatNumber(totalTweets()) }}</div>
-                <div class="stat-label">{{ 'dashboard.stats.total_tweets' | transloco }}</div>
+            } @else {
+              <div class="stats-grid modern-stats">
+                <div class="stat-item">
+                  <div class="stat-icon-wrapper">
+                    <mat-icon class="stat-icon">forum</mat-icon>
+                  </div>
+                  <div class="stat-content">
+                    <div class="stat-number">{{ this.homeService.formatNumber(dashboardService.totalTweets()) }}</div>
+                    <div class="stat-label">{{ 'dashboard.stats.total_tweets' | transloco }}</div>
+                  </div>
+                </div>
+                
+                <div class="stat-item">
+                  <div class="stat-icon-wrapper sentiment" [class]="getSentimentClass(sentimentMetrics()?.avgSentiment || 0)">
+                    <mat-icon class="stat-icon">{{ this.homeService.getSentimentIcon(sentimentMetrics()?.avgSentiment || 0) }}</mat-icon>
+                  </div>
+                  <div class="stat-content">
+                    <div class="stat-number">{{ ((sentimentMetrics()?.avgSentiment || 0) * 100).toFixed(1) }}%</div>
+                    <div class="stat-label">{{ 'dashboard.stats.avg_sentiment' | transloco }}</div>
+                  </div>
+                </div>
+                
+                <div class="stat-item">
+                  <div class="stat-icon-wrapper">
+                    <mat-icon class="stat-icon">campaign</mat-icon>
+                  </div>
+                  <div class="stat-content">
+                    <div class="stat-number">{{ dashboardService.campaigns().length }}</div>
+                    <div class="stat-label">{{ 'dashboard.stats.active_campaigns' | transloco }}</div>
+                  </div>
+                </div>
+                
+                <div class="stat-item">
+                  <div class="stat-icon-wrapper">
+                    <mat-icon class="stat-icon">trending_up</mat-icon>
+                  </div>
+                  <div class="stat-content">
+                    <div class="stat-number">{{ this.homeService.formatNumber(sentimentMetrics()?.totalEngagement || 0) }}</div>
+                    <div class="stat-label">{{ 'dashboard.stats.engagement' | transloco }}</div>
+                  </div>
+                </div>
               </div>
-            </div>
-            <div class="stat-item">
-              <div
-                class="stat-icon-wrapper sentiment"
-                [class]="avgSentiment() > 0.6 ? 'positive' : avgSentiment() > 0.4 ? 'neutral' : 'negative'"
-              >
-                <mat-icon class="stat-icon">{{ getSentimentIcon(avgSentiment()) }}</mat-icon>
-              </div>
-              <div class="stat-content">
-                <div class="stat-number">{{ (avgSentiment() * 100).toFixed(1) }}%</div>
-                <div class="stat-label">{{ 'dashboard.stats.avg_sentiment' | transloco }}</div>
-              </div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-icon-wrapper">
-                <mat-icon class="stat-icon">campaign</mat-icon>
-              </div>
-              <div class="stat-content">
-                <div class="stat-number">{{ campaigns().length }}</div>
-                <div class="stat-label">{{ 'dashboard.stats.active_campaigns' | transloco }}</div>
-              </div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-icon-wrapper">
-                <mat-icon class="stat-icon">trending_up</mat-icon>
-              </div>
-              <div class="stat-content">
-                <div class="stat-number">{{ formatNumber(totalEngagement()) }}</div>
-                <div class="stat-label">{{ 'dashboard.stats.engagement' | transloco }}</div>
-              </div>
-            </div>
-          </div>
-          }
-        </mat-card-content>
-      </mat-card>
+            }
+          </mat-card-content>
+        </mat-card>
+      } @else {
+        <ng-container 
+          *ngTemplateOutlet="authRequiredCard; 
+          context: {
+            title: 'dashboard.analytics.title',
+            icon: 'analytics',
+            message: 'dashboard.login_to_view_analytics'
+          }"
+        ></ng-container>
+      }
     </div>
-    } @else {
-    <div class="widget-container analytics-preview">
-      <mat-card class="auth-required-card">
-        <mat-card-header>
-          <div mat-card-avatar class="auth-icon">
-            <mat-icon>analytics</mat-icon>
-          </div>
-          <mat-card-title>{{ 'dashboard.analytics.title' | transloco }}</mat-card-title>
-          <mat-card-subtitle>{{ 'dashboard.auth_required' | transloco }}</mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content>
-          <p class="auth-message">{{ 'dashboard.login_to_view_analytics' | transloco }}</p>
-          <button mat-raised-button color="primary" [routerLink]="['/login']" class="login-cta">
-            <mat-icon>login</mat-icon>
-            {{ 'login.title' | transloco }}
-          </button>
-        </mat-card-content>
-      </mat-card>
-    </div>
-    }
 
-    <!-- Enhanced Sentiment Analysis Widget -->
-    @if (authService.isAuthenticated()) {
+    <!-- Sentiment Analysis Widget -->
     <div class="widget-container sentiment-analysis">
-      <mat-card class="dashboard-sentiment-widget modern-card">
-        <mat-card-header>
-          <div mat-card-avatar class="sentiment-icon" [style.color]="getSentimentColor(avgSentiment())">
-            <mat-icon>{{ getSentimentIcon(avgSentiment()) }}</mat-icon>
-          </div>
-          <mat-card-title>{{ 'dashboard.sentiment.title' | transloco }}</mat-card-title>
-          <mat-card-subtitle>{{ 'dashboard.sentiment.subtitle' | transloco }}</mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content>
-          @if (isLoading()) {
-          <div class="loading-container modern-loading">
-            <div class="skeleton-sentiment">
-              <div class="skeleton-circle"></div>
-              <div class="skeleton-bars">
-                <div class="skeleton-bar"></div>
-                <div class="skeleton-bar"></div>
-                <div class="skeleton-bar"></div>
-              </div>
+      @if (authService.isAuthenticated()) {
+        <mat-card class="dashboard-sentiment-widget modern-card">
+          <mat-card-header>
+            <div mat-card-avatar class="sentiment-icon" [style.color]="this.homeService.getSentimentColor(sentimentMetrics()?.avgSentiment || 0)">
+              <mat-icon>{{ this.homeService.getSentimentIcon(sentimentMetrics()?.avgSentiment || 0) }}</mat-icon>
             </div>
-          </div>
-          } @else {
-          <div class="sentiment-breakdown modern-sentiment">
-            <div class="sentiment-overview">
-              <div class="overall-sentiment" [style.color]="getSentimentColor(avgSentiment())">
-                <div class="sentiment-score">{{ (avgSentiment() * 100).toFixed(1) }}%</div>
-                <div class="sentiment-label">{{ 'dashboard.sentiment.overall' | transloco }}</div>
-              </div>
-            </div>
-            <div class="sentiment-details">
-              <div class="sentiment-item positive">
-                <div class="sentiment-icon-wrapper">
-                  <mat-icon>sentiment_very_satisfied</mat-icon>
-                </div>
-                <div class="sentiment-info">
-                  <span class="sentiment-percentage">{{ (positiveSentiment() * 100).toFixed(1) }}%</span>
-                  <span class="sentiment-label">{{ 'dashboard.sentiment.positive' | transloco }}</span>
-                </div>
-                <div class="sentiment-progress">
-                  <div class="progress-bar positive" [style.width.%]="positiveSentiment() * 100"></div>
+            <mat-card-title>{{ 'dashboard.sentiment.title' | transloco }}</mat-card-title>
+            <mat-card-subtitle>{{ 'dashboard.sentiment.subtitle' | transloco }}</mat-card-subtitle>
+          </mat-card-header>
+          
+          <mat-card-content>
+            @if (dashboardService.isLoading()) {
+              <div class="loading-container modern-loading">
+                <div class="skeleton-sentiment">
+                  <div class="skeleton-circle"></div>
+                  <div class="skeleton-bars">
+                    <div class="skeleton-bar"></div>
+                    <div class="skeleton-bar"></div>
+                    <div class="skeleton-bar"></div>
+                  </div>
                 </div>
               </div>
-              <div class="sentiment-item neutral">
-                <div class="sentiment-icon-wrapper">
-                  <mat-icon>sentiment_neutral</mat-icon>
+            } @else {
+              <div class="sentiment-breakdown modern-sentiment">
+                <div class="sentiment-overview">
+                  <div class="overall-sentiment" [style.color]="this.homeService.getSentimentColor(sentimentMetrics()?.avgSentiment || 0)">
+                    <div class="sentiment-score">{{ ((sentimentMetrics()?.avgSentiment || 0) * 100).toFixed(1) }}%</div>
+                    <div class="sentiment-label">{{ 'dashboard.sentiment.overall' | transloco }}</div>
+                  </div>
                 </div>
-                <div class="sentiment-info">
-                  <span class="sentiment-percentage">{{ (neutralSentiment() * 100).toFixed(1) }}%</span>
-                  <span class="sentiment-label">{{ 'dashboard.sentiment.neutral' | transloco }}</span>
-                </div>
-                <div class="sentiment-progress">
-                  <div class="progress-bar neutral" [style.width.%]="neutralSentiment() * 100"></div>
+                
+                <div class="sentiment-details">
+                  <div class="sentiment-item positive">
+                    <div class="sentiment-icon-wrapper">
+                      <mat-icon>sentiment_very_satisfied</mat-icon>
+                    </div>
+                    <div class="sentiment-info">
+                      <span class="sentiment-percentage">{{ ((sentimentMetrics()?.positive || 0) * 100).toFixed(1) }}%</span>
+                      <span class="sentiment-label">{{ 'dashboard.sentiment.positive' | transloco }}</span>
+                    </div>
+                    <div class="sentiment-progress">
+                      <div class="progress-bar positive" [style.width.%]="(sentimentMetrics()?.positive || 0) * 100"></div>
+                    </div>
+                  </div>
+                  
+                  <div class="sentiment-item neutral">
+                    <div class="sentiment-icon-wrapper">
+                      <mat-icon>sentiment_neutral</mat-icon>
+                    </div>
+                    <div class="sentiment-info">
+                      <span class="sentiment-percentage">{{ ((sentimentMetrics()?.neutral || 0) * 100).toFixed(1) }}%</span>
+                      <span class="sentiment-label">{{ 'dashboard.sentiment.neutral' | transloco }}</span>
+                    </div>
+                    <div class="sentiment-progress">
+                      <div class="progress-bar neutral" [style.width.%]="(sentimentMetrics()?.neutral || 0) * 100"></div>
+                    </div>
+                  </div>
+                  
+                  <div class="sentiment-item negative">
+                    <div class="sentiment-icon-wrapper">
+                      <mat-icon>sentiment_very_dissatisfied</mat-icon>
+                    </div>
+                    <div class="sentiment-info">
+                      <span class="sentiment-percentage">{{ ((sentimentMetrics()?.negative || 0) * 100).toFixed(1) }}%</span>
+                      <span class="sentiment-label">{{ 'dashboard.sentiment.negative' | transloco }}</span>
+                    </div>
+                    <div class="sentiment-progress">
+                      <div class="progress-bar negative" [style.width.%]="(sentimentMetrics()?.negative || 0) * 100"></div>
+                    </div>
+                  </div>
                 </div>
               </div>
-              <div class="sentiment-item negative">
-                <div class="sentiment-icon-wrapper">
-                  <mat-icon>sentiment_very_dissatisfied</mat-icon>
-                </div>
-                <div class="sentiment-info">
-                  <span class="sentiment-percentage">{{ (negativeSentiment() * 100).toFixed(1) }}%</span>
-                  <span class="sentiment-label">{{ 'dashboard.sentiment.negative' | transloco }}</span>
-                </div>
-                <div class="sentiment-progress">
-                  <div class="progress-bar negative" [style.width.%]="negativeSentiment() * 100"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-          }
-        </mat-card-content>
-      </mat-card>
+            }
+          </mat-card-content>
+        </mat-card>
+      } @else {
+        <ng-container 
+          *ngTemplateOutlet="authRequiredCard; 
+          context: {
+            title: 'dashboard.sentiment.title',
+            icon: 'psychology',
+            message: 'dashboard.login_to_view_sentiment'
+          }"
+        ></ng-container>
+      }
     </div>
-    } @else {
-    <div class="widget-container sentiment-analysis">
-      <mat-card class="auth-required-card">
-        <mat-card-header>
-          <div mat-card-avatar class="auth-icon">
-            <mat-icon>psychology</mat-icon>
-          </div>
-          <mat-card-title>{{ 'dashboard.sentiment.title' | transloco }}</mat-card-title>
-          <mat-card-subtitle>{{ 'dashboard.auth_required' | transloco }}</mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content>
-          <p class="auth-message">{{ 'dashboard.login_to_view_sentiment' | transloco }}</p>
-          <button mat-raised-button color="primary" [routerLink]="['/login']" class="login-cta">
-            <mat-icon>login</mat-icon>
-            {{ 'login.title' | transloco }}
-          </button>
-        </mat-card-content>
-      </mat-card>
-    </div>
-    }
   </div>
 </div>

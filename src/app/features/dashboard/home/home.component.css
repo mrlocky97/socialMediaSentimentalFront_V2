@@ -1,31 +1,93 @@
 /* =====================================
-   DASHBOARD HOME - UNIFIED DESIGN SYSTEM
-   Consistent with Login Component styling
-   Mobile-First Responsive Design
+   DASHBOARD HOME - OPTIMIZED CSS
+   Consistent design with improved performance
    ===================================== */
+
+/* =====================================
+   VARIABLES & MIXINS (Consolidated)
+   ===================================== */
+:root {
+  /* Colors */
+  --color-primary: #1976d2;
+  --color-primary-gradient: linear-gradient(135deg, #1976d2, #42a5f5);
+  --color-white: #ffffff;
+  --color-white-alpha-05: rgba(255, 255, 255, 0.05);
+  --color-white-alpha-03: rgba(255, 255, 255, 0.03);
+  --color-white-alpha-95: rgba(255, 255, 255, 0.95);
+  --color-white-alpha-20: rgba(255, 255, 255, 0.2);
+  --color-gray-600: #666666;
+  --color-black-alpha-10: rgba(0, 0, 0, 0.1);
+  --color-primary-alpha-50: rgba(25, 118, 210, 0.5);
+  --color-primary-alpha-20: rgba(25, 118, 210, 0.2);
+  --color-primary-alpha-05: rgba(25, 118, 210, 0.05);
+  
+  /* Success/Warning/Error Colors */
+  --success-color: #4caf50;
+  --warning-color: #ff9800;
+  --danger-color: #f44336;
+  --primary-gradient-end: #2196f3;
+  --accent-color: #ff4081;
+  
+  /* Spacing */
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 0.75rem;
+  --spacing-md: 1rem;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2rem;
+  --spacing-2xl: 3rem;
+  
+  /* Typography */
+  --text-sm: 0.875rem;
+  --text-lg: 1.125rem;
+  --text-2xl: 1.5rem;
+  --text-4xl: 2.25rem;
+  --font-normal: 400;
+  --font-semibold: 600;
+  --font-bold: 700;
+  --leading-tight: 1.2;
+  --leading-normal: 1.5;
+  
+  /* Effects */
+  --radius-xl: 12px;
+  --radius-3xl: 24px;
+  --shadow-glassmorphism: 0 8px 32px rgba(0, 0, 0, 0.1);
+  --shadow-glassmorphism-hover: 0 12px 48px rgba(0, 0, 0, 0.15);
+  --shadow-primary-md: 0 4px 12px rgba(25, 118, 210, 0.3);
+  --shadow-primary-lg: 0 8px 20px rgba(25, 118, 210, 0.4);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  
+  /* Transitions */
+  --transition-normal: 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  --ease: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  
+  /* Z-index */
+  --z-sticky: 100;
+  
+  /* Button */
+  --button-height-lg: 48px;
+  
+  /* Card & Surface */
+  --surface: rgba(255, 255, 255, 0.1);
+  --glass-bg: rgba(255, 255, 255, 0.08);
+  --shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  --card-shadow-hover: 0 12px 48px rgba(0, 0, 0, 0.15);
+}
 
 /* =====================================
    1. MAIN LAYOUT & CONTAINER
    ===================================== */
 .home-dashboard {
-  /* Layout */
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  
-  /* Background - Same gradient as login */
   background: var(--color-primary-gradient);
-  
-  /* Spacing - Responsive padding */
   padding: var(--spacing-md);
-  
-  /* Positioning */
   position: relative;
   overflow-x: hidden;
   box-sizing: border-box;
 }
 
-/* Background decoration - consistent with login */
 .home-dashboard::before {
   content: '';
   position: fixed;
@@ -41,35 +103,25 @@
    2. HEADER SECTION
    ===================================== */
 .dashboard-header {
-  /* Layout */
   width: 100%;
   margin-bottom: var(--spacing-xl);
-  
-  /* Positioning */
   position: relative;
   z-index: var(--z-sticky);
-  
-  /* Animation */
   animation: slideInDown 0.6s ease-out;
 }
 
 .header-content {
-  /* Structure - Same card styling as login */
   background: var(--color-white-alpha-95);
   backdrop-filter: blur(20px);
   border-radius: var(--radius-3xl);
   box-shadow: var(--shadow-glassmorphism);
   border: 1px solid var(--color-white-alpha-20);
-  
-  /* Layout */
   padding: var(--spacing-2xl);
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--spacing-lg);
   text-align: center;
-  
-  /* Behavior */
   transition: all var(--transition-normal);
   overflow: hidden;
 }
@@ -88,40 +140,27 @@
 }
 
 .welcome-title {
-  /* Typography - Same as login title */
   font-size: clamp(var(--text-2xl), 5vw, var(--text-4xl));
   font-weight: var(--font-bold);
   letter-spacing: -0.5px;
   line-height: var(--leading-tight);
-  
-  /* Colors */
   background: var(--color-primary-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-  
-  /* Spacing */
   margin: 0;
-  
-  /* Effects */
   text-shadow: 0 2px 4px var(--color-black-alpha-10);
 }
 
 .welcome-subtitle {
-  /* Typography */
   font-size: clamp(var(--text-sm), 3vw, var(--text-lg));
   font-weight: var(--font-normal);
   color: var(--color-gray-600);
   line-height: var(--leading-normal);
-  
-  /* Spacing */
   margin: 0;
-  
-  /* Effects */
   opacity: 0.8;
 }
 
-/* Header Actions */
 .header-actions {
   display: flex;
   gap: var(--spacing-sm);
@@ -135,24 +174,17 @@
    3. BUTTONS & ACTIONS
    ===================================== */
 .modern-btn {
-  /* Size - Same as login button */
   height: var(--button-height-lg);
   padding: 0 var(--spacing-xl);
   min-width: 140px;
-  
-  /* Layout */
   display: flex;
   align-items: center;
   justify-content: center;
   gap: var(--spacing-xs);
-  
-  /* Visual - Same styling as login */
   border-radius: var(--radius-xl);
   font-size: var(--text-sm);
   font-weight: var(--font-semibold);
   text-transform: none;
-  
-  /* Behavior */
   transition: all var(--transition-normal);
   position: relative;
   overflow: hidden;
@@ -166,27 +198,25 @@
   outline-offset: 2px;
 }
 
-/* Primary Button */
-.btn-primary, .create-campaign-btn {
+.create-campaign-btn {
   background: var(--color-primary-gradient);
   color: var(--color-white);
   box-shadow: var(--shadow-primary-md);
 }
 
-.btn-primary:hover, .create-campaign-btn:hover {
+.create-campaign-btn:hover {
   box-shadow: var(--shadow-primary-lg);
   transform: translateY(-2px);
 }
 
-/* Secondary Button */
-.btn-secondary, .view-campaigns-btn {
+.view-campaigns-btn {
   background: var(--color-white);
   color: var(--color-primary);
   border: 1px solid var(--color-primary-alpha-20);
   box-shadow: var(--shadow-sm);
 }
 
-.btn-secondary:hover, .view-campaigns-btn:hover {
+.view-campaigns-btn:hover {
   background: var(--color-primary-alpha-05);
   box-shadow: var(--shadow-md);
   transform: translateY(-1px);
@@ -199,7 +229,7 @@
   color: white;
   border: 2px solid rgba(255, 255, 255, 0.3);
   border-radius: 12px;
-  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: all 0.3s var(--ease);
   font-weight: 600;
 }
 
@@ -211,59 +241,8 @@
 }
 
 /* =====================================
-   ENHANCED ANIMATIONS
+   4. DASHBOARD GRID & WIDGETS
    ===================================== */
-@keyframes titleGlow {
-  0% {
-    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
-  }
-  100% {
-    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.5), 0 0 20px rgba(255, 255, 255, 0.3);
-  }
-}
-
-@keyframes slideInDown {
-  from {
-    opacity: 0;
-    transform: translate3d(0, -100px, 0);
-  }
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-  }
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translate3d(0, 40px, 0);
-  }
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-  }
-}
-
-@keyframes pulse {
-  0%,
-  100% {
-    transform: scale(1);
-  }
-  50% {
-    transform: scale(1.05);
-  }
-}
-
-@keyframes shimmer {
-  0% {
-    background-position: -200px 0;
-  }
-  100% {
-    background-position: calc(200px + 100%) 0;
-  }
-}
-
-/* Dashboard Grid */
 .dashboard-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
@@ -283,12 +262,6 @@
 
 .widget-container.campaign-summary {
   grid-column: span 2;
-}
-
-@media (max-width: 1200px) {
-  .widget-container.campaign-summary {
-    grid-column: span 1;
-  }
 }
 
 /* Modern Card Styles */
@@ -323,16 +296,14 @@
   left: 100%;
 }
 
-/* =====================================
-   AUTH REQUIRED CARDS
-   ===================================== */
+/* Auth Required Cards */
 .auth-required-card {
   background: linear-gradient(135deg, var(--glass-bg), rgba(255, 255, 255, 0.05));
   backdrop-filter: blur(20px);
   border: 2px dashed rgba(255, 255, 255, 0.3);
   border-radius: 20px;
-  box-shadow: var(--card-shadow);
-  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  box-shadow: var(--shadow);
+  transition: all 0.3s var(--ease);
   text-align: center;
 }
 
@@ -342,7 +313,7 @@
 }
 
 .auth-icon {
-  background: linear-gradient(135deg, var(--primary-color), var(--accent-color));
+  background: linear-gradient(135deg, var(--color-primary), var(--accent-color));
   color: white;
   display: flex;
   align-items: center;
@@ -363,27 +334,25 @@
 }
 
 .login-cta {
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-gradient-end));
+  background: var(--color-primary-gradient);
   color: white;
   border-radius: 12px;
   font-weight: 600;
   text-transform: none;
   margin-top: 1rem;
-  box-shadow: 0 4px 12px rgba(25, 118, 210, 0.3);
-  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  box-shadow: var(--shadow-primary-md);
+  transition: all 0.3s var(--ease);
 }
 
 .login-cta:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(25, 118, 210, 0.4);
+  box-shadow: var(--shadow-primary-lg);
 }
 
-/* =====================================
-   ENHANCED STATS WIDGET
-   ===================================== */
+/* Stats Widget */
 .stats-icon,
 .sentiment-icon {
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-gradient-end));
+  background: var(--color-primary-gradient);
   color: white;
   display: flex;
   align-items: center;
@@ -411,7 +380,7 @@
   background: var(--glass-bg);
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: all 0.3s var(--ease);
 }
 
 .stat-item:hover {
@@ -427,7 +396,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-gradient-end));
+  background: var(--color-primary-gradient);
   flex-shrink: 0;
 }
 
@@ -466,9 +435,7 @@
   line-height: 1;
 }
 
-/* =====================================
-   ENHANCED SENTIMENT ANALYSIS
-   ===================================== */
+/* Sentiment Analysis */
 .modern-sentiment .sentiment-overview {
   text-align: center;
   margin-bottom: 2rem;
@@ -507,7 +474,7 @@
   background: var(--glass-bg);
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: all 0.3s var(--ease);
 }
 
 .sentiment-item:hover {
@@ -572,7 +539,7 @@
 .progress-bar {
   height: 100%;
   border-radius: 3px;
-  transition: width 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: width 0.8s var(--ease);
 }
 
 .progress-bar.positive {
@@ -587,9 +554,7 @@
   background: linear-gradient(90deg, var(--danger-color), #ef5350);
 }
 
-/* =====================================
-   MODERN LOADING STATES
-   ===================================== */
+/* Loading States */
 .modern-loading {
   padding: 2rem;
 }
@@ -656,8 +621,57 @@
 }
 
 /* =====================================
-   RESPONSIVE DESIGN
+   5. ANIMATIONS & KEYFRAMES
    ===================================== */
+@keyframes slideInDown {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -100px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 40px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+/* =====================================
+   6. RESPONSIVE DESIGN
+   ===================================== */
+@media (max-width: 1200px) {
+  .widget-container.campaign-summary {
+    grid-column: span 1;
+  }
+}
+
 @media (max-width: 768px) {
   .home-dashboard {
     padding: 1rem;
