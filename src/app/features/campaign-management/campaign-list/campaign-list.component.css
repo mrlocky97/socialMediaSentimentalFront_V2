@@ -1,52 +1,151 @@
 /* =====================================
-   CAMPAIGN LIST COMPONENT STYLES
-   Enterprise data table with glassmorphism design
+   CAMPAIGN LIST - UNIFIED DESIGN SYSTEM
+   Consistent with Login & Dashboard styling
+   Mobile-First Responsive Design
    ===================================== */
 
 .campaign-list-container {
-  padding: var(--spacing-xl);
+  /* Layout - Same as dashboard */
   min-height: 100vh;
-  background: var(--color-gray-50);
+  display: flex;
+  flex-direction: column;
+  
+  /* Background - Same gradient as login */
+  background: var(--color-primary-gradient);
+  
+  /* Spacing - Responsive padding */
+  padding: var(--spacing-md);
+  
+  /* Positioning */
+  position: relative;
+  overflow-x: hidden;
+  box-sizing: border-box;
+}
+
+/* Background decoration - consistent with login */
+.campaign-list-container::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: 
+    radial-gradient(circle at 25% 25%, var(--color-white-alpha-05) 0%, transparent 70%),
+    radial-gradient(circle at 75% 75%, var(--color-white-alpha-03) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
 }
 
 /* ===== HEADER SECTION ===== */
 .campaign-header {
+  /* Layout */
+  width: 100%;
+  margin-bottom: var(--spacing-xl);
+  
+  /* Positioning */
+  position: relative;
+  z-index: var(--z-sticky);
+  
+  /* Animation */
+  animation: slideInDown 0.6s ease-out;
+}
+
+/* Header Content Card - Same as dashboard header */
+.header-content {
+  /* Structure - Same card styling as login */
+  background: var(--color-white-alpha-95);
+  backdrop-filter: blur(20px);
+  border-radius: var(--radius-3xl);
+  box-shadow: var(--shadow-glassmorphism);
+  border: 1px solid var(--color-white-alpha-20);
+  
+  /* Layout */
+  padding: var(--spacing-2xl);
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: var(--spacing-2xl);
-  gap: var(--spacing-xl);
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-lg);
+  text-align: center;
+  
+  /* Behavior */
+  transition: all var(--transition-normal);
+  overflow: hidden;
+}
+
+.header-content:hover {
+  box-shadow: var(--shadow-glassmorphism-hover);
+  transform: translateY(-2px);
 }
 
 .header-title h1 {
-  margin: 0 0 var(--spacing-xs) 0;
-  font-size: var(--text-3xl);
-  font-weight: var(--font-semibold);
-  color: var(--color-gray-900);
+  /* Typography - Same as dashboard title */
+  font-size: clamp(var(--text-2xl), 4vw, var(--text-3xl));
+  font-weight: var(--font-bold);
+  letter-spacing: -0.5px;
   line-height: var(--leading-tight);
+  
+  /* Colors */
+  background: var(--color-primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  
+  /* Spacing */
+  margin: 0;
 }
 
 .subtitle {
-  margin: 0;
+  /* Typography */
+  font-size: clamp(var(--text-sm), 3vw, var(--text-base));
+  font-weight: var(--font-normal);
   color: var(--color-gray-600);
-  font-size: var(--text-base);
   line-height: var(--leading-normal);
+  margin: 0;
+  opacity: 0.8;
 }
 
 .header-actions {
   display: flex;
-  gap: var(--spacing-md);
-  align-items: center;
+  gap: var(--spacing-sm);
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+  margin-top: var(--spacing-md);
 }
 
 .create-button {
+  /* Size - Same as login button */
+  height: var(--button-height-lg);
+  padding: 0 var(--spacing-xl);
+  min-width: 160px;
+  
+  /* Layout */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  
+  /* Visual - Same styling as login */
   background: var(--color-primary-gradient);
+  color: var(--color-white);
   border: none;
   border-radius: var(--radius-xl);
-  padding: var(--spacing-md) var(--spacing-xl);
+  font-size: var(--text-sm);
   font-weight: var(--font-semibold);
+  text-transform: none;
   box-shadow: var(--shadow-primary-md);
+  
+  /* Behavior */
   transition: all var(--transition-normal);
+  cursor: pointer;
+}
+
+.create-button:hover {
+  box-shadow: var(--shadow-primary-lg);
+  transform: translateY(-2px);
+}
+
+.create-button:focus {
+  outline: 2px solid var(--color-primary-alpha-50);
+  outline-offset: 2px;
 }
 
 .create-button:hover {
@@ -56,28 +155,47 @@
 
 /* ===== FILTERS SECTION ===== */
 .filters-card {
-  background: var(--color-white);
-  border-radius: var(--radius-2xl);
-  box-shadow: var(--shadow-soft-sm);
-  border: 1px solid var(--color-gray-200);
+  /* Structure - Same card styling as login/dashboard */
+  background: var(--color-white-alpha-95);
+  backdrop-filter: blur(20px);
+  border-radius: var(--radius-3xl);
+  box-shadow: var(--shadow-glassmorphism);
+  border: 1px solid var(--color-white-alpha-20);
+  
+  /* Layout */
   margin-bottom: var(--spacing-xl);
+  padding: var(--spacing-2xl);
+  
+  /* Positioning */
+  position: relative;
+  z-index: var(--z-base);
+  
+  /* Behavior */
+  transition: all var(--transition-normal);
   overflow: hidden;
 }
 
+.filters-card:hover {
+  box-shadow: var(--shadow-glassmorphism-hover);
+  transform: translateY(-2px);
+}
+
 .filters-form {
-  padding: var(--spacing-xl);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
 }
 
 .filter-row {
   display: flex;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-md);
   align-items: flex-end;
   flex-wrap: wrap;
 }
 
 .search-field {
   flex: 2;
-  min-width: 300px;
+  min-width: 280px;
 }
 
 .filter-row mat-form-field {
@@ -132,12 +250,26 @@
 
 /* ===== TABLE SECTION ===== */
 .table-card {
-  background: var(--color-white);
-  border-radius: var(--radius-2xl);
-  box-shadow: var(--shadow-soft-md);
-  border: 1px solid var(--color-gray-200);
+  /* Unified glassmorphism styling - same as login/dashboard */
+  background: var(--color-white-alpha-95);
+  backdrop-filter: blur(20px);
+  border-radius: var(--radius-3xl);
+  box-shadow: var(--shadow-glassmorphism);
+  border: 1px solid var(--color-white-alpha-20);
+  
+  /* Structure */
   overflow: hidden;
   position: relative;
+  z-index: var(--z-base);
+  
+  /* Behavior */
+  transition: all var(--transition-normal);
+  animation: slideInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.table-card:hover {
+  box-shadow: var(--shadow-glassmorphism-hover);
+  transform: translateY(-2px);
 }
 
 .loading-overlay {
@@ -147,51 +279,85 @@
   right: 0;
   bottom: 0;
   background: var(--color-white-alpha-90);
+  backdrop-filter: blur(20px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 10;
-  backdrop-filter: blur(4px);
+  z-index: 100;
+  border-radius: var(--radius-3xl);
 }
 
 .error-message {
+  /* Unified error styling with glassmorphism */
   display: flex;
   align-items: center;
   gap: var(--spacing-md);
   padding: var(--spacing-xl);
-  color: var(--color-error);
-  background: var(--color-error-alpha-10);
-  border-radius: var(--radius-lg);
   margin: var(--spacing-lg);
+  
+  /* Glassmorphism error card */
+  background: rgba(239, 68, 68, 0.05);
+  backdrop-filter: blur(20px);
+  border-radius: var(--radius-xl);
+  border: 1px solid rgba(239, 68, 68, 0.1);
+  color: var(--color-error);
+  
+  /* Animation */
+  animation: slideInDown 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .table-container {
   overflow-x: auto;
+  border-radius: var(--radius-3xl);
 }
 
 /* ===== TABLE STYLES ===== */
 .campaigns-table {
   width: 100%;
-  background: var(--color-white);
+  background: transparent; /* Allow glassmorphism background to show through */
 }
 
 .campaigns-table th {
-  background: var(--color-gray-50);
+  /* Unified header styling with glassmorphism accent */
+  background: rgba(248, 250, 252, 0.8);
+  backdrop-filter: blur(10px);
   color: var(--color-gray-700);
   font-weight: var(--font-semibold);
   font-size: var(--text-sm);
-  padding: var(--spacing-lg) var(--spacing-md);
-  border-bottom: 2px solid var(--color-gray-200);
+  padding: var(--spacing-lg) var(--spacing-xl);
+  border-bottom: 1px solid var(--color-white-alpha-20);
+  
+  /* First and last header cell special radius */
+  position: relative;
+}
+
+.campaigns-table th:first-child {
+  border-top-left-radius: var(--radius-3xl);
+}
+
+.campaigns-table th:last-child {
+  border-top-right-radius: var(--radius-3xl);
 }
 
 .campaigns-table td {
-  padding: var(--spacing-lg) var(--spacing-md);
-  border-bottom: 1px solid var(--color-gray-100);
+  padding: var(--spacing-lg) var(--spacing-xl);
+  border-bottom: 1px solid rgba(248, 250, 252, 0.3);
   vertical-align: middle;
+  background: transparent;
+  transition: all var(--transition-fast);
 }
 
-.campaigns-table tr:hover {
-  background: var(--color-gray-50);
+.campaigns-table tr {
+  transition: all var(--transition-fast);
+}
+
+.campaigns-table tbody tr:hover {
+  background: rgba(248, 250, 252, 0.4);
+  backdrop-filter: blur(10px);
+}
+
+.campaigns-table tbody tr:hover td {
+  border-color: rgba(248, 250, 252, 0.6);
 }
 
 /* Campaign Name Column */
@@ -350,9 +516,17 @@
 
 /* No Data State */
 .no-data {
+  /* Unified no-data styling with glassmorphism */
   text-align: center;
   padding: var(--spacing-6xl) var(--spacing-2xl);
-  color: var(--color-gray-600);
+  background: rgba(248, 250, 252, 0.3);
+  backdrop-filter: blur(10px);
+  border-radius: var(--radius-2xl);
+  margin: var(--spacing-xl);
+  border: 1px solid var(--color-white-alpha-20);
+  
+  /* Animation */
+  animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .no-data-icon {
@@ -361,6 +535,10 @@
   height: 64px;
   color: var(--color-gray-400);
   margin-bottom: var(--spacing-lg);
+  
+  /* Subtle glow effect */
+  filter: drop-shadow(0 4px 12px rgba(156, 163, 175, 0.2));
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 
 .no-data h3 {
@@ -368,12 +546,17 @@
   color: var(--color-gray-700);
   font-size: var(--text-xl);
   font-weight: var(--font-semibold);
+  background: var(--color-primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .no-data p {
   margin: 0 0 var(--spacing-xl) 0;
   font-size: var(--text-base);
   line-height: var(--leading-relaxed);
+  color: var(--color-gray-600);
 }
 
 /* ===== RESPONSIVE DESIGN ===== */
@@ -481,25 +664,57 @@
 }
 
 /* ===== ANIMATIONS ===== */
-@keyframes slideInUp {
+@keyframes slideInDown {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translate3d(0, -30px, 0);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translate3d(0, 0, 0);
   }
 }
 
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 30px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 20px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* Animation applications */
 .table-card {
-  animation: slideInUp 0.4s ease-out;
+  animation: slideInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .filters-card {
-  animation: slideInUp 0.3s ease-out;
+  animation: slideInDown 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .bulk-actions-card {
-  animation: slideInUp 0.5s ease-out;
+  animation: fadeInUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }

@@ -1,22 +1,93 @@
+/* ===== UNIFIED MENU DESIGN ===== */
 mat-nav-list a.mat-list-item {
+  /* Structure and layout */
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md) var(--spacing-lg);
+  margin: var(--spacing-xs) var(--spacing-md);
+
+  /* Unified glassmorphism styling */
+  border-radius: var(--radius-xl);
+  transition: all var(--transition-normal);
+  color: var(--color-gray-700);
+  font-weight: var(--font-medium);
+
+  /* Subtle hover effects */
+  position: relative;
+  overflow: hidden;
 }
 
+mat-nav-list a.mat-list-item::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--color-white-alpha-20);
+  backdrop-filter: blur(10px);
+  opacity: 0;
+  transition: all var(--transition-normal);
+  border-radius: inherit;
+  z-index: -1;
+}
+
+mat-nav-list a.mat-list-item:hover {
+  transform: translateX(4px);
+  color: var(--color-primary);
+}
+
+mat-nav-list a.mat-list-item:hover::before {
+  opacity: 1;
+  box-shadow: var(--shadow-glassmorphism);
+}
+
+/* Active state - unified with login design */
 mat-nav-list a.mat-list-item.active,
-mat-nav-list a.mat-list-item[aria-current="page"] {
-  background-color: rgba(0, 0, 0, 0.04);
-  font-weight: 600;
+mat-nav-list a.mat-list-item[aria-current='page'] {
+  /* Glassmorphism active styling */
+  background: var(--color-white-alpha-95);
+  backdrop-filter: blur(20px);
+  box-shadow: var(--shadow-glassmorphism);
+  border: 1px solid var(--color-white-alpha-20);
+
+  /* Typography */
+  font-weight: var(--font-semibold);
+  color: var(--color-primary);
+
+  /* Animation */
+  transform: translateX(6px);
+  animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+/* Icon styling unified */
 mat-nav-list mat-icon {
   font-size: 1.5rem;
-  margin-right: 0.5rem;
+  width: 1.5rem;
+  height: 1.5rem;
+  transition: all var(--transition-normal);
 }
-
 
 mat-nav-list a.mat-list-item mat-icon {
   line-height: 1;
+  margin-right: 0;
+}
+
+mat-nav-list a.mat-list-item:hover mat-icon,
+mat-nav-list a.mat-list-item.active mat-icon {
+  transform: scale(1.1);
+  filter: drop-shadow(0 2px 8px rgba(99, 102, 241, 0.3));
+}
+
+/* ===== ANIMATIONS ===== */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(6px);
+  }
 }

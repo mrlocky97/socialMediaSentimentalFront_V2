@@ -1,0 +1,232 @@
+/* ===== UNIFIED REGISTER COMPONENT STYLES ===== */
+/* Consistent with login component design */
+
+.register-container {
+  /* Unified background gradient */
+  background: var(--color-primary-gradient);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.register-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: 
+    radial-gradient(circle at 20% 20%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(14, 165, 233, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.register-card {
+  /* Unified glassmorphism card */
+  background: var(--color-white-alpha-95);
+  backdrop-filter: blur(20px);
+  border-radius: var(--radius-3xl);
+  box-shadow: var(--shadow-glassmorphism);
+  border: 1px solid var(--color-white-alpha-20);
+  
+  /* Structure */
+  width: 100%;
+  max-width: 480px;
+  padding: var(--spacing-3xl);
+  position: relative;
+  z-index: 1;
+  
+  /* Animation */
+  animation: slideInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.register-card:hover {
+  box-shadow: var(--shadow-glassmorphism-hover);
+  transform: translateY(-2px);
+}
+
+/* Header styling */
+.register-header {
+  text-align: center;
+  margin-bottom: var(--spacing-2xl);
+}
+
+.register-title {
+  /* Unified gradient text */
+  background: var(--color-primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  
+  font-size: clamp(2rem, 4vw, 2.5rem);
+  font-weight: var(--font-bold);
+  margin-bottom: var(--spacing-md);
+  
+  animation: fadeInDown 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.register-subtitle {
+  color: var(--color-gray-600);
+  font-size: var(--text-base);
+  line-height: var(--leading-relaxed);
+  margin-bottom: var(--spacing-lg);
+  
+  animation: fadeInUp 0.6s 0.1s both cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Form styling */
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+/* Form fields unified styling */
+.register-form mat-form-field {
+  animation: slideInLeft 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.register-form mat-form-field:nth-child(2) { animation-delay: 0.1s; }
+.register-form mat-form-field:nth-child(3) { animation-delay: 0.2s; }
+.register-form mat-form-field:nth-child(4) { animation-delay: 0.3s; }
+
+/* Submit button unified styling */
+.register-submit {
+  /* Same styling as login button */
+  background: var(--color-primary-gradient);
+  border: none;
+  border-radius: var(--radius-2xl);
+  color: var(--color-white);
+  font-weight: var(--font-semibold);
+  font-size: var(--text-base);
+  padding: var(--spacing-lg) var(--spacing-2xl);
+  margin-top: var(--spacing-md);
+  
+  /* Effects */
+  box-shadow: var(--shadow-glassmorphism);
+  transition: all var(--transition-normal);
+  position: relative;
+  overflow: hidden;
+  
+  /* Animation */
+  animation: slideInUp 0.6s 0.4s both cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.register-submit::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+  transition: left 0.5s;
+}
+
+.register-submit:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-glassmorphism-hover);
+}
+
+.register-submit:hover::before {
+  left: 100%;
+}
+
+.register-submit:disabled {
+  opacity: 0.6;
+  transform: none;
+}
+
+/* Login link unified styling */
+.register-footer {
+  text-align: center;
+  margin-top: var(--spacing-xl);
+  padding-top: var(--spacing-lg);
+  border-top: 1px solid var(--color-white-alpha-20);
+  
+  animation: fadeInUp 0.6s 0.5s both cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.register-footer p {
+  color: var(--color-gray-600);
+  font-size: var(--text-sm);
+  margin-bottom: var(--spacing-sm);
+}
+
+.register-footer a {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: var(--font-semibold);
+  transition: all var(--transition-fast);
+}
+
+.register-footer a:hover {
+  color: var(--color-secondary);
+  text-decoration: underline;
+}
+
+/* Responsive design */
+@media (max-width: 640px) {
+  .register-container {
+    padding: var(--spacing-sm);
+  }
+  
+  .register-card {
+    padding: var(--spacing-2xl);
+  }
+  
+  .register-title {
+    font-size: 2rem;
+  }
+}
+
+/* ===== UNIFIED ANIMATIONS ===== */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 30px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -30px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 20px, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translate3d(-30px, 0, 0);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
