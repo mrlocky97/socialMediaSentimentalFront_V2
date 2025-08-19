@@ -2,11 +2,11 @@ export const environment = {
   production: false,
   apiUrl: 'http://localhost:3001/api/v1',
   apiVersion: 'v1',
-  // Feature flags para desarrollo
+  // Feature flags para desarrollo - BACKEND ACTIVADO
   features: {
-    mockData: false, // Usar datos mock si backend no está disponible
-    realTimeUpdates: false, // Desactivar actualizaciones en tiempo real
-    offlineMode: true, // Permitir funcionalidad offline
+    mockData: true, // Mantener activo para fallback cuando backend no esté disponible
+    realTimeUpdates: true, // ✅ ACTIVADO: Actualizaciones en tiempo real
+    offlineMode: true, // Permitir funcionalidad offline como fallback
   },
   // Configuración de desarrollo
   development: {
