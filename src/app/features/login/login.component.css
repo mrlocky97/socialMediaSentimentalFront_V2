@@ -1,8 +1,9 @@
+/* NOTE: design tokens and CSS variables are centralized in `src/styles/globals.css` */
 /* =====================================
-   LOGIN COMPONENT - OPTIMIZED STYLES
-   Uses Global Design System from globals.css
+  LOGIN COMPONENT - OPTIMIZED STYLES
+  Uses Global Design System from globals.css
 
-   TABLE OF CONTENTS:
+  TABLE OF CONTENTS:
    1. Main Layout & Container
    2. Card Structure
    3. Header Section (Logo & Title)
@@ -38,49 +39,7 @@
 /* =====================================
    2. CARD STRUCTURE
    ===================================== */
-.login-card-wrapper {
-  /* Size & Constraints */
-  width: 100%;
-  max-width: 420px;
-  height: fit-content;
-  max-height: calc(100vh - 2rem);
-
-  /* Layout */
-  display: flex;
-  flex-direction: column;
-
-  /* Positioning */
-  position: relative;
-  z-index: var(--z-sticky);
-}
-
-.login-card {
-  /* Layout Structure */
-  display: flex;
-  flex-direction: column;
-  min-height: 0;
-  width: 100%;
-  margin: 0;
-  box-sizing: border-box;
-
-  /* Visual Design */
-  background: var(--color-white-alpha-95);
-  backdrop-filter: blur(20px);
-  border-radius: var(--radius-3xl);
-  box-shadow: var(--shadow-glassmorphism);
-  border: 1px solid var(--color-white-alpha-20);
-
-  /* Behavior */
-  overflow: hidden;
-  transition: none;
-  animation: slideInUp 0.6s ease-out;
-  will-change: transform;
-}
-
-.login-card:hover {
-  transform: none;
-  box-shadow: var(--shadow-glassmorphism);
-}
+/* Layout and card wrapper styles moved to `src/styles/globals.css` */
 
 /* =====================================
    3. HEADER SECTION (Logo & Title)
@@ -115,40 +74,9 @@
 }
 
 /* Logo Styling */
-.custom-logo {
-  /* Size */
-  width: calc(var(--logo-container-tablet) * 1.3);
-  height: calc(var(--logo-container-tablet) * 1.3);
-  padding: var(--spacing-md);
+/* Logo and card visuals centralized in `src/styles/globals.css` */
 
-  /* Layout */
-  margin: 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  /* Visual */
-  background: var(--color-white-alpha-10);
-  border-radius: var(--radius-2xl);
-  backdrop-filter: blur(10px);
-  border: 1px solid var(--color-white-alpha-20);
-
-  /* Behavior */
-  transition: none;
-}
-
-.custom-logo:hover {
-  background: var(--color-white-alpha-10);
-  transform: none;
-}
-
-.logo-svg {
-  width: calc(var(--logo-size-tablet) * 1.3);
-  height: calc(var(--logo-size-tablet) * 1.3);
-  color: var(--color-white);
-  filter: drop-shadow(0 2px 4px var(--color-black-alpha-30));
-  will-change: transform;
-}
+.logo-svg { display: inline-block; }
 
 /* Typography */
 .login-header h1 {
@@ -173,41 +101,7 @@
 /* =====================================
    4. CONTENT SECTION (Form & Fields)
    ===================================== */
-.login-content {
-  /* Layout */
-  padding: var(--spacing-2xl) var(--spacing-3xl);
-  margin: 0;
-  box-sizing: border-box;
-
-  /* Flex Behavior */
-  flex: 1 1 auto;
-
-  /* Visual */
-  background: var(--color-white);
-  border-radius: 0;
-
-  /* Positioning */
-  position: relative;
-}
-
-.login-form {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-lg);
-  max-width: 100%;
-  margin: 0 auto;
-}
-
-.form-field-wrapper {
-  display: block;
-  width: 100%;
-  margin: 5px auto 5px auto;
-  padding: 0;
-}
-
-.full-width {
-  width: 100%;
-}
+/* Content, form and helpers moved to `src/styles/globals.css` */
 
 /* =====================================
    5. ACTIONS SECTION (Buttons & Links)
@@ -240,44 +134,7 @@
 }
 
 /* Primary Button */
-.login-button {
-  /* Size */
-  height: var(--button-height-xl);
-  width: 100%;
-  max-width: 280px;
-  margin: var(--spacing-sm) auto 0;
-
-  /* Layout */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  /* Visual */
-  background: var(--color-primary-gradient);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-primary-md);
-
-  /* Typography */
-  font-size: var(--text-base);
-  font-weight: var(--font-semibold);
-  text-transform: none;
-
-  /* Behavior */
-  position: relative;
-  overflow: hidden;
-  transition: all var(--transition-normal);
-}
-
-.login-button:hover:not([disabled]) {
-  box-shadow: var(--shadow-primary-lg);
-  transform: translateY(-2px);
-}
-
-.login-button:disabled {
-  opacity: 0.6;
-  box-shadow: none;
-  transform: none;
-}
+.login-button { /* styles moved to globals.css (.login-button) */ display: inline-flex; }
 
 .button-spinner {
   margin-right: var(--spacing-sm);
@@ -286,254 +143,7 @@
 
 /* Secondary Links */
 .register-link {
-  color: var(--color-primary);
-  font-weight: var(--font-medium);
-  text-transform: none;
-  border-radius: var(--radius-lg);
-  transition: all var(--transition-fast);
-  padding: var(--spacing-sm) var(--spacing-lg);
-  text-align: center;
-}
-
-.register-link:hover {
-  background-color: var(--color-primary-alpha-10);
-}
-
-.demo-button {
-  color: var(--color-warning);
-  font-weight: var(--font-medium);
-  text-transform: none;
-  border-radius: var(--radius-lg);
-  transition: all var(--transition-fast);
-  padding: var(--spacing-sm) var(--spacing-lg);
-  text-align: center;
-  font-size: 0.9rem;
-  opacity: 0.8;
-}
-
-.demo-button:hover {
-  background-color: var(--color-warning-alpha-10);
-  opacity: 1;
-} /* =====================================
-   6. MATERIAL DESIGN OVERRIDES
-   ===================================== */
-.mat-mdc-form-field {
-  /* Shape & Colors */
-  --mdc-filled-text-field-container-shape: var(--radius-xl);
-  --mdc-outlined-text-field-container-shape: var(--radius-xl);
-  --mdc-outlined-text-field-outline-color: var(--color-gray-300);
-  --mdc-outlined-text-field-hover-outline-color: var(--color-primary);
-  --mdc-outlined-text-field-focus-outline-color: var(--color-primary);
-
-  /* Layout */
-  width: 100%;
-  display: block;
-  margin: var(--spacing-xs) 0 0 0;
-}
-
-.mat-mdc-form-field-appearance-outline .mat-mdc-form-field-outline {
-  border-radius: var(--radius-xl);
-  border-color: var(--color-gray-300);
-  transition: border-color var(--transition-fast);
-}
-
-.mat-mdc-form-field-appearance-outline .mat-mdc-form-field-outline-thick {
-  border-width: 2px;
-  border-color: var(--color-primary);
-}
-
-.mat-mdc-form-field.mat-form-field-invalid .mat-mdc-form-field-outline-thick {
-  border-color: var(--color-error);
-}
-
-.mat-mdc-form-field-wrapper {
-  width: 100%;
-  padding: 0;
-}
-
-.mat-mdc-form-field-flex {
-  padding: var(--spacing-sm) var(--spacing-md);
-  min-height: 56px;
-}
-
-.mat-mdc-form-field-infix {
-  padding: var(--spacing-md) 0;
-  min-height: 24px;
-}
-
-/* Material Card Resets */
-.mat-mdc-card-header,
-.mat-mdc-card-content,
-.mat-mdc-card-actions {
-  padding: 0;
-  margin: 0;
-}
-
-.mat-mdc-card-actions {
-  display: flex;
-  justify-content: center;
-}
-
-.mat-mdc-card-content > :last-child:not(.mat-mdc-card-footer) {
-  margin: var(--spacing-lg);
-}
-
-/* =====================================
-   7. FEEDBACK MESSAGES
-   ===================================== */
-.success-snackbar {
-  background-color: var(--color-success) !important;
-  color: var(--color-white) !important;
-}
-
-.error-snackbar {
-  background-color: var(--color-error) !important;
-  color: var(--color-white) !important;
-}
-
-.error-message {
-  color: var(--color-error);
-  font-size: var(--text-sm);
-  margin-top: var(--spacing-md);
-  padding: var(--spacing-md);
-  background-color: #ffebee;
-  border-radius: var(--radius-lg);
-  border: 1px solid #ffcdd2;
-  text-align: center;
-}
-
-.lockout-message {
-  color: var(--color-warning);
-  font-size: var(--text-sm);
-  margin-top: var(--spacing-md);
-  padding: var(--spacing-md);
-  background-color: #fff3e0;
-  border-radius: var(--radius-lg);
-  border: 1px solid #ffcc02;
-  text-align: center;
-  font-weight: var(--font-medium);
-}
-
-/* =====================================
-   8. BACKGROUND DECORATIONS
-   ===================================== */
-.background-decoration {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 1;
-}
-
-.decoration-circle {
-  position: absolute;
-  border-radius: var(--radius-full);
-  background: var(--color-white-alpha-10);
-  backdrop-filter: blur(40px);
-}
-
-.circle-1 {
-  width: 200px;
-  height: 200px;
-  top: -100px;
-  right: -100px;
-  animation: float 6s ease-in-out infinite;
-}
-
-.circle-2 {
-  width: 150px;
-  height: 150px;
-  bottom: -75px;
-  left: -75px;
-  animation: float 8s ease-in-out infinite reverse;
-}
-
-.circle-3 {
-  width: 100px;
-  height: 100px;
-  top: 50%;
-  left: -50px;
-  animation: float 10s ease-in-out infinite;
-}
-
-/* =====================================
-   9. ANIMATIONS & KEYFRAMES
-   ===================================== */
-
-/* Accessibility: Disable animations for users who prefer reduced motion */
-@media (prefers-reduced-motion: reduce) {
-  .login-card {
-    animation: none;
-    transition: none;
-  }
-
-  .login-card:hover,
-  .custom-logo:hover {
-    transform: none;
-  }
-
-  .decoration-circle {
-    animation: none;
-  }
-
-  .logo-svg * {
-    animation: none;
-  }
-}
-
-/* Logo SVG Animations */
-.logo-svg rect {
-  animation: slideUp 0.6s var(--transition-smooth);
-  animation-fill-mode: both;
-}
-
-.logo-svg rect:nth-child(1) {
-  animation-delay: 0.1s;
-}
-.logo-svg rect:nth-child(2) {
-  animation-delay: 0.15s;
-}
-.logo-svg rect:nth-child(3) {
-  animation-delay: 0.2s;
-}
-.logo-svg rect:nth-child(4) {
-  animation-delay: 0.25s;
-}
-
-.logo-svg path {
-  animation: drawLine 0.8s var(--transition-smooth) 0.4s;
-  animation-fill-mode: both;
-  stroke-dasharray: 80;
-  stroke-dashoffset: 80;
-}
-
-.logo-svg circle {
-  animation: popIn 0.4s var(--transition-smooth);
-  animation-fill-mode: both;
-}
-
-.logo-svg circle:nth-child(6) {
-  animation-delay: 0.5s;
-}
-.logo-svg circle:nth-child(7) {
-  animation-delay: 0.55s;
-}
-.logo-svg circle:nth-child(8) {
-  animation-delay: 0.6s;
-}
-.logo-svg circle:nth-child(9) {
-  animation-delay: 0.65s;
-}
-
-.logo-svg g {
-  animation: fadeIn 0.5s var(--transition-smooth) 0.7s;
-  animation-fill-mode: both;
-}
-
-/* Angular View Encapsulation Fixes */
-.login-card * {
+  /* Actions, create-button and responsive helpers moved to `src/styles/globals.css` */
   text-align: inherit;
 }
 
@@ -541,67 +151,9 @@
   margin: 0 auto;
 }
 
-/* Keyframe Definitions */
-@keyframes slideInUp {
-  from {
-    opacity: 0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
+/* Animation keyframes moved to `src/styles/globals.css` */
 
-@keyframes slideUp {
-  from {
-    opacity: 0;
-    transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes drawLine {
-  to {
-    stroke-dashoffset: 0;
-  }
-}
-
-@keyframes popIn {
-  from {
-    opacity: 0;
-    transform: scale(0.3);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes float {
-  0%,
-  100% {
-    transform: translateY(0px) rotate(0deg);
-  }
-  33% {
-    transform: translateY(-20px) rotate(120deg);
-  }
-  66% {
-    transform: translateY(10px) rotate(240deg);
-  }
-}
+/* float keyframes moved to `src/styles/globals.css` */
 
 /* =====================================
    10. RESPONSIVE DESIGN (Mobile First)
@@ -617,6 +169,7 @@
   .login-card-wrapper {
     max-width: 100%;
     max-height: calc(100dvh - 2rem);
+    border-radius: var(--spacing-6);
   }
 
   /* Enable scroll only on very small mobile screens */
@@ -636,18 +189,6 @@
 
   .logo-section {
     gap: var(--spacing-sm);
-  }
-
-  .custom-logo {
-    width: calc(var(--logo-container-mobile) * 1.3);
-    height: calc(var(--logo-container-mobile) * 1.3);
-    border-radius: var(--radius-xl);
-    padding: var(--spacing-xs);
-  }
-
-  .logo-svg {
-    width: calc(var(--logo-size-mobile) * 1.3);
-    height: calc(var(--logo-size-mobile) * 1.3);
   }
 
   .login-header h1 {
@@ -727,16 +268,8 @@
     padding: var(--spacing-3xl) 0;
   }
 
-  .custom-logo {
-    width: calc(var(--logo-container-desktop) * 1.3);
-    height: calc(var(--logo-container-desktop) * 1.3);
-  }
-
-  .logo-svg {
-    width: calc(46px * 1.3);
-    height: calc(46px * 1.3);
-  }
 }
+
 
 /* Large devices (desktops, 992-1200px) */
 @media (min-width: 992px) {
@@ -752,17 +285,7 @@
     padding: var(--spacing-4xl) 0;
   }
 
-  .custom-logo {
-    width: calc(var(--logo-container-desktop) * 1.3);
-    height: calc(var(--logo-container-desktop) * 1.3);
-    border-radius: var(--radius-2xl);
-    padding: var(--spacing-sm);
-  }
-
-  .logo-svg {
-    width: calc(var(--logo-size-desktop) * 1.3);
-    height: calc(var(--logo-size-desktop) * 1.3);
-  }
+  /* responsive rules moved to globals.css */
 
   .login-content {
     padding: var(--spacing-3xl) var(--spacing-3xl);

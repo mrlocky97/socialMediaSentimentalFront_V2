@@ -1,8 +1,9 @@
+/* NOTE: design tokens and CSS variables are centralized in `src/styles/globals.css` */
 /* =====================================
-   CAMPAIGN LIST - UNIFIED DESIGN SYSTEM
-   Consistent with Login & Dashboard styling
-   Mobile-First Responsive Design
-   ===================================== */
+  CAMPAIGN LIST - UNIFIED DESIGN SYSTEM
+  Consistent with Login & Dashboard styling
+  Mobile-First Responsive Design
+  ===================================== */
 
 .campaign-list-container {
   /* Layout - Same as dashboard */
@@ -49,31 +50,7 @@
 }
 
 /* Header Content Card - Same as dashboard header */
-.header-content {
-  /* Structure - Same card styling as login */
-  background: var(--color-white-alpha-95);
-  backdrop-filter: blur(20px);
-  border-radius: var(--radius-3xl);
-  box-shadow: var(--shadow-glassmorphism);
-  border: 1px solid var(--color-white-alpha-20);
-  
-  /* Layout */
-  padding: var(--spacing-2xl);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--spacing-lg);
-  text-align: center;
-  
-  /* Behavior */
-  transition: all var(--transition-normal);
-  overflow: hidden;
-}
-
-.header-content:hover {
-  box-shadow: var(--shadow-glassmorphism-hover);
-  transform: translateY(-2px);
-}
+/* header card styling moved to `src/styles/globals.css` */
 
 .header-title h1 {
   /* Typography - Same as dashboard title */
@@ -249,28 +226,7 @@
 }
 
 /* ===== TABLE SECTION ===== */
-.table-card {
-  /* Unified glassmorphism styling - same as login/dashboard */
-  background: var(--color-white-alpha-95);
-  backdrop-filter: blur(20px);
-  border-radius: var(--radius-3xl);
-  box-shadow: var(--shadow-glassmorphism);
-  border: 1px solid var(--color-white-alpha-20);
-  
-  /* Structure */
-  overflow: hidden;
-  position: relative;
-  z-index: var(--z-base);
-  
-  /* Behavior */
-  transition: all var(--transition-normal);
-  animation: slideInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.table-card:hover {
-  box-shadow: var(--shadow-glassmorphism-hover);
-  transform: translateY(-2px);
-}
+/* table card visuals moved to `src/styles/globals.css` */
 
 .loading-overlay {
   position: absolute;
@@ -664,47 +620,7 @@
 }
 
 /* ===== ANIMATIONS ===== */
-@keyframes slideInDown {
-  from {
-    opacity: 0;
-    transform: translate3d(0, -30px, 0);
-  }
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-  }
-}
-
-@keyframes slideInUp {
-  from {
-    opacity: 0;
-    transform: translate3d(0, 30px, 0);
-  }
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-  }
-}
-
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translate3d(0, 20px, 0);
-  }
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-  }
-}
-
-@keyframes pulse {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.6;
-  }
-}
+/* Keyframe animations moved to `src/styles/globals.css` to avoid duplication. */
 
 /* Animation applications */
 .table-card {

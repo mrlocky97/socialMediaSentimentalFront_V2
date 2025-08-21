@@ -89,7 +89,6 @@ export class LoginComponent implements OnInit {
   }
 
   private checkExistingAuth(): void {
-    // Si ya está autenticado, redirigir al dashboard
     if (this.authService.isAuthenticated()) {
       this.router.navigate(['/dashboard']);
     }
