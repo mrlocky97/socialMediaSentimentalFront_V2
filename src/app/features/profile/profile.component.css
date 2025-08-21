@@ -3,8 +3,8 @@
   padding: 24px;
   max-width: 1200px;
   margin: 0 auto;
-  min-height: 100vh;
-  background-color: #fafafa;
+  min-height: calc(100vh - 64px); /* Ajuste para el header del dashboard */
+  background-color: transparent; /* Usar el background del dashboard */
 }
 
 .header {

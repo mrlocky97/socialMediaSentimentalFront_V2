@@ -45,7 +45,7 @@ export class MenuComponent {
     { route: '/analytics', label: 'Análisis', icon: 'analytics', ariaLabel: 'Ir a análisis y reportes' },
     { route: '/monitor', label: 'Monitor', icon: 'monitoring', ariaLabel: 'Ir a monitor de scraping' },
     { route: '/wizard', label: 'Asistente', icon: 'auto_fix_high', ariaLabel: 'Ir a asistente de campañas' },
-    { route: '/profile', label: 'Mi Perfil', icon: 'account_circle', ariaLabel: 'Ir a mi perfil' },
+    { route: '/dashboard/profile', label: 'Mi Perfil', icon: 'account_circle', ariaLabel: 'Ir a mi perfil' },
   ];
 
   onNavigate() {

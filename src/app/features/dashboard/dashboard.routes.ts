@@ -12,6 +12,11 @@ export const routes: Routes = [
           import('./home/home.component').then(c => c.HomeComponent)
       },
       {
+        path: 'profile',
+        loadComponent: () =>
+          import('../profile/profile.component').then(c => c.ProfileComponent)
+      },
+      {
         path: 'campaigns',
         children: [
           {
