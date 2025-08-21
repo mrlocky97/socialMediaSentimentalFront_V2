@@ -1,12 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, inject, Output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
-import { RouterModule } from '@angular/router';
-import { MatDividerModule } from '@angular/material/divider';
-import { AuthService } from '../../../core/auth/services/auth.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { RouterModule } from '@angular/router';
+import { AuthService } from '../../../core/auth/services/auth.service';
 
 export interface NavItem {
   route: string;
@@ -42,8 +42,10 @@ export class MenuComponent {
   navItems: NavItem[] = [
     { route: '/dashboard/home', label: 'Inicio', icon: 'home', ariaLabel: 'Ir a inicio' },
     { route: '/campaigns', label: 'Campañas', icon: 'campaign', ariaLabel: 'Ir a gestión de campañas' },
-    { route: '/dashboard/profile', label: 'Perfil', icon: 'account_circle', ariaLabel: 'Ir a perfil' },
-    { route: '/dashboard/settings', label: 'Configuración', icon: 'settings', ariaLabel: 'Ir a configuración' },
+    { route: '/analytics', label: 'Análisis', icon: 'analytics', ariaLabel: 'Ir a análisis y reportes' },
+    { route: '/monitor', label: 'Monitor', icon: 'monitoring', ariaLabel: 'Ir a monitor de scraping' },
+    { route: '/wizard', label: 'Asistente', icon: 'auto_fix_high', ariaLabel: 'Ir a asistente de campañas' },
+    { route: '/profile', label: 'Mi Perfil', icon: 'account_circle', ariaLabel: 'Ir a mi perfil' },
   ];
 
   onNavigate() {
