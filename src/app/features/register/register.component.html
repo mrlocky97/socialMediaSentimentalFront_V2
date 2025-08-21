@@ -88,7 +88,7 @@
             <mat-error>{{ getFieldError('password')! | transloco }}</mat-error>
           }
           @if (passwordStrength.strength > 0) {
-            <mat-hint>
+            <mat-hint class="pws">
               <div class="password-strength-container">
                 <div class="password-strength-bar">
                   <div 
