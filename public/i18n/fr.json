@@ -1,0 +1,47 @@
+{
+  "register": {
+    "header": "Créer un Compte",
+    "subtitle": "Rejoignez SentimentalSocial pour commencer à analyser les sentiments des réseaux sociaux",
+    "userName": "Nom d'Utilisateur",
+    "enterName": "Saisissez votre nom d'utilisateur",
+    "displayName": "Nom d'Affichage",
+    "email": "Adresse E-mail",
+    "enterEmail": "Saisissez votre adresse e-mail",
+    "password": "Mot de Passe",
+    "enterPassword": "Saisissez votre mot de passe",
+    "confirmPassword": "Confirmer le Mot de Passe",
+    "submit": "Créer un Compte",
+    "submitting": "Création du compte...",
+    "haveAccount": "Vous avez déjà un compte ?",
+    "loginLink": "Connectez-vous ici",
+    "userName_required": "Le nom d'utilisateur est requis",
+    "userName_minlength": "Le nom d'utilisateur doit contenir au moins 2 caractères",
+    "userName_maxlength": "Le nom d'utilisateur ne doit pas dépasser 50 caractères",
+    "displayName_required": "Le nom d'affichage est requis",
+    "displayName_minlength": "Le nom d'affichage doit contenir au moins 2 caractères",
+    "displayName_maxlength": "Le nom d'affichage ne doit pas dépasser 100 caractères",
+    "email_required": "L'adresse e-mail est requise",
+    "email_invalid": "Veuillez saisir une adresse e-mail valide",
+    "password_required": "Le mot de passe est requis",
+    "password_minlength": "Le mot de passe doit contenir au moins 8 caractères",
+    "password_weak": "Le mot de passe doit contenir des majuscules, minuscules, chiffres et caractères spéciaux",
+    "confirmPassword_required": "Veuillez confirmer votre mot de passe",
+    "passwords_mismatch": "Les mots de passe ne correspondent pas",
+    "success_message": "Bienvenue {{name}} ! Votre compte a été créé avec succès.",
+    "close": "Fermer",
+    "password_strength": {
+      "very_weak": "Très Faible",
+      "weak": "Faible",
+      "fair": "Correct",
+      "good": "Bon",
+      "strong": "Fort"
+    },
+    "errors": {
+      "email_exists": "Cette adresse e-mail est déjà enregistrée",
+      "username_exists": "Ce nom d'utilisateur est déjà pris",
+      "email_invalid": "Veuillez saisir une adresse e-mail valide",
+      "password_weak": "Le mot de passe est trop faible. Veuillez choisir un mot de passe plus fort",
+      "general": "Échec de l'enregistrement. Veuillez réessayer plus tard"
+    }
+  }
+}

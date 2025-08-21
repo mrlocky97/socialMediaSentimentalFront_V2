@@ -23,6 +23,51 @@
       "minlength": "Password must be at least 6 characters long"
     }
   },
+  "register": {
+    "header": "Create Account",
+    "subtitle": "Join SentimentalSocial to start analyzing social media sentiment",
+    "userName": "Username",
+    "enterName": "Enter your username",
+    "displayName": "Display Name",
+    "email": "Email Address",
+    "enterEmail": "Enter your email address",
+    "password": "Password",
+    "enterPassword": "Enter your password",
+    "confirmPassword": "Confirm Password",
+    "submit": "Create Account",
+    "submitting": "Creating account...",
+    "haveAccount": "Already have an account?",
+    "loginLink": "Sign in here",
+    "userName_required": "Username is required",
+    "userName_minlength": "Username must be at least 2 characters long",
+    "userName_maxlength": "Username must not exceed 50 characters",
+    "displayName_required": "Display name is required",
+    "displayName_minlength": "Display name must be at least 2 characters long",
+    "displayName_maxlength": "Display name must not exceed 100 characters",
+    "email_required": "Email address is required",
+    "email_invalid": "Please enter a valid email address",
+    "password_required": "Password is required",
+    "password_minlength": "Password must be at least 8 characters long",
+    "password_weak": "Password must contain uppercase, lowercase, numbers and special characters",
+    "confirmPassword_required": "Please confirm your password",
+    "passwords_mismatch": "Passwords do not match",
+    "success_message": "Welcome {{name}}! Your account has been created successfully.",
+    "close": "Close",
+    "password_strength": {
+      "very_weak": "Very Weak",
+      "weak": "Weak",
+      "fair": "Fair",
+      "good": "Good",
+      "strong": "Strong"
+    },
+    "errors": {
+      "email_exists": "This email address is already registered",
+      "username_exists": "This username is already taken",
+      "email_invalid": "Please enter a valid email address",
+      "password_weak": "Password is too weak. Please choose a stronger password",
+      "general": "Registration failed. Please try again later"
+    }
+  },
   "widget": {
     "pending_tweets": {
       "title": "Pending Tweets",
