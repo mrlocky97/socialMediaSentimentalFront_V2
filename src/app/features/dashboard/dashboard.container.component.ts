@@ -8,6 +8,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { SessionTimeoutService } from '../../core/services/session-timeout.service';
 import { MatDialog } from '@angular/material/dialog';
 import { LogoutConfirmationDialogComponent } from './components/logout-confirmation-dialog.component';
+import { LanguageSelectorComponent } from '../../shared/components/language-selector/language-selector.component';
 
 export interface Tile {
   color: string;
@@ -23,6 +24,7 @@ export interface Tile {
     CommonModule, 
     RouterOutlet, 
     MenuComponent,
+    LanguageSelectorComponent,
     ...MATERIAL_IMPORTS
   ],
   templateUrl: './dashboard.container.component.html',

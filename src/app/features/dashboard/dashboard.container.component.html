@@ -10,6 +10,9 @@
     
     <!-- Información del usuario y logout -->
     <div class="user-section" *ngIf="isAuthenticated()">
+      <!-- Selector de idioma -->
+      <app-language-selector></app-language-selector>
+      
       <div class="user-info">
         <div class="user-avatar" [title]="currentUser()?.displayName || currentUser()?.username">
           {{ getUserInitials() }}

@@ -354,6 +354,13 @@
     "dashboard_settings": "Dashboard Settings",
     "auto_refresh": "Auto Refresh",
     "auto_refresh_desc": "Automatically refresh dashboard data",
-    "refresh_interval": "Refresh Interval"
+    "refresh_interval": "Refresh Interval",
+    "language_hint": "Changes will be applied immediately",
+    "quick_language_switch": "Quick language switch",
+    "language_changed_success": "Language changed successfully",
+    "language_changed_to": "Language changed to"
+  },
+  "language_selector": {
+    "tooltip": "Change language"
   }
 }

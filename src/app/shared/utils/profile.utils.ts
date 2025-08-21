@@ -32,10 +32,10 @@ export class ProfileUtils {
 
   // Opciones para selects
   static languageOptions = [
-    { value: 'es', label: 'Español' },
-    { value: 'en', label: 'English' },
-    { value: 'fr', label: 'Français' },
-    { value: 'de', label: 'Deutsch' },
+    { value: 'es', label: 'Español 🇪🇸' },
+    { value: 'en', label: 'English 🇺🇸' },
+    { value: 'fr', label: 'Français 🇫🇷' },
+    { value: 'de', label: 'Deutsch 🇩🇪' },
   ];
 
   static themeOptions = [

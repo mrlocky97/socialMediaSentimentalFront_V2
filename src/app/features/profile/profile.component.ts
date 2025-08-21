@@ -57,7 +57,7 @@ import { ProfileService } from './services/profile.service';
 })
 export class ProfileComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
-  private readonly profileService = inject(ProfileService);
+  public readonly profileService = inject(ProfileService);
 
   // Signals para el estado del componente
   private readonly _isFormsDirty = signal(false);
@@ -72,6 +72,8 @@ export class ProfileComponent implements OnInit {
   readonly isLoading = this.profileService.isLoading;
   readonly error = this.profileService.error;
   readonly hasChanges = this.profileService.hasChanges;
+  readonly currentLanguage = this.profileService.currentLanguage;
+  readonly availableLanguages = this.profileService.availableLanguages;
 
   // Computed para validaciones
   readonly canSaveProfile = computed(
@@ -277,6 +279,13 @@ export class ProfileComponent implements OnInit {
     }
 
     const formValue = this.preferencesForm.getRawValue();
+    
+    // Si el idioma cambió, aplicarlo inmediatamente
+    const currentLanguage = this.currentLanguage();
+    if (formValue.language !== currentLanguage) {
+      this.onLanguageChange(formValue.language);
+    }
+
     const preferencesUpdate: UpdateProfileRequest = {
       preferences: {
         language: formValue.language,
@@ -311,6 +320,33 @@ export class ProfileComponent implements OnInit {
         })
       )
       .subscribe();
+  }
+
+  // ===== MÉTODOS DE IDIOMA =====
+  
+  /**
+   * Manejar cambio de idioma
+   */
+  onLanguageChange(newLanguage: string): void {
+    this.profileService
+      .changeLanguage(newLanguage)
+      .pipe(
+        catchError((error) => {
+          console.error('Error changing language:', error);
+          // Revertir el formulario al idioma anterior si hay error
+          const currentLang = this.currentLanguage();
+          this.preferencesForm.patchValue({ language: currentLang }, { emitEvent: false });
+          return of(null);
+        })
+      )
+      .subscribe();
+  }
+
+  /**
+   * Cambio rápido de idioma (sin guardar en preferencias)
+   */
+  onQuickLanguageSwitch(): void {
+    this.profileService.switchToNextLanguage();
   }
 
   // Cambiar contraseña

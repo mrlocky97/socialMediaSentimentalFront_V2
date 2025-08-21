@@ -356,6 +356,13 @@
     "dashboard_settings": "Configuración del Dashboard",
     "auto_refresh": "Actualización Automática",
     "auto_refresh_desc": "Actualizar automáticamente los datos del dashboard",
-    "refresh_interval": "Intervalo de Actualización"
+    "refresh_interval": "Intervalo de Actualización",
+    "language_hint": "Los cambios se aplicarán inmediatamente",
+    "quick_language_switch": "Cambio rápido de idioma",
+    "language_changed_success": "Idioma cambiado correctamente",
+    "language_changed_to": "Idioma cambiado a"
+  },
+  "language_selector": {
+    "tooltip": "Cambiar idioma"
   }
 }

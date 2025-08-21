@@ -263,15 +263,24 @@
               <form [formGroup]="preferencesForm" (ngSubmit)="onSavePreferences()">
                 <!-- Configuración de idioma y tema -->
                 <div class="preferences-section">
-                  <h3>{{ 'profile.appearance' | transloco }}</h3>
+                  <div class="section-header">
+                    <h3>{{ 'profile.appearance' | transloco }}</h3>
+                    <button mat-icon-button 
+                            (click)="onQuickLanguageSwitch()"
+                            class="quick-language-btn"
+                            [title]="'profile.quick_language_switch' | transloco">
+                      <span class="language-flag">{{ profileService.getCurrentLanguageInfo()?.flag || '🌐' }}</span>
+                    </button>
+                  </div>
                   <div class="form-row two-columns">
                     <mat-form-field appearance="outline">
                       <mat-label>{{ 'profile.language' | transloco }}</mat-label>
-                      <mat-select formControlName="language">
+                      <mat-select formControlName="language" (selectionChange)="onLanguageChange($event.value)">
                         @for (lang of languageOptions; track lang.value) {
                         <mat-option [value]="lang.value">{{ lang.label }}</mat-option>
                         }
                       </mat-select>
+                      <mat-hint>{{ 'profile.language_hint' | transloco }}</mat-hint>
                     </mat-form-field>
 
                     <mat-form-field appearance="outline">

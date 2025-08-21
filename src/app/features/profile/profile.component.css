@@ -194,6 +194,39 @@
   gap: 8px;
 }
 
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.section-header h3 {
+  margin: 0;
+}
+
+.quick-language-btn {
+  background-color: #f5f5f5;
+  border: 1px solid #e0e0e0;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.quick-language-btn:hover {
+  background-color: #e0e0e0;
+  transform: scale(1.1);
+}
+
+.language-flag {
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
 .toggle-list {
   display: flex;
   flex-direction: column;

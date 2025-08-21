@@ -2,8 +2,9 @@ import { Injectable, inject, signal } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslocoService } from '@ngneat/transloco';
 import { Observable } from 'rxjs';
-import { finalize } from 'rxjs/operators';
+import { finalize, tap } from 'rxjs/operators';
 import { AuthService } from '../../../core/auth/services/auth.service';
+import { LanguageService } from '../../../core/services/language.service';
 import {
   ChangePasswordRequest,
   UpdateProfileRequest,
@@ -18,6 +19,7 @@ export class ProfileService {
   private userProfileService = inject(UserProfileService);
   private snackBar = inject(MatSnackBar);
   private transloco = inject(TranslocoService);
+  private languageService = inject(LanguageService);
 
   // Signals para el estado del componente
   private _isSubmitting = signal(false);
@@ -37,6 +39,10 @@ export class ProfileService {
   isLoading = this.userProfileService.isLoading;
   error = this.userProfileService.error;
   hasChanges = this.userProfileService.hasChanges;
+
+  // Referencias a idioma
+  currentLanguage = this.languageService.currentLanguage;
+  availableLanguages = this.languageService.availableLanguages;
 
   // Métodos para mostrar/ocultar contraseñas
   toggleCurrentPasswordVisibility(): void {
@@ -131,5 +137,52 @@ export class ProfileService {
 
   getProfile(): Observable<any> {
     return this.userProfileService.getProfile();
+  }
+
+  // ===== MÉTODOS DE IDIOMA =====
+  
+  /**
+   * Cambiar idioma y actualizar preferencias
+   */
+  changeLanguage(language: string): Observable<any> {
+    // Cambiar idioma inmediatamente en la interfaz
+    this.languageService.setLanguage(language);
+    
+    // Actualizar preferencias del usuario
+    const updateRequest: UpdateProfileRequest = {
+      preferences: {
+        language: language as any
+      }
+    };
+    
+    return this.updateProfile(updateRequest).pipe(
+      tap(() => {
+        this.showSuccess(
+          this.languageService.translateInstant('profile.language_changed_success')
+        );
+      })
+    );
+  }
+
+  /**
+   * Obtener información del idioma actual
+   */
+  getCurrentLanguageInfo() {
+    return this.languageService.getCurrentLanguageInfo();
+  }
+
+  /**
+   * Cambiar al siguiente idioma (útil para botones rápidos)
+   */
+  switchToNextLanguage(): void {
+    this.languageService.switchToNextLanguage();
+    
+    // Mostrar notificación del cambio
+    const currentInfo = this.getCurrentLanguageInfo();
+    if (currentInfo) {
+      this.showSuccess(
+        `${currentInfo.flag} ${this.languageService.translateInstant('profile.language_changed_to')} ${currentInfo.label}`
+      );
+    }
   }
 }
