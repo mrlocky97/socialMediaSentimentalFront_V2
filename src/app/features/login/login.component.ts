@@ -12,6 +12,7 @@ import { Router } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@ngneat/transloco';
 
 import { AuthService } from '../../core/auth/services/auth.service';
+import { LoginNotificationService } from './services/login.services';
 
 @Component({
   selector: 'app-login',
@@ -37,6 +38,7 @@ export class LoginComponent implements OnInit {
   private router = inject(Router);
   private snackBar = inject(MatSnackBar);
   private transloco = inject(TranslocoService);
+  private notificationService = inject(LoginNotificationService);
 
   // Signals para estado del componente
   private _isLoading = signal(false);

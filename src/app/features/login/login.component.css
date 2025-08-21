@@ -41,6 +41,16 @@
    ===================================== */
 /* Layout and card wrapper styles moved to `src/styles/globals.css` */
 
+.login-card {
+  border-radius: var(--radius-3xl) !important;
+  overflow: hidden !important;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+}
+
+.login-card-wrapper {
+  border-radius: var(--radius-3xl) !important;
+}
+
 /* =====================================
    3. HEADER SECTION (Logo & Title)
    ===================================== */
@@ -62,6 +72,7 @@
   /* Visual */
   background: var(--color-primary-gradient);
   color: var(--color-white);
+  border-radius: var(--radius-3xl) var(--radius-3xl) 0 0 !important;
 }
 
 .logo-section {
@@ -121,7 +132,7 @@
   /* Visual */
   background: var(--color-gray-50);
   border-top: 1px solid var(--color-gray-200);
-  border-radius: 0 0 var(--radius-3xl) var(--radius-3xl);
+  border-radius: 0 0 var(--radius-3xl) var(--radius-3xl) !important;
 }
 
 .action-links {
@@ -169,7 +180,7 @@
   .login-card-wrapper {
     max-width: 100%;
     max-height: calc(100dvh - 2rem);
-    border-radius: var(--spacing-6);
+    border-radius: var(--radius-3xl);
   }
 
   /* Enable scroll only on very small mobile screens */
@@ -180,7 +191,7 @@
   }
 
   .login-card {
-    border-radius: var(--radius-2xl);
+    border-radius: var(--radius-3xl);
   }
 
   .login-header {
