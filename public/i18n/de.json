@@ -1,4 +1,28 @@
 {
+  "login": {
+    "app_name": "SentimentalSocial",
+    "subtitle": "Unternehmensstimmungsanalyse",
+    "title": "Anmelden",
+    "email": "Unternehmens-E-Mail",
+    "email_placeholder": "benutzer@unternehmen.com",
+    "password": "Passwort",
+    "password_placeholder": "Passwort eingeben",
+    "submit": "Anmelden",
+    "submitting": "Anmeldung läuft...",
+    "register_link": "Noch kein Konto? Registrieren",
+    "show_password": "Passwort anzeigen",
+    "hide_password": "Passwort verbergen",
+    "welcome_message": "Willkommen {{name}}! Anmeldung läuft...",
+    "connection_error": "Verbindungsfehler. Bitte versuchen Sie es erneut.",
+    "too_many_attempts": "Zu viele fehlgeschlagene Versuche. Konto vorübergehend gesperrt.",
+    "attempts_remaining": "{{message}}. {{remaining}} Versuche verbleibend.",
+    "close": "Schließen",
+    "errors": {
+      "required": "Dieses Feld ist erforderlich",
+      "email": "Bitte geben Sie eine gültige E-Mail-Adresse ein",
+      "minlength": "Das Passwort muss mindestens 6 Zeichen lang sein"
+    }
+  },
   "register": {
     "header": "Konto Erstellen",
     "subtitle": "Treten Sie SentimentalSocial bei, um mit der Analyse von Social-Media-Stimmungen zu beginnen",
@@ -43,5 +67,293 @@
       "password_weak": "Das Passwort ist zu schwach. Bitte wählen Sie ein stärkeres Passwort",
       "general": "Registrierung fehlgeschlagen. Bitte versuchen Sie es später erneut"
     }
+  },
+  "widget": {
+    "pending_tweets": {
+      "title": "Ausstehende Tweets",
+      "subtitle": "Tweets, die auf Genehmigung warten",
+      "loading": "Ausstehende Tweets laden...",
+      "refresh": "Aktualisieren",
+      "empty": "Derzeit keine ausstehenden Tweets.",
+      "error": "Fehler beim Laden der ausstehenden Tweets."
+    },
+    "approved_tweets": {
+      "title": "Genehmigte Tweets",
+      "subtitle": "Tweets, die genehmigt wurden",
+      "loading": "Genehmigte Tweets laden...",
+      "refresh": "Aktualisieren",
+      "empty": "Derzeit keine genehmigten Tweets.",
+      "error": "Fehler beim Laden der genehmigten Tweets."
+    },
+    "rejected_tweets": {
+      "title": "Abgelehnte Tweets",
+      "subtitle": "Tweets, die abgelehnt wurden",
+      "empty": "Derzeit keine abgelehnten Tweets.",
+      "error": "Fehler beim Laden der abgelehnten Tweets."
+    }
+  },
+  "campaigns": {
+    "title": "Kampagnen-Management",
+    "subtitle": "Verwalten Sie Ihre Social-Marketing-Kampagnen",
+    "create": "Kampagne Erstellen",
+    "search": "Kampagnen suchen",
+    "searchPlaceholder": "Suchen nach Name, Beschreibung oder Tags...",
+    "clearFilters": "Filter Löschen",
+    "selected": "ausgewählt",
+    "conversions": "Konversionen",
+    "status": {
+      "active": "Aktiv",
+      "paused": "Pausiert",
+      "completed": "Abgeschlossen",
+      "cancelled": "Abgebrochen",
+      "draft": "Entwurf",
+      "scheduled": "Geplant"
+    },
+    "type": {
+      "brandAwareness": "Markenbekanntheit",
+      "brand_awareness": "Markenbekanntheit",
+      "leadGeneration": "Lead-Generierung",
+      "lead_generation": "Lead-Generierung",
+      "brand-monitoring": "Markenüberwachung",
+      "competitor-analysis": "Wettbewerbsanalyse",
+      "market-research": "Marktforschung",
+      "salesConversion": "Verkaufskonversion",
+      "engagement": "Engagement",
+      "trafficDrive": "Traffic-Generierung",
+      "appPromotion": "App-Promotion"
+    },
+    "platforms": {
+      "twitter": "Twitter",
+      "facebook": "Facebook",
+      "instagram": "Instagram",
+      "linkedin": "LinkedIn",
+      "tiktok": "TikTok",
+      "youtube": "YouTube"
+    },
+    "table": {
+      "name": "Name",
+      "status": "Status",
+      "type": "Typ",
+      "platforms": "Plattformen",
+      "budget": "Budget",
+      "performance": "Leistung",
+      "timeline": "Zeitplan",
+      "actions": "Aktionen"
+    },
+    "actions": {
+      "view": "Details Anzeigen",
+      "edit": "Bearbeiten",
+      "duplicate": "Duplizieren",
+      "activate": "Aktivieren",
+      "pause": "Pausieren",
+      "delete": "Löschen"
+    },
+    "noData": {
+      "title": "Keine Kampagnen erstellt",
+      "message": "Beginnen Sie mit der Erstellung Ihrer ersten Social-Marketing-Kampagne, um Ihre digitale Präsenz zu verwalten."
+    },
+    "summary": {
+      "title": "Kampagnen-Zusammenfassung",
+      "subtitle": "Übersicht über Leistung und Metriken",
+      "loading": "Kampagnendaten laden...",
+      "totalCampaigns": "Gesamte Kampagnen",
+      "activeCampaigns": "Aktive Kampagnen",
+      "budgetOverview": "Budget-Übersicht",
+      "impressions": "Impressionen",
+      "conversions": "Konversionen",
+      "avgCTR": "Durchschn. CTR",
+      "avgROAS": "Durchschn. ROAS",
+      "recentCampaigns": "Aktuelle Kampagnen"
+    },
+    "viewAll": "Alle Kampagnen Anzeigen",
+    "wizard": {
+      "title": "Neue Kampagne Erstellen",
+      "subtitle": "Folgen Sie diesen Schritten, um Ihre Social-Marketing-Kampagne zu erstellen",
+      "step": "Schritt",
+      "of": "von",
+      "next": "Weiter",
+      "previous": "Zurück",
+      "cancel": "Abbrechen",
+      "create": "Kampagne Erstellen",
+      "creating": "Kampagne wird erstellt...",
+      "steps": {
+        "basicInfo": "Grundinformationen",
+        "basicInfoDesc": "Definieren Sie Name, Typ und Plattformen für Ihre Kampagne",
+        "targeting": "Zielgruppe",
+        "targetingDesc": "Konfigurieren Sie, wen Sie mit Ihrer Kampagne erreichen möchten",
+        "budget": "Budget & Zeitplan",
+        "budgetDesc": "Legen Sie Budget und Termine für Ihre Kampagne fest",
+        "content": "Inhalt",
+        "contentDesc": "Erstellen Sie Werbeinhalte und Handlungsaufforderungen",
+        "review": "Überprüfung",
+        "reviewDesc": "Überprüfen Sie alle Details vor der Kampagnenerstellung"
+      },
+      "basicInfo": {
+        "title": "Allgemeine Informationen",
+        "name": "Kampagnenname",
+        "namePlaceholder": "z.B.: Sommerkampagne 2025",
+        "type": "Kampagnentyp",
+        "description": "Beschreibung",
+        "descriptionPlaceholder": "Beschreiben Sie die Ziele und Eigenschaften Ihrer Kampagne...",
+        "tags": "Tags",
+        "tagsPlaceholder": "marketing, sommer, promotion",
+        "platforms": "Social-Plattformen"
+      },
+      "platforms": {
+        "twitterDesc": "Ideal für Gespräche und Nachrichten",
+        "facebookDesc": "Breite demografische Reichweite",
+        "instagramDesc": "Attraktiver visueller Inhalt",
+        "linkedinDesc": "Professionelle und B2B-Zielgruppe",
+        "tiktokDesc": "Viraler Inhalt und junge Zielgruppe",
+        "youtubeDesc": "Langform-Video-Inhalt"
+      },
+      "targeting": {
+        "demographics": "Demografie",
+        "ageMin": "Mindestalter",
+        "ageMax": "Höchstalter",
+        "gender": "Geschlecht",
+        "genderAll": "Alle",
+        "genderMale": "Männlich",
+        "genderFemale": "Weiblich",
+        "languages": "Sprachen",
+        "geographic": "Geografische Lage",
+        "countries": "Länder",
+        "interests": "Interessen",
+        "interestsPlaceholder": "technologie, sport, musik, reisen..."
+      },
+      "budget": {
+        "title": "Budget-Konfiguration",
+        "total": "Gesamtbudget",
+        "daily": "Tagesbudget",
+        "strategy": "Bietstrategie",
+        "automatic": "Automatisch",
+        "manual": "Manuell",
+        "targetCPC": "Ziel-CPC",
+        "targetROAS": "Ziel-ROAS"
+      },
+      "timeline": {
+        "title": "Zeitplanung",
+        "startDate": "Startdatum",
+        "endDate": "Enddatum"
+      },
+      "content": {
+        "creatives": "Werbekreative",
+        "creative": "Kreativ",
+        "addCreative": "Kreativ Hinzufügen",
+        "creativeType": "Kreativ-Typ",
+        "image": "Bild",
+        "video": "Video",
+        "carousel": "Karussell",
+        "title": "Titel",
+        "description": "Beschreibung",
+        "callToAction": "Handlungsaufforderung",
+        "ctaText": "Button-Text",
+        "ctaUrl": "Ziel-URL",
+        "adText": "Anzeigentext",
+        "hashtags": "Hashtags",
+        "hashtagsPlaceholder": "#marketing #social #kampagne"
+      },
+      "review": {
+        "name": "Name",
+        "type": "Typ",
+        "platforms": "Plattformen",
+        "budget": "Budget",
+        "dailyBudget": "täglich",
+        "timeline": "Dauer",
+        "terms": "Ich stimme den Geschäftsbedingungen und Werberichtlinien zu",
+        "startOptions": "Kampagnenstart",
+        "startImmediately": "Sofort starten",
+        "startScheduled": "Am geplanten Datum starten"
+      }
+    }
+  },
+  "dashboard": {
+    "welcome": "Willkommen bei SentimentalSocial",
+    "subtitle": "Social-Media-Stimmungsanalyse-Plattform",
+    "auth_required": "Authentifizierung erforderlich",
+    "login_to_view_campaigns": "Bitte melden Sie sich an, um die Kampagnen-Zusammenfassung zu sehen.",
+    "login_to_view_tweets": "Bitte melden Sie sich an, um ausstehende Tweets zu sehen.",
+    "login_to_view_analytics": "Bitte melden Sie sich an, um Echtzeit-Metriken zu sehen.",
+    "login_to_view_sentiment": "Bitte melden Sie sich an, um die Stimmungsanalyse zu sehen.",
+    "analytics": {
+      "title": "Analytics-Übersicht",
+      "subtitle": "Echtzeit-Metriken"
+    },
+    "sentiment": {
+      "title": "Stimmungsanalyse",
+      "subtitle": "Neueste Kampagnenstimmung",
+      "overall": "Gesamt",
+      "positive": "Positiv",
+      "neutral": "Neutral",
+      "negative": "Negativ"
+    },
+    "stats": {
+      "total_tweets": "Gesamte Tweets",
+      "avg_sentiment": "Durchschn. Stimmung",
+      "active_campaigns": "Aktive Kampagnen",
+      "engagement": "Engagement"
+    }
+  },
+  "shared": {
+    "table": {
+      "filter": "Filter",
+      "filter_placeholder": "Tabelle filtern...",
+      "no_data": "Keine Daten verfügbar"
+    },
+    "actions": {
+      "refresh": "Daten aktualisieren",
+      "login": "Anmelden",
+      "create": "Erstellen",
+      "edit": "Bearbeiten",
+      "delete": "Löschen"
+    }
+  },
+  "profile": {
+    "title": "Mein Profil",
+    "subtitle": "Verwalten Sie Ihre persönlichen Informationen, Sicherheit und Einstellungen",
+    "loading": "Profil wird geladen...",
+    "retry": "Wiederholen",
+    "tabs": {
+      "personal": "Persönliche Informationen",
+      "security": "Sicherheit",
+      "preferences": "Einstellungen"
+    },
+    "change_avatar": "Avatar Ändern",
+    "member_since": "Mitglied seit",
+    "personal_information": "Persönliche Informationen",
+    "personal_subtitle": "Aktualisieren Sie Ihre Grundinformationen und Beschreibung",
+    "display_name": "Anzeigename",
+    "first_name": "Vorname",
+    "last_name": "Nachname",
+    "bio": "Biografie",
+    "bio_hint": "Erzählen Sie uns etwas über sich (optional)",
+    "save_changes": "Änderungen Speichern",
+    "reset": "Zurücksetzen",
+    "change_password": "Passwort Ändern",
+    "security_subtitle": "Halten Sie Ihr Konto sicher, indem Sie Ihr Passwort aktualisieren",
+    "current_password": "Aktuelles Passwort",
+    "new_password": "Neues Passwort",
+    "confirm_password": "Passwort Bestätigen",
+    "password_requirements": "Mindestens 8 Zeichen mit Groß-, Kleinbuchstaben und Zahlen",
+    "update_password": "Passwort Aktualisieren",
+    "preferences": "Einstellungen",
+    "preferences_subtitle": "Passen Sie Ihre Anwendungserfahrung an",
+    "save_preferences": "Einstellungen Speichern",
+    "appearance": "Erscheinungsbild",
+    "language": "Sprache",
+    "theme": "Design",
+    "notifications": "Benachrichtigungen",
+    "email_notifications": "E-Mail-Benachrichtigungen",
+    "email_notifications_desc": "Wichtige Benachrichtigungen per E-Mail erhalten",
+    "push_notifications": "Push-Benachrichtigungen",
+    "push_notifications_desc": "Echtzeit-Benachrichtigungen in Ihrem Browser erhalten",
+    "campaign_notifications": "Kampagnen-Benachrichtigungen",
+    "campaign_notifications_desc": "Benachrichtigungen über Kampagnenstatus und -fortschritt",
+    "report_notifications": "Bericht-Benachrichtigungen",
+    "report_notifications_desc": "Benachrichtigungen, wenn neue Berichte erstellt werden",
+    "dashboard_settings": "Dashboard-Einstellungen",
+    "auto_refresh": "Automatische Aktualisierung",
+    "auto_refresh_desc": "Dashboard-Daten automatisch aktualisieren",
+    "refresh_interval": "Aktualisierungsintervall"
   }
 }

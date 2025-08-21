@@ -1,0 +1,417 @@
+<div class="profile-container">
+  <div class="header">
+    <h1>{{ 'profile.title' | transloco }}</h1>
+    <p class="subtitle">{{ 'profile.subtitle' | transloco }}</p>
+  </div>
+
+  <div class="profile-content">
+    <mat-tab-group>
+      <!-- Tab de Información Personal -->
+      <mat-tab [label]="'profile.tabs.personal' | transloco">
+        <div class="tab-content">
+          <!-- Avatar y información básica -->
+          <mat-card class="user-info-card">
+            <mat-card-content>
+              <div class="user-info-header">
+                <div class="avatar-section">
+                  <div class="avatar" [style.background-color]="getAvatarColor()">
+                    {{ getUserInitials() }}
+                  </div>
+                  <button mat-raised-button color="primary" class="change-avatar-btn">
+                    <mat-icon>camera_alt</mat-icon>
+                    {{ 'profile.change_avatar' | transloco }}
+                  </button>
+                </div>
+                <div class="user-details">
+                  <h2>{{ currentUser()?.displayName || 'Usuario' }}</h2>
+                  <p class="user-email">{{ currentUser()?.email }}</p>
+                  <div class="user-role">
+                    <mat-chip-set>
+                      <mat-chip [style.background-color]="getAvatarColor()" class="role-chip">
+                        {{ getRoleLabel(currentUser()?.role || '') }}
+                      </mat-chip>
+                    </mat-chip-set>
+                  </div>
+                  <div class="user-stats">
+                    <div class="stat">
+                      <span class="stat-label">{{ 'profile.member_since' | transloco }}</span>
+                      <span class="stat-value">{{
+                        currentUser()?.createdAt | date : 'MMM yyyy'
+                      }}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+
+          <!-- Formulario de perfil -->
+          <mat-card class="profile-form-card">
+            <mat-card-header>
+              <mat-card-title>{{ 'profile.personal_information' | transloco }}</mat-card-title>
+              <mat-card-subtitle>{{ 'profile.personal_subtitle' | transloco }}</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+              <form [formGroup]="profileForm" (ngSubmit)="onSaveProfile()">
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>{{ 'profile.display_name' | transloco }}</mat-label>
+                    <input matInput formControlName="displayName" maxlength="100" />
+                    <mat-hint align="end"
+                      >{{ profileForm.get('displayName')?.value?.length || 0 }}/100</mat-hint
+                    >
+                    @if (displayNameError()) {
+                    <mat-error>{{ displayNameError() }}</mat-error>
+                    }
+                  </mat-form-field>
+                </div>
+
+                <div class="form-row two-columns">
+                  <mat-form-field appearance="outline">
+                    <mat-label>{{ 'profile.first_name' | transloco }}</mat-label>
+                    <input matInput formControlName="firstName" maxlength="50" />
+                    <mat-hint align="end"
+                      >{{ profileForm.get('firstName')?.value?.length || 0 }}/50</mat-hint
+                    >
+                    @if (firstNameError()) {
+                    <mat-error>{{ firstNameError() }}</mat-error>
+                    }
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>{{ 'profile.last_name' | transloco }}</mat-label>
+                    <input matInput formControlName="lastName" maxlength="50" />
+                    <mat-hint align="end"
+                      >{{ profileForm.get('lastName')?.value?.length || 0 }}/50</mat-hint
+                    >
+                    @if (lastNameError()) {
+                    <mat-error>{{ lastNameError() }}</mat-error>
+                    }
+                  </mat-form-field>
+                </div>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>{{ 'profile.bio' | transloco }}</mat-label>
+                    <textarea matInput formControlName="bio" rows="3" maxlength="500"></textarea>
+                    <mat-hint align="end"
+                      >{{ profileForm.get('bio')?.value?.length || 0 }}/500</mat-hint
+                    >
+                    <mat-hint align="start">{{ 'profile.bio_hint' | transloco }}</mat-hint>
+                  </mat-form-field>
+                </div>
+
+                <div class="form-actions">
+                  <button
+                    mat-raised-button
+                    color="primary"
+                    type="submit"
+                    [disabled]="!canSaveProfile()"
+                    class="save-btn"
+                  >
+                    @if (isSubmitting()) {
+                    <mat-spinner diameter="20"></mat-spinner>
+                    } @else {
+                    <mat-icon>save</mat-icon>
+                    }
+                    {{ 'profile.save_changes' | transloco }}
+                  </button>
+                  <button
+                    mat-button
+                    type="button"
+                    (click)="refreshProfile()"
+                    [disabled]="isSubmitting || isLoading"
+                  >
+                    <mat-icon>refresh</mat-icon>
+                    {{ 'profile.reset' | transloco }}
+                  </button>
+                </div>
+              </form>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <!-- Tab de Seguridad -->
+      <mat-tab [label]="'profile.tabs.security' | transloco">
+        <div class="tab-content">
+          <mat-card class="security-card">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>lock</mat-icon>
+                {{ 'profile.change_password' | transloco }}
+              </mat-card-title>
+              <mat-card-subtitle>{{ 'profile.security_subtitle' | transloco }}</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+              <form [formGroup]="passwordForm" (ngSubmit)="onChangePassword()">
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>{{ 'profile.current_password' | transloco }}</mat-label>
+                    <input
+                      matInput
+                      formControlName="currentPassword"
+                      [type]="showCurrentPassword() ? 'text' : 'password'"
+                    />
+                    <button
+                      mat-icon-button
+                      matSuffix
+                      type="button"
+                      (click)="toggleCurrentPasswordVisibility()"
+                      [attr.aria-label]="'Show password'"
+                      [attr.aria-pressed]="showCurrentPassword()"
+                    >
+                      <mat-icon>{{
+                        showCurrentPassword() ? 'visibility_off' : 'visibility'
+                      }}</mat-icon>
+                    </button>
+                    @if (currentPasswordError()) {
+                    <mat-error>{{ currentPasswordError() }}</mat-error>
+                    }
+                  </mat-form-field>
+                </div>
+
+                <mat-divider></mat-divider>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>{{ 'profile.new_password' | transloco }}</mat-label>
+                    <input
+                      matInput
+                      formControlName="newPassword"
+                      [type]="showNewPassword() ? 'text' : 'password'"
+                    />
+                    <button
+                      mat-icon-button
+                      matSuffix
+                      type="button"
+                      (click)="toggleNewPasswordVisibility()"
+                      [attr.aria-label]="'Show password'"
+                      [attr.aria-pressed]="showNewPassword()"
+                    >
+                      <mat-icon>{{ showNewPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+                    </button>
+                    @if (newPasswordError()) {
+                    <mat-error>{{ newPasswordError() }}</mat-error>
+                    }
+                    <mat-hint>{{ 'profile.password_requirements' | transloco }}</mat-hint>
+                  </mat-form-field>
+                </div>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>{{ 'profile.confirm_password' | transloco }}</mat-label>
+                    <input
+                      matInput
+                      formControlName="confirmPassword"
+                      [type]="showConfirmPassword() ? 'text' : 'password'"
+                    />
+                    <button
+                      mat-icon-button
+                      matSuffix
+                      type="button"
+                      (click)="toggleConfirmPasswordVisibility()"
+                      [attr.aria-label]="'Show password'"
+                      [attr.aria-pressed]="showConfirmPassword()"
+                    >
+                      <mat-icon>{{
+                        showConfirmPassword() ? 'visibility_off' : 'visibility'
+                      }}</mat-icon>
+                    </button>
+                    @if (confirmPasswordError()) {
+                    <mat-error>{{ confirmPasswordError() }}</mat-error>
+                    }
+                  </mat-form-field>
+                </div>
+
+                <div class="form-actions">
+                  <button
+                    mat-raised-button
+                    color="warn"
+                    type="submit"
+                    [disabled]="passwordForm.invalid || isSubmitting()"
+                    class="change-password-btn"
+                  >
+                    @if (isSubmitting()) {
+                    <mat-spinner diameter="20"></mat-spinner>
+                    } @else {
+                    <mat-icon>security</mat-icon>
+                    }
+                    {{ 'profile.update_password' | transloco }}
+                  </button>
+                </div>
+              </form>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <!-- Tab de Preferencias -->
+      <mat-tab [label]="'profile.tabs.preferences' | transloco">
+        <div class="tab-content">
+          <mat-card class="preferences-card">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>settings</mat-icon>
+                {{ 'profile.preferences' | transloco }}
+              </mat-card-title>
+              <mat-card-subtitle>{{
+                'profile.preferences_subtitle' | transloco
+              }}</mat-card-subtitle>
+            </mat-card-header>
+            <mat-card-content>
+              <form [formGroup]="preferencesForm" (ngSubmit)="onSavePreferences()">
+                <!-- Configuración de idioma y tema -->
+                <div class="preferences-section">
+                  <h3>{{ 'profile.appearance' | transloco }}</h3>
+                  <div class="form-row two-columns">
+                    <mat-form-field appearance="outline">
+                      <mat-label>{{ 'profile.language' | transloco }}</mat-label>
+                      <mat-select formControlName="language">
+                        @for (lang of languageOptions; track lang.value) {
+                        <mat-option [value]="lang.value">{{ lang.label }}</mat-option>
+                        }
+                      </mat-select>
+                    </mat-form-field>
+
+                    <mat-form-field appearance="outline">
+                      <mat-label>{{ 'profile.theme' | transloco }}</mat-label>
+                      <mat-select formControlName="theme">
+                        @for (theme of themeOptions; track theme.value) {
+                        <mat-option [value]="theme.value">{{ theme.label }}</mat-option>
+                        }
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                </div>
+
+                <mat-divider></mat-divider>
+
+                <!-- Notificaciones -->
+                <div class="preferences-section">
+                  <h3>{{ 'profile.notifications' | transloco }}</h3>
+                  <div class="toggle-list">
+                    <div class="toggle-item">
+                      <div class="toggle-info">
+                        <span class="toggle-label">{{
+                          'profile.email_notifications' | transloco
+                        }}</span>
+                        <span class="toggle-description">{{
+                          'profile.email_notifications_desc' | transloco
+                        }}</span>
+                      </div>
+                      <mat-slide-toggle formControlName="emailNotifications"></mat-slide-toggle>
+                    </div>
+
+                    <div class="toggle-item">
+                      <div class="toggle-info">
+                        <span class="toggle-label">{{
+                          'profile.push_notifications' | transloco
+                        }}</span>
+                        <span class="toggle-description">{{
+                          'profile.push_notifications_desc' | transloco
+                        }}</span>
+                      </div>
+                      <mat-slide-toggle formControlName="pushNotifications"></mat-slide-toggle>
+                    </div>
+
+                    <div class="toggle-item">
+                      <div class="toggle-info">
+                        <span class="toggle-label">{{
+                          'profile.campaign_notifications' | transloco
+                        }}</span>
+                        <span class="toggle-description">{{
+                          'profile.campaign_notifications_desc' | transloco
+                        }}</span>
+                      </div>
+                      <mat-slide-toggle formControlName="campaignNotifications"></mat-slide-toggle>
+                    </div>
+
+                    <div class="toggle-item">
+                      <div class="toggle-info">
+                        <span class="toggle-label">{{
+                          'profile.report_notifications' | transloco
+                        }}</span>
+                        <span class="toggle-description">{{
+                          'profile.report_notifications_desc' | transloco
+                        }}</span>
+                      </div>
+                      <mat-slide-toggle formControlName="reportNotifications"></mat-slide-toggle>
+                    </div>
+                  </div>
+                </div>
+
+                <mat-divider></mat-divider>
+
+                <!-- Dashboard -->
+                <div class="preferences-section">
+                  <h3>{{ 'profile.dashboard_settings' | transloco }}</h3>
+                  <div class="toggle-list">
+                    <div class="toggle-item">
+                      <div class="toggle-info">
+                        <span class="toggle-label">{{ 'profile.auto_refresh' | transloco }}</span>
+                        <span class="toggle-description">{{
+                          'profile.auto_refresh_desc' | transloco
+                        }}</span>
+                      </div>
+                      <mat-slide-toggle formControlName="autoRefresh"></mat-slide-toggle>
+                    </div>
+                  </div>
+
+                  @if (preferencesForm.get('autoRefresh')?.value) {
+                  <div class="form-row">
+                    <mat-form-field appearance="outline" class="full-width">
+                      <mat-label>{{ 'profile.refresh_interval' | transloco }}</mat-label>
+                      <mat-select formControlName="refreshInterval">
+                        @for (interval of refreshIntervalOptions; track interval.value) {
+                        <mat-option [value]="interval.value">{{ interval.label }}</mat-option>
+                        }
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                  }
+                </div>
+
+                <div class="form-actions">
+                  <button
+                    mat-raised-button
+                    color="primary"
+                    type="submit"
+                    [disabled]="preferencesForm.invalid || isSubmitting()"
+                    class="save-btn"
+                  >
+                    @if (isSubmitting()) {
+                    <mat-spinner diameter="20"></mat-spinner>
+                    } @else {
+                    <mat-icon>save</mat-icon>
+                    }
+                    {{ 'profile.save_preferences' | transloco }}
+                  </button>
+                </div>
+              </form>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </div>
+
+  <!-- Loading overlay -->
+  @if (isLoading()) {
+  <div class="loading-overlay">
+    <mat-spinner diameter="60"></mat-spinner>
+    <p>{{ 'profile.loading' | transloco }}</p>
+  </div>
+  }
+
+  <!-- Error message -->
+  @if (error()) {
+  <div class="error-message">
+    <mat-icon>error</mat-icon>
+    <span>{{ error() }}</span>
+    <button mat-button (click)="refreshProfile()">
+      {{ 'profile.retry' | transloco }}
+    </button>
+  </div>
+  }
+</div>
