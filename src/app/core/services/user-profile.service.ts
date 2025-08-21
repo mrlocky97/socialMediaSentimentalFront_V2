@@ -16,9 +16,9 @@ const USER_CONFIG = {
     PROFILE: '/users/profile',
     UPDATE_PROFILE: '/users/profile',
     USER_BY_ID: (id: string) => `/users/${id}`,
-    CHANGE_PASSWORD: '/users/change-password',
-    UPLOAD_AVATAR: '/users/avatar'
-  }
+    CHANGE_PASSWORD: '/auth/change-password',
+    UPLOAD_AVATAR: '/users/avatar',
+  },
 };
 
 // ===== INTERFACES =====
