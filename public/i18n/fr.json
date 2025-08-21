@@ -358,7 +358,7 @@
     "language_hint": "Les changements seront appliqués immédiatement",
     "quick_language_switch": "Changement rapide de langue",
     "language_changed_success": "Langue changée avec succès",
-    "language_changed_to": "Langue changée en",
+    "language_changed_to": "Langue changée en"
   },
   "language_selector": {
     "tooltip": "Changer de langue"

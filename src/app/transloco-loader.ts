@@ -18,7 +18,7 @@ export class TranslocoHttpLoader implements TranslocoLoader {
       provide: TRANSLOCO_CONFIG,
       useValue: translocoConfig({
         availableLangs: ['en', 'es', 'de', 'fr'],
-        defaultLang: 'en',
+        defaultLang: 'es',
         reRenderOnLangChange: true,
         prodMode: !isDevMode(),
       }),

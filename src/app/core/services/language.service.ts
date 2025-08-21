@@ -50,8 +50,10 @@ export class LanguageService {
     // 3. Usar el idioma guardado, del navegador o fallback a 'es'
     const initialLanguage = savedLanguage || browserLanguage || 'es';
     
-    // 4. Aplicar el idioma
-    this.setLanguage(initialLanguage, false); // false = no guardar otra vez
+    console.log(`Initializing language to: ${initialLanguage}`);
+    
+    // 4. Aplicar el idioma sin guardarlo otra vez si ya estaba guardado
+    this.setLanguage(initialLanguage, !savedLanguage);
   }
 
   /**
@@ -73,22 +75,43 @@ export class LanguageService {
       language = 'es';
     }
 
-    // Actualizar Transloco
-    this.transloco.setActiveLang(language);
-    
-    // Actualizar señales y subjects
-    this._currentLanguage.set(language);
-    this._languageChanged.next(language);
-    
-    // Guardar en localStorage si es necesario
-    if (saveToStorage) {
-      localStorage.setItem('app-language', language);
-    }
+    console.log(`Changing language to: ${language}`);
 
-    // Actualizar atributo html lang para accesibilidad
-    document.documentElement.lang = language;
-    
-    console.log(`Language changed to: ${language}`);
+    // Precargar el idioma primero para asegurar que las traducciones están disponibles
+    this.transloco.load(language).subscribe({
+      next: () => {
+        // Actualizar Transloco
+        this.transloco.setActiveLang(language);
+        
+        // Actualizar señales y subjects
+        this._currentLanguage.set(language);
+        this._languageChanged.next(language);
+        
+        // Guardar en localStorage si es necesario
+        if (saveToStorage) {
+          localStorage.setItem('app-language', language);
+        }
+
+        // Actualizar atributo html lang para accesibilidad
+        document.documentElement.lang = language;
+        
+        console.log(`Language successfully changed to: ${language}`);
+      },
+      error: (error) => {
+        console.error(`Failed to load translations for language ${language}:`, error);
+        
+        // Fallback: intentar cambiar el idioma sin precargar
+        this.transloco.setActiveLang(language);
+        this._currentLanguage.set(language);
+        this._languageChanged.next(language);
+        
+        if (saveToStorage) {
+          localStorage.setItem('app-language', language);
+        }
+        
+        document.documentElement.lang = language;
+      }
+    });
   }
 
   /**
