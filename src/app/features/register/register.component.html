@@ -6,35 +6,38 @@
     </div>
     
     <form class="register-form" [formGroup]="registerForm" (ngSubmit)="onSubmit()">
-      <!-- Username Field -->
-      <mat-form-field appearance="fill">
-        <mat-label>{{ 'register.userName' | transloco }}</mat-label>
-        <input
-          matInput
-          formControlName="userName"
-          [placeholder]="'register.enterName' | transloco"
-          autocomplete="username"
-          required
-        />
-        @if (getFieldError('userName')) {
-          <mat-error>{{ getFieldError('userName')! | transloco }}</mat-error>
-        }
-      </mat-form-field>
+      <!-- Username and Display Name Row -->
+      <div class="form-row">
+        <!-- Username Field -->
+        <mat-form-field appearance="fill">
+          <mat-label>{{ 'register.userName' | transloco }}</mat-label>
+          <input
+            matInput
+            formControlName="userName"
+            [placeholder]="'register.enterName' | transloco"
+            autocomplete="username"
+            required
+          />
+          @if (getFieldError('userName')) {
+            <mat-error>{{ getFieldError('userName')! | transloco }}</mat-error>
+          }
+        </mat-form-field>
 
-      <!-- Display Name Field -->
-      <mat-form-field appearance="fill">
-        <mat-label>{{ 'register.displayName' | transloco }}</mat-label>
-        <input
-          matInput
-          formControlName="displayName"
-          [placeholder]="'register.displayName' | transloco"
-          autocomplete="name"
-          required
-        />
-        @if (getFieldError('displayName')) {
-          <mat-error>{{ getFieldError('displayName')! | transloco }}</mat-error>
-        }
-      </mat-form-field>
+        <!-- Display Name Field -->
+        <mat-form-field appearance="fill">
+          <mat-label>{{ 'register.displayName' | transloco }}</mat-label>
+          <input
+            matInput
+            formControlName="displayName"
+            [placeholder]="'register.displayName' | transloco"
+            autocomplete="name"
+            required
+          />
+          @if (getFieldError('displayName')) {
+            <mat-error>{{ getFieldError('displayName')! | transloco }}</mat-error>
+          }
+        </mat-form-field>
+      </div>
 
       <!-- Email Field -->
       <mat-form-field appearance="fill">
@@ -52,6 +55,8 @@
         }
       </mat-form-field>
 
+      <!-- Password and password-strength Row -->
+      <div class="form-row">
       <!-- Password Field with Strength Indicator -->
       <mat-form-field appearance="fill">
         <mat-label>{{ 'register.password' | transloco }}</mat-label>
@@ -122,6 +127,7 @@
           <mat-error>{{ 'register.passwords_mismatch' | transloco }}</mat-error>
         }
       </mat-form-field>
+      </div>
 
       <!-- Submit Button -->
       <button 
