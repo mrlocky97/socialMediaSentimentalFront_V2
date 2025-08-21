@@ -4,7 +4,19 @@
   max-width: 1200px;
   margin: 0 auto;
   min-height: calc(100vh - 64px); /* Ajuste para el header del dashboard */
-  background-color: transparent; /* Usar el background del dashboard */
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  position: relative;
+}
+
+.profile-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  border-radius: 16px;
 }
 
 .header {
@@ -16,22 +28,31 @@
   margin: 0;
   font-size: 2.5rem;
   font-weight: 300;
-  color: #333;
+  color: #ffffff;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  letter-spacing: 0.5px;
 }
 
 .subtitle {
-  margin: 8px 0 0 0;
+  margin: 12px 0 0 0;
   font-size: 1.1rem;
-  color: #666;
+  color: rgba(255, 255, 255, 0.9);
   font-weight: 400;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  line-height: 1.4;
 }
 
 /* ===== CONTENIDO PRINCIPAL ===== */
 .profile-content {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  box-shadow: 
+    0 10px 40px rgba(0, 0, 0, 0.1),
+    0 0 0 1px rgba(255, 255, 255, 0.2);
   overflow: hidden;
+  backdrop-filter: blur(20px);
+  position: relative;
+  z-index: 1;
 }
 
 /* ===== TABS ===== */
