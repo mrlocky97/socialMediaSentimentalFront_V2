@@ -19,7 +19,7 @@ export class ProfileService {
   private userProfileService = inject(UserProfileService);
   private snackBar = inject(MatSnackBar);
   private transloco = inject(TranslocoService);
-  private languageService = inject(LanguageService);
+  public languageService = inject(LanguageService);
 
   // Signals para el estado del componente
   private _isSubmitting = signal(false);

@@ -15,13 +15,15 @@
     <button mat-menu-item 
             (click)="changeLanguage(language.value)"
             [class.active]="currentLanguage() === language.value">
-      <div class="language-flag-container">
-        <img [src]="language.flagIcon" 
-             [alt]="language.label + ' flag'"
-             class="language-flag"
-             (error)="onImageError($event, language.flag)" />
+      <div class="language-option">
+        <div class="language-flag-container">
+          <img [src]="language.flagIcon" 
+               [alt]="language.label + ' flag'"
+               class="language-flag"
+               (error)="onImageError($event, language.flag)" />
+        </div>
+        <span class="language-name">{{ language.label }}</span>
       </div>
-      <span class="language-name">{{ language.label }}</span>
       @if (currentLanguage() === language.value) {
         <mat-icon class="check-icon">check</mat-icon>
       }

@@ -192,6 +192,17 @@ export class ProfileComponent implements OnInit {
           this._isFormsDirty.set(true);
         }
       });
+
+    // Suscripción a cambios de idioma para actualizar el formulario de preferencias
+    this.profileService.languageService.languageChanged$
+      .pipe(takeUntilDestroyed())
+      .subscribe((newLanguage) => {
+        // Actualizar el formulario de preferencias sin emitir evento para evitar loops
+        const currentFormLang = this.preferencesForm.get('language')?.value;
+        if (currentFormLang !== newLanguage) {
+          this.preferencesForm.patchValue({ language: newLanguage }, { emitEvent: false });
+        }
+      });
   }
 
   private loadUserProfile(): void {
@@ -415,11 +426,10 @@ export class ProfileComponent implements OnInit {
     const nextIndex = (currentIndex + 1) % this.languageOptions.length;
     const nextLang = this.languageOptions[nextIndex];
     
-    // Cambiar en el formulario también para que se vea la bandera correcta
-    this.preferencesForm.patchValue({ language: nextLang.value });
+    // Aplicar el cambio de idioma directamente
+    this.profileService.languageService.setLanguage(nextLang.value);
     
-    // Aplicar el cambio de idioma
-    this.profileService.switchToNextLanguage();
+    // El formulario se actualizará automáticamente via la suscripción a languageChanged$
   }
 
   // Cambiar contraseña
@@ -503,19 +513,19 @@ export class ProfileComponent implements OnInit {
     }
   }
 
-  // Método para obtener la información del idioma actual con icono
-  getCurrentLanguageInfo() {
+  // Computed para obtener la información del idioma actual con icono
+  readonly getCurrentLanguageInfo = computed(() => {
     const currentLang = this.currentLanguage();
     const langInfo = this.languageOptions.find(lang => lang.value === currentLang);
-    return langInfo || { value: 'es', label: 'Español', flag: '🌐', flagIcon: '/icons/lang/spanish.png' };
-  }
+    return langInfo || { value: 'es', label: 'Español', flag: '🌐', flagIcon: '/icons/lang/ES.png' };
+  });
 
-  // Método para obtener la información del idioma seleccionado en el formulario
-  getSelectedLanguageInfo() {
-    const selectedLang = this.preferencesForm?.get('language')?.value || 'es';
+  // Computed para obtener la información del idioma seleccionado en el formulario
+  readonly getSelectedLanguageInfo = computed(() => {
+    const selectedLang = this.preferencesForm?.get('language')?.value || this.currentLanguage();
     const langInfo = this.languageOptions.find(lang => lang.value === selectedLang);
-    return langInfo || { value: 'es', label: 'Español', flag: '🌐', flagIcon: '/icons/lang/spanish.png' };
-  }
+    return langInfo || { value: 'es', label: 'Español', flag: '🌐', flagIcon: '/icons/lang/ES.png' };
+  });
 
   // Computed properties para validaciones de formularios
   readonly displayNameError = computed((): string | null => {

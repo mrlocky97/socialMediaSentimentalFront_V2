@@ -36,12 +36,27 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }
 
+.mat-mdc-menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-width: 200px;
+  padding: 12px 16px;
+  transition: all 0.2s ease;
+}
+
+.language-option {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  gap: 12px;
+}
+
 .language-flag-container {
   width: 28px;
   height: 28px;
   border-radius: 50%;
   overflow: hidden;
-  margin-right: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -78,14 +93,6 @@
 .mat-mdc-menu-item.active .language-flag-container {
   border-color: #4caf50;
   box-shadow: 0 0 0 1px rgba(76, 175, 80, 0.3);
-}
-
-.mat-mdc-menu-item {
-  display: flex;
-  align-items: center;
-  min-width: 200px;
-  padding: 12px 16px;
-  transition: all 0.2s ease;
 }
 
 .mat-mdc-menu-item:hover {
