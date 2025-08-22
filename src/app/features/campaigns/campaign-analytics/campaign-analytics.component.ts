@@ -1,12 +1,13 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, signal, effect } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTabsModule } from '@angular/material/tabs';
 import { ActivatedRoute, Router } from '@angular/router';
-import { CampaignFacade } from '../../../core/facades/campaign.facade';
+import { CampaignsStore } from '../../../core/state/campaigns.store';
+import { TweetsStore } from '../../../core/state/tweets.store';
 import { Campaign } from '../../../core/state/app.state';
 
 @Component({
@@ -27,21 +28,41 @@ export class CampaignAnalyticsComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
 
-  campaignFacade = inject(CampaignFacade);
+  // Inject stores instead of facade
+  private campaignsStore = inject(CampaignsStore);
+  private tweetsStore = inject(TweetsStore);
 
   private campaignId = signal<string>('');
 
-  // Computed properties for template
-  isLoading = computed(() => false); // TODO: Connect to actual loading state
-  currentCampaign = signal<Campaign | null>(null);
+  // Computed properties consuming signals from stores
+  readonly isLoading = computed(() => this.campaignsStore.loading());
+  readonly currentCampaign = computed(() => this.campaignsStore.selected());
+  readonly error = computed(() => this.campaignsStore.error());
+  
+  // Tweet analytics from tweets store
+  readonly campaignTweets = computed(() => this.tweetsStore.items());
+  readonly tweetMetrics = computed(() => this.tweetsStore.sentimentCounts());
+  readonly averageSentiment = computed(() => this.tweetsStore.averageSentiment());
+  readonly topHashtags = computed(() => this.tweetsStore.topHashtags());
+  readonly topMentions = computed(() => this.tweetsStore.topMentions());
+
+  constructor() {
+    // Effect to load tweets when campaign changes
+    effect(() => {
+      const campaign = this.currentCampaign();
+      if (campaign) {
+        // Load tweets for this campaign
+        this.tweetsStore.loadTweets({ campaignId: campaign.id });
+      }
+    });
+  }
 
   ngOnInit(): void {
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.campaignId.set(id);
-      this.campaignFacade.selectCampaign(id).subscribe((campaign) => {
-        this.currentCampaign.set(campaign);
-      });
+      // Action: Load campaign from store
+      this.campaignsStore.loadCampaign(id);
     }
   }
 
@@ -49,14 +70,26 @@ export class CampaignAnalyticsComponent implements OnInit {
     this.router.navigate(['/campaigns', this.campaignId()]);
   }
 
-  // Utility methods for template
+  // Action methods - emit actions to stores
+  refreshData(): void {
+    const campaignId = this.campaignId();
+    if (campaignId) {
+      this.campaignsStore.loadCampaign(campaignId);
+      this.tweetsStore.loadTweets({ campaignId });
+    }
+  }
+
+  clearError(): void {
+    this.campaignsStore.clearError();
+  }
+
+  // Utility methods for template (pure functions)
   getStatusText(status: string): string {
     const statusMap: { [key: string]: string } = {
       active: 'Active',
       paused: 'Paused',
       completed: 'Completed',
-      draft: 'Draft',
-      cancelled: 'Cancelled',
+      inactive: 'Inactive',
     };
     return statusMap[status] || status;
   }
@@ -69,5 +102,17 @@ export class CampaignAnalyticsComponent implements OnInit {
       mention: 'Mention Tracking',
     };
     return typeMap[type] || type;
+  }
+
+  getSentimentLabel(score: number): string {
+    if (score > 0.1) return 'Positive';
+    if (score < -0.1) return 'Negative';
+    return 'Neutral';
+  }
+
+  getSentimentColor(score: number): string {
+    if (score > 0.1) return '#4caf50';
+    if (score < -0.1) return '#f44336';
+    return '#ff9800';
   }
 }
