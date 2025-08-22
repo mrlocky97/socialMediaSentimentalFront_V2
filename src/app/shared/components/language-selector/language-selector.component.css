@@ -4,6 +4,31 @@
   border-radius: 50%;
   padding: 0;
   overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Personalización del focus indicator para el botón circular */
+.language-selector .mat-mdc-button-touch-target {
+  border-radius: 50%;
+}
+
+.language-selector .mat-mdc-focus-indicator {
+  border-radius: 50%;
+  border: 2px solid transparent;
+  transition: all 0.2s ease;
+}
+
+.language-selector:focus .mat-mdc-focus-indicator {
+  border-color: #1976d2;
+  box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
+}
+
+.language-selector.cdk-keyboard-focused .mat-mdc-focus-indicator {
+  border-color: #1976d2;
+  box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.2);
 }
 
 .current-language-container {
@@ -43,6 +68,26 @@
   min-width: 200px;
   padding: 12px 16px;
   transition: all 0.2s ease;
+  position: relative;
+  border-radius: 8px;
+  margin: 2px 4px;
+}
+
+/* Personalización del focus indicator para elementos del menú */
+.mat-mdc-menu-item .mat-mdc-focus-indicator {
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.mat-mdc-menu-item:focus .mat-mdc-focus-indicator,
+.mat-mdc-menu-item.cdk-keyboard-focused .mat-mdc-focus-indicator {
+  background-color: rgba(25, 118, 210, 0.08);
+  border: 1px solid rgba(25, 118, 210, 0.2);
+}
+
+.mat-mdc-menu-item.active .mat-mdc-focus-indicator {
+  background-color: rgba(76, 175, 80, 0.08);
+  border: 1px solid rgba(76, 175, 80, 0.2);
 }
 
 .language-option {
@@ -120,6 +165,25 @@
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
 }
 
+/* Mejoras adicionales para accesibilidad */
+::ng-deep .mat-mdc-menu-panel .mat-mdc-menu-content {
+  padding: 4px;
+}
+
+/* Estado hover para elementos del menú */
+::ng-deep .mat-mdc-menu-item:hover:not([disabled]) {
+  background-color: rgba(0, 0, 0, 0.04) !important;
+}
+
+::ng-deep .mat-mdc-menu-item.active:hover:not([disabled]) {
+  background-color: rgba(76, 175, 80, 0.12) !important;
+}
+
+/* Animaciones de focus más suaves */
+::ng-deep .mat-mdc-menu-item .mat-mdc-focus-indicator {
+  transition: background-color 0.2s ease, border-color 0.2s ease !important;
+}
+
 /* Responsive */
 @media (max-width: 480px) {
   .language-selector {
@@ -150,5 +214,12 @@
   .mat-mdc-menu-item {
     min-width: 180px;
     padding: 10px 12px;
+    margin: 1px 2px;
+  }
+  
+  /* Ajustar focus indicators en móvil */
+  .language-selector:focus .mat-mdc-focus-indicator,
+  .language-selector.cdk-keyboard-focused .mat-mdc-focus-indicator {
+    box-shadow: 0 0 0 1px rgba(25, 118, 210, 0.2);
   }
 }
