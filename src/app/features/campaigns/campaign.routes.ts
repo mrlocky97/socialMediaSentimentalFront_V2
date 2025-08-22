@@ -1,13 +1,13 @@
 /**
- * Campaign Routes Configuration
- * Lazy loading with typed route structure
+ * Campaign Routes Configuration - Consolidated
+ * Unified routing with all campaign-related paths
  */
 import { Routes } from '@angular/router';
 import { authGuard } from '../../core/auth/guard/auth.guard';
 
 export const campaignRoutes: Routes = [
   {
-    path: '',
+    path: 'campaigns',
     canActivate: [authGuard],
     children: [
       {
@@ -19,13 +19,13 @@ export const campaignRoutes: Routes = [
         path: 'list',
         loadComponent: () => 
           import('./campaign-list/campaign-list.component').then(c => c.CampaignListComponent),
-        title: 'Campaigns'
+        title: 'Campaign Management - SentimentalSocial'
       },
       {
         path: 'create',
         loadComponent: () => 
-          import('./campaign-wizard/modern-campaign-wizard.component').then(c => c.ModernCampaignWizardComponent),
-        title: 'Create Campaign'
+          import('../campaign-wizard/campaign-wizard-simple.component').then(c => c.CampaignWizardComponent),
+        title: 'Create Campaign - SentimentalSocial'
       },
       {
         path: 'create-simple',
@@ -37,19 +37,19 @@ export const campaignRoutes: Routes = [
         path: ':id',
         loadComponent: () => 
           import('./campaign-detail/campaign-detail.component').then(c => c.CampaignDetailComponent),
-        title: 'Campaign Details'
+        title: 'Campaign Details - SentimentalSocial'
       },
       {
         path: ':id/edit',
         loadComponent: () => 
           import('./campaign-form/campaign-form.component').then(c => c.CampaignFormComponent),
-        title: 'Edit Campaign'
+        title: 'Edit Campaign - SentimentalSocial'
       },
       {
         path: ':id/analytics',
         loadComponent: () => 
           import('./campaign-analytics/campaign-analytics.component').then(c => c.CampaignAnalyticsComponent),
-        title: 'Campaign Analytics'
+        title: 'Campaign Analytics - SentimentalSocial'
       }
     ]
   }

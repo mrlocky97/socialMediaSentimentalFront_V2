@@ -1,18 +1,18 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Component, OnInit, inject, signal } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
+import { MatChipsModule } from '@angular/material/chips';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatIconModule } from '@angular/material/icon';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivatedRoute, Router } from '@angular/router';
 import { CampaignFacade } from '../../../core/facades/campaign.facade';
 import { Campaign } from '../../../core/state/app.state';
 
@@ -232,7 +232,7 @@ export class CampaignFormComponent implements OnInit {
 
   private loadCampaign(): void {
     if (this.campaignId) {
-      this.campaignFacade.selectCampaign(this.campaignId).subscribe(campaign => {
+      this.campaignFacade.selectCampaign(this.campaignId).subscribe((campaign: Campaign | null) => {
         if (campaign) {
           this.populateForm(campaign);
         }
@@ -274,7 +274,7 @@ export class CampaignFormComponent implements OnInit {
       };
 
       const operation = this.isEditMode() 
-        ? this.campaignFacade.updateCampaign(this.campaignId!, campaignData)
+        ? this.campaignFacade.updateCampaign({ id: this.campaignId!, ...campaignData })
         : this.campaignFacade.createCampaign(campaignData);
 
       operation.subscribe({

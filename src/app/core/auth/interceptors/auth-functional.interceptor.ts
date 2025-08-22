@@ -1,4 +1,4 @@
-import { HttpInterceptorFn, HttpRequest, HttpHandlerFn, HttpErrorResponse } from '@angular/common/http';
+import { HttpErrorResponse, HttpHandlerFn, HttpInterceptorFn, HttpRequest } from '@angular/common/http';
 import { inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
@@ -21,11 +21,12 @@ export const authInterceptorFn: HttpInterceptorFn = (req: HttpRequest<unknown>, 
 
   // Add authorization header if user is authenticated and it's not a public URL
   if (!isPublicUrl && authService.isAuthenticated()) {
-    const token = authService.getToken();
+    const token = authService.token();
     
     if (token) {
       // Check if token is expired before adding it
-      if (authService.isTokenExpired()) {
+      const tokenExpiry = authService.tokenExpiry();
+      if (tokenExpiry && tokenExpiry <= new Date()) {
         authService.logout();
         router.navigate(['/login']);
         return throwError(() => new Error('Token expired'));

@@ -9,7 +9,7 @@ import { provideRouter, withPreloading } from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
 import { provideTransloco } from '@ngneat/transloco';
 import { routes } from './app.routes';
-import { authInterceptor } from './core/auth/interceptors/auth.interceptor';
+import { authInterceptorFn } from './core/auth/interceptors/auth-functional.interceptor';
 import { errorHandlingInterceptor } from './core/interceptors/error-handling.interceptor';
 import { securityHeadersInterceptor } from './core/interceptors/security-headers.interceptor';
 import { SelectivePreloadingStrategy } from './core/routing/selective-preloading.strategy';
@@ -28,7 +28,7 @@ export const appConfig: ApplicationConfig = {
       withInterceptors([
         securityHeadersInterceptor,    // 1. Headers de seguridad
         errorHandlingInterceptor,      // 2. Manejo de errores
-        authInterceptor              // 3. Autenticación
+        authInterceptorFn            // 3. Autenticación
       ])
     ),
 
