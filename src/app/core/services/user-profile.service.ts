@@ -160,7 +160,7 @@ export class UserProfileService {
     this.isLoading.set(true);
     this.error.set(null);
 
-    return this.http.get<ApiResponse<UserProfile>>(
+    return this.http.get<ApiResponse<{ user: any }>>(
       `${USER_CONFIG.BASE_URL}${USER_CONFIG.ENDPOINTS.PROFILE}`
     ).pipe(
       retry({ count: 2, delay: 1000 }),
@@ -168,7 +168,50 @@ export class UserProfileService {
         if (!response.success) {
           throw new Error(response.message || 'Error obteniendo perfil');
         }
-        return response.data;
+        
+        // Extraer el usuario de response.data.user y adaptarlo a UserProfile
+        const user = response.data.user;
+        const adaptedProfile: UserProfile = {
+          id: user.id,
+          email: user.email,
+          username: user.username,
+          displayName: user.displayName || user.username,
+          firstName: user.firstName || this.extractFirstName(user.displayName) || '',
+          lastName: user.lastName || this.extractLastName(user.displayName) || '',
+          bio: user.bio || '',
+          avatar: user.avatar,
+          role: user.role,
+          permissions: user.permissions || [],
+          organizationId: user.organizationId,
+          organizationName: user.organizationName,
+          preferences: {
+            language: user.preferences?.language || 'es',
+            theme: user.preferences?.theme || 'light',
+            notifications: {
+              email: user.preferences?.notifications?.email ?? true,
+              push: user.preferences?.notifications?.push ?? true,
+              campaigns: user.preferences?.notifications?.campaigns ?? true,
+              reports: user.preferences?.notifications?.reports ?? false,
+            },
+            dashboard: {
+              autoRefresh: user.preferences?.dashboard?.autoRefresh ?? true,
+              refreshInterval: user.preferences?.dashboard?.refreshInterval ?? 30000,
+              defaultView: user.preferences?.dashboard?.defaultView || 'overview',
+            },
+          },
+          statistics: {
+            campaignsCreated: user.statistics?.campaignsCreated || 0,
+            totalTweets: user.statistics?.totalTweets || 0,
+            loginCount: user.statistics?.loginCount || 0,
+            lastLoginAt: user.statistics?.lastLoginAt ? new Date(user.statistics.lastLoginAt) : new Date(),
+          },
+          isActive: user.isActive ?? true,
+          isVerified: user.isVerified ?? false,
+          createdAt: new Date(user.createdAt),
+          updatedAt: new Date(user.updatedAt),
+        };
+        
+        return adaptedProfile;
       }),
       tap(profile => {
         this.profile.set(profile);
@@ -469,5 +512,25 @@ export class UserProfileService {
       valid: errors.length === 0,
       errors
     };
+  }
+
+  // ===== MÉTODOS AUXILIARES =====
+  
+  /**
+   * Extraer el primer nombre del displayName
+   */
+  private extractFirstName(displayName?: string): string {
+    if (!displayName) return '';
+    const parts = displayName.split(' ');
+    return parts[0] || '';
+  }
+
+  /**
+   * Extraer el apellido del displayName
+   */
+  private extractLastName(displayName?: string): string {
+    if (!displayName) return '';
+    const parts = displayName.split(' ');
+    return parts.slice(1).join(' ') || '';
   }
 }

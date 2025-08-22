@@ -1,4 +1,13 @@
 {
+  "common": {
+    "optional": "optional",
+    "required": "required",
+    "save": "Save",
+    "cancel": "Cancel",
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success"
+  },
   "login": {
     "app_name": "SentimentalSocial",
     "subtitle": "Enterprise Sentiment Analysis",

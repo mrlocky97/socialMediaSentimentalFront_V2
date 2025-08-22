@@ -39,6 +39,25 @@
                         currentUser()?.createdAt | date : 'MMM yyyy'
                       }}</span>
                     </div>
+                    @if (hasVerificationStatus()) {
+                    <div class="stat">
+                      <span class="stat-label">{{ 'profile.verification_status' | transloco }}</span>
+                      <span class="stat-value" [class.verified]="isUserVerified()" [class.unverified]="!isUserVerified()">
+                        @if (isUserVerified()) {
+                        <mat-icon>verified</mat-icon>
+                        } @else {
+                        <mat-icon>schedule</mat-icon>
+                        }
+                        {{ isUserVerified() ? ('profile.verified' | transloco) : ('profile.unverified' | transloco) }}
+                      </span>
+                    </div>
+                    }
+                    @if (getUserPermissionsCount() > 0) {
+                    <div class="stat">
+                      <span class="stat-label">{{ 'profile.permissions_count' | transloco }}</span>
+                      <span class="stat-value">{{ getUserPermissionsCount() }}</span>
+                    </div>
+                    }
                   </div>
                 </div>
               </div>
@@ -55,6 +74,22 @@
               <form [formGroup]="profileForm" (ngSubmit)="onSaveProfile()">
                 <div class="form-row">
                   <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>{{ 'profile.username' | transloco }}</mat-label>
+                    <input matInput formControlName="username" readonly />
+                    <mat-hint>{{ 'profile.username_readonly' | transloco }}</mat-hint>
+                  </mat-form-field>
+                </div>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>{{ 'profile.email' | transloco }}</mat-label>
+                    <input matInput formControlName="email" readonly />
+                    <mat-hint>{{ 'profile.email_readonly' | transloco }}</mat-hint>
+                  </mat-form-field>
+                </div>
+
+                <div class="form-row">
+                  <mat-form-field appearance="outline" class="full-width">
                     <mat-label>{{ 'profile.display_name' | transloco }}</mat-label>
                     <input matInput formControlName="displayName" maxlength="100" />
                     <mat-hint align="end"
@@ -68,7 +103,7 @@
 
                 <div class="form-row two-columns">
                   <mat-form-field appearance="outline">
-                    <mat-label>{{ 'profile.first_name' | transloco }}</mat-label>
+                    <mat-label>{{ 'profile.first_name' | transloco }} ({{ 'common.optional' | transloco }})</mat-label>
                     <input matInput formControlName="firstName" maxlength="50" />
                     <mat-hint align="end"
                       >{{ profileForm.get('firstName')?.value?.length || 0 }}/50</mat-hint
@@ -79,7 +114,7 @@
                   </mat-form-field>
 
                   <mat-form-field appearance="outline">
-                    <mat-label>{{ 'profile.last_name' | transloco }}</mat-label>
+                    <mat-label>{{ 'profile.last_name' | transloco }} ({{ 'common.optional' | transloco }})</mat-label>
                     <input matInput formControlName="lastName" maxlength="50" />
                     <mat-hint align="end"
                       >{{ profileForm.get('lastName')?.value?.length || 0 }}/50</mat-hint
@@ -119,7 +154,7 @@
                   <button
                     mat-button
                     type="button"
-                    (click)="refreshProfile()"
+                    (click)="resetProfileForm()"
                     [disabled]="isSubmitting || isLoading"
                   >
                     <mat-icon>refresh</mat-icon>
@@ -297,7 +332,7 @@
                 <mat-divider></mat-divider>
 
                 <!-- Notificaciones -->
-                <div class="preferences-section">
+                <!-- <div class="preferences-section">
                   <h3>{{ 'profile.notifications' | transloco }}</h3>
                   <div class="toggle-list">
                     <div class="toggle-item">
@@ -350,10 +385,10 @@
                   </div>
                 </div>
 
-                <mat-divider></mat-divider>
+                <mat-divider></mat-divider> -->
 
                 <!-- Dashboard -->
-                <div class="preferences-section">
+                <!-- <div class="preferences-section">
                   <h3>{{ 'profile.dashboard_settings' | transloco }}</h3>
                   <div class="toggle-list">
                     <div class="toggle-item">
@@ -379,7 +414,7 @@
                     </mat-form-field>
                   </div>
                   }
-                </div>
+                </div> -->
 
                 <div class="form-actions">
                   <button

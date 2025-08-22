@@ -77,7 +77,7 @@ export class ProfileComponent implements OnInit {
 
   // Computed para validaciones
   readonly canSaveProfile = computed(
-    () => this.profileForm?.valid && !this.isSubmitting() && !this.isLoading()
+    () => this.profileForm?.valid && !this.isSubmitting() && !this.isLoading() && this._isFormsDirty()
   );
 
   readonly canChangePassword = computed(() => this.passwordForm?.valid && !this.isSubmitting());
@@ -103,6 +103,20 @@ export class ProfileComponent implements OnInit {
   private initializeForms(): void {
     // Formulario de perfil
     this.profileForm = this.fb.nonNullable.group({
+      username: [
+        { value: '', disabled: true },
+        {
+          validators: [Validators.required],
+          updateOn: 'blur',
+        },
+      ],
+      email: [
+        { value: '', disabled: true },
+        {
+          validators: [Validators.required, Validators.email],
+          updateOn: 'blur',
+        },
+      ],
       displayName: [
         '',
         {
@@ -113,14 +127,14 @@ export class ProfileComponent implements OnInit {
       firstName: [
         '',
         {
-          validators: [Validators.required, Validators.minLength(2), Validators.maxLength(50)],
+          validators: [Validators.minLength(2), Validators.maxLength(50)],
           updateOn: 'blur',
         },
       ],
       lastName: [
         '',
         {
-          validators: [Validators.required, Validators.minLength(2), Validators.maxLength(50)],
+          validators: [Validators.minLength(2), Validators.maxLength(50)],
           updateOn: 'blur',
         },
       ],
@@ -163,21 +177,42 @@ export class ProfileComponent implements OnInit {
     // Suscripciones optimizadas con takeUntilDestroyed
     this.profileForm.valueChanges
       .pipe(takeUntilDestroyed())
-      .subscribe(() => this._isFormsDirty.set(true));
+      .subscribe(() => {
+        // Solo marcar como dirty si no estamos poblando el formulario
+        if (this.profileForm.dirty) {
+          this._isFormsDirty.set(true);
+        }
+      });
 
     this.preferencesForm.valueChanges
       .pipe(takeUntilDestroyed())
-      .subscribe(() => this._isFormsDirty.set(true));
+      .subscribe(() => {
+        // Solo marcar como dirty si no estamos poblando el formulario
+        if (this.preferencesForm.dirty) {
+          this._isFormsDirty.set(true);
+        }
+      });
   }
 
   private loadUserProfile(): void {
+    // Primero intentamos usar los datos del usuario actual si están disponibles
+    const currentUserData = this.currentUser();
+    if (currentUserData) {
+      this.populateForms({ user: currentUserData });
+      this._isFormsDirty.set(false);
+    }
+
+    // Luego obtenemos el perfil completo del servidor
     this.profileService
       .getProfile()
       .pipe(
         takeUntilDestroyed(),
         catchError((error) => {
           console.error('Error loading user profile:', error);
-          this.profileService.showError('Error cargando perfil de usuario');
+          // Si ya tenemos datos del currentUser, no mostramos error
+          if (!currentUserData) {
+            this.profileService.showError('Error cargando perfil de usuario');
+          }
           return of(null);
         })
       )
@@ -193,36 +228,61 @@ export class ProfileComponent implements OnInit {
     this.loadUserProfile();
   }
 
+  // Método para resetear el formulario a los valores originales
+  resetProfileForm(): void {
+    const currentUserData = this.currentUser();
+    if (currentUserData) {
+      this.populateForms({ user: currentUserData });
+      this._isFormsDirty.set(false);
+    }
+  }
+
   private populateForms(profile: any): void {
     if (!profile) return;
 
-    // Poblar formulario de perfil
+    // Si el perfil viene directamente del currentUser (formato del API)
+    const userData = profile.user || profile;
+
+    // Poblar formulario de perfil con los datos del usuario
     this.profileForm.patchValue(
       {
-        displayName: profile.displayName ?? '',
-        firstName: profile.firstName ?? '',
-        lastName: profile.lastName ?? '',
-        bio: profile.bio ?? '',
+        username: userData.username ?? '',
+        email: userData.email ?? '',
+        displayName: userData.displayName ?? userData.username ?? '',
+        firstName: userData.firstName ?? this.extractFirstName(userData.displayName) ?? '',
+        lastName: userData.lastName ?? this.extractLastName(userData.displayName) ?? '',
+        bio: userData.bio ?? '',
       },
       { emitEvent: false }
     );
 
-    // Poblar formulario de preferencias
-    if (profile.preferences) {
-      this.preferencesForm.patchValue(
-        {
-          language: profile.preferences.language ?? 'es',
-          theme: profile.preferences.theme ?? 'light',
-          emailNotifications: profile.preferences.notifications?.email ?? true,
-          pushNotifications: profile.preferences.notifications?.push ?? true,
-          campaignNotifications: profile.preferences.notifications?.campaigns ?? true,
-          reportNotifications: profile.preferences.notifications?.reports ?? false,
-          autoRefresh: profile.preferences.dashboard?.autoRefresh ?? true,
-          refreshInterval: profile.preferences.dashboard?.refreshInterval ?? 30000,
-        },
-        { emitEvent: false }
-      );
-    }
+    // Poblar formulario de preferencias con valores por defecto
+    this.preferencesForm.patchValue(
+      {
+        language: userData.preferences?.language ?? 'es',
+        theme: userData.preferences?.theme ?? 'light',
+        emailNotifications: userData.preferences?.notifications?.email ?? true,
+        pushNotifications: userData.preferences?.notifications?.push ?? true,
+        campaignNotifications: userData.preferences?.notifications?.campaigns ?? true,
+        reportNotifications: userData.preferences?.notifications?.reports ?? false,
+        autoRefresh: userData.preferences?.dashboard?.autoRefresh ?? true,
+        refreshInterval: userData.preferences?.dashboard?.refreshInterval ?? 30000,
+      },
+      { emitEvent: false }
+    );
+  }
+
+  // Métodos auxiliares para extraer nombres del displayName
+  private extractFirstName(displayName?: string): string {
+    if (!displayName) return '';
+    const parts = displayName.split(' ');
+    return parts[0] || '';
+  }
+
+  private extractLastName(displayName?: string): string {
+    if (!displayName) return '';
+    const parts = displayName.split(' ');
+    return parts.slice(1).join(' ') || '';
   }
 
   // Métodos para mostrar/ocultar contraseñas
@@ -246,10 +306,12 @@ export class ProfileComponent implements OnInit {
     }
 
     const formValue = this.profileForm.getRawValue();
+    
+    // Solo incluir los campos que el usuario puede editar
     const updateRequest: UpdateProfileRequest = {
       displayName: formValue.displayName,
-      firstName: formValue.firstName,
-      lastName: formValue.lastName,
+      firstName: formValue.firstName || undefined,
+      lastName: formValue.lastName || undefined,
       bio: formValue.bio || undefined,
     };
 
@@ -259,6 +321,8 @@ export class ProfileComponent implements OnInit {
         tap(() => {
           this.profileService.showSuccess('Perfil actualizado correctamente');
           this._isFormsDirty.set(false);
+          // Recargar el perfil actualizado
+          this.loadUserProfile();
         }),
         catchError((error) => {
           console.error('Error updating profile:', error);
@@ -400,6 +464,22 @@ export class ProfileComponent implements OnInit {
     return this.profileService.getRoleLabel(role);
   }
 
+  // Métodos auxiliares para verificación y permisos
+  hasVerificationStatus(): boolean {
+    const user = this.currentUser();
+    return user !== null && 'isVerified' in user;
+  }
+
+  isUserVerified(): boolean {
+    const user = this.currentUser() as any;
+    return user?.isVerified === true;
+  }
+
+  getUserPermissionsCount(): number {
+    const user = this.currentUser() as any;
+    return user?.permissions?.length || 0;
+  }
+
   // Computed properties para validaciones de formularios
   readonly displayNameError = computed((): string | null => {
     const control = this.profileForm?.get('displayName');
@@ -415,8 +495,8 @@ export class ProfileComponent implements OnInit {
     const control = this.profileForm?.get('firstName');
     if (!control || (!control.touched && !control.dirty)) return null;
 
-    if (control.hasError('required')) return 'El nombre es requerido';
     if (control.hasError('minlength')) return 'Mínimo 2 caracteres';
+    if (control.hasError('maxlength')) return 'Máximo 50 caracteres';
     return null;
   });
 
@@ -424,8 +504,8 @@ export class ProfileComponent implements OnInit {
     const control = this.profileForm?.get('lastName');
     if (!control || (!control.touched && !control.dirty)) return null;
 
-    if (control.hasError('required')) return 'El apellido es requerido';
     if (control.hasError('minlength')) return 'Mínimo 2 caracteres';
+    if (control.hasError('maxlength')) return 'Máximo 50 caracteres';
     return null;
   });
 

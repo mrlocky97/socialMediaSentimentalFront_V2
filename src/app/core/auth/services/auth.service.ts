@@ -27,10 +27,16 @@ export interface User {
   email: string;
   username: string;
   displayName: string;
+  firstName?: string;
+  lastName?: string;
+  bio?: string;
+  avatar?: string | null;
   role: 'admin' | 'manager' | 'analyst' | 'onlyView' | 'client';
   permissions: string[];
   organizationId?: string;
+  organizationName?: string;
   isActive: boolean;
+  isVerified: boolean;
   createdAt: Date;
   updatedAt: Date;
 }

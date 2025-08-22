@@ -359,3 +359,39 @@
     font-size: 1.4rem;
   }
 }
+
+/* ===== ESTILOS PARA ESTADO DE VERIFICACIÓN ===== */
+.stat-value.verified {
+  color: #4caf50;
+  font-weight: 500;
+}
+
+.stat-value.verified mat-icon {
+  color: #4caf50;
+  margin-right: 4px;
+  font-size: 18px;
+  vertical-align: middle;
+}
+
+.stat-value.unverified {
+  color: #ff9800;
+  font-weight: 500;
+}
+
+.stat-value.unverified mat-icon {
+  color: #ff9800;
+  margin-right: 4px;
+  font-size: 18px;
+  vertical-align: middle;
+}
+
+/* ===== CAMPOS DE SOLO LECTURA ===== */
+.mat-mdc-form-field input[readonly] {
+  background-color: rgba(0, 0, 0, 0.04);
+  color: rgba(0, 0, 0, 0.6);
+  cursor: not-allowed;
+}
+
+.mat-mdc-form-field.mat-form-field-disabled .mat-mdc-text-field-wrapper {
+  background-color: rgba(0, 0, 0, 0.04);
+}

@@ -1,4 +1,13 @@
 {
+  "common": {
+    "optional": "optional",
+    "required": "erforderlich",
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "loading": "Laden...",
+    "error": "Fehler",
+    "success": "Erfolg"
+  },
   "login": {
     "app_name": "SentimentalSocial",
     "subtitle": "Unternehmensstimmungsanalyse",
