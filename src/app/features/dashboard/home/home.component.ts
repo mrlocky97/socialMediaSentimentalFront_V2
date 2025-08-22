@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, computed, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
@@ -8,6 +9,7 @@ import { MatGridListModule } from '@angular/material/grid-list';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTabsModule } from '@angular/material/tabs';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslocoModule } from '@ngneat/transloco';
 
 import { AuthService } from '../../../core/auth/services/auth.service';
@@ -31,6 +33,7 @@ import { HomeService } from './service/home.service';
     MatTabsModule,
     MatGridListModule,
     MatDividerModule,
+    MatTooltipModule,
     CampaignSummaryWidgetComponent,
     PendingTweetWidgetComponent,
   ],
@@ -42,6 +45,7 @@ export class HomeComponent implements OnInit {
   public readonly authService = inject(AuthService);
   public readonly dashboardService = inject(DashboardService);
   public readonly homeService = inject(HomeService);
+  private readonly router = inject(Router);
 
   // Estado computado
   public readonly recentCampaigns = computed(() =>
@@ -78,6 +82,19 @@ export class HomeComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadDashboardData();
+  }
+
+  // Métodos de navegación mejorados para campañas
+  public async navigateToCreateCampaign(): Promise<void> {
+    await this.router.navigate(['/campaigns/create']);
+  }
+
+  public async navigateToCampaigns(): Promise<void> {
+    await this.router.navigate(['/campaigns']);
+  }
+
+  public async navigateToSimpleForm(): Promise<void> {
+    await this.router.navigate(['/campaigns/create-simple']);
   }
 
   // Métodos de acción

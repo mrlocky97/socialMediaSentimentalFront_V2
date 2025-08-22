@@ -24,8 +24,14 @@ export const campaignRoutes: Routes = [
       {
         path: 'create',
         loadComponent: () => 
-          import('./campaign-form/campaign-form.component').then(c => c.CampaignFormComponent),
+          import('./campaign-wizard/modern-campaign-wizard.component').then(c => c.ModernCampaignWizardComponent),
         title: 'Create Campaign'
+      },
+      {
+        path: 'create-simple',
+        loadComponent: () => 
+          import('./campaign-form/campaign-form.component').then(c => c.CampaignFormComponent),
+        title: 'Create Campaign - Simple'
       },
       {
         path: ':id',
