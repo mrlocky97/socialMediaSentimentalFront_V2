@@ -379,5 +379,14 @@
   },
   "language_selector": {
     "tooltip": "Change language"
+  },
+  "logout": {
+    "dialog": {
+      "title": "Sign Out",
+      "message": "Are you sure you want to sign out?",
+      "warning": "All unsaved changes will be lost.",
+      "cancel": "Cancel",
+      "confirm": "Sign Out"
+    }
   }
 }

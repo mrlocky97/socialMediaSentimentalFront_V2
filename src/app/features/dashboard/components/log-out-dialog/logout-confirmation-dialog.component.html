@@ -1,0 +1,22 @@
+<div class="logout-dialog">
+  <div class="dialog-header">
+    <mat-icon class="logout-icon">logout</mat-icon>
+    <h2 mat-dialog-title>{{ 'logout.dialog.title' | transloco }}</h2>
+  </div>
+
+  <div mat-dialog-content class="dialog-content">
+    <p>{{ 'logout.dialog.message' | transloco }}</p>
+    <p class="warning-text">{{ 'logout.dialog.warning' | transloco }}</p>
+  </div>
+
+  <div mat-dialog-actions class="dialog-actions">
+    <button mat-stroked-button (click)="onCancel()" class="cancel-button">
+      <mat-icon>cancel</mat-icon>
+      {{ 'logout.dialog.cancel' | transloco }}
+    </button>
+    <button mat-raised-button color="warn" (click)="onConfirm()" class="confirm-button">
+      <mat-icon>logout</mat-icon>
+      {{ 'logout.dialog.confirm' | transloco }}
+    </button>
+  </div>
+</div>

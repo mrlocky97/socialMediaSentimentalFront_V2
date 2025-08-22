@@ -381,5 +381,14 @@
   },
   "language_selector": {
     "tooltip": "Cambiar idioma"
+  },
+  "logout": {
+    "dialog": {
+      "title": "Cerrar Sesión",
+      "message": "¿Estás seguro de que deseas cerrar sesión?",
+      "warning": "Se perderán todos los cambios no guardados.",
+      "cancel": "Cancelar",
+      "confirm": "Cerrar Sesión"
+    }
   }
 }

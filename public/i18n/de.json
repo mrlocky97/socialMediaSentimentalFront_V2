@@ -379,5 +379,14 @@
   },
   "language_selector": {
     "tooltip": "Sprache ändern"
+  },
+  "logout": {
+    "dialog": {
+      "title": "Abmelden",
+      "message": "Sind Sie sicher, dass Sie sich abmelden möchten?",
+      "warning": "Alle nicht gespeicherten Änderungen gehen verloren.",
+      "cancel": "Abbrechen",
+      "confirm": "Abmelden"
+    }
   }
 }

@@ -379,5 +379,14 @@
   },
   "language_selector": {
     "tooltip": "Changer de langue"
+  },
+  "logout": {
+    "dialog": {
+      "title": "Se Déconnecter",
+      "message": "Êtes-vous sûr de vouloir vous déconnecter ?",
+      "warning": "Toutes les modifications non sauvegardées seront perdues.",
+      "cancel": "Annuler",
+      "confirm": "Se Déconnecter"
+    }
   }
 }

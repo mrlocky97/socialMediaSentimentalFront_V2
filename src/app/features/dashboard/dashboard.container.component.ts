@@ -1,14 +1,14 @@
 import { CommonModule } from '@angular/common';
 import { ChangeDetectionStrategy, Component, HostListener, inject } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { MATERIAL_IMPORTS } from '../../shared/material/material-imports';
-import { MenuComponent } from "./menu/menu.component";
-import { AuthService } from '../../core/auth/services/auth.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
-import { SessionTimeoutService } from '../../core/services/session-timeout.service';
 import { MatDialog } from '@angular/material/dialog';
-import { LogoutConfirmationDialogComponent } from './components/logout-confirmation-dialog.component';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { RouterOutlet } from '@angular/router';
+import { AuthService } from '../../core/auth/services/auth.service';
+import { SessionTimeoutService } from '../../core/services/session-timeout.service';
 import { LanguageSelectorComponent } from '../../shared/components/language-selector/language-selector.component';
+import { MATERIAL_IMPORTS } from '../../shared/material/material-imports';
+import { LogoutConfirmationDialogComponent } from './components/log-out-dialog/logout-confirmation-dialog.component';
+import { MenuComponent } from "./menu/menu.component";
 
 export interface Tile {
   color: string;
