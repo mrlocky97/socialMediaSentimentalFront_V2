@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, inject, Output } from '@angular/core';
+import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
@@ -11,9 +11,9 @@ import { AuthService } from '../../../core/auth/services/auth.service';
 
 export interface NavItem {
   route: string;
-  label: string;
+  labelKey: string;  // Cambiar a clave de traducción
   icon: string;
-  ariaLabel: string;
+  ariaLabelKey: string;  // Cambiar a clave de traducción
 }
 
 @Component({
@@ -29,7 +29,7 @@ export interface NavItem {
   templateUrl: './menu.component.html',
   styleUrl: './menu.component.css',
 })
-export class MenuComponent {
+export class MenuComponent implements OnInit {
   public transloco = inject(TranslocoService);
   private authService = inject(AuthService);
   private snackBar = inject(MatSnackBar);
@@ -44,41 +44,46 @@ export class MenuComponent {
   navItems: NavItem[] = [
     {
       route: '/dashboard/home',
-      label: this.transloco.translate('menu.home'),
+      labelKey: 'menu.home',
       icon: 'home',
-      ariaLabel: this.transloco.translate('menu.aria.home'),
+      ariaLabelKey: 'menu.aria.home',
     },
     {
       route: '/campaigns',
-      label: this.transloco.translate('menu.campaigns'),
+      labelKey: 'menu.campaigns',
       icon: 'campaign',
-      ariaLabel: this.transloco.translate('menu.aria.campaigns'),
+      ariaLabelKey: 'menu.aria.campaigns',
     },
     {
       route: '/analytics',
-      label: this.transloco.translate('menu.analytics'),
+      labelKey: 'menu.analytics',
       icon: 'analytics',
-      ariaLabel: this.transloco.translate('menu.aria.analytics'),
+      ariaLabelKey: 'menu.aria.analytics',
     },
     {
       route: '/monitor',
-      label: this.transloco.translate('menu.monitor'),
+      labelKey: 'menu.monitor',
       icon: 'monitoring',
-      ariaLabel: this.transloco.translate('menu.aria.monitor'),
+      ariaLabelKey: 'menu.aria.monitor',
     },
     {
       route: '/wizard',
-      label: this.transloco.translate('menu.wizard'),
+      labelKey: 'menu.wizard',
       icon: 'auto_fix_high',
-      ariaLabel: this.transloco.translate('menu.aria.wizard'),
+      ariaLabelKey: 'menu.aria.wizard',
     },
     {
       route: '/dashboard/profile',
-      label: this.transloco.translate('menu.profile'),
+      labelKey: 'menu.profile',
       icon: 'account_circle',
-      ariaLabel: this.transloco.translate('menu.aria.profile'),
+      ariaLabelKey: 'menu.aria.profile',
     },
   ];
+
+  ngOnInit(): void {
+    // Las traducciones ya se manejan dinámicamente en el template
+    // No necesitamos hacer nada aquí, pero podríamos suscribirnos a cambios de idioma si fuera necesario
+  }
 
   onNavigate() {
     this.navigate.emit();
