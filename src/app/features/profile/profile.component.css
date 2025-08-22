@@ -226,28 +226,6 @@
   margin: 0;
 }
 
-.quick-language-btn {
-  background-color: #f5f5f5;
-  border: 1px solid #e0e0e0;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
-}
-
-.quick-language-btn:hover {
-  background-color: #e0e0e0;
-  transform: scale(1.1);
-}
-
-.language-flag {
-  font-size: 1.2rem;
-  line-height: 1;
-}
-
 .toggle-list {
   display: flex;
   flex-direction: column;
@@ -394,4 +372,100 @@
 
 .mat-mdc-form-field.mat-form-field-disabled .mat-mdc-text-field-wrapper {
   background-color: rgba(0, 0, 0, 0.04);
+}
+
+/* ===== ESTILOS PARA BANDERAS DE IDIOMAS ===== */
+.language-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.selected-language {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.flag-icon {
+  width: 20px;
+  height: 15px;
+  border-radius: 2px;
+  object-fit: cover;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.language-label {
+  font-weight: 400;
+  color: rgba(0, 0, 0, 0.87);
+}
+
+.current-language-flag {
+  width: 24px;
+  height: 18px;
+  border-radius: 3px;
+  object-fit: cover;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease;
+}
+
+.quick-language-btn:hover .current-language-flag {
+  transform: scale(1.1);
+}
+
+.flag-emoji-fallback {
+  font-size: 16px;
+  line-height: 1;
+  display: inline-block;
+}
+
+/* Mejoras para el botón de cambio rápido de idioma */
+.quick-language-btn {
+  background-color: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.quick-language-btn:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.5);
+  transform: scale(1.05);
+}
+
+/* Estilos específicos para el mat-select con banderas */
+::ng-deep .mat-mdc-select-panel .mat-mdc-option {
+  padding: 8px 16px !important;
+}
+
+::ng-deep .mat-mdc-option .language-option {
+  width: 100%;
+}
+
+/* Responsive para banderas */
+@media (max-width: 480px) {
+  .flag-icon {
+    width: 18px;
+    height: 13px;
+  }
+  
+  .current-language-flag {
+    width: 20px;
+    height: 15px;
+  }
+  
+  .quick-language-btn {
+    width: 40px;
+    height: 40px;
+  }
 }

@@ -30,12 +30,32 @@ export class ProfileUtils {
     });
   }
 
-  // Opciones para selects
+  // Opciones para selects con iconos de banderas
   static languageOptions = [
-    { value: 'es', label: 'Español 🇪🇸' },
-    { value: 'en', label: 'English 🇺🇸' },
-    { value: 'fr', label: 'Français 🇫🇷' },
-    { value: 'de', label: 'Deutsch 🇩🇪' },
+    { 
+      value: 'es', 
+      label: 'Español', 
+      flag: '🇪🇸',
+      flagIcon: '/icons/lang/ES.png'
+    },
+    { 
+      value: 'en', 
+      label: 'English', 
+      flag: '🇺🇸',
+      flagIcon: '/icons/lang/UK.png'
+    },
+    { 
+      value: 'fr', 
+      label: 'Français', 
+      flag: '🇫🇷',
+      flagIcon: '/icons/lang/FR.png'
+    },
+    { 
+      value: 'de', 
+      label: 'Deutsch', 
+      flag: '🇩🇪',
+      flagIcon: '/icons/lang/DE.png'
+    },
   ];
 
   static themeOptions = [

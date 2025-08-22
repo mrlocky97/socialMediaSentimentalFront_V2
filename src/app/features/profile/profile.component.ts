@@ -410,6 +410,15 @@ export class ProfileComponent implements OnInit {
    * Cambio rápido de idioma (sin guardar en preferencias)
    */
   onQuickLanguageSwitch(): void {
+    const currentLang = this.currentLanguage();
+    const currentIndex = this.languageOptions.findIndex(lang => lang.value === currentLang);
+    const nextIndex = (currentIndex + 1) % this.languageOptions.length;
+    const nextLang = this.languageOptions[nextIndex];
+    
+    // Cambiar en el formulario también para que se vea la bandera correcta
+    this.preferencesForm.patchValue({ language: nextLang.value });
+    
+    // Aplicar el cambio de idioma
     this.profileService.switchToNextLanguage();
   }
 
@@ -478,6 +487,34 @@ export class ProfileComponent implements OnInit {
   getUserPermissionsCount(): number {
     const user = this.currentUser() as any;
     return user?.permissions?.length || 0;
+  }
+
+  // Método para manejar errores de carga de imágenes de banderas
+  onImageError(event: Event, fallbackFlag: string): void {
+    const imgElement = event.target as HTMLImageElement;
+    // Crear un elemento span con el emoji como fallback
+    const span = document.createElement('span');
+    span.textContent = fallbackFlag;
+    span.className = 'flag-emoji-fallback';
+    
+    // Reemplazar la imagen con el emoji
+    if (imgElement.parentNode) {
+      imgElement.parentNode.replaceChild(span, imgElement);
+    }
+  }
+
+  // Método para obtener la información del idioma actual con icono
+  getCurrentLanguageInfo() {
+    const currentLang = this.currentLanguage();
+    const langInfo = this.languageOptions.find(lang => lang.value === currentLang);
+    return langInfo || { value: 'es', label: 'Español', flag: '🌐', flagIcon: '/icons/lang/spanish.png' };
+  }
+
+  // Método para obtener la información del idioma seleccionado en el formulario
+  getSelectedLanguageInfo() {
+    const selectedLang = this.preferencesForm?.get('language')?.value || 'es';
+    const langInfo = this.languageOptions.find(lang => lang.value === selectedLang);
+    return langInfo || { value: 'es', label: 'Español', flag: '🌐', flagIcon: '/icons/lang/spanish.png' };
   }
 
   // Computed properties para validaciones de formularios

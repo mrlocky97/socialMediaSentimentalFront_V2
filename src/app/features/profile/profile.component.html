@@ -41,18 +41,27 @@
                     </div>
                     @if (hasVerificationStatus()) {
                     <div class="stat">
-                      <span class="stat-label">{{ 'profile.verification_status' | transloco }}</span>
-                      <span class="stat-value" [class.verified]="isUserVerified()" [class.unverified]="!isUserVerified()">
+                      <span class="stat-label">{{
+                        'profile.verification_status' | transloco
+                      }}</span>
+                      <span
+                        class="stat-value"
+                        [class.verified]="isUserVerified()"
+                        [class.unverified]="!isUserVerified()"
+                      >
                         @if (isUserVerified()) {
                         <mat-icon>verified</mat-icon>
                         } @else {
                         <mat-icon>schedule</mat-icon>
                         }
-                        {{ isUserVerified() ? ('profile.verified' | transloco) : ('profile.unverified' | transloco) }}
+                        {{
+                          isUserVerified()
+                            ? ('profile.verified' | transloco)
+                            : ('profile.unverified' | transloco)
+                        }}
                       </span>
                     </div>
-                    }
-                    @if (getUserPermissionsCount() > 0) {
+                    } @if (getUserPermissionsCount() > 0) {
                     <div class="stat">
                       <span class="stat-label">{{ 'profile.permissions_count' | transloco }}</span>
                       <span class="stat-value">{{ getUserPermissionsCount() }}</span>
@@ -103,7 +112,11 @@
 
                 <div class="form-row two-columns">
                   <mat-form-field appearance="outline">
-                    <mat-label>{{ 'profile.first_name' | transloco }} ({{ 'common.optional' | transloco }})</mat-label>
+                    <mat-label
+                      >{{ 'profile.first_name' | transloco }} ({{
+                        'common.optional' | transloco
+                      }})</mat-label
+                    >
                     <input matInput formControlName="firstName" maxlength="50" />
                     <mat-hint align="end"
                       >{{ profileForm.get('firstName')?.value?.length || 0 }}/50</mat-hint
@@ -114,7 +127,11 @@
                   </mat-form-field>
 
                   <mat-form-field appearance="outline">
-                    <mat-label>{{ 'profile.last_name' | transloco }} ({{ 'common.optional' | transloco }})</mat-label>
+                    <mat-label
+                      >{{ 'profile.last_name' | transloco }} ({{
+                        'common.optional' | transloco
+                      }})</mat-label
+                    >
                     <input matInput formControlName="lastName" maxlength="50" />
                     <mat-hint align="end"
                       >{{ profileForm.get('lastName')?.value?.length || 0 }}/50</mat-hint
@@ -290,9 +307,9 @@
                 <mat-icon>settings</mat-icon>
                 {{ 'profile.preferences' | transloco }}
               </mat-card-title>
-              <mat-card-subtitle>{{
-                'profile.preferences_subtitle' | transloco
-              }}</mat-card-subtitle>
+              <mat-card-subtitle>
+                {{ 'profile.preferences_subtitle' | transloco }}
+              </mat-card-subtitle>
             </mat-card-header>
             <mat-card-content>
               <form [formGroup]="preferencesForm" (ngSubmit)="onSavePreferences()">
@@ -300,19 +317,50 @@
                 <div class="preferences-section">
                   <div class="section-header">
                     <h3>{{ 'profile.appearance' | transloco }}</h3>
-                    <button mat-icon-button 
-                            (click)="onQuickLanguageSwitch()"
-                            class="quick-language-btn"
-                            [title]="'profile.quick_language_switch' | transloco">
-                      <span class="language-flag">{{ profileService.getCurrentLanguageInfo()?.flag || '🌐' }}</span>
+                    <button
+                      mat-icon-button
+                      (click)="onQuickLanguageSwitch()"
+                      class="quick-language-btn"
+                      [title]="'profile.quick_language_switch' | transloco"
+                    >
+                      <img 
+                        [src]="getCurrentLanguageInfo().flagIcon" 
+                        [alt]="getCurrentLanguageInfo().label + ' flag'"
+                        class="current-language-flag"
+                        (error)="onImageError($event, getCurrentLanguageInfo().flag)"
+                      />
                     </button>
                   </div>
                   <div class="form-row two-columns">
                     <mat-form-field appearance="outline">
                       <mat-label>{{ 'profile.language' | transloco }}</mat-label>
-                      <mat-select formControlName="language" (selectionChange)="onLanguageChange($event.value)">
+                      <mat-select
+                        formControlName="language"
+                        (selectionChange)="onLanguageChange($event.value)"
+                      >
+                        <mat-select-trigger>
+                          <div class="selected-language">
+                            <img 
+                              [src]="getSelectedLanguageInfo().flagIcon" 
+                              [alt]="getSelectedLanguageInfo().label + ' flag'"
+                              class="flag-icon"
+                              (error)="onImageError($event, getSelectedLanguageInfo().flag)"
+                            />
+                            <span class="language-label">{{ getSelectedLanguageInfo().label }}</span>
+                          </div>
+                        </mat-select-trigger>
                         @for (lang of languageOptions; track lang.value) {
-                        <mat-option [value]="lang.value">{{ lang.label }}</mat-option>
+                        <mat-option [value]="lang.value">
+                          <div class="language-option">
+                            <img 
+                              [src]="lang.flagIcon" 
+                              [alt]="lang.label + ' flag'"
+                              class="flag-icon"
+                              (error)="onImageError($event, lang.flag)"
+                            />
+                            <span class="language-label">{{ lang.label }}</span>
+                          </div>
+                        </mat-option>
                         }
                       </mat-select>
                       <mat-hint>{{ 'profile.language_hint' | transloco }}</mat-hint>
@@ -330,92 +378,6 @@
                 </div>
 
                 <mat-divider></mat-divider>
-
-                <!-- Notificaciones -->
-                <!-- <div class="preferences-section">
-                  <h3>{{ 'profile.notifications' | transloco }}</h3>
-                  <div class="toggle-list">
-                    <div class="toggle-item">
-                      <div class="toggle-info">
-                        <span class="toggle-label">{{
-                          'profile.email_notifications' | transloco
-                        }}</span>
-                        <span class="toggle-description">{{
-                          'profile.email_notifications_desc' | transloco
-                        }}</span>
-                      </div>
-                      <mat-slide-toggle formControlName="emailNotifications"></mat-slide-toggle>
-                    </div>
-
-                    <div class="toggle-item">
-                      <div class="toggle-info">
-                        <span class="toggle-label">{{
-                          'profile.push_notifications' | transloco
-                        }}</span>
-                        <span class="toggle-description">{{
-                          'profile.push_notifications_desc' | transloco
-                        }}</span>
-                      </div>
-                      <mat-slide-toggle formControlName="pushNotifications"></mat-slide-toggle>
-                    </div>
-
-                    <div class="toggle-item">
-                      <div class="toggle-info">
-                        <span class="toggle-label">{{
-                          'profile.campaign_notifications' | transloco
-                        }}</span>
-                        <span class="toggle-description">{{
-                          'profile.campaign_notifications_desc' | transloco
-                        }}</span>
-                      </div>
-                      <mat-slide-toggle formControlName="campaignNotifications"></mat-slide-toggle>
-                    </div>
-
-                    <div class="toggle-item">
-                      <div class="toggle-info">
-                        <span class="toggle-label">{{
-                          'profile.report_notifications' | transloco
-                        }}</span>
-                        <span class="toggle-description">{{
-                          'profile.report_notifications_desc' | transloco
-                        }}</span>
-                      </div>
-                      <mat-slide-toggle formControlName="reportNotifications"></mat-slide-toggle>
-                    </div>
-                  </div>
-                </div>
-
-                <mat-divider></mat-divider> -->
-
-                <!-- Dashboard -->
-                <!-- <div class="preferences-section">
-                  <h3>{{ 'profile.dashboard_settings' | transloco }}</h3>
-                  <div class="toggle-list">
-                    <div class="toggle-item">
-                      <div class="toggle-info">
-                        <span class="toggle-label">{{ 'profile.auto_refresh' | transloco }}</span>
-                        <span class="toggle-description">{{
-                          'profile.auto_refresh_desc' | transloco
-                        }}</span>
-                      </div>
-                      <mat-slide-toggle formControlName="autoRefresh"></mat-slide-toggle>
-                    </div>
-                  </div>
-
-                  @if (preferencesForm.get('autoRefresh')?.value) {
-                  <div class="form-row">
-                    <mat-form-field appearance="outline" class="full-width">
-                      <mat-label>{{ 'profile.refresh_interval' | transloco }}</mat-label>
-                      <mat-select formControlName="refreshInterval">
-                        @for (interval of refreshIntervalOptions; track interval.value) {
-                        <mat-option [value]="interval.value">{{ interval.label }}</mat-option>
-                        }
-                      </mat-select>
-                    </mat-form-field>
-                  </div>
-                  }
-                </div> -->
-
                 <div class="form-actions">
                   <button
                     mat-raised-button

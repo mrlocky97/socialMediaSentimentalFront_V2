@@ -1,11 +1,12 @@
 import { Injectable, inject, signal } from '@angular/core';
 import { TranslocoService } from '@ngneat/transloco';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 export interface LanguageOption {
   value: string;
   label: string;
   flag: string;
+  flagIcon: string;
 }
 
 @Injectable({
@@ -22,10 +23,10 @@ export class LanguageService {
   
   // Opciones de idioma disponibles
   readonly availableLanguages: LanguageOption[] = [
-    { value: 'es', label: 'Español', flag: '🇪🇸' },
-    { value: 'en', label: 'English', flag: '🇺🇸' },
-    { value: 'fr', label: 'Français', flag: '🇫🇷' },
-    { value: 'de', label: 'Deutsch', flag: '🇩🇪' }
+    { value: 'es', label: 'Español', flag: 'es', flagIcon: '/icons/lang/ES.png' },
+    { value: 'en', label: 'English', flag: 'uk', flagIcon: '/icons/lang/UK.png' },
+    { value: 'fr', label: 'Français', flag: 'fr', flagIcon: '/icons/lang/FR.png' },
+    { value: 'de', label: 'Deutsch', flag: 'de', flagIcon: '/icons/lang/DE.png' }
   ];
 
   // Computed properties
