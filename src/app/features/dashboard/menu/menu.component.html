@@ -44,12 +44,9 @@
     </mat-nav-list>
   </section>
 
-  <mat-divider role="separator"></mat-divider>
-
   <!-- Sección de logout -->
   <footer class="logout-section" role="contentinfo">
-    <button mat-list-item 
-            (click)="onLogout()" 
+    <button (click)="onLogout()" 
             class="logout-item"
             type="button"
             [attr.aria-label]="transloco.translate('menu.aria.logout')"

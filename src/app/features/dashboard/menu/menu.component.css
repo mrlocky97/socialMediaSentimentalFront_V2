@@ -217,11 +217,11 @@
 /* ===== LOGOUT SECTION ===== */
 .logout-section {
   padding: var(--spacing-lg) var(--spacing-xl);
-  margin-top: var(--spacing-lg);
+  margin-top: auto; /* Esto empuja el logout hacia abajo */
 }
 
 .logout-item {
-  display: flex !important;
+  display: flex;
   align-items: center;
   gap: var(--spacing-lg);
   padding: var(--spacing-lg) var(--spacing-xl);
@@ -236,6 +236,7 @@
   text-align: left;
   position: relative;
   overflow: hidden;
+  outline: none;
 }
 
 .logout-item::before {
@@ -259,6 +260,11 @@
 
 .logout-item:hover::before {
   opacity: 1;
+}
+
+.logout-item:focus {
+  outline: 2px solid var(--color-error);
+  outline-offset: 2px;
 }
 
 .logout-icon {
