@@ -1,0 +1,126 @@
+<mat-card class="tweet-card" [class.selected]="selected">
+  <mat-card-header>
+    <div mat-card-avatar class="tweet-avatar">
+      @if (tweet.author.profileImageUrl) {
+      <img [src]="tweet.author.profileImageUrl" [alt]="tweet.author.displayName" />
+      } @else {
+      <mat-icon>person</mat-icon>
+      }
+    </div>
+
+    <mat-card-title>{{ tweet.author.displayName }}</mat-card-title>
+    <mat-card-subtitle>
+      &#64;{{ tweet.author.username }} • {{ tweet.createdAt | date : 'short' }}
+    </mat-card-subtitle>
+
+    <div class="header-actions">
+      @if (tweet.sentiment && showSentiment) {
+      <app-sentiment-badge
+        [sentiment]="tweet.sentiment.label"
+        [score]="tweet.sentiment.score"
+        [showScore]="showSentimentScore"
+      >
+      </app-sentiment-badge>
+      } @if (showActions) {
+      <button mat-icon-button (click)="onActionClick('menu', $event)">
+        <mat-icon>more_vert</mat-icon>
+      </button>
+      }
+    </div>
+  </mat-card-header>
+
+  <mat-card-content (click)="onTweetClick()">
+    @if (tweet.isRetweet) {
+    <div class="retweet-indicator">
+      <mat-icon>repeat</mat-icon>
+      <span>Retweeted</span>
+    </div>
+    }
+
+    <p class="tweet-text" [class.truncated]="truncateText && tweet.text.length > maxTextLength">
+      {{
+        truncateText && tweet.text.length > maxTextLength
+          ? (tweet.text | slice : 0 : maxTextLength) + '...'
+          : tweet.text
+      }}
+    </p>
+
+    @if (truncateText && tweet.text.length > maxTextLength && !showFullText) {
+    <button mat-button color="primary" class="show-more-btn" (click)="toggleFullText($event)">
+      Show more
+    </button>
+    } @if (tweet.hashtags.length > 0 && showHashtags) {
+    <div class="hashtags">
+      @for (hashtag of tweet.hashtags; track hashtag) {
+      <mat-chip class="hashtag-chip" (click)="onHashtagClick(hashtag, $event)">
+        #{{ hashtag }}
+      </mat-chip>
+      }
+    </div>
+    } @if (tweet.mentions.length > 0 && showMentions) {
+    <div class="mentions">
+      @for (mention of tweet.mentions; track mention) {
+      <mat-chip class="mention-chip" (click)="onMentionClick(mention, $event)">
+        {{ mention }}
+      </mat-chip>
+      }
+    </div>
+    } @if (tweet.mediaUrls && tweet.mediaUrls.length > 0 && showMedia) {
+    <div class="media-container">
+      @for (mediaUrl of tweet.mediaUrls; track mediaUrl) {
+      <img
+        [src]="mediaUrl"
+        class="media-image"
+        (click)="onMediaClick(mediaUrl, $event)"
+        [alt]="'Tweet media image'"
+      />
+      }
+    </div>
+    }
+  </mat-card-content>
+
+  @if (showMetrics) {
+  <mat-card-actions>
+    <div class="tweet-metrics">
+      <button mat-icon-button (click)="onActionClick('like', $event)" [class.active]="isLiked">
+        <mat-icon>{{ isLiked ? 'favorite' : 'favorite_border' }}</mat-icon>
+        <span>{{ tweet.metrics.likes | number }}</span>
+      </button>
+
+      <button
+        mat-icon-button
+        (click)="onActionClick('retweet', $event)"
+        [class.active]="isRetweeted"
+      >
+        <mat-icon>repeat</mat-icon>
+        <span>{{ tweet.metrics.retweets | number }}</span>
+      </button>
+
+      <button mat-icon-button (click)="onActionClick('reply', $event)">
+        <mat-icon>chat_bubble_outline</mat-icon>
+        <span>{{ tweet.metrics.replies | number }}</span>
+      </button>
+
+      @if (tweet.metrics.views) {
+      <span class="metric-views">
+        <mat-icon>visibility</mat-icon>
+        <span>{{ tweet.metrics.views | number }}</span>
+      </span>
+      }
+    </div>
+
+    <div class="card-actions">
+      <button mat-icon-button (click)="onActionClick('share', $event)">
+        <mat-icon>share</mat-icon>
+      </button>
+      <button
+        mat-icon-button
+        (click)="onActionClick('bookmark', $event)"
+        [class.active]="isBookmarked"
+      >
+        <mat-icon>{{ isBookmarked ? 'bookmark' : 'bookmark_border' }}</mat-icon>
+      </button>
+    </div>
+  </mat-card-actions>
+  }
+</mat-card>

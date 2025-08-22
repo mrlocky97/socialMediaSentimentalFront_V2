@@ -1,0 +1,13 @@
+<div class="session-indicator" *ngIf="isAuthenticated()">
+  <button
+    mat-icon-button
+    [matTooltip]="getTooltipText()"
+    [class.warning]="remainingMinutes() <= 10"
+    [class.critical]="remainingMinutes() <= 5"
+    (click)="extendSession()"
+  >
+    <mat-icon>{{ getIconName() }}</mat-icon>
+  </button>
+  <span class="time-display" *ngIf="showTimeDisplay()"> {{ remainingMinutes() }}m </span>
+  <div class="extended-message" *ngIf="showExtendedMessage()" [@fadeInOut]>✓ Sesión extendida</div>
+</div>

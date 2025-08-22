@@ -1,0 +1,15 @@
+<div class="confidence-container">
+  @if (showLabel) {
+  <span class="confidence-label">{{ label }}</span>
+  }
+  <div class="confidence-bar" [style.width]="width">
+    <div
+      class="confidence-fill"
+      [style.width.%]="confidence * 100"
+      [class]="getConfidenceClass()"
+    ></div>
+  </div>
+  @if (showValue) {
+  <span class="confidence-value">{{ confidence * 100 | number : '1.0-0' }}%</span>
+  }
+</div>

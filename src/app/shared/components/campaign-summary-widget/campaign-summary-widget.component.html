@@ -1,0 +1,95 @@
+<mat-card class="summary-widget">
+  <mat-card-header>
+    <mat-card-title>
+      <mat-icon>campaign</mat-icon>
+      Campaign Overview
+    </mat-card-title>
+    <button mat-icon-button (click)="onRefresh()" [disabled]="isLoading()" class="refresh-button">
+      <mat-icon>refresh</mat-icon>
+    </button>
+  </mat-card-header>
+
+  <mat-card-content>
+    @if (isLoading()) {
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
+      <p>Loading campaigns...</p>
+    </div>
+    } @else if (error()) {
+    <div class="error-container">
+      <mat-icon color="warn">error</mat-icon>
+      <p>{{ error() }}</p>
+      <button mat-button color="primary" (click)="onRetry()">Retry</button>
+    </div>
+    } @else {
+    <div class="metrics-grid">
+      <!-- Total Campaigns -->
+      <div class="metric-card">
+        <div class="metric-value">{{ totalCount() }}</div>
+        <div class="metric-label">Total Campaigns</div>
+      </div>
+
+      <!-- Active Campaigns -->
+      <div class="metric-card active">
+        <div class="metric-value">{{ statusCounts().active }}</div>
+        <div class="metric-label">Active</div>
+      </div>
+
+      <!-- Paused Campaigns -->
+      <div class="metric-card paused">
+        <div class="metric-value">{{ statusCounts().paused }}</div>
+        <div class="metric-label">Paused</div>
+      </div>
+
+      <!-- Completed Campaigns -->
+      <div class="metric-card completed">
+        <div class="metric-value">{{ statusCounts().completed }}</div>
+        <div class="metric-label">Completed</div>
+      </div>
+    </div>
+
+    <!-- Recent Campaigns -->
+    @if (recentCampaigns().length > 0) {
+    <div class="recent-section">
+      <h3>Recent Campaigns</h3>
+      <div class="recent-list">
+        @for (campaign of recentCampaigns(); track campaign.id) {
+        <div class="recent-item" (click)="onCampaignSelect(campaign)">
+          <div class="campaign-info">
+            <span class="campaign-name">{{ campaign.name }}</span>
+            <span class="campaign-type">{{ getTypeText(campaign.type) }}</span>
+          </div>
+          <mat-chip [class]="'status-' + campaign.status" class="status-chip">
+            {{ getStatusText(campaign.status) }}
+          </mat-chip>
+        </div>
+        }
+      </div>
+    </div>
+    }
+
+    <!-- Summary Stats -->
+    @if (summary()) {
+    <div class="summary-stats">
+      <div class="stat">
+        <mat-icon>tag</mat-icon>
+        <span>{{ summary()!.totalHashtags }} Hashtags</span>
+      </div>
+      <div class="stat">
+        <mat-icon>search</mat-icon>
+        <span>{{ summary()!.totalKeywords }} Keywords</span>
+      </div>
+      <div class="stat">
+        <mat-icon>article</mat-icon>
+        <span>{{ summary()!.totalTweets }} Tweets</span>
+      </div>
+    </div>
+    } }
+  </mat-card-content>
+
+  @if (!isLoading() && !error()) {
+  <mat-card-actions align="end">
+    <button mat-button color="primary" (click)="onViewAll()">View All Campaigns</button>
+  </mat-card-actions>
+  }
+</mat-card>

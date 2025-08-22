@@ -1,0 +1,7 @@
+<mat-chip [class]="'sentiment-badge sentiment-' + sentiment" [disabled]="disabled">
+  <mat-icon>{{ getIcon() }}</mat-icon>
+  <span>{{ getLabel() }}</span>
+  @if (showScore && score !== undefined) {
+  <span class="score">({{ score * 100 | number : '1.0-0' }}%)</span>
+  }
+</mat-chip>
