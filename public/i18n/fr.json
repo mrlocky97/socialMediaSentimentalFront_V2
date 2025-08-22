@@ -367,7 +367,15 @@
     "language_hint": "Les changements seront appliqués immédiatement",
     "quick_language_switch": "Changement rapide de langue",
     "language_changed_success": "Langue changée avec succès",
-    "language_changed_to": "Langue changée en"
+    "language_changed_to": "Langue changée en",
+    "username": "Nom d'utilisateur",
+    "email": "Adresse e-mail",
+    "username_readonly": "Le nom d'utilisateur ne peut pas être modifié",
+    "email_readonly": "L'adresse e-mail ne peut pas être modifiée",
+    "verification_status": "Statut de vérification",
+    "verified": "Vérifié",
+    "unverified": "Non vérifié",
+    "permissions_count": "Nombre de permissions"
   },
   "language_selector": {
     "tooltip": "Changer de langue"

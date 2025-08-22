@@ -367,7 +367,15 @@
     "language_hint": "Changes will be applied immediately",
     "quick_language_switch": "Quick language switch",
     "language_changed_success": "Language changed successfully",
-    "language_changed_to": "Language changed to"
+    "language_changed_to": "Language changed to",
+    "username": "User name",
+    "email": "Email address",
+    "username_readonly": "Username cannot be changed",
+    "email_readonly": "Email address cannot be changed",
+    "verification_status": "Verification status",
+    "verified": "Verified",
+    "unverified": "Unverified",
+    "permissions_count": "Permissions count"
   },
   "language_selector": {
     "tooltip": "Change language"
