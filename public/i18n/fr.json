@@ -380,6 +380,38 @@
   "language_selector": {
     "tooltip": "Changer de langue"
   },
+  "menu": {
+    "home": "Accueil",
+    "campaign": "Campagnes",
+    "campaigns": "Campagnes",
+    "analytics": "Analyses",
+    "monitor": "Moniteur", 
+    "wizard": "Assistant",
+    "profile": "Mon Profil",
+    "logout": "Déconnexion",
+    "aria": {
+      "home": "Aller à l'accueil",
+      "campaigns": "Aller à la gestion des campagnes",
+      "analytics": "Aller aux analyses et rapports",
+      "monitor": "Aller au moniteur de scraping",
+      "wizard": "Aller à l'assistant de campagnes",
+      "profile": "Aller à mon profil",
+      "logout": "Se déconnecter"
+    },
+    "roles": {
+      "admin": "Administrateur",
+      "manager": "Gestionnaire",
+      "analyst": "Analyste",
+      "onlyView": "Lecture seule", 
+      "client": "Client",
+      "user": "Utilisateur"
+    },
+    "messages": {
+      "logging_out": "Déconnexion en cours...",
+      "avatar_alt": "Avatar de {{name}}",
+      "user_role": "Rôle utilisateur : {{role}}"
+    }
+  },
   "logout": {
     "dialog": {
       "title": "Se Déconnecter",

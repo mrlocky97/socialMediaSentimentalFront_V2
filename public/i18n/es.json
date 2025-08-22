@@ -382,6 +382,38 @@
   "language_selector": {
     "tooltip": "Cambiar idioma"
   },
+  "menu": {
+    "home": "Inicio",
+    "campaign": "Campañas", 
+    "campaigns": "Campañas",
+    "analytics": "Análisis",
+    "monitor": "Monitor",
+    "wizard": "Asistente",
+    "profile": "Mi Perfil",
+    "logout": "Cerrar Sesión",
+    "aria": {
+      "home": "Ir a inicio",
+      "campaigns": "Ir a gestión de campañas",
+      "analytics": "Ir a análisis y reportes", 
+      "monitor": "Ir a monitor de scraping",
+      "wizard": "Ir a asistente de campañas",
+      "profile": "Ir a mi perfil",
+      "logout": "Cerrar sesión"
+    },
+    "roles": {
+      "admin": "Administrador",
+      "manager": "Manager", 
+      "analyst": "Analista",
+      "onlyView": "Solo lectura",
+      "client": "Cliente",
+      "user": "Usuario"
+    },
+    "messages": {
+      "logging_out": "Cerrando sesión...",
+      "avatar_alt": "Avatar de {{name}}", 
+      "user_role": "Rol de usuario: {{role}}"
+    }
+  },
   "logout": {
     "dialog": {
       "title": "Cerrar Sesión",

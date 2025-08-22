@@ -380,6 +380,38 @@
   "language_selector": {
     "tooltip": "Change language"
   },
+  "menu": {
+    "home": "Home",
+    "campaign": "Campaigns",
+    "campaigns": "Campaigns", 
+    "analytics": "Analytics",
+    "monitor": "Monitor",
+    "wizard": "Wizard",
+    "profile": "My Profile",
+    "logout": "Sign Out",
+    "aria": {
+      "home": "Go to home",
+      "campaigns": "Go to campaign management",
+      "analytics": "Go to analytics and reports",
+      "monitor": "Go to scraping monitor", 
+      "wizard": "Go to campaign wizard",
+      "profile": "Go to my profile",
+      "logout": "Sign out"
+    },
+    "roles": {
+      "admin": "Administrator",
+      "manager": "Manager",
+      "analyst": "Analyst", 
+      "onlyView": "Read only",
+      "client": "Client",
+      "user": "User"
+    },
+    "messages": {
+      "logging_out": "Signing out...",
+      "avatar_alt": "{{name}}'s avatar",
+      "user_role": "User role: {{role}}"
+    }
+  },
   "logout": {
     "dialog": {
       "title": "Sign Out",

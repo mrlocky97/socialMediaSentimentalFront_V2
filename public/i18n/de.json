@@ -380,6 +380,38 @@
   "language_selector": {
     "tooltip": "Sprache ändern"
   },
+  "menu": {
+    "home": "Startseite",
+    "campaign": "Kampagnen",
+    "campaigns": "Kampagnen",
+    "analytics": "Analysen", 
+    "monitor": "Monitor",
+    "wizard": "Assistent",
+    "profile": "Mein Profil",
+    "logout": "Abmelden",
+    "aria": {
+      "home": "Zur Startseite gehen",
+      "campaigns": "Zur Kampagnenverwaltung gehen",
+      "analytics": "Zu Analysen und Berichten gehen",
+      "monitor": "Zum Scraping-Monitor gehen",
+      "wizard": "Zum Kampagnen-Assistenten gehen", 
+      "profile": "Zu meinem Profil gehen",
+      "logout": "Abmelden"
+    },
+    "roles": {
+      "admin": "Administrator",
+      "manager": "Manager",
+      "analyst": "Analyst",
+      "onlyView": "Nur Lesen",
+      "client": "Kunde", 
+      "user": "Benutzer"
+    },
+    "messages": {
+      "logging_out": "Abmeldung läuft...",
+      "avatar_alt": "Avatar von {{name}}",
+      "user_role": "Benutzerrolle: {{role}}"
+    }
+  },
   "logout": {
     "dialog": {
       "title": "Abmelden",
