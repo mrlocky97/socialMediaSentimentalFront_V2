@@ -2,7 +2,7 @@ import { Injectable, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { TranslocoService } from '@ngneat/transloco';
-import { AuthService, RegisterRequest } from '../../../core/auth/services/auth.service';
+import { AuthService, RegisterRequest } from '../../../../core/auth/services/auth.service';
 
 export interface PasswordStrength {
   strength: number;

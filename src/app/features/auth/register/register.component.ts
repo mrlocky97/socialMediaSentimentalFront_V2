@@ -2,10 +2,10 @@ import { Component, inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@ngneat/transloco';
-import { MATERIAL_FORMS } from '../../shared/material/material-imports';
+import { MATERIAL_FORMS } from '../../../shared/material/material-imports';
 import { RegisterService, PasswordStrength } from './services/register.service';
 import { PasswordValidators } from './validators/password-validator';
-import { RegisterRequest } from '../../core/auth/services/auth.service';
+import { RegisterRequest } from '../../../core/auth/services/auth.service';
 
 @Component({
   selector: 'app-register',

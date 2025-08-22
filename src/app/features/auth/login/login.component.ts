@@ -11,7 +11,7 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { TranslocoModule, TranslocoService } from '@ngneat/transloco';
 
-import { AuthService } from '../../core/auth/services/auth.service';
+import { AuthService } from '../../../core/auth/services/auth.service';
 import { LoginNotificationService } from './services/login.services';
 
 @Component({

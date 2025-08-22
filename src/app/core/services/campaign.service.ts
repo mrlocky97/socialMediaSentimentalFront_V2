@@ -5,7 +5,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { BehaviorSubject, Observable, catchError, map, of, tap } from 'rxjs';
-import { API_BASE_URL, ApiUrlBuilder } from '../config/api.config';
+import { API_BASE_URL, ApiUrlBuilder } from '../api/api.config';
 import { ICampaignRepository } from '../interfaces/repositories.interface';
 import { Campaign } from '../state/app.state';
 
