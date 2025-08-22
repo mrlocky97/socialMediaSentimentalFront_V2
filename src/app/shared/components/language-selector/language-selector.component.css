@@ -18,7 +18,6 @@
 .language-selector .mat-mdc-focus-indicator {
   border-radius: 50%;
   border: 2px solid transparent;
-  transition: all 0.2s ease;
 }
 
 .language-selector:focus .mat-mdc-focus-indicator {
@@ -48,11 +47,6 @@
   height: 32px;
   object-fit: cover;
   border-radius: 50%;
-  transition: transform 0.2s ease;
-}
-
-.language-selector:hover .current-language-flag {
-  transform: scale(1.1);
 }
 
 .language-menu {
@@ -67,7 +61,6 @@
   justify-content: space-between;
   min-width: 200px;
   padding: 12px 8px;
-  transition: all 0.2s ease;
   position: relative;
   border-radius: 8px;
   margin: 2px 0px;
@@ -76,7 +69,6 @@
 /* Personalización del focus indicator para elementos del menú */
 .mat-mdc-menu-item .mat-mdc-focus-indicator {
   border-radius: 8px;
-  transition: all 0.2s ease;
 }
 
 .mat-mdc-menu-item:focus .mat-mdc-focus-indicator,
@@ -126,7 +118,6 @@
 .check-icon {
   color: #4caf50;
   margin-left: 8px;
-  transform: scale(0.9);
   flex-shrink: 0;
 }
 
@@ -142,10 +133,6 @@
 
 .mat-mdc-menu-item:hover {
   background-color: rgba(0, 0, 0, 0.04);
-}
-
-.mat-mdc-menu-item:hover .language-flag {
-  transform: scale(1.05);
 }
 
 /* Fallback para emojis cuando las imágenes no cargan */
@@ -177,11 +164,6 @@
 
 ::ng-deep .mat-mdc-menu-item.active:hover:not([disabled]) {
   background-color: rgba(76, 175, 80, 0.12) !important;
-}
-
-/* Animaciones de focus más suaves */
-::ng-deep .mat-mdc-menu-item .mat-mdc-focus-indicator {
-  transition: background-color 0.2s ease, border-color 0.2s ease !important;
 }
 
 /* Responsive */
