@@ -5,6 +5,10 @@ import {
 import { ApplicationConfig, isDevMode, provideZoneChangeDetection } from '@angular/core';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter, withPreloading } from '@angular/router';
+import { provideEffects } from '@ngrx/effects';
+import { provideStore } from '@ngrx/store';
+import { AuthEffects } from './core/state/auth.effects';
+import { authReducer } from './core/state/auth.reducer';
 
 import { provideServiceWorker } from '@angular/service-worker';
 import { provideTransloco } from '@ngneat/transloco';
@@ -49,5 +53,9 @@ export const appConfig: ApplicationConfig = {
       enabled: !isDevMode(),
       registrationStrategy: 'registerWhenStable:30000'
     })
+  ,
+  // NgRx store and effects
+  provideStore({ auth: authReducer }),
+  provideEffects([AuthEffects])
   ]
 };

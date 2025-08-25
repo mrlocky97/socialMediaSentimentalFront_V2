@@ -1,8 +1,10 @@
 import { HttpBackend, HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { Store } from '@ngrx/store';
 import { Observable, of, throwError } from 'rxjs';
 import { catchError, finalize, map, retry, tap } from 'rxjs/operators';
+import { loadCurrentUser } from '../../state/auth.actions';
 
 // ===== CONFIGURACIÓN DE AUTENTICACIÓN =====
 const AUTH_CONFIG = {
@@ -112,6 +114,7 @@ export class AuthService {
   private readonly httpBackend = inject(HttpBackend);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly store = inject(Store);
 
   private tokenRefreshTimer?: ReturnType<typeof setTimeout>;
   private isRefreshingToken = false; // Flag para evitar múltiples refreshes simultáneos
@@ -367,6 +370,14 @@ export class AuthService {
 
     // Programar refresh del token
     this.scheduleTokenRefresh(expiry);
+
+    // Disparar carga del perfil desde el backend y guardarlo en el store
+    try {
+      this.store.dispatch(loadCurrentUser());
+    } catch (e) {
+      // Si Store no está disponible (dependencias no instaladas), ignorar silenciosamente
+      console.warn('Store dispatch skipped:', e);
+    }
   }
 
   private setupTokenRefresh(): void {
