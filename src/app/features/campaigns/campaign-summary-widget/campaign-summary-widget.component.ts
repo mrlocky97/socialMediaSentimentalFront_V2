@@ -54,9 +54,9 @@ export class CampaignSummaryWidgetComponent implements OnInit, OnDestroy {
 
   // Computed properties
   summary = computed<CampaignSummary>(() => {
-    const allCampaigns = this.campaigns();
+  const allCampaigns = this.campaigns() || [];
 
-    if (allCampaigns.length === 0) {
+  if (!allCampaigns || allCampaigns.length === 0) {
       return {
         totalCampaigns: 0,
         activeCampaigns: 0,
@@ -93,7 +93,9 @@ export class CampaignSummaryWidgetComponent implements OnInit, OnDestroy {
   });
 
   recentCampaigns = computed<Campaign[]>(() => {
-    return this.campaigns()
+    const list = this.campaigns() || [];
+    return list
+      .slice() // copy to avoid mutating original
       .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
       .slice(0, 3);
   });
@@ -114,8 +116,12 @@ export class CampaignSummaryWidgetComponent implements OnInit, OnDestroy {
     this.campaignService.getAll({}, 1, 20)
       .pipe(takeUntil(this.destroy$))
       .subscribe((response) => {
-        if (response.success && response.data) {
-          this.campaigns.set(response.data.data);
+        if (response && response.success && response.data) {
+          // Some backends return the list directly or inside `data.data`.
+          const list = (response.data as any).data ?? (response.data as any).campaigns ?? response.data;
+          this.campaigns.set(Array.isArray(list) ? list : []);
+        } else {
+          this.campaigns.set([]);
         }
         this.loading.set(false);
       });
