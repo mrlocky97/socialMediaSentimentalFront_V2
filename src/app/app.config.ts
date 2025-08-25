@@ -16,6 +16,8 @@ import { routes } from './app.routes';
 import { authInterceptorFn } from './core/auth/interceptors/auth-functional.interceptor';
 import { errorHandlingInterceptor } from './core/interceptors/error-handling.interceptor';
 import { securityHeadersInterceptor } from './core/interceptors/security-headers.interceptor';
+import { devBlockInterceptor } from './core/interceptors/dev-block.interceptor';
+import { environment } from '../enviroments/environment';
 import { provideApiBaseUrl } from './core/api/api.config';
 import { SelectivePreloadingStrategy } from './core/routing/selective-preloading.strategy';
 import { TranslocoHttpLoader } from './transloco-loader';
@@ -31,6 +33,7 @@ export const appConfig: ApplicationConfig = {
     // 3) HttpClient con interceptores funcionales (orden importa)
     provideHttpClient(
       withInterceptors([
+        ...(isDevMode() || environment.features?.mockData ? [devBlockInterceptor] : []),
         securityHeadersInterceptor,    // 1. Headers de seguridad
         errorHandlingInterceptor,      // 2. Manejo de errores
         authInterceptorFn            // 3. Autenticación

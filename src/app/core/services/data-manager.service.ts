@@ -7,7 +7,7 @@ import { HttpClient } from '@angular/common/http';
 import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BehaviorSubject, Observable, of, throwError, timer } from 'rxjs';
-import { catchError, finalize, map, retry, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { catchError, finalize, map, retryWhen, shareReplay, switchMap, tap, mergeMap } from 'rxjs/operators';
 import { environment } from '../../../enviroments/environment';
 import { BackendTestService } from './backend-test.service';
 
@@ -148,7 +148,18 @@ export class DataManagerService {
 
     return this.http.get<ApiResponse<DashboardData>>(`${environment.apiUrl}/dashboard`)
       .pipe(
-        retry(2),
+        // Only retry once and only for network/server errors (status 0 or 5xx).
+        // Avoid retrying on 4xx (client errors like 404) which cause duplicate requests.
+        retryWhen(errors => errors.pipe(
+          mergeMap((err, i) => {
+            const shouldRetry = !err?.status || err.status >= 500;
+            if (shouldRetry && i < 1) {
+              // retry once after short delay
+              return timer(1000);
+            }
+            return throwError(() => err);
+          })
+        )),
         map((response: ApiResponse<DashboardData>) => {
           if (!response.success) {
             throw new Error(response.message || 'Error loading data');

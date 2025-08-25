@@ -29,7 +29,8 @@ export class BackendApiService {
 
   // URLs de endpoints
   private readonly endpoints = {
-    dashboard: `${environment.apiUrl}/dashboard`,
+    dashboard: `${environment.apiUrl}/api/${environment.apiVersion}/dashboard/overview`,
+    dashboardMetrics: `${environment.apiUrl}/api/${environment.apiVersion}/dashboard/metrics`,
     campaigns: `${environment.apiUrl}/api/${environment.apiVersion}/campaigns`,
     tweets: `${environment.apiUrl}/tweets`,
     analytics: `${environment.apiUrl}/analytics`,
