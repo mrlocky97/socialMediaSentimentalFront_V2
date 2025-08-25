@@ -11,7 +11,7 @@ import { RegisterRequest } from '../../../core/auth/services/auth.service';
   selector: 'app-register',
   imports: [ReactiveFormsModule, RouterModule, ...MATERIAL_FORMS, TranslocoModule],
   templateUrl: './register.component.html',
-  styleUrl: './register.component.css',
+  styleUrls: ['./register.component.css'],
 })
 export class RegisterComponent implements OnInit {
   private transloco = inject(TranslocoService);
