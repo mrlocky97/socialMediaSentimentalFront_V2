@@ -6,6 +6,7 @@ import {
   computed,
   inject,
   signal,
+  DestroyRef,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
@@ -58,6 +59,7 @@ import { ProfileService } from './services/profile.service';
 export class ProfileComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
   public readonly profileService = inject(ProfileService);
+  private readonly destroyRef = inject(DestroyRef);
 
   // Signals para el estado del componente
   private readonly _isFormsDirty = signal(false);
@@ -176,7 +178,7 @@ export class ProfileComponent implements OnInit {
   private setupFormSubscriptions(): void {
     // Suscripciones optimizadas con takeUntilDestroyed
     this.profileForm.valueChanges
-      .pipe(takeUntilDestroyed())
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         // Solo marcar como dirty si no estamos poblando el formulario
         if (this.profileForm.dirty) {
@@ -185,7 +187,7 @@ export class ProfileComponent implements OnInit {
       });
 
     this.preferencesForm.valueChanges
-      .pipe(takeUntilDestroyed())
+  .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(() => {
         // Solo marcar como dirty si no estamos poblando el formulario
         if (this.preferencesForm.dirty) {
@@ -195,7 +197,7 @@ export class ProfileComponent implements OnInit {
 
     // Suscripción a cambios de idioma para actualizar el formulario de preferencias
     this.profileService.languageService.languageChanged$
-      .pipe(takeUntilDestroyed())
+  .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((newLanguage) => {
         // Actualizar el formulario de preferencias sin emitir evento para evitar loops
         const currentFormLang = this.preferencesForm.get('language')?.value;
@@ -217,7 +219,7 @@ export class ProfileComponent implements OnInit {
     this.profileService
       .getProfile()
       .pipe(
-        takeUntilDestroyed(),
+        takeUntilDestroyed(this.destroyRef),
         catchError((error) => {
           console.error('Error loading user profile:', error);
           // Si ya tenemos datos del currentUser, no mostramos error
