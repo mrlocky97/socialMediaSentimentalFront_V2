@@ -855,48 +855,70 @@ export class CampaignListComponent implements OnInit, OnDestroy {
    * Subscribe to facade state - using effect instead of direct subscription
    */
   private subscribeToFacade(): void {
-    // Use computed to transform signals
-    const campaignsValue = this.campaignFacade.campaigns$;
-    const loadingValue = this.campaignFacade.loading$;
-    const errorValue = this.campaignFacade.error$;
+    // Subscribe to facade observables and map into signals.
+    // If the facade emits campaigns, use them; otherwise keep a small local fallback for demos.
+    this.campaignFacade.campaigns$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((campaigns) => {
+        if (Array.isArray(campaigns) && campaigns.length > 0) {
+          this.campaigns.set(campaigns as Campaign[]);
+          this.totalCount.set(campaigns.length);
+        } else {
+          // Fallback demo data (only used when facade provides no items)
+          this.campaigns.set([
+            {
+              id: '1',
+              name: 'Brand Monitoring Campaign',
+              description: 'Monitor brand mentions across social media platforms',
+              type: 'hashtag',
+              status: 'active',
+              hashtags: ['brandname', 'product'],
+              keywords: ['artificial intelligence', 'machine learning'],
+              mentions: [],
+              startDate: new Date('2024-01-01'),
+              endDate: new Date('2024-12-31'),
+              createdAt: new Date(),
+              updatedAt: new Date(),
+              maxTweets: 1000,
+              sentimentAnalysis: true,
+              createdBy: 'user1'
+            },
+            {
+              id: '2',
+              name: 'Product Launch Tracking',
+              description: 'Track sentiment and reach for new product launch',
+              type: 'keyword',
+              status: 'paused',
+              hashtags: [],
+              keywords: ['new product', 'innovation'],
+              mentions: ['@company'],
+              startDate: new Date('2024-02-01'),
+              endDate: new Date('2024-06-30'),
+              createdAt: new Date(),
+              updatedAt: new Date(),
+              maxTweets: 5000,
+              sentimentAnalysis: true,
+              createdBy: 'user1'
+            }
+          ]);
+          this.totalCount.set(this.campaigns().length);
+        }
+      });
 
-    // For now, let's use mock data for demonstration
-    this.campaigns.set([
-      {
-        id: '1',
-        name: 'Brand Monitoring Campaign',
-        description: 'Monitor brand mentions across social media platforms',
-        type: 'hashtag',
-        status: 'active',
-        hashtags: ['brandname', 'product'],
-        keywords: ['artificial intelligence', 'machine learning'],
-        mentions: [],
-        startDate: new Date('2024-01-01'),
-        endDate: new Date('2024-12-31'),
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        maxTweets: 1000,
-        sentimentAnalysis: true,
-        createdBy: 'user1'
-      },
-      {
-        id: '2',
-        name: 'Product Launch Tracking',
-        description: 'Track sentiment and reach for new product launch',
-        type: 'keyword',
-        status: 'paused',
-        hashtags: [],
-        keywords: ['new product', 'innovation'],
-        mentions: ['@company'],
-        startDate: new Date('2024-02-01'),
-        endDate: new Date('2024-06-30'),
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        maxTweets: 5000,
-        sentimentAnalysis: true,
-        createdBy: 'user1'
-      }
-    ]);
+    this.campaignFacade.loading$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((l) => this.loading.set(!!l));
+
+    this.campaignFacade.error$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((e) => this.error.set(e || null));
+
+    // If the facade exposes a totalCount$ observable, wire it; otherwise keep the computed/local value.
+    if ((this.campaignFacade as any).totalCount$) {
+      (this.campaignFacade as any).totalCount$
+        .pipe(takeUntil(this.destroy$))
+        .subscribe((count: number) => this.totalCount.set(count || this.campaigns().length));
+    }
   }
 
   /**

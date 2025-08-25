@@ -148,8 +148,11 @@ export class CampaignService implements ICampaignRepository {
     this.errorSubject.next(null);
 
     let params = new HttpParams()
-      .set('page', page.toString())
-      .set('pageSize', pageSize.toString());
+  .set('page', page.toString())
+  // Some backends expect the parameter name 'limit' instead of 'pageSize' (Postman example).
+  // We set both to be compatible with either convention.
+  .set('pageSize', pageSize.toString())
+  .set('limit', pageSize.toString());
 
     // Apply filters
     if (filter.status?.length) {

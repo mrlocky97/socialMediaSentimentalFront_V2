@@ -9,7 +9,7 @@ import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, Observable, of, throwError } from 'rxjs';
 import { catchError, map, retry, tap, timeout } from 'rxjs/operators';
 import { environment } from '../../../enviroments/environment';
-import { Campaign, DashboardData, Tweet, ApiResponse } from './data-manager.service';
+import { ApiResponse, Campaign, DashboardData, Tweet } from './data-manager.service';
 
 @Injectable({
   providedIn: 'root'
@@ -30,7 +30,7 @@ export class BackendApiService {
   // URLs de endpoints
   private readonly endpoints = {
     dashboard: `${environment.apiUrl}/dashboard`,
-    campaigns: `${environment.apiUrl}/campaigns`,
+    campaigns: `${environment.apiUrl}/api/${environment.apiVersion}/campaigns`,
     tweets: `${environment.apiUrl}/tweets`,
     analytics: `${environment.apiUrl}/analytics`,
     scraping: `${environment.apiUrl}/scraping`,

@@ -16,6 +16,7 @@ import { routes } from './app.routes';
 import { authInterceptorFn } from './core/auth/interceptors/auth-functional.interceptor';
 import { errorHandlingInterceptor } from './core/interceptors/error-handling.interceptor';
 import { securityHeadersInterceptor } from './core/interceptors/security-headers.interceptor';
+import { provideApiBaseUrl } from './core/api/api.config';
 import { SelectivePreloadingStrategy } from './core/routing/selective-preloading.strategy';
 import { TranslocoHttpLoader } from './transloco-loader';
 
@@ -35,6 +36,9 @@ export const appConfig: ApplicationConfig = {
         authInterceptorFn            // 3. Autenticación
       ])
     ),
+
+  // Provide API base URL from environment (important so services use correct backend)
+  provideApiBaseUrl(),
 
     // 4) Animaciones para Angular Material
     provideAnimations(),
