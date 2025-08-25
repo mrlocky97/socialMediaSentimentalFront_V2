@@ -26,6 +26,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router, RouterModule } from '@angular/router';
 import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 
+import { TranslocoModule, TranslocoService } from '@ngneat/transloco';
 import { CampaignFacade } from '../../../core/facades/campaign.facade';
 import { Campaign } from '../../../core/state/app.state';
 
@@ -52,12 +53,14 @@ import { Campaign } from '../../../core/state/app.state';
     MatTooltipModule,
     MatProgressBarModule,
     MatDividerModule,
+    TranslocoModule,
   ],
   templateUrl: './campaign-list.component.html',
   styleUrls: ['./campaign-list.component.css'],
 })
 export class CampaignListComponent implements OnInit, OnDestroy {
   private readonly campaignFacade = inject(CampaignFacade);
+  private transloco = inject(TranslocoService);
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
   private readonly fb = inject(FormBuilder);

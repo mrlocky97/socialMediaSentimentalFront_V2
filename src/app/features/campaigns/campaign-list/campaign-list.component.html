@@ -167,7 +167,7 @@
                   [indeterminate]="hasSelectedCampaigns() && !isAllSelected()"
                 ></mat-checkbox>
                 <!-- Accessible header text for screen readers -->
-                <span class="sr-only">Select all campaigns</span>
+                <span class="sr-only">{{ 'campaigns.table.select_all' | transloco }}</span>
               </th>
               <td mat-cell *matCellDef="let campaign">
                 <mat-checkbox (change)="toggleCampaignSelection(campaign.id)"
