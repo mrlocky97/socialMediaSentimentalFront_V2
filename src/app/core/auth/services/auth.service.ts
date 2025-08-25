@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Observable, of, throwError } from 'rxjs';
 import { catchError, finalize, map, retry, tap } from 'rxjs/operators';
-import { loadCurrentUser } from '../../state/auth.actions';
+import { loadCurrentUser, loadCurrentUserSuccess } from '../../state/auth.actions';
 
 // ===== CONFIGURACIÓN DE AUTENTICACIÓN =====
 const AUTH_CONFIG = {
@@ -371,11 +371,11 @@ export class AuthService {
     // Programar refresh del token
     this.scheduleTokenRefresh(expiry);
 
-    // Disparar carga del perfil desde el backend y guardarlo en el store
+    // Disparar acción para guardar el usuario en el store inmediatamente
     try {
-      this.store.dispatch(loadCurrentUser());
+      this.store.dispatch(loadCurrentUserSuccess({ user: authData.user }));
     } catch (e) {
-      // Si Store no está disponible (dependencias no instaladas), ignorar silenciosamente
+      // Si Store no est  disponible (dependencias no instaladas), ignorar silenciosamente
       console.warn('Store dispatch skipped:', e);
     }
   }
