@@ -7,7 +7,7 @@ import { authGuard } from '../../core/auth/guard/auth.guard';
 
 export const campaignRoutes: Routes = [
   {
-    path: 'campaigns',
+    path: '',
     canActivate: [authGuard],
     children: [
       {
