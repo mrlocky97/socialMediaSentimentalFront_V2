@@ -145,7 +145,10 @@
 }
 
 /* Primary Button */
-.login-button { /* styles moved to globals.css (.login-button) */ display: inline-flex; }
+.login-button { /* styles moved to globals.css (.login-button) */ display: inline-flex; align-items: center; justify-content: center; gap: var(--spacing-sm); }
+
+/* Ensure the label doesn't reflow when its text changes */
+.login-button .button-label { display: inline-block; white-space: nowrap; min-width: 72px; text-align: center; }
 
 .button-spinner {
   margin-right: var(--spacing-sm);
