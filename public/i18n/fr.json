@@ -141,6 +141,7 @@
     },
     "table": {
       "name": "Nom",
+      "select_all": "Sélectionner toutes les campagnes",
       "status": "Statut",
       "type": "Type",
       "platforms": "Plateformes",

@@ -145,8 +145,9 @@
       "type": "Type",
       "platforms": "Platforms",
       "budget": "Budget",
-      "performance": "Performance",
+  "performance": "Performance",
       "timeline": "Timeline",
+  "select_all": "Select all campaigns",
       "actions": "Actions"
     },
     "actions": {

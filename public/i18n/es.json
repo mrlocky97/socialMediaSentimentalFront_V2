@@ -309,7 +309,8 @@
     "table": {
       "filter": "Filtrar",
       "filter_placeholder": "Filtrar tabla...",
-      "no_data": "No hay datos disponibles"
+  "no_data": "No hay datos disponibles",
+  "select_all": "Seleccionar todas las campañas"
     },
     "actions": {
       "refresh": "Actualizar datos",

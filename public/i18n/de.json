@@ -146,8 +146,9 @@
       "platforms": "Plattformen",
       "budget": "Budget",
       "performance": "Leistung",
-      "timeline": "Zeitplan",
-      "actions": "Aktionen"
+  "timeline": "Zeitplan",
+  "select_all": "Alle Kampagnen auswählen",
+  "actions": "Aktionen"
     },
     "actions": {
       "view": "Details Anzeigen",
