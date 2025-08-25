@@ -1,12 +1,13 @@
-import { Component, signal, computed, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatCardModule } from '@angular/material/card';
+import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatBadgeModule } from '@angular/material/badge';
-import { MatChipsModule } from '@angular/material/chips';
+import { Router } from '@angular/router';
 
 export interface CampaignStatus {
   id: string;
@@ -508,6 +509,9 @@ export class ScrapingMonitorComponent implements OnInit, OnDestroy {
   });
   isRefreshing = signal(false);
 
+  // Router for client-side navigation
+  private router = inject(Router);
+
   // Computed properties
   hasActiveCampaigns = computed(() => this.campaigns().some(c => c.status === 'running'));
   activeCampaignsCount = computed(() => this.campaigns().filter(c => c.status === 'running').length);
@@ -622,7 +626,11 @@ export class ScrapingMonitorComponent implements OnInit, OnDestroy {
   }
 
   viewCampaignDetails(campaignId: string): void {
-    console.log('Viewing campaign details:', campaignId);
+    // Navigate to campaign details inside dashboard so toolbar/sidenav remain visible
+    this.router.navigate(['/dashboard/campaigns', campaignId]).catch(() => {
+      // fallback to full navigation if client-side navigation fails
+      window.location.href = `/dashboard/campaigns/${campaignId}`;
+    });
   }
 
   // Helper methods

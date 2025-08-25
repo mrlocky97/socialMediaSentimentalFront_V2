@@ -1,7 +1,7 @@
 /* ===== CONTENEDOR PRINCIPAL ===== */
 .profile-container {
   padding: 24px;
-  max-width: 1200px;
+  max-width: 100%;
   margin: 0 auto;
   min-height: calc(100vh - 64px); /* Ajuste para el header del dashboard */
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);

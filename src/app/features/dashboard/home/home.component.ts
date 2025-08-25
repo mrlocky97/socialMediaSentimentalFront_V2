@@ -1,6 +1,5 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, computed, inject } from '@angular/core';
-import { Router } from '@angular/router';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
@@ -10,6 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { Router } from '@angular/router';
 import { TranslocoModule } from '@ngneat/transloco';
 
 import { AuthService } from '../../../core/auth/services/auth.service';
@@ -86,15 +86,15 @@ export class HomeComponent implements OnInit {
 
   // Métodos de navegación mejorados para campañas
   public async navigateToCreateCampaign(): Promise<void> {
-    await this.router.navigate(['/campaigns/create']);
+  await this.router.navigate(['/dashboard/campaigns/create']);
   }
 
   public async navigateToCampaigns(): Promise<void> {
-    await this.router.navigate(['/campaigns']);
+  await this.router.navigate(['/dashboard/campaigns']);
   }
 
   public async navigateToSimpleForm(): Promise<void> {
-    await this.router.navigate(['/campaigns/create-simple']);
+  await this.router.navigate(['/dashboard/campaigns/create-simple']);
   }
 
   // Métodos de acción

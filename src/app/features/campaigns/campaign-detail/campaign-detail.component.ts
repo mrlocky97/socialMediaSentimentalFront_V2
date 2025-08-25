@@ -30,7 +30,7 @@ import { TranslocoModule } from '@ngneat/transloco';
             <mat-icon class="placeholder-icon">visibility</mat-icon>
             <h2>Detalles de Campaña</h2>
             <p>Este componente será implementado en la siguiente iteración.</p>
-            <button mat-raised-button color="primary" [routerLink]="['/campaigns']">
+            <button mat-raised-button color="primary" [routerLink]="['/dashboard/campaigns']">
               <mat-icon>arrow_back</mat-icon>
               Volver a Campañas
             </button>

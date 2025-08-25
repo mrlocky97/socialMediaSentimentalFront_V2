@@ -280,13 +280,13 @@ export class CampaignFormComponent implements OnInit {
       operation.subscribe({
         next: (result) => {
           this.loading.set(false);
-          if (result) {
+            if (result) {
             this.snackBar.open(
               `Campaign ${this.isEditMode() ? 'updated' : 'created'} successfully`, 
               'Close', 
               { duration: 3000 }
             );
-            this.router.navigate(['/campaigns']);
+            this.router.navigate(['/dashboard/campaigns']);
           }
         },
         error: (error) => {
@@ -302,7 +302,7 @@ export class CampaignFormComponent implements OnInit {
   }
 
   onCancel(): void {
-    this.router.navigate(['/campaigns']);
+  this.router.navigate(['/dashboard/campaigns']);
   }
 
   private parseCommaSeparated(input: string): string[] {

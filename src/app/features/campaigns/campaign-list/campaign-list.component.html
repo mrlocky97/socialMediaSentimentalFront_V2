@@ -11,8 +11,8 @@
       <p class="subtitle">{{ 'campaigns.subtitle' | transloco }}</p>
     </div>
 
-    <div class="header-actions">
-      <button mat-raised-button color="primary" [routerLink]="['/campaigns/create']" class="create-button">
+  <div class="header-actions">
+  <button mat-raised-button color="primary" [routerLink]="['/dashboard/campaigns/create']" class="create-button">
         <mat-icon>add</mat-icon>
         {{ 'campaigns.create' | transloco }}
       </button>
@@ -134,10 +134,12 @@
         <!-- Selection Column -->
         <ng-container matColumnDef="select">
           <th mat-header-cell *matHeaderCellDef>
+            <span class="visually-hidden">{{ 'campaigns.table.selectAll' | transloco }}</span>
             <mat-checkbox
               [checked]="isAllSelected()"
               [indeterminate]="hasSelectedCampaigns() && !isAllSelected()"
               (change)="toggleAllSelection()"
+              aria-label="{{ 'campaigns.table.selectAll' | transloco }}"
             >
             </mat-checkbox>
           </th>
@@ -157,7 +159,7 @@
           </th>
           <td mat-cell *matCellDef="let campaign">
             <div class="campaign-name">
-              <strong [routerLink]="['/campaigns', campaign.id]">{{ campaign.name }}</strong>
+              <strong [routerLink]="['/dashboard/campaigns', campaign.id]">{{ campaign.name }}</strong>
               <p class="campaign-description">{{ campaign.description }}</p>
             </div>
           </td>
@@ -276,12 +278,12 @@
             </button>
 
             <mat-menu #actionMenu="matMenu">
-              <button mat-menu-item [routerLink]="['/campaigns', campaign.id]">
+              <button mat-menu-item [routerLink]="['/dashboard/campaigns', campaign.id]">
                 <mat-icon>visibility</mat-icon>
                 {{ 'campaigns.actions.view' | transloco }}
               </button>
 
-              <button mat-menu-item [routerLink]="['/campaigns', campaign.id, 'edit']">
+              <button mat-menu-item [routerLink]="['/dashboard/campaigns', campaign.id, 'edit']">
                 <mat-icon>edit</mat-icon>
                 {{ 'campaigns.actions.edit' | transloco }}
               </button>
@@ -331,7 +333,7 @@
         <mat-icon class="no-data-icon">campaign</mat-icon>
         <h3>{{ 'campaigns.noData.title' | transloco }}</h3>
         <p>{{ 'campaigns.noData.message' | transloco }}</p>
-        <button mat-raised-button color="primary" [routerLink]="['/campaigns/create']">
+  <button mat-raised-button color="primary" [routerLink]="['/dashboard/campaigns/create']">
           <mat-icon>add</mat-icon>
           {{ 'campaigns.create' | transloco }}
         </button>

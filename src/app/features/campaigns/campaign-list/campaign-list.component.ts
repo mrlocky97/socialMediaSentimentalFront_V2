@@ -6,7 +6,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -20,15 +19,15 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
-import { MatSortModule, Sort } from '@angular/material/sort';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { RouterModule } from '@angular/router';
-import { MatSnackBar } from '@angular/material/snack-bar';
+import { Router, RouterModule } from '@angular/router';
 import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 
-import { Campaign } from '../../../core/state/app.state';
 import { CampaignFacade } from '../../../core/facades/campaign.facade';
+import { Campaign } from '../../../core/state/app.state';
 
 @Component({
   selector: 'app-campaign-list',
@@ -235,7 +234,7 @@ import { CampaignFacade } from '../../../core/facades/campaign.facade';
               <th mat-header-cell *matHeaderCellDef mat-sort-header>Campaign</th>
               <td mat-cell *matCellDef="let campaign">
                 <div class="campaign-info">
-                  <div class="campaign-name" [routerLink]="['/campaigns', campaign.id]">
+                  <div class="campaign-name" [routerLink]="['/dashboard/campaigns', campaign.id]">
                     {{ campaign.name }}
                   </div>
                   <div class="campaign-description" *ngIf="campaign.description">
@@ -322,11 +321,11 @@ import { CampaignFacade } from '../../../core/facades/campaign.facade';
                 </button>
                 <mat-menu #actionMenu="matMenu">
                   <ng-template matMenuContent let-campaign="campaign">
-                    <button mat-menu-item [routerLink]="['/campaigns', campaign.id]">
+                    <button mat-menu-item [routerLink]="['/dashboard/campaigns', campaign.id]">
                       <mat-icon>visibility</mat-icon>
                       View Details
                     </button>
-                    <button mat-menu-item [routerLink]="['/campaigns', campaign.id, 'edit']">
+                    <button mat-menu-item [routerLink]="['/dashboard/campaigns', campaign.id, 'edit']">
                       <mat-icon>edit</mat-icon>
                       Edit Campaign
                     </button>
@@ -911,7 +910,7 @@ export class CampaignListComponent implements OnInit, OnDestroy {
    * Navigate to create campaign
    */
   navigateToCreateCampaign(): void {
-    this.router.navigate(['/campaigns/create']);
+    this.router.navigate(['/dashboard/campaigns/create']);
   }
 
   /**

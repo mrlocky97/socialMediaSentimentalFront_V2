@@ -10,7 +10,7 @@
         <mat-card-title>{{ 'campaigns.summary.title' | transloco }}</mat-card-title>
         <mat-card-subtitle>{{ 'campaigns.summary.subtitle' | transloco }}</mat-card-subtitle>
       </div>
-      <button mat-icon-button [routerLink]="['/campaigns']" [attr.aria-label]="'campaigns.viewAll' | transloco">
+  <button mat-icon-button [routerLink]="['/dashboard/campaigns']" [attr.aria-label]="'campaigns.viewAll' | transloco">
         <mat-icon>arrow_forward</mat-icon>
       </button>
     </div>
@@ -119,11 +119,11 @@
   </mat-card-content>
 
   <mat-card-actions>
-    <button mat-button [routerLink]="['/campaigns']">
+  <button mat-button [routerLink]="['/dashboard/campaigns']">
       <mat-icon>list</mat-icon>
       {{ 'campaigns.viewAll' | transloco }}
     </button>
-    <button mat-button [routerLink]="['/campaigns/create']" color="primary">
+  <button mat-button [routerLink]="['/dashboard/campaigns/create']" color="primary">
       <mat-icon>add</mat-icon>
       {{ 'campaigns.create' | transloco }}
     </button>

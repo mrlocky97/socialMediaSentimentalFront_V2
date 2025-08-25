@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, computed, inject, signal, effect } from '@angular/core';
+import { Component, OnInit, computed, effect, inject, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
@@ -8,7 +8,6 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CampaignsStore } from '../../../core/state/campaigns.store';
 import { TweetsStore } from '../../../core/state/tweets.store';
-import { Campaign } from '../../../core/state/app.state';
 
 @Component({
   selector: 'app-campaign-analytics',
@@ -67,7 +66,7 @@ export class CampaignAnalyticsComponent implements OnInit {
   }
 
   goBack(): void {
-    this.router.navigate(['/campaigns', this.campaignId()]);
+  this.router.navigate(['/dashboard/campaigns', this.campaignId()]);
   }
 
   // Action methods - emit actions to stores

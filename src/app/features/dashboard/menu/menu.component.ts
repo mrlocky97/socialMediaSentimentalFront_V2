@@ -49,7 +49,8 @@ export class MenuComponent implements OnInit {
       ariaLabelKey: 'menu.aria.home',
     },
     {
-      route: '/campaigns',
+      // Point to dashboard-scoped campaigns so the dashboard layout (toolbar/sidenav) remains
+      route: '/dashboard/campaigns',
       labelKey: 'menu.campaigns',
       icon: 'campaign',
       ariaLabelKey: 'menu.aria.campaigns',
