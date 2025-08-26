@@ -1,337 +1,366 @@
-    <div class="campaigns-container">
-      <!-- Header Section -->
-      <div class="page-header">
-        <div class="header-content">
-          <h1 class="page-title">
-            <mat-icon>campaign</mat-icon>
-            Campaign Management
-          </h1>
-          <p class="page-subtitle">Manage your social media monitoring campaigns</p>
+<div class="campaigns-container">
+  <!-- Header Section -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">
+        <mat-icon>{{ 'campaign_list.campaign' | transloco }}</mat-icon>
+        {{ 'campaign_list.campaign_manager' | transloco }}
+      </h1>
+      <p class="page-subtitle">
+        {{ 'campaign_list.subtitle' | transloco }}
+        Manage your social media monitoring campaigns
+      </p>
+    </div>
+
+    <div class="header-actions">
+      <button
+        mat-raised-button
+        color="primary"
+        class="create-campaign-btn"
+        (click)="navigateToCreateCampaign()"
+      >
+        <mat-icon>add</mat-icon>
+        {{ 'campaign_list.new_campaign' | transloco }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Quick Stats Cards -->
+  <div class="stats-grid" *ngIf="campaigns().length > 0">
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <div class="stat-number">{{ getTotalCampaigns() }}</div>
+          <div class="stat-label">{{ 'campaign_list.total_campaigns' | transloco }}</div>
         </div>
-        
-        <div class="header-actions">
-          <button mat-raised-button 
-                  color="primary" 
-                  class="create-campaign-btn"
-                  (click)="navigateToCreateCampaign()">
-            <mat-icon>add</mat-icon>
-            Create New Campaign
+        <mat-icon class="stat-icon">campaign</mat-icon>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <div class="stat-number">{{ getActiveCampaigns() }}</div>
+          <div class="stat-label">{{ 'campaign_list.campaign_active' | transloco }}</div>
+        </div>
+        <mat-icon class="stat-icon active">play_circle</mat-icon>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <div class="stat-number">{{ getPausedCampaigns() }}</div>
+          <div class="stat-label">{{ 'campaign_list.pause' | transloco }}</div>
+        </div>
+        <mat-icon class="stat-icon warning">pause_circle</mat-icon>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat-content">
+          <div class="stat-number">{{ getDraftCampaigns() }}</div>
+          <div class="stat-label">{{ 'campaign_list.draft' | transloco }}</div>
+        </div>
+        <mat-icon class="stat-icon secondary">drafts</mat-icon>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Filters Section -->
+  <mat-card class="filters-card" *ngIf="campaigns().length > 0">
+    <mat-card-content>
+      <form [formGroup]="filterForm" class="filters-form">
+        <div class="filter-row">
+          <mat-form-field appearance="outline" class="search-field">
+            <mat-label>{{ 'campaign_list.search' | transloco }}</mat-label>
+            <input
+              matInput
+              formControlName="search"
+              [placeholder]="'campaign_list.search' | transloco"
+            />
+            <mat-icon matSuffix>search</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'campaign_list.status' | transloco }}</mat-label>
+            <mat-select formControlName="status" multiple>
+              <mat-option value="active">
+                {{ 'campaign_list.status.active' | transloco }}
+              </mat-option>
+              <mat-option value="paused">
+                {{ 'campaign_list.status.paused' | transloco }}
+              </mat-option>
+              <mat-option value="completed">
+                {{ 'campaign_list.status.completed' | transloco }}
+              </mat-option>
+              <mat-option value="draft">{{ 'campaign_list.status.draft' | transloco }}</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>{{ 'campaign_list.type' | transloco }}</mat-label>
+            <mat-select formControlName="type" multiple>
+              <mat-option value="hashtag">{{ 'campaign_list.type.hastag' | transloco }} Monitoring</mat-option>
+              <mat-option value="keyword">{{ 'campaign_list.type.keyword' | transloco }} Tracking</mat-option>
+              <mat-option value="user">{{ 'campaign_list.type.monitoring' | transloco }} Monitoring</mat-option>
+              <mat-option value="mention">{{ 'campaign_list.type.tranking' | transloco }} Tracking</mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <button mat-icon-button (click)="clearFilters()" matTooltip="Clear filters">
+            <mat-icon>clear</mat-icon>
           </button>
         </div>
-      </div>
+      </form>
+    </mat-card-content>
+  </mat-card>
 
-      <!-- Quick Stats Cards -->
-      <div class="stats-grid" *ngIf="campaigns().length > 0">
-        <mat-card class="stat-card">
-          <mat-card-content>
-            <div class="stat-content">
-              <div class="stat-number">{{ getTotalCampaigns() }}</div>
-              <div class="stat-label">Total Campaigns</div>
-            </div>
-            <mat-icon class="stat-icon">campaign</mat-icon>
-          </mat-card-content>
-        </mat-card>
-        
-        <mat-card class="stat-card">
-          <mat-card-content>
-            <div class="stat-content">
-              <div class="stat-number">{{ getActiveCampaigns() }}</div>
-              <div class="stat-label">Active Campaigns</div>
-            </div>
-            <mat-icon class="stat-icon active">play_circle</mat-icon>
-          </mat-card-content>
-        </mat-card>
-        
-        <mat-card class="stat-card">
-          <mat-card-content>
-            <div class="stat-content">
-              <div class="stat-number">{{ getPausedCampaigns() }}</div>
-              <div class="stat-label">Paused Campaigns</div>
-            </div>
-            <mat-icon class="stat-icon warning">pause_circle</mat-icon>
-          </mat-card-content>
-        </mat-card>
-        
-        <mat-card class="stat-card">
-          <mat-card-content>
-            <div class="stat-content">
-              <div class="stat-number">{{ getDraftCampaigns() }}</div>
-              <div class="stat-label">Draft Campaigns</div>
-            </div>
-            <mat-icon class="stat-icon secondary">drafts</mat-icon>
-          </mat-card-content>
-        </mat-card>
-      </div>
+  <!-- Loading State -->
+  <div class="loading-container" *ngIf="loading()">
+    <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
+    <p>Loading campaigns...</p>
+  </div>
 
-      <!-- Filters Section -->
-      <mat-card class="filters-card" *ngIf="campaigns().length > 0">
-        <mat-card-content>
-          <form [formGroup]="filterForm" class="filters-form">
-            <div class="filter-row">
-              <mat-form-field appearance="outline" class="search-field">
-                <mat-label>Search campaigns</mat-label>
-                <input matInput formControlName="search" placeholder="Search by name or description">
-                <mat-icon matSuffix>search</mat-icon>
-              </mat-form-field>
-              
-              <mat-form-field appearance="outline">
-                <mat-label>Status</mat-label>
-                <mat-select formControlName="status" multiple>
-                  <mat-option value="active">Active</mat-option>
-                  <mat-option value="paused">Paused</mat-option>
-                  <mat-option value="completed">Completed</mat-option>
-                  <mat-option value="draft">Draft</mat-option>
-                </mat-select>
-              </mat-form-field>
-              
-              <mat-form-field appearance="outline">
-                <mat-label>Type</mat-label>
-                <mat-select formControlName="type" multiple>
-                  <mat-option value="hashtag">Hashtag Monitoring</mat-option>
-                  <mat-option value="keyword">Keyword Tracking</mat-option>
-                  <mat-option value="user">User Monitoring</mat-option>
-                  <mat-option value="mention">Mention Tracking</mat-option>
-                </mat-select>
-              </mat-form-field>
-              
-              <button mat-icon-button 
-                      (click)="clearFilters()" 
-                      matTooltip="Clear filters">
-                <mat-icon>clear</mat-icon>
-              </button>
-            </div>
-          </form>
-        </mat-card-content>
-      </mat-card>
-
-      <!-- Loading State -->
-      <div class="loading-container" *ngIf="loading()">
-        <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
-        <p>Loading campaigns...</p>
-      </div>
-
-      <!-- Empty State -->
-      <div class="empty-state" *ngIf="!loading() && campaigns().length === 0">
-        <mat-card class="empty-card">
-          <mat-card-content>
-            <div class="empty-content">
-              <mat-icon class="empty-icon">campaign</mat-icon>
-              <h2>No campaigns yet</h2>
-              <p>Create your first social media monitoring campaign to get started</p>
-              <button mat-raised-button 
-                      color="primary" 
-                      class="empty-action-btn"
-                      (click)="navigateToCreateCampaign()">
-                <mat-icon>add</mat-icon>
-                Create Your First Campaign
-              </button>
-            </div>
-          </mat-card-content>
-        </mat-card>
-      </div>
-
-      <!-- Campaigns Table -->
-      <mat-card class="table-card" *ngIf="!loading() && filteredCampaigns().length > 0">
-        <div class="table-header">
-          <h3>Campaigns ({{ filteredCampaigns().length }})</h3>
-          <div class="table-actions" *ngIf="hasSelectedCampaigns()">
-            <button mat-button [matMenuTriggerFor]="bulkMenu">
-              <mat-icon>more_vert</mat-icon>
-              Bulk Actions ({{ selectedCampaigns().size }})
-            </button>
-            <mat-menu #bulkMenu="matMenu">
-              <button mat-menu-item (click)="bulkAction('pause')">
-                <mat-icon>pause</mat-icon>
-                Pause Selected
-              </button>
-              <button mat-menu-item (click)="bulkAction('resume')">
-                <mat-icon>play_arrow</mat-icon>
-                Resume Selected
-              </button>
-              <button mat-menu-item (click)="bulkAction('delete')" class="danger-action">
-                <mat-icon>delete</mat-icon>
-                Delete Selected
-              </button>
-            </mat-menu>
-          </div>
+  <!-- Empty State -->
+  <div class="empty-state" *ngIf="!loading() && campaigns().length === 0">
+    <mat-card class="empty-card">
+      <mat-card-content>
+        <div class="empty-content">
+          <mat-icon class="empty-icon">campaign</mat-icon>
+          <h2>No campaigns yet</h2>
+          <p>Create your first social media monitoring campaign to get started</p>
+          <button
+            mat-raised-button
+            color="primary"
+            class="empty-action-btn"
+            (click)="navigateToCreateCampaign()"
+          >
+            <mat-icon>add</mat-icon>
+            Create Your First Campaign
+          </button>
         </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
 
-        <div class="table-container">
-          <table mat-table [dataSource]="filteredCampaigns()" class="campaigns-table" matSort>
-            <!-- Selection Column -->
-            <ng-container matColumnDef="select">
-              <th mat-header-cell *matHeaderCellDef>
-                <mat-checkbox
-                  (change)="toggleAllSelection()"
-                  [checked]="isAllSelected()"
-                  [indeterminate]="hasSelectedCampaigns() && !isAllSelected()"
-                ></mat-checkbox>
-                <!-- Accessible header text for screen readers -->
-                <span class="sr-only">{{ 'campaigns.table.select_all' | transloco }}</span>
-              </th>
-              <td mat-cell *matCellDef="let campaign">
-                <mat-checkbox (change)="toggleCampaignSelection(campaign.id)"
-                              [checked]="selectedCampaigns().has(campaign.id)">
-                </mat-checkbox>
-              </td>
-            </ng-container>
-
-            <!-- Campaign Name Column -->
-            <ng-container matColumnDef="name">
-              <th mat-header-cell *matHeaderCellDef mat-sort-header>Campaign</th>
-              <td mat-cell *matCellDef="let campaign">
-                <div class="campaign-info">
-                  <div class="campaign-name" [routerLink]="['/dashboard/campaigns', campaign.id]">
-                    {{ campaign.name }}
-                  </div>
-                  <div class="campaign-description" *ngIf="campaign.description">
-                    {{ campaign.description | slice:0:100 }}{{ campaign.description?.length > 100 ? '...' : '' }}
-                  </div>
-                </div>
-              </td>
-            </ng-container>
-
-            <!-- Status Column -->
-            <ng-container matColumnDef="status">
-              <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
-              <td mat-cell *matCellDef="let campaign">
-                <mat-chip [ngClass]="'status-' + campaign.status">
-                  <mat-icon>{{ getStatusIcon(campaign.status) }}</mat-icon>
-                  {{ campaign.status | titlecase }}
-                </mat-chip>
-              </td>
-            </ng-container>
-
-            <!-- Type Column -->
-            <ng-container matColumnDef="type">
-              <th mat-header-cell *matHeaderCellDef mat-sort-header>Type</th>
-              <td mat-cell *matCellDef="let campaign">
-                <div class="type-info">
-                  <mat-icon class="type-icon">{{ getTypeIcon(campaign.type) }}</mat-icon>
-                  {{ getTypeLabel(campaign.type) }}
-                </div>
-              </td>
-            </ng-container>
-
-            <!-- Tracking Parameters Column -->
-            <ng-container matColumnDef="parameters">
-              <th mat-header-cell *matHeaderCellDef>Parameters</th>
-              <td mat-cell *matCellDef="let campaign">
-                <div class="parameters-info">
-                  <mat-chip-set *ngIf="campaign.hashtags?.length">
-                    <mat-chip *ngFor="let hashtag of campaign.hashtags | slice:0:2">
-                      #{{ hashtag }}
-                    </mat-chip>
-                    <mat-chip *ngIf="campaign.hashtags.length > 2">
-                      +{{ campaign.hashtags.length - 2 }} more
-                    </mat-chip>
-                  </mat-chip-set>
-                  <mat-chip-set *ngIf="campaign.keywords?.length">
-                    <mat-chip *ngFor="let keyword of campaign.keywords | slice:0:2">
-                      {{ keyword }}
-                    </mat-chip>
-                    <mat-chip *ngIf="campaign.keywords.length > 2">
-                      +{{ campaign.keywords.length - 2 }} more
-                    </mat-chip>
-                  </mat-chip-set>
-                </div>
-              </td>
-            </ng-container>
-
-            <!-- Timeline Column -->
-            <ng-container matColumnDef="timeline">
-              <th mat-header-cell *matHeaderCellDef>Timeline</th>
-              <td mat-cell *matCellDef="let campaign">
-                <div class="timeline-info">
-                  <div class="date-range">
-                    {{ campaign.startDate | date:'MMM d' }} - {{ campaign.endDate | date:'MMM d, y' }}
-                  </div>
-                  <div class="progress-info" *ngIf="campaign.status === 'active'">
-                    <mat-progress-bar 
-                      mode="determinate" 
-                      [value]="getCampaignProgress(campaign)"
-                      class="timeline-progress">
-                    </mat-progress-bar>
-                    <span class="progress-text">{{ getCampaignProgress(campaign) }}% complete</span>
-                  </div>
-                </div>
-              </td>
-            </ng-container>
-
-            <!-- Actions Column -->
-            <ng-container matColumnDef="actions">
-              <th mat-header-cell *matHeaderCellDef>Actions</th>
-              <td mat-cell *matCellDef="let campaign">
-                <button mat-icon-button [matMenuTriggerFor]="actionMenu" 
-                        [matMenuTriggerData]="{campaign: campaign}">
-                  <mat-icon>more_vert</mat-icon>
-                </button>
-                <mat-menu #actionMenu="matMenu">
-                  <ng-template matMenuContent let-campaign="campaign">
-                    <button mat-menu-item [routerLink]="['/dashboard/campaigns', campaign.id]">
-                      <mat-icon>visibility</mat-icon>
-                      View Details
-                    </button>
-                    <button mat-menu-item [routerLink]="['/dashboard/campaigns', campaign.id, 'edit']">
-                      <mat-icon>edit</mat-icon>
-                      Edit Campaign
-                    </button>
-                    <mat-divider></mat-divider>
-                    <button mat-menu-item 
-                            (click)="toggleCampaignStatus(campaign)"
-                            *ngIf="campaign.status === 'active'">
-                      <mat-icon>pause</mat-icon>
-                      Pause Campaign
-                    </button>
-                    <button mat-menu-item 
-                            (click)="toggleCampaignStatus(campaign)"
-                            *ngIf="campaign.status === 'paused'">
-                      <mat-icon>play_arrow</mat-icon>
-                      Resume Campaign
-                    </button>
-                    <button mat-menu-item (click)="duplicateCampaign(campaign)">
-                      <mat-icon>content_copy</mat-icon>
-                      Duplicate
-                    </button>
-                    <mat-divider></mat-divider>
-                    <button mat-menu-item (click)="deleteCampaign(campaign)" class="danger-action">
-                      <mat-icon>delete</mat-icon>
-                      Delete
-                    </button>
-                  </ng-template>
-                </mat-menu>
-              </td>
-            </ng-container>
-
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;" 
-                class="campaign-row"
-                [class.selected]="selectedCampaigns().has(row.id)"></tr>
-          </table>
-        </div>
-
-        <!-- Pagination -->
-        <mat-paginator 
-          [length]="totalCount()"
-          [pageSize]="pageSize()"
-          [pageIndex]="currentPage()"
-          [pageSizeOptions]="[5, 10, 25, 50]"
-          (page)="onPageChange($event)"
-          showFirstLastButtons>
-        </mat-paginator>
-      </mat-card>
-
-      <!-- Error State -->
-      <div class="error-state" *ngIf="error()">
-        <mat-card class="error-card">
-          <mat-card-content>
-            <mat-icon class="error-icon">error</mat-icon>
-            <h3>Error Loading Campaigns</h3>
-            <p>{{ error() }}</p>
-            <button mat-raised-button color="primary" (click)="loadCampaigns()">
-              Try Again
-            </button>
-          </mat-card-content>
-        </mat-card>
+  <!-- Campaigns Table -->
+  <mat-card class="table-card" *ngIf="!loading() && filteredCampaigns().length > 0">
+    <div class="table-header">
+      <h3>Campaigns ({{ filteredCampaigns().length }})</h3>
+      <div class="table-actions" *ngIf="hasSelectedCampaigns()">
+        <button mat-button [matMenuTriggerFor]="bulkMenu">
+          <mat-icon>more_vert</mat-icon>
+          Bulk Actions ({{ selectedCampaigns().size }})
+        </button>
+        <mat-menu #bulkMenu="matMenu">
+          <button mat-menu-item (click)="bulkAction('pause')">
+            <mat-icon>pause</mat-icon>
+            Pause Selected
+          </button>
+          <button mat-menu-item (click)="bulkAction('resume')">
+            <mat-icon>play_arrow</mat-icon>
+            Resume Selected
+          </button>
+          <button mat-menu-item (click)="bulkAction('delete')" class="danger-action">
+            <mat-icon>delete</mat-icon>
+            Delete Selected
+          </button>
+        </mat-menu>
       </div>
     </div>
+
+    <div class="table-container">
+      <table mat-table [dataSource]="filteredCampaigns()" class="campaigns-table" matSort>
+        <!-- Selection Column -->
+        <ng-container matColumnDef="select">
+          <th mat-header-cell *matHeaderCellDef>
+            <mat-checkbox
+              (change)="toggleAllSelection()"
+              [checked]="isAllSelected()"
+              [indeterminate]="hasSelectedCampaigns() && !isAllSelected()"
+            ></mat-checkbox>
+            <!-- Accessible header text for screen readers -->
+            <span class="sr-only">{{ 'campaigns.table.select_all' | transloco }}</span>
+          </th>
+          <td mat-cell *matCellDef="let campaign">
+            <mat-checkbox
+              (change)="toggleCampaignSelection(campaign.id)"
+              [checked]="selectedCampaigns().has(campaign.id)"
+            >
+            </mat-checkbox>
+          </td>
+        </ng-container>
+
+        <!-- Campaign Name Column -->
+        <ng-container matColumnDef="name">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Campaign</th>
+          <td mat-cell *matCellDef="let campaign">
+            <div class="campaign-info">
+              <div class="campaign-name" [routerLink]="['/dashboard/campaigns', campaign.id]">
+                {{ campaign.name }}
+              </div>
+              <div class="campaign-description" *ngIf="campaign.description">
+                {{ campaign.description | slice : 0 : 100
+                }}{{ campaign.description?.length > 100 ? '...' : '' }}
+              </div>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Status Column -->
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+          <td mat-cell *matCellDef="let campaign">
+            <mat-chip [ngClass]="'status-' + campaign.status">
+              <mat-icon>{{ getStatusIcon(campaign.status) }}</mat-icon>
+              {{ campaign.status | titlecase }}
+            </mat-chip>
+          </td>
+        </ng-container>
+
+        <!-- Type Column -->
+        <ng-container matColumnDef="type">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Type</th>
+          <td mat-cell *matCellDef="let campaign">
+            <div class="type-info">
+              <mat-icon class="type-icon">{{ getTypeIcon(campaign.type) }}</mat-icon>
+              {{ getTypeLabel(campaign.type) }}
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Tracking Parameters Column -->
+        <ng-container matColumnDef="parameters">
+          <th mat-header-cell *matHeaderCellDef>Parameters</th>
+          <td mat-cell *matCellDef="let campaign">
+            <div class="parameters-info">
+              <mat-chip-set *ngIf="campaign.hashtags?.length">
+                <mat-chip *ngFor="let hashtag of campaign.hashtags | slice : 0 : 2">
+                  #{{ hashtag }}
+                </mat-chip>
+                <mat-chip *ngIf="campaign.hashtags.length > 2">
+                  +{{ campaign.hashtags.length - 2 }} more
+                </mat-chip>
+              </mat-chip-set>
+              <mat-chip-set *ngIf="campaign.keywords?.length">
+                <mat-chip *ngFor="let keyword of campaign.keywords | slice : 0 : 2">
+                  {{ keyword }}
+                </mat-chip>
+                <mat-chip *ngIf="campaign.keywords.length > 2">
+                  +{{ campaign.keywords.length - 2 }} more
+                </mat-chip>
+              </mat-chip-set>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Timeline Column -->
+        <ng-container matColumnDef="timeline">
+          <th mat-header-cell *matHeaderCellDef>Timeline</th>
+          <td mat-cell *matCellDef="let campaign">
+            <div class="timeline-info">
+              <div class="date-range">
+                {{ campaign.startDate | date : 'MMM d' }} -
+                {{ campaign.endDate | date : 'MMM d, y' }}
+              </div>
+              <div class="progress-info" *ngIf="campaign.status === 'active'">
+                <mat-progress-bar
+                  mode="determinate"
+                  [value]="getCampaignProgress(campaign)"
+                  class="timeline-progress"
+                >
+                </mat-progress-bar>
+                <span class="progress-text">{{ getCampaignProgress(campaign) }}% complete</span>
+              </div>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef>Actions</th>
+          <td mat-cell *matCellDef="let campaign">
+            <button
+              mat-icon-button
+              [matMenuTriggerFor]="actionMenu"
+              [matMenuTriggerData]="{ campaign: campaign }"
+            >
+              <mat-icon>more_vert</mat-icon>
+            </button>
+            <mat-menu #actionMenu="matMenu">
+              <ng-template matMenuContent let-campaign="campaign">
+                <button mat-menu-item [routerLink]="['/dashboard/campaigns', campaign.id]">
+                  <mat-icon>visibility</mat-icon>
+                  View Details
+                </button>
+                <button mat-menu-item [routerLink]="['/dashboard/campaigns', campaign.id, 'edit']">
+                  <mat-icon>edit</mat-icon>
+                  Edit Campaign
+                </button>
+                <mat-divider></mat-divider>
+                <button
+                  mat-menu-item
+                  (click)="toggleCampaignStatus(campaign)"
+                  *ngIf="campaign.status === 'active'"
+                >
+                  <mat-icon>pause</mat-icon>
+                  Pause Campaign
+                </button>
+                <button
+                  mat-menu-item
+                  (click)="toggleCampaignStatus(campaign)"
+                  *ngIf="campaign.status === 'paused'"
+                >
+                  <mat-icon>play_arrow</mat-icon>
+                  Resume Campaign
+                </button>
+                <button mat-menu-item (click)="duplicateCampaign(campaign)">
+                  <mat-icon>content_copy</mat-icon>
+                  Duplicate
+                </button>
+                <mat-divider></mat-divider>
+                <button mat-menu-item (click)="deleteCampaign(campaign)" class="danger-action">
+                  <mat-icon>delete</mat-icon>
+                  Delete
+                </button>
+              </ng-template>
+            </mat-menu>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: displayedColumns"
+          class="campaign-row"
+          [class.selected]="selectedCampaigns().has(row.id)"
+        ></tr>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <mat-paginator
+      [length]="totalCount()"
+      [pageSize]="pageSize()"
+      [pageIndex]="currentPage()"
+      [pageSizeOptions]="[5, 10, 25, 50]"
+      (page)="onPageChange($event)"
+      showFirstLastButtons
+    >
+    </mat-paginator>
+  </mat-card>
+
+  <!-- Error State -->
+  <div class="error-state" *ngIf="error()">
+    <mat-card class="error-card">
+      <mat-card-content>
+        <mat-icon class="error-icon">error</mat-icon>
+        <h3>Error Loading Campaigns</h3>
+        <p>{{ error() }}</p>
+        <button mat-raised-button color="primary" (click)="loadCampaigns()">Try Again</button>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>
