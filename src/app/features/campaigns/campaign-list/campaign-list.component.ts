@@ -27,6 +27,8 @@ import { Router, RouterModule } from '@angular/router';
 import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 
 import { TranslocoModule, TranslocoService } from '@ngneat/transloco';
+import { SolidDataTableRxjsComponent } from '../../../shared/components/solid-data-table/solid-data-table-rxjs.component';
+import { TableColumn, TableAction, TableConfig } from '../../../shared/components/solid-data-table/service/table-services';
 import { CampaignFacade } from '../../../core/facades/campaign.facade';
 import { Campaign } from '../../../core/state/app.state';
 
@@ -53,13 +55,41 @@ import { Campaign } from '../../../core/state/app.state';
     MatTooltipModule,
     MatProgressBarModule,
     MatDividerModule,
-    TranslocoModule,
+  TranslocoModule,
+  SolidDataTableRxjsComponent,
   ],
   templateUrl: './campaign-list.component.html',
   styleUrls: ['./campaign-list.component.css'],
 })
 export class CampaignListComponent implements OnInit, OnDestroy {
   private readonly campaignFacade = inject(CampaignFacade);
+
+  // Handler for row click from generic table
+  navigateToCampaign(item: Campaign): void {
+    // If the table emits the whole row, navigate to detail
+    if (item && item.id) {
+      this.router.navigate(['/dashboard/campaigns', item.id]);
+    }
+  }
+
+  // Handler for action clicks from generic table
+  onTableAction(event: { action: TableAction<Campaign>; item: Campaign }): void {
+    const { action, item } = event;
+    switch (action.label.toLowerCase()) {
+      case 'view':
+        this.router.navigate(['/dashboard/campaigns', item.id]);
+        break;
+      case 'edit':
+        this.router.navigate(['/dashboard/campaigns', item.id, 'edit']);
+        break;
+      case 'delete':
+        this.deleteCampaign(item);
+        break;
+      default:
+        // fallback - execute the action name if provided
+        this.snackBar.open(`${action.label} clicked`, 'Close', { duration: 2000 });
+    }
+  }
   private transloco = inject(TranslocoService);
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
@@ -84,6 +114,31 @@ export class CampaignListComponent implements OnInit, OnDestroy {
     'parameters',
     'timeline',
     'actions',
+  ];
+
+  // Generic table config for SolidDataTable
+  tableColumns: TableColumn<Campaign>[] = [
+    { key: 'name', label: 'Campaign', sortable: true, width: '250px' },
+    { key: 'status', label: 'Status', sortable: true, width: '120px', align: 'center' },
+    { key: 'type', label: 'Type', sortable: true, width: '140px' },
+    { key: 'hashtags', label: 'Hashtags', sortable: false, width: '200px', formatter: (v) => (v || []).slice(0,2).join(', ') },
+    { key: 'keywords', label: 'Keywords', sortable: false, width: '200px', formatter: (v) => (v || []).slice(0,2).join(', ') },
+    { key: 'startDate', label: 'Start', sortable: true, width: '120px', formatter: (v) => new Date(v).toLocaleDateString() },
+    { key: 'endDate', label: 'End', sortable: true, width: '120px', formatter: (v) => new Date(v).toLocaleDateString() },
+  ];
+
+  tableConfig: TableConfig = {
+    showSearch: true,
+    showPagination: true,
+    showSelection: true,
+    multiSelection: true,
+    pageSize: 10,
+  };
+
+  tableActions: TableAction<Campaign>[] = [
+    { icon: 'visibility', label: 'View', color: 'primary' },
+    { icon: 'edit', label: 'Edit', color: 'primary' },
+    { icon: 'delete', label: 'Delete', color: 'warn', confirm: true },
   ];
 
   // Filter form
