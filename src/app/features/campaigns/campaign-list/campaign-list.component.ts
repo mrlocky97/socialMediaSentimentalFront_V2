@@ -26,11 +26,17 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Router, RouterModule } from '@angular/router';
 import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { TranslocoModule, TranslocoService } from '@ngneat/transloco';
 import { CampaignFacade } from '../../../core/facades/campaign.facade';
 import { Campaign } from '../../../core/state/app.state';
-import { TableAction, TableColumn, TableConfig } from '../../../shared/components/solid-data-table/service/table-services';
+import {
+  TableAction,
+  TableColumn,
+  TableConfig,
+} from '../../../shared/components/solid-data-table/service/table-services';
 import { SolidDataTableRxjsComponent } from '../../../shared/components/solid-data-table/solid-data-table-rxjs.component';
+import { CampaignWizardComponent } from '../../campaign-wizard/campaign-wizardcomponent';
 
 @Component({
   selector: 'app-campaign-list',
@@ -55,14 +61,16 @@ import { SolidDataTableRxjsComponent } from '../../../shared/components/solid-da
     MatTooltipModule,
     MatProgressBarModule,
     MatDividerModule,
-  TranslocoModule,
-  SolidDataTableRxjsComponent,
+    TranslocoModule,
+    SolidDataTableRxjsComponent,
+    MatDialogModule,
   ],
   templateUrl: './campaign-list.component.html',
   styleUrls: ['./campaign-list.component.css'],
 })
 export class CampaignListComponent implements OnInit, OnDestroy {
   private readonly campaignFacade = inject(CampaignFacade);
+  private dialogRef = inject(MatDialog);
 
   // Handler for row click from generic table
   navigateToCampaign(item: Campaign): void {
@@ -121,10 +129,34 @@ export class CampaignListComponent implements OnInit, OnDestroy {
     { key: 'name', label: 'Campaign', sortable: true, width: '250px' },
     { key: 'status', label: 'Status', sortable: true, width: '120px', align: 'center' },
     { key: 'type', label: 'Type', sortable: true, width: '140px' },
-    { key: 'hashtags', label: 'Hashtags', sortable: false, width: '200px', formatter: (v) => (v || []).slice(0,2).join(', ') },
-    { key: 'keywords', label: 'Keywords', sortable: false, width: '200px', formatter: (v) => (v || []).slice(0,2).join(', ') },
-    { key: 'startDate', label: 'Start', sortable: true, width: '120px', formatter: (v) => new Date(v).toLocaleDateString() },
-    { key: 'endDate', label: 'End', sortable: true, width: '120px', formatter: (v) => new Date(v).toLocaleDateString() },
+    {
+      key: 'hashtags',
+      label: 'Hashtags',
+      sortable: false,
+      width: '200px',
+      formatter: (v) => (v || []).slice(0, 2).join(', '),
+    },
+    {
+      key: 'keywords',
+      label: 'Keywords',
+      sortable: false,
+      width: '200px',
+      formatter: (v) => (v || []).slice(0, 2).join(', '),
+    },
+    {
+      key: 'startDate',
+      label: 'Start',
+      sortable: true,
+      width: '120px',
+      formatter: (v) => new Date(v).toLocaleDateString(),
+    },
+    {
+      key: 'endDate',
+      label: 'End',
+      sortable: true,
+      width: '120px',
+      formatter: (v) => new Date(v).toLocaleDateString(),
+    },
   ];
 
   tableConfig: TableConfig = {
@@ -286,7 +318,49 @@ export class CampaignListComponent implements OnInit, OnDestroy {
    * Navigate to create campaign
    */
   navigateToCreateCampaign(): void {
-    this.router.navigate(['/dashboard/campaigns/create']);
+    this.loading.set(true); // Show loading state while opening dialog
+
+    const dialogRef = this.dialogRef.open(CampaignWizardComponent, {
+      width: 'auto',
+      height: 'auto', // Let the content determine the height with min/max constraints
+      maxHeight: '100vh', // Prevent dialog from being too tall
+      maxWidth: '90vw', // Prevent dialog from being too wide
+      disableClose: true, // Prevent closing by clicking outside
+      panelClass: 'campaign-wizard-dialog', // Custom styling class
+      data: {
+        mode: 'create',
+        title: this.transloco.translate('campaigns.create.title'),
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      this.loading.set(false);
+
+      if (result) {
+        // Handle successful form submission
+        this.campaignFacade.createCampaign(result).subscribe({
+          next: (createdCampaign) => {
+            this.snackBar.open(
+              this.transloco.translate('campaigns.create.success'),
+              this.transloco.translate('common.close'),
+              { duration: 3000, panelClass: 'success-snackbar' }
+            );
+
+            // Refresh campaign list
+            this.loadCampaigns();
+          },
+          error: (error) => {
+            this.snackBar.open(
+              this.transloco.translate('campaigns.create.error'),
+              this.transloco.translate('common.close'),
+              { duration: 5000, panelClass: 'error-snackbar' }
+            );
+            console.error('Campaign creation error:', error);
+          },
+        });
+      }
+      // If result is falsy, user canceled - no action needed
+    });
   }
 
   /**

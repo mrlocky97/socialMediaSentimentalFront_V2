@@ -15,6 +15,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatStepperModule } from '@angular/material/stepper';
 import { Router } from '@angular/router';
+import { TranslocoModule, TranslocoService } from '@ngneat/transloco';
 
 export interface CampaignStep {
   id: string;
@@ -60,11 +61,13 @@ export interface CampaignFormData {
     MatChipsModule,
     MatDatepickerModule,
     MatNativeDateModule,
+    TranslocoModule,
   ],
   templateUrl: './campaign-wizard.component.html',
   styleUrls: ['./campaign-wizard.component.css'],
 })
 export class CampaignWizardComponent {
+  private readonly transloco = inject(TranslocoService);
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
@@ -152,10 +155,13 @@ export class CampaignWizardComponent {
       type: ['', Validators.required],
     });
 
-    this.targetingForm = this.fb.group({
-      hashtags: this.fb.array([]),
-      keywords: this.fb.array([]),
-    }, { validators: this.targetingValidator });
+    this.targetingForm = this.fb.group(
+      {
+        hashtags: this.fb.array([]),
+        keywords: this.fb.array([]),
+      },
+      { validators: this.targetingValidator }
+    );
 
     this.settingsForm = this.fb.group({
       startDate: ['', Validators.required],
@@ -187,11 +193,11 @@ export class CampaignWizardComponent {
   private targetingValidator = (formGroup: FormGroup) => {
     const hashtags = formGroup.get('hashtags') as FormArray;
     const keywords = formGroup.get('keywords') as FormArray;
-    
+
     if (hashtags && keywords) {
       const hasHashtags = hashtags.length > 0 && hashtags.value.some((h: string) => h.trim());
       const hasKeywords = keywords.length > 0 && keywords.value.some((k: string) => k.trim());
-      
+
       if (!hasHashtags && !hasKeywords) {
         return { noTargeting: true };
       }
@@ -362,7 +368,7 @@ export class CampaignWizardComponent {
   campaignDuration(): number {
     const startDate = this.settingsForm.get('startDate')?.value;
     const endDate = this.settingsForm.get('endDate')?.value;
-    
+
     if (startDate && endDate) {
       const start = new Date(startDate);
       const end = new Date(endDate);
@@ -374,14 +380,14 @@ export class CampaignWizardComponent {
   }
 
   getCampaignTypeLabel(value: string): string {
-    const option = this.campaignTypeOptions().find(opt => opt.value === value);
+    const option = this.campaignTypeOptions().find((opt) => opt.value === value);
     return option ? option.label : value;
   }
 
   formatDateRange(): string {
     const startDate = this.settingsForm.get('startDate')?.value;
     const endDate = this.settingsForm.get('endDate')?.value;
-    
+
     if (startDate && endDate) {
       const start = new Date(startDate).toLocaleDateString();
       const end = new Date(endDate).toLocaleDateString();
@@ -401,8 +407,10 @@ export class CampaignWizardComponent {
   }
 
   hasEnabledFeatures(): boolean {
-    return this.settingsForm.get('sentimentAnalysis')?.value || 
-           this.settingsForm.get('realTimeNotifications')?.value;
+    return (
+      this.settingsForm.get('sentimentAnalysis')?.value ||
+      this.settingsForm.get('realTimeNotifications')?.value
+    );
   }
 
   totalSteps(): number {
