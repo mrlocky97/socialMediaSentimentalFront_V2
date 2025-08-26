@@ -159,9 +159,11 @@
 
 .table-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: center;
-  padding: 24px 24px 0 24px;
+  padding: 24px 24px 24px 24px;
+  margin-left: 1rem;
+  margin-right: 1rem;
 }
 
 .table-header h3 {

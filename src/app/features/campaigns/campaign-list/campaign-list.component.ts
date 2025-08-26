@@ -27,10 +27,10 @@ import { Router, RouterModule } from '@angular/router';
 import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 
 import { TranslocoModule, TranslocoService } from '@ngneat/transloco';
-import { SolidDataTableRxjsComponent } from '../../../shared/components/solid-data-table/solid-data-table-rxjs.component';
-import { TableColumn, TableAction, TableConfig } from '../../../shared/components/solid-data-table/service/table-services';
 import { CampaignFacade } from '../../../core/facades/campaign.facade';
 import { Campaign } from '../../../core/state/app.state';
+import { TableAction, TableColumn, TableConfig } from '../../../shared/components/solid-data-table/service/table-services';
+import { SolidDataTableRxjsComponent } from '../../../shared/components/solid-data-table/solid-data-table-rxjs.component';
 
 @Component({
   selector: 'app-campaign-list',
