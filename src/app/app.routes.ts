@@ -50,11 +50,13 @@ export const routes: Routes = [
     title: 'Monitor - Sentimental Social',
   },
   {
-    path: 'wizard',
+    path: 'create-campaign',
     canActivate: [authGuard],
     loadComponent: () =>
-      import('./features/campaign-dialog/campaign-dialog.component').then((c) => c.CampaignWizardComponent),
-    title: 'Campaign Wizard - Sentimental Social',
+      import('./features/campaign-dialog/campaign-dialog.component').then(
+        (c) => c.CampaignDialogComponent
+      ),
+    title: 'Create Campaign - Sentimental Social',
   },
   {
     path: '**',
