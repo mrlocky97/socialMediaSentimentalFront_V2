@@ -7,7 +7,7 @@ import { HttpClient } from '@angular/common/http';
 import { computed, DestroyRef, inject, Injectable, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { BehaviorSubject, Observable, of, throwError, timer } from 'rxjs';
-import { catchError, finalize, map, retryWhen, shareReplay, switchMap, tap, mergeMap } from 'rxjs/operators';
+import { catchError, finalize, map, mergeMap, retryWhen, shareReplay, tap } from 'rxjs/operators';
 import { environment } from '../../../enviroments/environment';
 import { BackendTestService } from './backend-test.service';
 
@@ -170,7 +170,7 @@ export class DataManagerService {
           this.updateState(data);
         }),
         catchError(() => {
-          console.warn('Backend offline, using mock data');
+          console.info('Backend offline, using mock data');
           this.isOnline.set(false);
           return this.getMockDashboardData();
         }),

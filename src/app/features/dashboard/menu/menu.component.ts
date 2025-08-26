@@ -6,7 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { RouterModule } from '@angular/router';
-import { TranslocoService, TranslocoModule } from '@ngneat/transloco';
+import { TranslocoModule, TranslocoService } from '@ngneat/transloco';
 import { AuthService } from '../../../core/auth/services/auth.service';
 
 export interface NavItem {

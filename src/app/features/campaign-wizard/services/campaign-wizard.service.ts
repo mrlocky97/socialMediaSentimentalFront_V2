@@ -2,7 +2,8 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
 import { environment } from '../../../../enviroments/environment';
-import { CampaignFormData } from '../campaign-wizard.component';
+import { CampaignFormData } from '../campaign-wizardcomponent';
+
 
 export interface CampaignCreationResult {
   success: boolean;

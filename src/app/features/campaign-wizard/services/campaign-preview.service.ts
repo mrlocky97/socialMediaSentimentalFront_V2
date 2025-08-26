@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { CampaignFormData } from '../campaign-wizard.component';
+import { CampaignFormData } from '../campaign-wizardcomponent';
 
 export interface CampaignPreview {
   summary: {

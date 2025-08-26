@@ -1,439 +1,576 @@
 <div class="campaign-wizard-container">
   <!-- Header -->
-  <div class="wizard-header">
+  <header class="wizard-header">
     <h1>
-      <mat-icon>campaign</mat-icon>
+      <mat-icon aria-label="Campaign icon">campaign</mat-icon>
       Create New Campaign
     </h1>
     <p>Follow the steps below to set up your social media monitoring campaign</p>
-  </div>
+  </header>
 
-  <!-- Progress Indicator -->
-  <div class="progress-container">
-    <mat-stepper #stepper [selectedIndex]="currentStep()" orientation="horizontal" linear>
-      
-      <!-- Step 1: Basic Information -->
-      <mat-step [completed]="steps[0].isCompleted">
-        <ng-template matStepLabel>{{ steps[0].title }}</ng-template>
-        
-        <div class="step-content">
-          <div class="step-header">
-            <h2>{{ steps[0].title }}</h2>
-            <p>{{ steps[0].description }}</p>
-          </div>
+  <!-- Stepper -->
+  <mat-stepper 
+    #stepper 
+    [selectedIndex]="currentStep()" 
+    orientation="horizontal" 
+    linear
+    class="campaign-stepper">
+    
+    <!-- Step 1: Basic Information -->
+    <mat-step [completed]="steps()[0].isCompleted" [hasError]="hasStepError(0)">
+      <ng-template matStepLabel>{{ steps()[0].title }}</ng-template>
 
-          <form [formGroup]="basicInfoForm" class="step-form">
-            <mat-card class="form-card">
-              <mat-card-content>
-                <!-- Campaign Name -->
-                <mat-form-field appearance="outline" class="full-width">
-                  <mat-label>Campaign Name</mat-label>
-                  <input matInput formControlName="name" placeholder="Enter a descriptive name">
-                  <mat-icon matSuffix>title</mat-icon>
-                  <mat-error *ngIf="basicInfoForm.get('name')?.hasError('required')">
-                    Campaign name is required
+      <div class="step-content">
+        <div class="step-header">
+          <h2>{{ steps()[0].title }}</h2>
+          <p>{{ steps()[0].description }}</p>
+        </div>
+
+        <form [formGroup]="basicInfoForm" class="step-form" novalidate>
+          <mat-card class="form-card">
+            <mat-card-content>
+              <!-- Campaign Name -->
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Campaign Name</mat-label>
+                <input 
+                  matInput 
+                  formControlName="name" 
+                  placeholder="Enter campaign name"
+                  maxlength="100"
+                  autocomplete="off"
+                  [attr.aria-describedby]="basicInfoForm.get('name')?.errors ? 'name-error' : null" />
+                <mat-icon matSuffix aria-hidden="true">title</mat-icon>
+                <mat-hint align="end">{{ basicInfoForm.get('name')?.value?.length || 0 }}/100</mat-hint>
+                @if (basicInfoForm.get('name')?.errors && basicInfoForm.get('name')?.touched) {
+                  <mat-error id="name-error">
+                    @if (basicInfoForm.get('name')?.errors?.['required']) {
+                      Campaign name is required
+                    }
+                    @if (basicInfoForm.get('name')?.errors?.['minlength']) {
+                      Name must be at least 3 characters long
+                    }
                   </mat-error>
-                  <mat-error *ngIf="basicInfoForm.get('name')?.hasError('minlength')">
-                    Name must be at least 3 characters
-                  </mat-error>
-                </mat-form-field>
+                }
+              </mat-form-field>
 
-                <!-- Campaign Description -->
-                <mat-form-field appearance="outline" class="full-width">
-                  <mat-label>Description</mat-label>
-                  <textarea 
-                    matInput 
-                    formControlName="description" 
-                    placeholder="Describe the purpose and goals of this campaign"
-                    rows="3">
-                  </textarea>
-                  <mat-icon matSuffix>description</mat-icon>
-                  <mat-error *ngIf="basicInfoForm.get('description')?.hasError('required')">
+              <!-- Description -->
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Description</mat-label>
+                <textarea
+                  matInput
+                  formControlName="description"
+                  placeholder="Describe your campaign"
+                  rows="3"
+                  maxlength="500"
+                  [attr.aria-describedby]="basicInfoForm.get('description')?.errors ? 'description-error' : null">
+                </textarea>
+                <mat-hint align="end">{{ basicInfoForm.get('description')?.value?.length || 0 }}/500</mat-hint>
+                @if (basicInfoForm.get('description')?.errors && basicInfoForm.get('description')?.touched) {
+                  <mat-error id="description-error">
                     Description is required
                   </mat-error>
-                  <mat-error *ngIf="basicInfoForm.get('description')?.hasError('minlength')">
-                    Description must be at least 10 characters
-                  </mat-error>
-                </mat-form-field>
+                }
+              </mat-form-field>
 
-                <!-- Campaign Type -->
-                <mat-form-field appearance="outline" class="full-width">
-                  <mat-label>Campaign Type</mat-label>
-                  <mat-select formControlName="type">
-                    <mat-option value="hashtag">
-                      <mat-icon>tag</mat-icon>
-                      Hashtag Tracking
+              <!-- Campaign Type -->
+              <mat-form-field appearance="outline" class="full-width">
+                <mat-label>Campaign Type</mat-label>
+                <mat-select 
+                  formControlName="type"
+                  [attr.aria-describedby]="basicInfoForm.get('type')?.errors ? 'type-error' : null">
+                  @for (option of campaignTypeOptions(); track option.value) {
+                    <mat-option [value]="option.value">
+                      <mat-icon>{{ option.icon }}</mat-icon>
+                      {{ option.label }}
                     </mat-option>
-                    <mat-option value="keyword">
-                      <mat-icon>search</mat-icon>
-                      Keyword Monitoring
-                    </mat-option>
-                    <mat-option value="user">
-                      <mat-icon>person</mat-icon>
-                      User Mentions
-                    </mat-option>
-                  </mat-select>
-                  <mat-error *ngIf="basicInfoForm.get('type')?.hasError('required')">
+                  }
+                </mat-select>
+                @if (basicInfoForm.get('type')?.errors && basicInfoForm.get('type')?.touched) {
+                  <mat-error id="type-error">
                     Please select a campaign type
                   </mat-error>
-                </mat-form-field>
-              </mat-card-content>
-            </mat-card>
-          </form>
+                }
+              </mat-form-field>
+            </mat-card-content>
+          </mat-card>
+        </form>
+      </div>
+    </mat-step>
+
+    <!-- Step 2: Targeting Setup -->
+    <mat-step [completed]="steps()[1].isCompleted" [hasError]="hasStepError(1)">
+      <ng-template matStepLabel>{{ steps()[1].title }}</ng-template>
+
+      <div class="step-content">
+        <div class="step-header">
+          <h2>{{ steps()[1].title }}</h2>
+          <p>{{ steps()[1].description }}</p>
         </div>
-      </mat-step>
 
-      <!-- Step 2: Targeting Setup -->
-      <mat-step [completed]="steps[1].isCompleted">
-        <ng-template matStepLabel>{{ steps[1].title }}</ng-template>
-        
-        <div class="step-content">
-          <div class="step-header">
-            <h2>{{ steps[1].title }}</h2>
-            <p>{{ steps[1].description }}</p>
-          </div>
-
-          <form [formGroup]="targetingForm" class="step-form">
-            <div class="targeting-grid">
-              
-              <!-- Hashtags -->
-              <mat-card class="targeting-card">
-                <mat-card-header>
-                  <mat-card-title>
-                    <mat-icon>tag</mat-icon>
-                    Hashtags
-                  </mat-card-title>
-                  <mat-card-subtitle>Track specific hashtags</mat-card-subtitle>
-                </mat-card-header>
-                <mat-card-content>
-                  <div formArrayName="hashtags">
-                    @for (control of hashtags.controls; track $index) {
-                      <div class="tag-input-row">
-                        <mat-form-field appearance="outline" class="tag-field">
-                          <input matInput [formControlName]="$index" placeholder="#example">
-                        </mat-form-field>
-                        <button mat-icon-button color="warn" (click)="removeHashtag($index)">
-                          <mat-icon>remove_circle</mat-icon>
-                        </button>
-                      </div>
-                    }
-                  </div>
-                  <button mat-stroked-button (click)="addHashtag()" class="add-button">
+        <form [formGroup]="targetingForm" class="step-form" novalidate>
+          <div class="targeting-grid">
+            <!-- Hashtags -->
+            <mat-card class="targeting-card">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>tag</mat-icon>
+                  Hashtags
+                </mat-card-title>
+                <mat-card-subtitle>Track specific hashtags</mat-card-subtitle>
+              </mat-card-header>
+              <mat-card-content>
+                <div formArrayName="hashtags" class="tag-container">
+                  @if (hashtags.controls.length === 0) {
+                    <div class="empty-state">
+                      <mat-icon>tag</mat-icon>
+                      <p>No hashtags added yet</p>
+                    </div>
+                  }
+                  
+                  @for (control of hashtags.controls; track $index; let isLast = $last) {
+                    <div class="tag-input-row" [attr.data-index]="$index">
+                      <mat-form-field appearance="outline" class="tag-field">
+                        <mat-label>Hashtag {{ $index + 1 }}</mat-label>
+                        <input 
+                          matInput 
+                          [formControlName]="$index" 
+                          placeholder="#example"
+                          (blur)="formatHashtag($index)"
+                          autocomplete="off" />
+                        <mat-icon matPrefix>tag</mat-icon>
+                        @if (control.errors && control.touched) {
+                          <mat-error>
+                            @if (control.errors['required']) {
+                              Hashtag is required
+                            }
+                            @if (control.errors['pattern']) {
+                              Invalid hashtag format
+                            }
+                          </mat-error>
+                        }
+                      </mat-form-field>
+                      
+                      <button
+                        mat-icon-button
+                        color="warn"
+                        (click)="removeHashtag($index)"
+                        type="button"
+                        [attr.aria-label]="'Remove hashtag ' + ($index + 1)"
+                        matTooltip="Remove hashtag">
+                        <mat-icon>remove_circle</mat-icon>
+                      </button>
+                    </div>
+                  }
+                </div>
+                
+                <div class="card-actions">
+                  <button 
+                    mat-stroked-button 
+                    (click)="addHashtag()" 
+                    type="button"
+                    [disabled]="hashtags.length >= maxHashtags()">
                     <mat-icon>add</mat-icon>
                     Add Hashtag
                   </button>
-                </mat-card-content>
-              </mat-card>
-
-              <!-- Keywords -->
-              <mat-card class="targeting-card">
-                <mat-card-header>
-                  <mat-card-title>
-                    <mat-icon>search</mat-icon>
-                    Keywords
-                  </mat-card-title>
-                  <mat-card-subtitle>Monitor specific terms</mat-card-subtitle>
-                </mat-card-header>
-                <mat-card-content>
-                  <div formArrayName="keywords">
-                    @for (control of keywords.controls; track $index) {
-                      <div class="tag-input-row">
-                        <mat-form-field appearance="outline" class="tag-field">
-                          <input matInput [formControlName]="$index" placeholder="keyword">
-                        </mat-form-field>
-                        <button mat-icon-button color="warn" (click)="removeKeyword($index)">
-                          <mat-icon>remove_circle</mat-icon>
-                        </button>
-                      </div>
-                    }
-                  </div>
-                  <button mat-stroked-button (click)="addKeyword()" class="add-button">
-                    <mat-icon>add</mat-icon>
-                    Add Keyword
-                  </button>
-                </mat-card-content>
-              </mat-card>
-
-              <!-- Mentions -->
-              <mat-card class="targeting-card">
-                <mat-card-header>
-                  <mat-card-title>
-                    <mat-icon>alternate_email</mat-icon>
-                    Mentions
-                  </mat-card-title>
-                  <mat-card-subtitle>Track user mentions</mat-card-subtitle>
-                </mat-card-header>
-                <mat-card-content>
-                  <div formArrayName="mentions">
-                    @for (control of mentions.controls; track $index) {
-                      <div class="tag-input-row">
-                        <mat-form-field appearance="outline" class="tag-field">
-                          <input matInput [formControlName]="$index" placeholder="@username">
-                        </mat-form-field>
-                        <button mat-icon-button color="warn" (click)="removeMention($index)">
-                          <mat-icon>remove_circle</mat-icon>
-                        </button>
-                      </div>
-                    }
-                  </div>
-                  <button mat-stroked-button (click)="addMention()" class="add-button">
-                    <mat-icon>add</mat-icon>
-                    Add Mention
-                  </button>
-                </mat-card-content>
-              </mat-card>
-            </div>
-          </form>
-        </div>
-      </mat-step>
-
-      <!-- Step 3: Campaign Settings -->
-      <mat-step [completed]="steps[2].isCompleted">
-        <ng-template matStepLabel>{{ steps[2].title }}</ng-template>
-        
-        <div class="step-content">
-          <div class="step-header">
-            <h2>{{ steps[2].title }}</h2>
-            <p>{{ steps[2].description }}</p>
-          </div>
-
-          <form [formGroup]="settingsForm" class="step-form">
-            <mat-card class="form-card">
-              <mat-card-content>
-                <div class="settings-grid">
-                  
-                  <!-- Date Range -->
-                  <div class="date-range">
-                    <h3>Campaign Duration</h3>
-                    <div class="date-inputs">
-                      <mat-form-field appearance="outline">
-                        <mat-label>Start Date</mat-label>
-                        <input matInput [matDatepicker]="startPicker" formControlName="startDate">
-                        <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
-                        <mat-datepicker #startPicker></mat-datepicker>
-                      </mat-form-field>
-
-                      <mat-form-field appearance="outline">
-                        <mat-label>End Date</mat-label>
-                        <input matInput [matDatepicker]="endPicker" formControlName="endDate">
-                        <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
-                        <mat-datepicker #endPicker></mat-datepicker>
-                      </mat-form-field>
-                    </div>
-                  </div>
-
-                  <!-- Tweet Limits -->
-                  <div class="tweet-limits">
-                    <h3>Collection Limits</h3>
-                    <mat-form-field appearance="outline" class="full-width">
-                      <mat-label>Maximum Tweets</mat-label>
-                      <input matInput type="number" formControlName="maxTweets" min="100" max="10000">
-                      <mat-icon matSuffix>numbers</mat-icon>
-                      <mat-hint>Recommended: 100-5000 tweets</mat-hint>
-                      <mat-error *ngIf="settingsForm.get('maxTweets')?.hasError('min')">
-                        Minimum 100 tweets required
-                      </mat-error>
-                      <mat-error *ngIf="settingsForm.get('maxTweets')?.hasError('max')">
-                        Maximum 10,000 tweets allowed
-                      </mat-error>
-                    </mat-form-field>
-                  </div>
-
-                  <!-- Analysis Options -->
-                  <div class="analysis-options">
-                    <h3>Analysis Settings</h3>
-                    <mat-checkbox formControlName="sentimentAnalysis">
-                      <span class="checkbox-label">
-                        <mat-icon>psychology</mat-icon>
-                        Enable Sentiment Analysis
-                      </span>
-                    </mat-checkbox>
-                    <p class="option-description">
-                      Analyze the emotional tone of collected tweets (positive, negative, neutral)
-                    </p>
-                  </div>
+                  <span class="counter">{{ hashtags.length }}/{{ maxHashtags() }}</span>
                 </div>
               </mat-card-content>
             </mat-card>
-          </form>
-        </div>
-      </mat-step>
 
-      <!-- Step 4: Review & Launch -->
-      <mat-step [completed]="steps[3].isCompleted">
-        <ng-template matStepLabel>{{ steps[3].title }}</ng-template>
-        
-        <div class="step-content">
-          <div class="step-header">
-            <h2>{{ steps[3].title }}</h2>
-            <p>{{ steps[3].description }}</p>
-          </div>
-
-          @if (campaignPreview(); as preview) {
-            <div class="preview-container">
-              
-              <!-- Campaign Summary -->
-              <mat-card class="preview-card">
-                <mat-card-header>
-                  <mat-card-title>
-                    <mat-icon>summary</mat-icon>
-                    Campaign Summary
-                  </mat-card-title>
-                </mat-card-header>
-                <mat-card-content>
-                  <div class="summary-grid">
-                    <div class="summary-item">
-                      <span class="label">Name:</span>
-                      <span class="value">{{ preview.summary.name }}</span>
-                    </div>
-                    <div class="summary-item">
-                      <span class="label">Type:</span>
-                      <span class="value">{{ preview.summary.type }}</span>
-                    </div>
-                    <div class="summary-item">
-                      <span class="label">Duration:</span>
-                      <span class="value">{{ preview.summary.duration }}</span>
-                    </div>
-                    <div class="summary-item">
-                      <span class="label">Targets:</span>
-                      <span class="value">{{ preview.summary.targetCount }} configured</span>
-                    </div>
-                  </div>
-                </mat-card-content>
-              </mat-card>
-
-              <!-- Targeting Details -->
-              <mat-card class="preview-card">
-                <mat-card-header>
-                  <mat-card-title>
-                    <mat-icon>track_changes</mat-icon>
-                    Targeting Configuration
-                  </mat-card-title>
-                </mat-card-header>
-                <mat-card-content>
-                  @if (preview.targeting.hashtags.length > 0) {
-                    <div class="targeting-section">
-                      <h4>Hashtags:</h4>
-                      <div class="tag-list">
-                        @for (hashtag of preview.targeting.hashtags; track hashtag) {
-                          <span class="tag-chip hashtag">{{ hashtag }}</span>
-                        }
-                      </div>
-                    </div>
-                  }
-                  
-                  @if (preview.targeting.keywords.length > 0) {
-                    <div class="targeting-section">
-                      <h4>Keywords:</h4>
-                      <div class="tag-list">
-                        @for (keyword of preview.targeting.keywords; track keyword) {
-                          <span class="tag-chip keyword">{{ keyword }}</span>
-                        }
-                      </div>
-                    </div>
-                  }
-                  
-                  @if (preview.targeting.mentions.length > 0) {
-                    <div class="targeting-section">
-                      <h4>Mentions:</h4>
-                      <div class="tag-list">
-                        @for (mention of preview.targeting.mentions; track mention) {
-                          <span class="tag-chip mention">{{ mention }}</span>
-                        }
-                      </div>
-                    </div>
-                  }
-                </mat-card-content>
-              </mat-card>
-
-              <!-- Estimated Usage -->
-              <mat-card class="preview-card">
-                <mat-card-header>
-                  <mat-card-title>
-                    <mat-icon>analytics</mat-icon>
-                    Estimated Resource Usage
-                  </mat-card-title>
-                </mat-card-header>
-                <mat-card-content>
-                  <div class="usage-grid">
-                    <div class="usage-item">
-                      <mat-icon>api</mat-icon>
-                      <span class="usage-label">API Calls</span>
-                      <span class="usage-value">~{{ preview.estimatedCost.apiCalls }}</span>
-                    </div>
-                    <div class="usage-item">
-                      <mat-icon>storage</mat-icon>
-                      <span class="usage-label">Storage</span>
-                      <span class="usage-value">~{{ preview.estimatedCost.storageGB }}GB</span>
-                    </div>
-                    <div class="usage-item">
-                      <mat-icon>schedule</mat-icon>
-                      <span class="usage-label">Processing</span>
-                      <span class="usage-value">~{{ preview.estimatedCost.processingHours }}h</span>
-                    </div>
-                  </div>
-                </mat-card-content>
-              </mat-card>
-            </div>
-          }
-
-          <!-- Validation Errors -->
-          @if (validationErrors().length > 0) {
-            <mat-card class="error-card">
+            <!-- Keywords -->
+            <mat-card class="targeting-card">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>search</mat-icon>
+                  Keywords
+                </mat-card-title>
+                <mat-card-subtitle>Monitor specific keywords</mat-card-subtitle>
+              </mat-card-header>
               <mat-card-content>
-                <h3>
-                  <mat-icon>error</mat-icon>
-                  Please Fix These Issues:
-                </h3>
-                <ul>
-                  @for (error of validationErrors(); track error) {
-                    <li>{{ error }}</li>
+                <div formArrayName="keywords" class="tag-container">
+                  @if (keywords.controls.length === 0) {
+                    <div class="empty-state">
+                      <mat-icon>search</mat-icon>
+                      <p>No keywords added yet</p>
+                    </div>
                   }
-                </ul>
+                  
+                  @for (control of keywords.controls; track $index; let isLast = $last) {
+                    <div class="tag-input-row" [attr.data-index]="$index">
+                      <mat-form-field appearance="outline" class="tag-field">
+                        <mat-label>Keyword {{ $index + 1 }}</mat-label>
+                        <input 
+                          matInput 
+                          [formControlName]="$index" 
+                          placeholder="keyword"
+                          autocomplete="off" />
+                        <mat-icon matPrefix>search</mat-icon>
+                        @if (control.errors && control.touched) {
+                          <mat-error>
+                            @if (control.errors['required']) {
+                              Keyword is required
+                            }
+                            @if (control.errors['minlength']) {
+                              Keyword must be at least 2 characters
+                            }
+                          </mat-error>
+                        }
+                      </mat-form-field>
+                      
+                      <button
+                        mat-icon-button
+                        color="warn"
+                        (click)="removeKeyword($index)"
+                        type="button"
+                        [attr.aria-label]="'Remove keyword ' + ($index + 1)"
+                        matTooltip="Remove keyword">
+                        <mat-icon>remove_circle</mat-icon>
+                      </button>
+                    </div>
+                  }
+                </div>
+                
+                <div class="card-actions">
+                  <button 
+                    mat-stroked-button 
+                    (click)="addKeyword()" 
+                    type="button"
+                    [disabled]="keywords.length >= maxKeywords()">
+                    <mat-icon>add</mat-icon>
+                    Add Keyword
+                  </button>
+                  <span class="counter">{{ keywords.length }}/{{ maxKeywords() }}</span>
+                </div>
               </mat-card-content>
             </mat-card>
+          </div>
+
+          @if (targetingForm.errors?.['noTargeting'] && (hashtags.touched || keywords.touched)) {
+            <mat-error class="form-level-error">
+              <mat-icon>error</mat-icon>
+              Please add at least one hashtag or keyword to continue
+            </mat-error>
           }
+        </form>
+      </div>
+    </mat-step>
+
+    <!-- Step 3: Settings -->
+    <mat-step [completed]="steps()[2].isCompleted" [hasError]="hasStepError(2)">
+      <ng-template matStepLabel>{{ steps()[2].title }}</ng-template>
+
+      <div class="step-content">
+        <div class="step-header">
+          <h2>{{ steps()[2].title }}</h2>
+          <p>{{ steps()[2].description }}</p>
         </div>
-      </mat-step>
-    </mat-stepper>
-  </div>
 
-  <!-- Navigation Controls -->
-  <div class="wizard-navigation">
-    <div class="nav-buttons">
-      <button mat-button 
-              [disabled]="isFirstStep()" 
-              (click)="previousStep()">
-        <mat-icon>chevron_left</mat-icon>
-        Previous
+        <form [formGroup]="settingsForm" class="step-form" novalidate>
+          <mat-card class="form-card">
+            <mat-card-content>
+              <div class="settings-grid">
+                <!-- Date Range -->
+                <div class="date-range-group">
+                  <h3>Campaign Duration</h3>
+                  
+                  <mat-form-field appearance="outline">
+                    <mat-label>Start Date</mat-label>
+                    <input 
+                      matInput 
+                      type="date" 
+                      formControlName="startDate"
+                      [min]="minDate()"
+                      [max]="settingsForm.get('endDate')?.value || maxDate()" />
+                    <mat-icon matSuffix>calendar_today</mat-icon>
+                    @if (settingsForm.get('startDate')?.errors && settingsForm.get('startDate')?.touched) {
+                      <mat-error>
+                        @if (settingsForm.get('startDate')?.errors?.['required']) {
+                          Start date is required
+                        }
+                        @if (settingsForm.get('startDate')?.errors?.['min']) {
+                          Start date cannot be in the past
+                        }
+                      </mat-error>
+                    }
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline">
+                    <mat-label>End Date</mat-label>
+                    <input 
+                      matInput 
+                      type="date" 
+                      formControlName="endDate"
+                      [min]="settingsForm.get('startDate')?.value || minDate()"
+                      [max]="maxDate()" />
+                    <mat-icon matSuffix>calendar_today</mat-icon>
+                    @if (settingsForm.get('endDate')?.errors && settingsForm.get('endDate')?.touched) {
+                      <mat-error>
+                        @if (settingsForm.get('endDate')?.errors?.['required']) {
+                          End date is required
+                        }
+                        @if (settingsForm.get('endDate')?.errors?.['min']) {
+                          End date must be after start date
+                        }
+                      </mat-error>
+                    }
+                  </mat-form-field>
+
+                  @if (campaignDuration() > 0) {
+                    <div class="duration-info">
+                      <mat-icon>schedule</mat-icon>
+                      <span>Duration: {{ campaignDuration() }} day(s)</span>
+                    </div>
+                  }
+                </div>
+
+                <!-- Limits and Options -->
+                <div class="limits-group">
+                  <h3>Limits & Options</h3>
+                  
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>Maximum Tweets</mat-label>
+                    <input 
+                      matInput 
+                      type="number" 
+                      formControlName="maxTweets" 
+                      min="100" 
+                      max="10000"
+                      step="100" />
+                    <mat-icon matSuffix>format_list_numbered</mat-icon>
+                    <mat-hint>Between 100 and 10,000 tweets</mat-hint>
+                    @if (settingsForm.get('maxTweets')?.errors && settingsForm.get('maxTweets')?.touched) {
+                      <mat-error>
+                        @if (settingsForm.get('maxTweets')?.errors?.['required']) {
+                          Maximum tweets limit is required
+                        }
+                        @if (settingsForm.get('maxTweets')?.errors?.['min']) {
+                          Minimum is 100 tweets
+                        }
+                        @if (settingsForm.get('maxTweets')?.errors?.['max']) {
+                          Maximum is 10,000 tweets
+                        }
+                      </mat-error>
+                    }
+                  </mat-form-field>
+
+                  <mat-checkbox 
+                    formControlName="sentimentAnalysis" 
+                    class="full-width feature-checkbox">
+                    <mat-icon>sentiment_satisfied</mat-icon>
+                    Enable Sentiment Analysis
+                    <div class="checkbox-description">
+                      Analyze the emotional tone of collected tweets
+                    </div>
+                  </mat-checkbox>
+
+                  <mat-checkbox 
+                    formControlName="realTimeNotifications" 
+                    class="full-width feature-checkbox">
+                    <mat-icon>notifications</mat-icon>
+                    Real-time Notifications
+                    <div class="checkbox-description">
+                      Get notified when new matching content is found
+                    </div>
+                  </mat-checkbox>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        </form>
+      </div>
+    </mat-step>
+
+    <!-- Step 4: Review -->
+    <mat-step [completed]="steps()[3].isCompleted">
+      <ng-template matStepLabel>{{ steps()[3].title }}</ng-template>
+
+      <div class="step-content">
+        <div class="step-header">
+          <h2>{{ steps()[3].title }}</h2>
+          <p>{{ steps()[3].description }}</p>
+        </div>
+
+        @if (isFormValid()) {
+          <div class="review-section">
+            <!-- Campaign Summary -->
+            <mat-card class="summary-card">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>summarize</mat-icon>
+                  Campaign Summary
+                </mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="summary-grid">
+                  <div class="summary-item">
+                    <mat-icon>title</mat-icon>
+                    <div>
+                      <strong>Name:</strong>
+                      <span>{{ basicInfoForm.get('name')?.value }}</span>
+                    </div>
+                  </div>
+
+                  <div class="summary-item">
+                    <mat-icon>category</mat-icon>
+                    <div>
+                      <strong>Type:</strong>
+                      <span>{{ getCampaignTypeLabel(basicInfoForm.get('type')?.value) }}</span>
+                    </div>
+                  </div>
+
+                  <div class="summary-item">
+                    <mat-icon>format_list_numbered</mat-icon>
+                    <div>
+                      <strong>Max Tweets:</strong>
+                      <span>{{ settingsForm.get('maxTweets')?.value | number }}</span>
+                    </div>
+                  </div>
+
+                  <div class="summary-item">
+                    <mat-icon>schedule</mat-icon>
+                    <div>
+                      <strong>Duration:</strong>
+                      <span>{{ formatDateRange() }}</span>
+                    </div>
+                  </div>
+
+                  @if (hashtags.length > 0) {
+                    <div class="summary-item full-width">
+                      <mat-icon>tag</mat-icon>
+                      <div>
+                        <strong>Hashtags:</strong>
+                        <div class="tag-list">
+                          @for (hashtag of getHashtagValues(); track hashtag) {
+                            <mat-chip>{{ hashtag }}</mat-chip>
+                          }
+                        </div>
+                      </div>
+                    </div>
+                  }
+
+                  @if (keywords.length > 0) {
+                    <div class="summary-item full-width">
+                      <mat-icon>search</mat-icon>
+                      <div>
+                        <strong>Keywords:</strong>
+                        <div class="tag-list">
+                          @for (keyword of getKeywordValues(); track keyword) {
+                            <mat-chip>{{ keyword }}</mat-chip>
+                          }
+                        </div>
+                      </div>
+                    </div>
+                  }
+
+                  @if (hasEnabledFeatures()) {
+                    <div class="summary-item full-width">
+                      <mat-icon>star</mat-icon>
+                      <div>
+                        <strong>Features:</strong>
+                        <div class="feature-list">
+                          @if (settingsForm.get('sentimentAnalysis')?.value) {
+                            <mat-chip color="accent">
+                              <mat-icon matChipAvatar>sentiment_satisfied</mat-icon>
+                              Sentiment Analysis
+                            </mat-chip>
+                          }
+                          @if (settingsForm.get('realTimeNotifications')?.value) {
+                            <mat-chip color="accent">
+                              <mat-icon matChipAvatar>notifications</mat-icon>
+                              Real-time Notifications
+                            </mat-chip>
+                          }
+                        </div>
+                      </div>
+                    </div>
+                  }
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Validation Errors -->
+            @if (validationErrors().length > 0) {
+              <mat-card class="error-card">
+                <mat-card-content>
+                  <div class="error-header">
+                    <mat-icon color="warn">error</mat-icon>
+                    <h4>Please fix these issues before creating the campaign:</h4>
+                  </div>
+                  <ul class="error-list">
+                    @for (error of validationErrors(); track error) {
+                      <li>
+                        <mat-icon>chevron_right</mat-icon>
+                        {{ error }}
+                      </li>
+                    }
+                  </ul>
+                </mat-card-content>
+              </mat-card>
+            }
+          </div>
+        } @else {
+          <mat-card class="incomplete-form-card">
+            <mat-card-content>
+              <div class="incomplete-message">
+                <mat-icon>info</mat-icon>
+                <h3>Complete the previous steps</h3>
+                <p>Please complete all required fields in the previous steps to see the campaign summary.</p>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        }
+      </div>
+    </mat-step>
+  </mat-stepper>
+
+  <!-- Navigation -->
+  <nav class="wizard-navigation" role="navigation" aria-label="Wizard navigation">
+    <button 
+      mat-button 
+      [disabled]="isFirstStep()" 
+      (click)="previousStep()" 
+      type="button"
+      class="nav-button nav-button--previous">
+      <mat-icon>chevron_left</mat-icon>
+      Previous
+    </button>
+
+    <div class="progress-indicator">
+      Step {{ currentStep() + 1 }} of {{ totalSteps() }}
+    </div>
+
+    @if (!isLastStep()) {
+      <button
+        mat-raised-button
+        color="primary"
+        [disabled]="!canProceedToNext()"
+        (click)="nextStep()"
+        type="button"
+        class="nav-button nav-button--next">
+        Next
+        <mat-icon>chevron_right</mat-icon>
       </button>
-
-      @if (!isLastStep()) {
-        <button mat-raised-button 
-                color="primary"
-                [disabled]="!canProceedToNext()"
-                (click)="nextStep()">
-          Next
-          <mat-icon>chevron_right</mat-icon>
-        </button>
-      } @else {
-        <button mat-raised-button 
-                color="primary"
-                [disabled]="!canProceedToNext() || isLoading()"
-                (click)="createCampaign()">
-          @if (isLoading()) {
-            <mat-icon>hourglass_empty</mat-icon>
+    } @else {
+      <button
+        mat-raised-button
+        color="primary"
+        [disabled]="!canCreateCampaign() || isLoading()"
+        (click)="createCampaign()"
+        type="button"
+        class="nav-button nav-button--create"
+        [class.loading]="isLoading()">
+        @if (isLoading()) {
+          <ng-container>
+            <mat-spinner diameter="20" class="inline-spinner"></mat-spinner>
             Creating...
-          } @else {
-            <mat-icon>rocket_launch</mat-icon>
+          </ng-container>
+        } @else {
+          <ng-container>
+            <mat-icon>campaign</mat-icon>
             Create Campaign
-          }
-        </button>
-      }
-    </div>
-
-    <div class="step-indicator">
-      Step {{ currentStep() + 1 }} of {{ steps.length }}
-    </div>
-  </div>
+          </ng-container>
+        }
+      </button>
+    }
+  </nav>
 </div>
