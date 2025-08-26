@@ -55,6 +55,7 @@
   </section>
 
   <!-- Targeting -->
+  <!-- Targeting -->
   <section class="section">
     <h3><mat-icon>tag</mat-icon> Targeting</h3>
 
@@ -64,7 +65,7 @@
         <mat-card-title><mat-icon>tag</mat-icon> Hashtags</mat-card-title>
         <mat-card-subtitle>Ej: SummerVibes, BrandName</mat-card-subtitle>
       </mat-card-header>
-      <mat-card-content>
+      <mat-card-content formArrayName="hashtags">
         @if (hashtags.controls.length === 0) {
         <p class="hint">No has agregado hashtags todavía.</p>
         } @for (ctrl of hashtags.controls; track $index) {
@@ -98,7 +99,7 @@
       <mat-card-header>
         <mat-card-title><mat-icon>search</mat-icon> Keywords</mat-card-title>
       </mat-card-header>
-      <mat-card-content>
+      <mat-card-content formArrayName="keywords">
         @if (keywords.controls.length === 0) {
         <p class="hint">Opcional: palabras clave para ampliar el alcance.</p>
         } @for (ctrl of keywords.controls; track $index) {
@@ -132,7 +133,7 @@
       <mat-card-header>
         <mat-card-title><mat-icon>alternate_email</mat-icon> Mentions</mat-card-title>
       </mat-card-header>
-      <mat-card-content>
+      <mat-card-content formArrayName="mentions">
         @if (mentions.controls.length === 0) {
         <p class="hint">Opcional: usuarios o cuentas relevantes.</p>
         } @for (ctrl of mentions.controls; track $index) {
@@ -210,7 +211,7 @@
           type="number"
           formControlName="maxTweets"
           min="100"
-          max="10000"
+          max="1000"
           step="100"
         />
         <mat-hint>Entre 100 y 10.000</mat-hint>
@@ -310,12 +311,7 @@
 
 <mat-dialog-actions align="end">
   <button mat-stroked-button (click)="cancel()" [disabled]="isSubmitting()">Cancelar</button>
-  <button
-    mat-raised-button
-    color="primary"
-    (click)="submit()"
-    [disabled]="isSubmitting() || form.invalid"
-  >
+  <button mat-raised-button color="primary" (click)="submit()">
     <mat-icon>campaign</mat-icon>&nbsp;Crear campaña
   </button>
 </mat-dialog-actions>

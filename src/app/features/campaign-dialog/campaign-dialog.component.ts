@@ -1,20 +1,28 @@
-import { CommonModule } from "@angular/common";
-import { HttpClient, HttpErrorResponse } from "@angular/common/http";
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from "@angular/core";
-import { takeUntilDestroyed } from "@angular/core/rxjs-interop";
-import { AbstractControl, FormArray, FormBuilder, FormControl, FormGroup, ReactiveFormsModule, Validators } from "@angular/forms";
-import { MatButtonModule } from "@angular/material/button";
-import { MatCardModule } from "@angular/material/card";
-import { MatCheckboxModule } from "@angular/material/checkbox";
-import { MatChipsModule } from "@angular/material/chips";
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from "@angular/material/dialog";
-import { MatFormFieldModule } from "@angular/material/form-field";
-import { MatIconModule } from "@angular/material/icon";
-import { MatInputModule } from "@angular/material/input";
-import { MatProgressBarModule } from "@angular/material/progress-bar";
-import { MatSelectModule } from "@angular/material/select";
-import { CampaignType } from "../../core/types";
-import { ApiResponse, CampaignRequest, CreateCampaignDialogData } from "./interfaces/campaign-dialog.interface";
+import { CommonModule } from '@angular/common';
+import { HttpClient } from '@angular/common/http';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {
+  AbstractControl,
+  FormArray,
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MatChipsModule } from '@angular/material/chips';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatSelectModule } from '@angular/material/select';
+import { CampaignType } from '../../core/types';
+import { CampaignRequest, CreateCampaignDialogData } from './interfaces/campaign-dialog.interface';
 
 type DataSource = 'twitter' | 'instagram' | 'tiktok' | 'youtube' | 'facebook';
 
@@ -275,15 +283,7 @@ export class CampaignDialogComponent {
       influencerAnalysis: !!v.influencerAnalysis,
       organizationId: v.organizationId!,
     };
-
-    try {
-      const res = await this.http.post<ApiResponse<any>>('/api/campaigns', payload).toPromise();
-      this.dialogRef.close(res?.data ?? payload); // Devuelve lo que traiga el API (o el payload si no hay data)
-    } catch (err) {
-      const e = err as HttpErrorResponse;
-      this.submitError.set(e.error?.message || e.message || 'No se pudo crear la campaña.');
-    } finally {
-      this.isSubmitting.set(false);
-    }
+    
+    this.dialogRef.close(payload); // Devuelve lo que traiga el API (o el payload si no hay data)
   }
 }
