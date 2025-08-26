@@ -3,12 +3,10 @@
   <div class="page-header">
     <div class="header-content">
       <h1 class="page-title">
-        <mat-icon>{{ 'campaign_list.campaign' | transloco }}</mat-icon>
         {{ 'campaign_list.campaign_manager' | transloco }}
       </h1>
       <p class="page-subtitle">
         {{ 'campaign_list.subtitle' | transloco }}
-        Manage your social media monitoring campaigns
       </p>
     </div>
 
@@ -120,7 +118,9 @@
   <!-- Loading State -->
   <div class="loading-container" *ngIf="loading()">
     <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
-    <p>Loading campaigns...</p>
+    <p>
+      {{ "campaign_list.loading" | transloco}}
+    </p>
   </div>
 
   <!-- Empty State -->
@@ -129,8 +129,8 @@
       <mat-card-content>
         <div class="empty-content">
           <mat-icon class="empty-icon">campaign</mat-icon>
-          <h2>No campaigns yet</h2>
-          <p>Create your first social media monitoring campaign to get started</p>
+          <h2>{{ "campaign_list.empty" }}</h2>
+          <p>{{ "campaign_list.create_first" | transloco }}</p>
           <button
             mat-raised-button
             color="primary"
@@ -138,7 +138,7 @@
             (click)="navigateToCreateCampaign()"
           >
             <mat-icon>add</mat-icon>
-            Create Your First Campaign
+            {{ 'campaign_list.create_first' | transloco }}
           </button>
         </div>
       </mat-card-content>
@@ -148,24 +148,24 @@
   <!-- Campaigns Table -->
   <mat-card class="table-card" *ngIf="!loading() && filteredCampaigns().length > 0">
     <div class="table-header">
-      <h3>Campaigns ({{ filteredCampaigns().length }})</h3>
+      <h3>{{ "campaign_list.campaigns" | transloco }} ({{ filteredCampaigns().length }})</h3>
       <div class="table-actions" *ngIf="hasSelectedCampaigns()">
         <button mat-button [matMenuTriggerFor]="bulkMenu">
           <mat-icon>more_vert</mat-icon>
-          Bulk Actions ({{ selectedCampaigns().size }})
+          {{ "campaign_list.actions" | transloco}} ({{ selectedCampaigns().size }})
         </button>
         <mat-menu #bulkMenu="matMenu">
           <button mat-menu-item (click)="bulkAction('pause')">
             <mat-icon>pause</mat-icon>
-            Pause Selected
+            {{ "campaign_list.pause" | transloco }}
           </button>
           <button mat-menu-item (click)="bulkAction('resume')">
             <mat-icon>play_arrow</mat-icon>
-            Resume Selected
+            {{ "campaign_list.resume" | transloco }}
           </button>
           <button mat-menu-item (click)="bulkAction('delete')" class="danger-action">
             <mat-icon>delete</mat-icon>
-            Delete Selected
+            {{ "campaign_list.delete" | transloco }}
           </button>
         </mat-menu>
       </div>
@@ -194,9 +194,9 @@
     <mat-card class="error-card">
       <mat-card-content>
         <mat-icon class="error-icon">error</mat-icon>
-        <h3>Error Loading Campaigns</h3>
+        <h3>{{ "campaign_list.error_loading" | transloco }}</h3>
         <p>{{ error() }}</p>
-        <button mat-raised-button color="primary" (click)="loadCampaigns()">Try Again</button>
+        <button mat-raised-button color="primary" (click)="loadCampaigns()">{{ "campaign_list.try_again" | transloco}}</button>
       </mat-card-content>
     </mat-card>
   </div>

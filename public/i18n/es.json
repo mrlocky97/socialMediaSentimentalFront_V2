@@ -278,6 +278,40 @@
       }
     }
   },
+  "campaign_list": {
+    "campaign": "Campaña",
+    "campaign_manager": "Gestor de Campañas",
+    "subtitle": "Gestiona tus campañas de marketing social",
+    "new_campaign": "Nueva Campaña",
+    "total_campaigns": "Total de Campañas",
+    "campaign_active": "Campaña activa",
+    "pause": "Pausar",
+    "draft": "Borrador",
+    "search": "Buscar",
+    "status": {
+      "active": "Activa",
+      "paused": "Pausada",
+      "completed": "Completada",
+      "draft": "Borrador"
+    },
+    "type": {
+      "hashtag": "Hashtag",
+      "hastag": "Hashtag",
+      "keyword": "Palabra clave",
+      "monitoring": "Monitoreo",
+      "tranking": "Seguimiento",
+      "tracking": "Seguimiento"
+    },
+    "loading": "Cargando campañas...",
+    "empty": "No se encontraron campañas",
+    "create_first": "Crea tu primera campaña",
+    "campaigns": "Campañas",
+    "actions": "Acciones",
+    "resume": "Reanudar",
+    "delete": "Eliminar",
+    "error_loading": "Error al cargar campañas",
+    "try_again": "Intentar de nuevo"
+  },
   "dashboard": {
     "welcome": "Bienvenido a SentimentalSocial",
     "subtitle": "Plataforma de análisis de sentimientos en redes sociales",
@@ -309,8 +343,8 @@
     "table": {
       "filter": "Filtrar",
       "filter_placeholder": "Filtrar tabla...",
-  "no_data": "No hay datos disponibles",
-  "select_all": "Seleccionar todas las campañas"
+      "no_data": "No hay datos disponibles",
+      "select_all": "Seleccionar todas las campañas"
     },
     "actions": {
       "refresh": "Actualizar datos",
@@ -385,7 +419,7 @@
   },
   "menu": {
     "home": "Inicio",
-    "campaign": "Campañas", 
+    "campaign": "Campañas",
     "campaigns": "Campañas",
     "analytics": "Análisis",
     "monitor": "Monitor",
@@ -395,7 +429,7 @@
     "aria": {
       "home": "Ir a inicio",
       "campaigns": "Ir a gestión de campañas",
-      "analytics": "Ir a análisis y reportes", 
+      "analytics": "Ir a análisis y reportes",
       "monitor": "Ir a monitor de scraping",
       "wizard": "Ir a asistente de campañas",
       "profile": "Ir a mi perfil",
@@ -403,7 +437,7 @@
     },
     "roles": {
       "admin": "Administrador",
-      "manager": "Manager", 
+      "manager": "Manager",
       "analyst": "Analista",
       "onlyView": "Solo lectura",
       "client": "Cliente",
@@ -411,7 +445,7 @@
     },
     "messages": {
       "logging_out": "Cerrando sesión...",
-      "avatar_alt": "Avatar de {{name}}", 
+      "avatar_alt": "Avatar de {{name}}",
       "user_role": "Rol de usuario: {{role}}"
     }
   },

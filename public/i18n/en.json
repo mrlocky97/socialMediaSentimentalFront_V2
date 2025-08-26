@@ -145,9 +145,9 @@
       "type": "Type",
       "platforms": "Platforms",
       "budget": "Budget",
-  "performance": "Performance",
+      "performance": "Performance",
       "timeline": "Timeline",
-  "select_all": "Select all campaigns",
+      "select_all": "Select all campaigns",
       "actions": "Actions"
     },
     "actions": {
@@ -384,7 +384,7 @@
   "menu": {
     "home": "Home",
     "campaign": "Campaigns",
-    "campaigns": "Campaigns", 
+    "campaigns": "Campaigns",
     "analytics": "Analytics",
     "monitor": "Monitor",
     "wizard": "Wizard",
@@ -394,7 +394,7 @@
       "home": "Go to home",
       "campaigns": "Go to campaign management",
       "analytics": "Go to analytics and reports",
-      "monitor": "Go to scraping monitor", 
+      "monitor": "Go to scraping monitor",
       "wizard": "Go to campaign wizard",
       "profile": "Go to my profile",
       "logout": "Sign out"
@@ -402,7 +402,7 @@
     "roles": {
       "admin": "Administrator",
       "manager": "Manager",
-      "analyst": "Analyst", 
+      "analyst": "Analyst",
       "onlyView": "Read only",
       "client": "Client",
       "user": "User"
@@ -420,6 +420,52 @@
       "warning": "All unsaved changes will be lost.",
       "cancel": "Cancel",
       "confirm": "Sign Out"
+    }
+  },
+  "campaign_list": {
+    "title": "Campaign Management",
+    "subtitle": "Manage your social media monitoring campaigns",
+    "create": "Create Campaign",
+    "search": "Search campaigns",
+    "searchPlaceholder": "Search by name, description or tags...",
+    "clearFilters": "Clear Filters",
+    "selected": "selected",
+    "conversions": "Conversions",
+    "status": {
+      "active": "Active",
+      "paused": "Paused",
+      "completed": "Completed",
+      "cancelled": "Cancelled",
+      "draft": "Draft",
+      "scheduled": "Scheduled"
+    },
+    "type": {
+      "brandAwareness": "Brand Awareness",
+      "brand_awareness": "Brand Awareness",
+      "leadGeneration": "Lead Generation",
+      "lead_generation": "Lead Generation",
+      "brand-monitoring": "Brand Monitoring",
+      "competitor-analysis": "Competitor Analysis",
+      "market-research": "Market Research",
+      "salesConversion": "Sales Conversion",
+      "engagement": "Engagement",
+      "trafficDrive": "Traffic Drive",
+      "appPromotion": "App Promotion"
+    },
+    "platforms": {
+      "twitter": "Twitter",
+      "facebook": "Facebook",
+      "instagram": "Instagram",
+      "linkedin": "LinkedIn",
+      "tiktok": "TikTok",
+      "youtube": "YouTube"
+    },
+    "table": {
+      "name": "Name",
+      "status": "Status",
+      "type": "Type",
+      "platforms": "Platforms",
+      "budget": "Budget"
     }
   }
 }

@@ -146,9 +146,9 @@
       "platforms": "Plattformen",
       "budget": "Budget",
       "performance": "Leistung",
-  "timeline": "Zeitplan",
-  "select_all": "Alle Kampagnen auswählen",
-  "actions": "Aktionen"
+      "timeline": "Zeitplan",
+      "select_all": "Alle Kampagnen auswählen",
+      "actions": "Aktionen"
     },
     "actions": {
       "view": "Details Anzeigen",
@@ -277,6 +277,40 @@
       }
     }
   },
+  "campaign_list": {
+    "campaign": "Kampagne",
+    "campaign_manager": "Kampagnen-Manager",
+    "subtitle": "Verwalten Sie Ihre Social-Marketing-Kampagnen",
+    "new_campaign": "Neue Kampagne",
+    "total_campaigns": "Gesamte Kampagnen",
+    "campaign_active": "Kampagne aktiv",
+    "pause": "Pausieren",
+    "draft": "Entwurf",
+    "search": "Suche",
+    "status": {
+      "active": "Aktiv",
+      "paused": "Pausiert",
+      "completed": "Abgeschlossen",
+      "draft": "Entwurf"
+    },
+    "type": {
+      "hashtag": "Hashtag",
+      "hastag": "Hashtag",
+      "keyword": "Schlüsselwort",
+      "monitoring": "Monitoring",
+      "tranking": "Tracking",
+      "tracking": "Tracking"
+    },
+    "loading": "Lade Kampagnen...",
+    "empty": "Keine Kampagnen gefunden",
+    "create_first": "Erstellen Sie Ihre erste Kampagne",
+    "campaigns": "Kampagnen",
+    "actions": "Aktionen",
+    "resume": "Fortsetzen",
+    "delete": "Löschen",
+    "error_loading": "Fehler beim Laden der Kampagnen",
+    "try_again": "Erneut versuchen"
+  },
   "dashboard": {
     "welcome": "Willkommen bei SentimentalSocial",
     "subtitle": "Social-Media-Stimmungsanalyse-Plattform",
@@ -385,7 +419,7 @@
     "home": "Startseite",
     "campaign": "Kampagnen",
     "campaigns": "Kampagnen",
-    "analytics": "Analysen", 
+    "analytics": "Analysen",
     "monitor": "Monitor",
     "wizard": "Assistent",
     "profile": "Mein Profil",
@@ -395,7 +429,7 @@
       "campaigns": "Zur Kampagnenverwaltung gehen",
       "analytics": "Zu Analysen und Berichten gehen",
       "monitor": "Zum Scraping-Monitor gehen",
-      "wizard": "Zum Kampagnen-Assistenten gehen", 
+      "wizard": "Zum Kampagnen-Assistenten gehen",
       "profile": "Zu meinem Profil gehen",
       "logout": "Abmelden"
     },
@@ -404,7 +438,7 @@
       "manager": "Manager",
       "analyst": "Analyst",
       "onlyView": "Nur Lesen",
-      "client": "Kunde", 
+      "client": "Kunde",
       "user": "Benutzer"
     },
     "messages": {

@@ -277,6 +277,42 @@
       }
     }
   },
+  "campaign_list": {
+    "campaign": "Campagne",
+    "campaign_manager": "Gestion des Campagnes",
+    "subtitle": "Gérez vos campagnes de surveillance des réseaux sociaux",
+    "new_campaign": "Créer une nouvelle campagne",
+    "total_campaigns": "Total des campagnes",
+    "campaign_active": "Campagnes actives",
+    "pause": "En pause",
+    "draft": "Brouillon",
+    "search": "Rechercher",
+    "searchPlaceholder": "Rechercher par nom, description ou tags...",
+    "status": {
+      "active": "Active",
+      "paused": "En Pause",
+      "completed": "Terminée",
+      "draft": "Brouillon"
+    },
+    "type": {
+      "label": "Type",
+      "hastag": "Hashtag",
+      "hashtag": "Hashtag",
+      "keyword": "Mot-clé",
+      "monitoring": "Surveillance",
+      "tranking": "Suivi",
+      "tracking": "Suivi"
+    },
+    "loading": "Chargement des campagnes...",
+    "empty": "Aucune campagne pour le moment",
+    "create_first": "Créez votre première campagne",
+    "campaigns": "Campagnes",
+    "actions": "Actions",
+    "resume": "Reprendre",
+    "delete": "Supprimer",
+    "error_loading": "Erreur lors du chargement des campagnes",
+    "try_again": "Réessayer"
+  },
   "dashboard": {
     "welcome": "Bienvenue sur SentimentalSocial",
     "subtitle": "Plateforme d'analyse de sentiment des réseaux sociaux",
@@ -386,7 +422,7 @@
     "campaign": "Campagnes",
     "campaigns": "Campagnes",
     "analytics": "Analyses",
-    "monitor": "Moniteur", 
+    "monitor": "Moniteur",
     "wizard": "Assistant",
     "profile": "Mon Profil",
     "logout": "Déconnexion",
@@ -403,7 +439,7 @@
       "admin": "Administrateur",
       "manager": "Gestionnaire",
       "analyst": "Analyste",
-      "onlyView": "Lecture seule", 
+      "onlyView": "Lecture seule",
       "client": "Client",
       "user": "Utilisateur"
     },
