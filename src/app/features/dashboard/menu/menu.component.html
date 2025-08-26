@@ -46,16 +46,16 @@
 
   <!-- Sección de logout -->
   <footer class="logout-section" role="contentinfo">
-    <button (click)="onLogout()" 
+    <button (click)="onLogout()"
             class="logout-item"
             type="button"
-            [attr.aria-label]="transloco.translate('menu.aria.logout')"
-            [attr.title]="transloco.translate('menu.logout')">
-      <mat-icon [fontIcon]="'logout'" 
-                class="logout-icon" 
+            [attr.aria-label]="'menu.aria.logout' | transloco"
+            [attr.title]="'menu.logout' | transloco">
+      <mat-icon [fontIcon]="'logout'"
+                class="logout-icon"
                 [attr.aria-hidden]="true">
       </mat-icon>
-      <span class="logout-label">{{ transloco.translate('menu.logout') }}</span>
+      <span class="logout-label">{{ 'menu.logout' | transloco }}</span>
     </button>
   </footer>
 </nav>

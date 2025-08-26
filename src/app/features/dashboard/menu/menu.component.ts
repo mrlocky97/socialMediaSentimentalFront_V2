@@ -6,7 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { RouterModule } from '@angular/router';
-import { TranslocoService } from '@ngneat/transloco';
+import { TranslocoService, TranslocoModule } from '@ngneat/transloco';
 import { AuthService } from '../../../core/auth/services/auth.service';
 
 export interface NavItem {
@@ -24,7 +24,8 @@ export interface NavItem {
     MatIconModule,
     MatButtonModule,
     RouterModule,
-    MatDividerModule,
+  MatDividerModule,
+  TranslocoModule,
   ],
   templateUrl: './menu.component.html',
   styleUrl: './menu.component.css',
