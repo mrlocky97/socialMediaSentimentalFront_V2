@@ -22,12 +22,6 @@ export const campaignRoutes: Routes = [
         title: 'Campaign Management - SentimentalSocial'
       },
       {
-        path: 'create',
-        loadComponent: () => 
-          import('../campaign-wizard/campaign-wizardcomponent').then(c => c.CampaignWizardComponent),
-        title: 'Create Campaign - SentimentalSocial'
-      },
-      {
         path: 'create-simple',
         loadComponent: () => 
           import('./campaign-form/campaign-form.component').then(c => c.CampaignFormComponent),

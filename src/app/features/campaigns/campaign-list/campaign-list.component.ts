@@ -36,7 +36,7 @@ import {
   TableConfig,
 } from '../../../shared/components/solid-data-table/service/table-services';
 import { SolidDataTableRxjsComponent } from '../../../shared/components/solid-data-table/solid-data-table-rxjs.component';
-import { CampaignWizardComponent } from '../../campaign-wizard/campaign-wizardcomponent';
+import { CampaignDialogComponent } from '../../campaign-dialog/campaign-dialog.component';
 
 @Component({
   selector: 'app-campaign-list',
@@ -320,7 +320,7 @@ export class CampaignListComponent implements OnInit, OnDestroy {
   navigateToCreateCampaign(): void {
     this.loading.set(true); // Show loading state while opening dialog
 
-    const dialogRef = this.dialogRef.open(CampaignWizardComponent, {
+    const dialogRef = this.dialogRef.open(CampaignDialogComponent, {
       width: 'auto',
       height: 'auto', // Let the content determine the height with min/max constraints
       maxHeight: '100vh', // Prevent dialog from being too tall
