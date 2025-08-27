@@ -1,6 +1,8 @@
 <h2 mat-dialog-title>
   <mat-icon aria-hidden="true">campaign</mat-icon>
-  {{ isEditMode ? 'Editar campaña' : 'Crear campaña' }}
+  {{
+    isEditMode ? 'campaign_dialog.edit_campaign' : ('campaign_dialog.create_campaign' | transloco)
+  }}
 </h2>
 
 <mat-dialog-content class="dialog-content" [formGroup]="form">
@@ -11,22 +13,24 @@
 
   <!-- Información básica -->
   <section class="section">
-    <h3><mat-icon>info</mat-icon> Información básica</h3>
+    <h3><mat-icon>info</mat-icon> {{ 'campaign_dialog.basic_info' | transloco }}</h3>
     <div class="grid grid-2">
       <mat-form-field appearance="outline" class="full">
-        <mat-label>Nombre</mat-label>
+        <mat-label>{{ 'campaign_dialog.name' | transloco }}</mat-label>
         <input matInput formControlName="name" autocomplete="off" maxlength="100" />
         <mat-hint align="end">{{ form.get('name')?.value?.length || 0 }}/100</mat-hint>
         @if (form.get('name')?.touched && form.get('name')?.invalid) {
         <mat-error>
-          @if (form.get('name')?.errors?.['required']) { Requerido. } @if
-          (form.get('name')?.errors?.['minlength']) { Mínimo 3 caracteres. }
+          @if (form.get('name')?.errors?.['required']) {
+          {{ 'campaign_dialog.required' | transloco }} } @if
+          (form.get('name')?.errors?.['minlength']) {
+          {{ 'campaign_dialog.min_chars' | transloco : { chars: 3 } }} }
         </mat-error>
         }
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="full">
-        <mat-label>Tipo</mat-label>
+        <mat-label>{{ 'campaign_dialog.type' | transloco }}</mat-label>
         <mat-select formControlName="type">
           @for (opt of typeOptions; track opt.value) {
           <mat-option [value]="opt.value">
@@ -36,18 +40,20 @@
           }
         </mat-select>
         @if (form.get('type')?.touched && form.get('type')?.invalid) {
-        <mat-error>Selecciona un tipo.</mat-error>
+        <mat-error>{{ 'campaign_dialog.select_type' | transloco }}</mat-error>
         }
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="full" style="grid-column: 1 / -1">
-        <mat-label>Descripción</mat-label>
+        <mat-label>{{ 'campaign_dialog.description' | transloco }}</mat-label>
         <textarea matInput formControlName="description" rows="3" maxlength="500"></textarea>
         <mat-hint align="end">{{ form.get('description')?.value?.length || 0 }}/500</mat-hint>
         @if (form.get('description')?.touched && form.get('description')?.invalid) {
         <mat-error>
-          @if (form.get('description')?.errors?.['required']) { Requerido. } @if
-          (form.get('description')?.errors?.['minlength']) { Mínimo 10 caracteres. }
+          @if (form.get('description')?.errors?.['required']) {
+          {{ 'campaign_dialog.required' | transloco }} } @if
+          (form.get('description')?.errors?.['minlength']) {
+          {{ 'campaign_dialog.min_chars' | transloco : { chars: 10 } }} }
         </mat-error>
         }
       </mat-form-field>
@@ -55,33 +61,36 @@
   </section>
 
   <!-- Targeting -->
-  <!-- Targeting -->
   <section class="section">
-    <h3><mat-icon>tag</mat-icon> Targeting</h3>
+    <h3><mat-icon>tag</mat-icon> {{ 'campaign_dialog.targeting' | transloco }}</h3>
 
     <!-- Hashtags -->
     <mat-card class="mb-8">
       <mat-card-header>
-        <mat-card-title><mat-icon>tag</mat-icon> Hashtags</mat-card-title>
-        <mat-card-subtitle>Ej: SummerVibes, BrandName</mat-card-subtitle>
+        <mat-card-title
+          ><mat-icon>tag</mat-icon> {{ 'campaign_dialog.hashtags' | transloco }}</mat-card-title
+        >
+        <mat-card-subtitle>{{ 'campaign_dialog.hashtags_example' | transloco }}</mat-card-subtitle>
       </mat-card-header>
       <mat-card-content formArrayName="hashtags">
         @if (hashtags.controls.length === 0) {
-        <p class="hint">No has agregado hashtags todavía.</p>
+        <p class="hint">{{ 'campaign_dialog.no_hashtags_added' | transloco }}</p>
         } @for (ctrl of hashtags.controls; track $index) {
         <div class="row">
           <mat-form-field appearance="outline" class="full">
-            <mat-label>Hashtag {{ $index + 1 }}</mat-label>
+            <mat-label>{{ 'campaign_dialog.hashtag' | transloco }} {{ $index + 1 }}</mat-label>
             <input matInput [formControlName]="$index" placeholder="BrandName" />
             @if (ctrl.touched && ctrl.invalid) {
-            <mat-error>Requerido (máx 100 caracteres)</mat-error>
+            <mat-error>
+              {{ 'campaign_dialog.required_max_chars' | transloco : { chars: 100 } }}
+            </mat-error>
             }
           </mat-form-field>
           <button
             mat-icon-button
             color="warn"
             type="button"
-            aria-label="Eliminar hashtag"
+            aria-label="{{ 'campaign_dialog.remove_hashtag' | transloco }}"
             (click)="removeControl(hashtags, $index)"
           >
             <mat-icon>remove_circle</mat-icon>
@@ -89,7 +98,7 @@
         </div>
         }
         <button mat-stroked-button type="button" (click)="addControl(hashtags)">
-          <mat-icon>add</mat-icon> Agregar hashtag
+          <mat-icon>add</mat-icon> {{ 'campaign_dialog.add_hashtag' | transloco }}
         </button>
       </mat-card-content>
     </mat-card>
@@ -97,25 +106,29 @@
     <!-- Keywords -->
     <mat-card class="mb-8">
       <mat-card-header>
-        <mat-card-title><mat-icon>search</mat-icon> Keywords</mat-card-title>
+        <mat-card-title
+          ><mat-icon>search</mat-icon> {{ 'campaign_dialog.keywords' | transloco }}</mat-card-title
+        >
       </mat-card-header>
       <mat-card-content formArrayName="keywords">
         @if (keywords.controls.length === 0) {
-        <p class="hint">Opcional: palabras clave para ampliar el alcance.</p>
+        <p class="hint">{{ 'campaign_dialog.keywords_hint' | transloco }}</p>
         } @for (ctrl of keywords.controls; track $index) {
         <div class="row">
           <mat-form-field appearance="outline" class="full">
-            <mat-label>Keyword {{ $index + 1 }}</mat-label>
+            <mat-label>{{ 'campaign_dialog.keyword' | transloco }} {{ $index + 1 }}</mat-label>
             <input matInput [formControlName]="$index" />
             @if (ctrl.touched && ctrl.invalid) {
-            <mat-error>Requerido (máx 100 caracteres)</mat-error>
+            <mat-error>
+              {{ 'campaign_dialog.required_max_chars' | transloco : { chars: 100 } }}
+            </mat-error>
             }
           </mat-form-field>
           <button
             mat-icon-button
             color="warn"
             type="button"
-            aria-label="Eliminar keyword"
+            aria-label="{{ 'campaign_dialog.remove_keyword' | transloco }}"
             (click)="removeControl(keywords, $index)"
           >
             <mat-icon>remove_circle</mat-icon>
@@ -123,7 +136,7 @@
         </div>
         }
         <button mat-stroked-button type="button" (click)="addControl(keywords)">
-          <mat-icon>add</mat-icon> Agregar keyword
+          <mat-icon>add</mat-icon> {{ 'campaign_dialog.add_keyword' | transloco }}
         </button>
       </mat-card-content>
     </mat-card>
@@ -131,25 +144,30 @@
     <!-- Mentions -->
     <mat-card>
       <mat-card-header>
-        <mat-card-title><mat-icon>alternate_email</mat-icon> Mentions</mat-card-title>
+        <mat-card-title
+          ><mat-icon>alternate_email</mat-icon>
+          {{ 'campaign_dialog.mentions' | transloco }}</mat-card-title
+        >
       </mat-card-header>
       <mat-card-content formArrayName="mentions">
         @if (mentions.controls.length === 0) {
-        <p class="hint">Opcional: usuarios o cuentas relevantes.</p>
+        <p class="hint">{{ 'campaign_dialog.mentions_hint' | transloco }}</p>
         } @for (ctrl of mentions.controls; track $index) {
         <div class="row">
           <mat-form-field appearance="outline" class="full">
-            <mat-label>Mención {{ $index + 1 }}</mat-label>
+            <mat-label>{{ 'campaign_dialog.mention' | transloco }} {{ $index + 1 }}</mat-label>
             <input matInput [formControlName]="$index" placeholder="@brand" />
             @if (ctrl.touched && ctrl.invalid) {
-            <mat-error>Requerido (máx 100 caracteres)</mat-error>
+            <mat-error>
+              {{ 'campaign_dialog.required_max_chars' | transloco : { chars: 100 } }}
+            </mat-error>
             }
           </mat-form-field>
           <button
             mat-icon-button
             color="warn"
             type="button"
-            aria-label="Eliminar mención"
+            aria-label="{{ 'campaign_dialog.remove_mention' | transloco }}"
             (click)="removeControl(mentions, $index)"
           >
             <mat-icon>remove_circle</mat-icon>
@@ -157,7 +175,7 @@
         </div>
         }
         <button mat-stroked-button type="button" (click)="addControl(mentions)">
-          <mat-icon>add</mat-icon> Agregar mención
+          <mat-icon>add</mat-icon> {{ 'campaign_dialog.add_mention' | transloco }}
         </button>
       </mat-card-content>
     </mat-card>
@@ -165,34 +183,34 @@
     @if (form.errors?.['noTargeting'] && (hashtags.touched || keywords.touched || mentions.touched))
     {
     <div class="error-box" style="margin-top: 8px">
-      Debes agregar al menos un hashtag, keyword o mención.
+      {{ 'campaign_dialog.targeting_error' | transloco }}
     </div>
     }
   </section>
 
   <!-- Configuración y fuentes -->
   <section class="section">
-    <h3><mat-icon>settings</mat-icon> Configuración</h3>
+    <h3><mat-icon>settings</mat-icon> {{ 'campaign_dialog.configuration' | transloco }}</h3>
 
     <div class="grid grid-3">
       <mat-form-field appearance="outline" class="full">
-        <mat-label>Fecha de inicio</mat-label>
+        <mat-label>{{ 'campaign_dialog.start_date' | transloco }}</mat-label>
         <input matInput type="datetime-local" formControlName="startDateLocal" />
         @if (form.get('startDateLocal')?.touched && form.get('startDateLocal')?.invalid) {
-        <mat-error>Requerido.</mat-error>
+        <mat-error>{{ 'campaign_dialog.required' | transloco }}</mat-error>
         }
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="full">
-        <mat-label>Fecha de fin</mat-label>
+        <mat-label>{{ 'campaign_dialog.end_date' | transloco }}</mat-label>
         <input matInput type="datetime-local" formControlName="endDateLocal" />
         @if (form.get('endDateLocal')?.touched && form.get('endDateLocal')?.invalid) {
-        <mat-error>Requerido.</mat-error>
+        <mat-error>{{ 'campaign_dialog.required' | transloco }}</mat-error>
         }
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="full">
-        <mat-label>Zona horaria</mat-label>
+        <mat-label>{{ 'campaign_dialog.timezone' | transloco }}</mat-label>
         <mat-select formControlName="timezone">
           <mat-option value="UTC">UTC</mat-option>
           <mat-option value="Europe/Zurich">Europe/Zurich</mat-option>
@@ -200,40 +218,38 @@
           <mat-option value="Europe/Madrid">Europe/Madrid</mat-option>
         </mat-select>
         @if (form.get('timezone')?.touched && form.get('timezone')?.invalid) {
-        <mat-error>Requerido.</mat-error>
+        <mat-error>{{ 'campaign_dialog.required' | transloco }}</mat-error>
         }
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="full">
-        <mat-label>Máximo de tweets</mat-label>
-        <input
-          matInput
-          type="number"
-          formControlName="maxTweets"
-          min="100"
-          max="1000"
-          step="100"
-        />
-        <mat-hint>Entre 100 y 10.000</mat-hint>
-        @if (form.get('maxTweets')?.touched && form.get('maxTweets')?.invalid) {
+        <mat-label>{{ 'campaign_dialog.max_tweets' | transloco }}</mat-label>
+        <input matInput type="number" formControlName="maxTweets" min="100" max="1000" step="100" />
+        <mat-hint>
+          {{ 'campaign_dialog.between_values' | transloco : { min: 100, max: 10000 }
+        </mat-hint>
+        @if (form.get('maxTweets')?.touched && form.get('maxTweets') ?.invalid) {
         <mat-error>
-          @if (form.get('maxTweets')?.errors?.['min']) { Mínimo 100. } @if
-          (form.get('maxTweets')?.errors?.['max']) { Máximo 10.000. } @if
-          (form.get('maxTweets')?.errors?.['required']) { Requerido. }
+          @if (form.get('maxTweets')?.errors?.['min']) {
+          {{ 'campaign_dialog.min_value' | transloco : { value: 100 } }} } @if
+          (form.get('maxTweets')?.errors?.['max']) {
+          {{ 'campaign_dialog.max_value' | transloco : { value: 10000 } }} } @if
+          (form.get('maxTweets')?.errors?.['required']) {
+          {{ 'campaign_dialog.required' | transloco }} }
         </mat-error>
         }
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="full" style="grid-column: 1 / -1">
-        <mat-label>Fuentes de datos</mat-label>
+        <mat-label>{{ 'campaign_dialog.data_sources' | transloco }}</mat-label>
         <mat-select formControlName="dataSources" multiple>
           @for (src of dataSourceOptions; track src.value) {
           <mat-option [value]="src.value">{{ src.label }}</mat-option>
           }
         </mat-select>
-        <mat-hint>Selecciona al menos una</mat-hint>
+        <mat-hint>{{ 'campaign_dialog.select_at_least_one' | transloco }}</mat-hint>
         @if (form.get('dataSources')?.touched && form.get('dataSources')?.invalid) {
-        <mat-error>Selecciona al menos una fuente.</mat-error>
+        <mat-error>{{ 'campaign_dialog.select_at_least_one_source' | transloco }}</mat-error>
         }
         <div class="chips-row" style="margin-top: 6px">
           @for (v of form.get('dataSources')?.value || []; track v) {
@@ -243,55 +259,63 @@
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="full" style="grid-column: 1 / -1">
-        <mat-label>Idiomas</mat-label>
+        <mat-label>{{ 'campaign_dialog.languages' | transloco }}</mat-label>
         <mat-select formControlName="languages" multiple>
           @for (code of languageOptions; track code) {
           <mat-option [value]="code">{{ code }}</mat-option>
           }
         </mat-select>
-        <mat-hint>Opcional</mat-hint>
+        <mat-hint>{{ 'campaign_dialog.optional' | transloco }}</mat-hint>
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="full" style="grid-column: 1 / -1">
-        <mat-label>Organization ID</mat-label>
+        <mat-label>{{ 'campaign_dialog.organization_id' | transloco }}</mat-label>
         <input matInput formControlName="organizationId" />
         @if (form.get('organizationId')?.touched && form.get('organizationId')?.invalid) {
-        <mat-error>Requerido.</mat-error>
+        <mat-error>{{ 'campaign_dialog.required' | transloco }}</mat-error>
         }
       </mat-form-field>
 
       <div class="grid grid-auto" style="grid-column: 1 / -1">
         <mat-card>
           <mat-card-content class="grid grid-auto">
-            <mat-checkbox formControlName="collectImages"
-              ><mat-icon>image</mat-icon>&nbsp;Guardar imágenes</mat-checkbox
-            >
-            <mat-checkbox formControlName="collectVideos"
-              ><mat-icon>movie</mat-icon>&nbsp;Guardar videos</mat-checkbox
-            >
-            <mat-checkbox formControlName="collectReplies"
-              ><mat-icon>chat_bubble</mat-icon>&nbsp;Incluir respuestas</mat-checkbox
-            >
-            <mat-checkbox formControlName="collectRetweets"
-              ><mat-icon>repeat</mat-icon>&nbsp;Incluir retweets</mat-checkbox
-            >
+            <mat-checkbox formControlName="collectImages">
+              <mat-icon>image</mat-icon>&nbsp;
+              {{ 'campaign_dialog.collect_images' | transloco }}
+            </mat-checkbox>
+            <mat-checkbox formControlName="collectVideos">
+              <mat-icon>movie</mat-icon>&nbsp;
+              {{ 'campaign_dialog.collect_videos' | transloco }}
+            </mat-checkbox>
+            <mat-checkbox formControlName="collectReplies">
+              <mat-icon>chat_bubble</mat-icon>&nbsp;
+              {{ 'campaign_dialog.include_replies' | transloco }}
+            </mat-checkbox>
+            <mat-checkbox formControlName="collectRetweets">
+              <mat-icon>repeat</mat-icon>&nbsp;
+              {{ 'campaign_dialog.include_retweets' | transloco }}
+            </mat-checkbox>
           </mat-card-content>
         </mat-card>
 
         <mat-card>
           <mat-card-content class="grid grid-auto">
             <mat-checkbox formControlName="sentimentAnalysis">
-              <mat-icon>sentiment_satisfied</mat-icon>&nbsp;Análisis de sentimiento
+              <mat-icon>sentiment_satisfied</mat-icon>&nbsp;
+              {{ 'campaign_dialog.sentiment_analysis' | transloco }}
             </mat-checkbox>
-            <mat-checkbox formControlName="emotionAnalysis"
-              ><mat-icon>favorite</mat-icon>&nbsp;Emoción</mat-checkbox
-            >
-            <mat-checkbox formControlName="topicsAnalysis"
-              ><mat-icon>topic</mat-icon>&nbsp;Tópicos</mat-checkbox
-            >
-            <mat-checkbox formControlName="influencerAnalysis"
-              ><mat-icon>groups</mat-icon>&nbsp;Influencers</mat-checkbox
-            >
+            <mat-checkbox formControlName="emotionAnalysis">
+              <mat-icon>favorite</mat-icon>&nbsp;
+              {{ 'campaign_dialog.emotion_analysis' | transloco }}
+            </mat-checkbox>
+            <mat-checkbox formControlName="topicsAnalysis">
+              <mat-icon>topic</mat-icon>&nbsp;
+              {{ 'campaign_dialog.topics_analysis' | transloco }}
+            </mat-checkbox>
+            <mat-checkbox formControlName="influencerAnalysis">
+              <mat-icon>groups</mat-icon>&nbsp;
+              {{ 'campaign_dialog.influencer_analysis' | transloco }}
+            </mat-checkbox>
           </mat-card-content>
         </mat-card>
       </div>
@@ -299,7 +323,7 @@
 
     @if (form.errors?.['dateRange']) {
     <div class="error-box" style="margin-top: 8px">
-      La fecha de fin debe ser posterior a la fecha de inicio.
+      {{ 'campaign_dialog.date_range_error' | transloco }}
     </div>
     }
   </section>
@@ -310,8 +334,15 @@
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-  <button mat-stroked-button (click)="cancel()" [disabled]="isSubmitting()">Cancelar</button>
+  <button mat-stroked-button (click)="cancel()" [disabled]="isSubmitting()">
+    {{ 'campaign_dialog.cancel' | transloco }}
+  </button>
   <button mat-raised-button color="primary" (click)="submit()">
-    <mat-icon>{{ isEditMode ? 'update' : 'campaign' }}</mat-icon>&nbsp;{{ isEditMode ? 'Actualizar campaña' : 'Crear campaña' }}
+    <mat-icon>{{ isEditMode ? 'update' : 'campaign' }}</mat-icon
+    >&nbsp;{{
+      isEditMode
+        ? 'campaign_dialog.update_campaign'
+        : ('campaign_dialog.create_campaign' | transloco)
+    }}
   </button>
 </mat-dialog-actions>

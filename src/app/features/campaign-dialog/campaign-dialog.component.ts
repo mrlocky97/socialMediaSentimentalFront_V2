@@ -21,6 +21,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
+import { TranslocoModule, TranslocoService } from '@ngneat/transloco';
 import { CampaignType } from '../../core/types';
 import { CampaignRequest, CreateCampaignDialogData } from './interfaces/campaign-dialog.interface';
 
@@ -43,6 +44,8 @@ type DataSource = 'twitter' | 'instagram' | 'tiktok' | 'youtube' | 'facebook';
     MatIconModule,
     MatChipsModule,
     MatCardModule,
+    // Transloco para traducciones
+    TranslocoModule,
     MatProgressBarModule,
   ],
   templateUrl: './campaign-dialog.component.html',
@@ -50,6 +53,7 @@ type DataSource = 'twitter' | 'instagram' | 'tiktok' | 'youtube' | 'facebook';
 })
 export class CampaignDialogComponent {
   // Inyecciones
+  private readonly transloco = inject(TranslocoService);
   private fb = inject(FormBuilder);
   private http = inject(HttpClient);
   private dialogRef = inject(MatDialogRef<CampaignDialogComponent, any>);
@@ -61,7 +65,7 @@ export class CampaignDialogComponent {
   readonly submitError = signal<string | null>(null);
   readonly isEditModeSignal = signal<boolean>(false);
   readonly campaignId = signal<string | null>(null);
-  
+
   // Exponer isEditMode para la plantilla
   get isEditMode(): boolean {
     return this.isEditModeSignal();
@@ -142,7 +146,7 @@ export class CampaignDialogComponent {
   constructor() {
     // Determinar si estamos en modo edición
     this.isEditModeSignal.set(this.data?.mode === 'edit');
-    
+
     if (this.isEditModeSignal()) {
       // Si estamos en modo edición, guardamos el ID de la campaña
       if (this.data?.campaignId) {
@@ -302,14 +306,14 @@ export class CampaignDialogComponent {
       influencerAnalysis: !!v.influencerAnalysis,
       organizationId: v.organizationId!,
     };
-    
+
     // Devolver el resultado con información del modo (create/edit)
     const result = {
       payload,
       mode: this.isEditModeSignal() ? 'edit' : 'create',
-      id: this.campaignId() // Será null para create, y tendrá valor para edit
+      id: this.campaignId(), // Será null para create, y tendrá valor para edit
     };
-    
-    this.dialogRef.close(result); 
+
+    this.dialogRef.close(result);
   }
 }

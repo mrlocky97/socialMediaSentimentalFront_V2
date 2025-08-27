@@ -129,7 +129,7 @@
       <mat-card-content>
         <div class="empty-content">
           <mat-icon class="empty-icon">campaign</mat-icon>
-          <h2>{{ "campaign_list.empty" }}</h2>
+          <h2>{{ "campaign_list.empty" | transloco }}</h2>
           <p>{{ "campaign_list.create_first" | transloco }}</p>
           <button
             mat-raised-button
@@ -138,7 +138,7 @@
             (click)="navigateToCreateCampaign()"
           >
             <mat-icon>add</mat-icon>
-            {{ 'campaign_list.create_first' | transloco }}
+            {{ 'campaign_list.new_campaign' | transloco }}
           </button>
         </div>
       </mat-card-content>
