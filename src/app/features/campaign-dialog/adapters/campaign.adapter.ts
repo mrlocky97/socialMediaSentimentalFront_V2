@@ -1,5 +1,5 @@
-import { Campaign as AppStateCampaign } from '../../../core/state/app.state';
 import { Campaign as ApiCampaign } from '../../../core/services/data-manager.service';
+import { Campaign as AppStateCampaign } from '../../../core/state/app.state';
 import { CampaignRequest } from '../interfaces/campaign-dialog.interface';
 
 // Extendemos la interfaz ApiCampaign para incluir los campos requeridos por la API
@@ -17,22 +17,24 @@ export class CampaignAdapter {
  */
 static fromApiToState(apiCampaign: ApiCampaign): AppStateCampaign {
   return {
-    id: apiCampaign.id,
+    id: apiCampaign._id || apiCampaign.id,
     name: apiCampaign.name,
     description: apiCampaign.description,
     status: this.mapApiStatus(apiCampaign.status),
     type: this.mapApiType(apiCampaign.type),
     hashtags: apiCampaign.hashtags || [],
     keywords: apiCampaign.keywords || [],
-    mentions: [], // La API no tiene mentions
+    mentions: apiCampaign.mentions || [],
+    dataSources: apiCampaign.dataSources || ['twitter'],
     startDate: apiCampaign.startDate,
     endDate: apiCampaign.endDate,
+    languages: apiCampaign.languages || [],
     maxTweets: 1000, // Default value, API no tiene este campo
     sentimentAnalysis: true, // Default value, API no tiene este campo
     createdBy: 'system', // Default value, API no tiene este campo
     createdAt: apiCampaign.createdAt,
     updatedAt: new Date(), // Default value, API no tiene este campo
-    organizationId: 'default-org-id', // Aseguramos tener un valor por defecto
+    organizationId: apiCampaign.organizationId ?? 'default-org-id', // Aseguramos tener un valor por defecto
     stats: apiCampaign.stats ? {
       totalTweets: apiCampaign.stats.totalTweets,
       totalEngagement: apiCampaign.stats.engagementRate * 100, // Convertir tasa a valor total

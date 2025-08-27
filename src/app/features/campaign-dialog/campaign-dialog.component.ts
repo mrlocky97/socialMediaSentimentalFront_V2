@@ -1,7 +1,7 @@
 import { A11yModule } from '@angular/cdk/a11y';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   AbstractControl,
@@ -54,7 +54,7 @@ type DataSource = 'twitter' | 'instagram' | 'tiktok' | 'youtube' | 'facebook';
   templateUrl: './campaign-dialog.component.html',
   styleUrls: ['./campaign-dialog.component.css'],
 })
-export class CampaignDialogComponent {
+export class CampaignDialogComponent implements OnInit, AfterViewInit {
   // Inyecciones
   public transloco = inject(TranslocoService);
   private fb = inject(FormBuilder);
@@ -73,11 +73,20 @@ export class CampaignDialogComponent {
   get isEditMode(): boolean {
     return this.isEditModeSignal();
   }
+  
+  // Obtener etiqueta para datasource por valor
+  getDataSourceLabel(value: string): string {
+    const source = this.dataSourceOptions.find(src => src.value === value);
+    return source ? source.label : value;
+  }
 
   // --- Formulario Reactivo ---
   // Campos base
   form = this.fb.group(
     {
+      // ID de campaña (oculto, solo para edición)
+      id: [''],
+      
       // Basic info
       name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
       description: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(500)]],
@@ -154,6 +163,7 @@ export class CampaignDialogComponent {
       // Si estamos en modo edición, guardamos el ID de la campaña
       if (this.data?.campaignId) {
         this.campaignId.set(this.data.campaignId);
+        console.log('Edit mode with campaign ID:', this.data.campaignId);
       } else {
         console.error('Modo de edición sin ID de campaña');
       }
@@ -162,6 +172,15 @@ export class CampaignDialogComponent {
     // Preload (si viene preset)
     const p = this.data?.preset ?? {};
     console.log('Preset data in constructor:', p);
+    
+    // Debug especificamente los arrays que causan problemas
+    console.log('Arrays from preset:', {
+      dataSources: p.dataSources,
+      languages: p.languages,
+      hashtags: p.hashtags,
+      keywords: p.keywords,
+      mentions: p.mentions
+    });
 
     // Primero limpiamos los arrays existentes por si acaso
     while (this.hashtags.length) this.hashtags.removeAt(0);
@@ -173,41 +192,99 @@ export class CampaignDialogComponent {
     (p.keywords ?? []).forEach((v) => this.addControl(this.keywords, v));
     (p.mentions ?? []).forEach((v) => this.addControl(this.mentions, v));
 
+    // Asegurarnos de que dataSources y languages son arrays válidos
+    const dataSources = Array.isArray(p.dataSources) ? p.dataSources : [];
+    const languages = Array.isArray(p.languages) ? p.languages : [];
+    
+    console.log('DataSources before form patch:', dataSources);
+    console.log('Languages before form patch:', languages);
+
     // Ahora hacemos el patch value después de tener los arrays configurados
     this.form.patchValue(
       {
+        // ID de campaña (para edición)
+        id: this.data?.campaignId ?? '',
+        
+        // Información básica
         name: p.name ?? '',
         description: p.description ?? '',
         type: p.type ?? 'hashtag',
-        dataSources: p.dataSources ?? [],
-        languages: p.languages ?? [],
+        
+        // Arrays - asegurarnos de que son arrays válidos
+        dataSources: dataSources,
+        languages: languages,
+        
+        // Configuración
         timezone: p.timezone ?? 'UTC',
         maxTweets: p.maxTweets ?? 1000,
+        
+        // Checkboxes de colección
         collectImages: p.collectImages ?? true,
         collectVideos: p.collectVideos ?? true,
         collectReplies: p.collectReplies ?? false,
         collectRetweets: p.collectRetweets ?? true,
+        
+        // Checkboxes de análisis
         sentimentAnalysis: p.sentimentAnalysis ?? true,
         emotionAnalysis: p.emotionAnalysis ?? false,
         topicsAnalysis: p.topicsAnalysis ?? false,
         influencerAnalysis: p.influencerAnalysis ?? false,
+        
+        // Organización
         organizationId: p.organizationId ?? '',
-        // start/end locales si vienen ISO
+        
+        // Fechas (convertimos ISO a formato local)
         startDateLocal: p.startDate ? this.isoToLocalDatetime(p.startDate) : '',
         endDateLocal: p.endDate ? this.isoToLocalDatetime(p.endDate) : '',
       },
       { emitEvent: false }
     );
     
+    console.log('Form after initialization:', {
+      id: this.form.get('id')?.value,
+      dataSources: this.form.get('dataSources')?.value,
+      languages: this.form.get('languages')?.value,
+      organizationId: this.form.get('organizationId')?.value
+    });
+    
     // Forzar detección de cambios en caso de que haya problemas de actualización
     setTimeout(() => {
       // Validamos el formulario para actualizar estado
       this.form.updateValueAndValidity();
+      console.log('Form after updateValueAndValidity:', {
+        id: this.form.get('id')?.value,
+        dataSources: this.form.get('dataSources')?.value,
+        languages: this.form.get('languages')?.value,
+        organizationId: this.form.get('organizationId')?.value
+      });
     }, 0);
 
     // Limpiar mensaje de error al cambiar el form
     this.form.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
       if (this.submitError()) this.submitError.set(null);
+    });
+  }
+  
+  ngOnInit() {
+    console.log('OnInit - Form values:', {
+      id: this.form.get('id')?.value,
+      dataSources: this.form.get('dataSources')?.value,
+      languages: this.form.get('languages')?.value,
+      organizationId: this.form.get('organizationId')?.value,
+      isEditMode: this.isEditMode
+    });
+  }
+  
+  ngAfterViewInit() {
+    // Use setTimeout to avoid ExpressionChangedAfterItHasBeenCheckedError
+    setTimeout(() => {
+      console.log('AfterViewInit - Form values:', {
+        id: this.form.get('id')?.value,
+        dataSources: this.form.get('dataSources')?.value,
+        languages: this.form.get('languages')?.value,
+        organizationId: this.form.get('organizationId')?.value,
+        isEditMode: this.isEditMode
+      });
     });
   }
 
@@ -325,11 +402,28 @@ export class CampaignDialogComponent {
       organizationId: v.organizationId!,
     };
 
+    // Obtener el ID de la campaña para edición (prioridad: form.id > campaignId signal > data.campaignId)
+    const campaignId = v.id || this.campaignId() || this.data?.campaignId || null;
+    
+    console.log('Submit form with values:', {
+      id: campaignId,
+      dataSources: v.dataSources,
+      languages: v.languages,
+      organizationId: v.organizationId
+    });
+
+    // Añadir el ID a la payload para operaciones de actualización
+    if (this.isEditModeSignal() && campaignId) {
+      Object.assign(payload, { id: campaignId });
+    }
+    
+    console.log('Final payload with all fields:', payload);
+    
     // Devolver el resultado con información del modo (create/edit)
     const result = {
       payload,
       mode: this.isEditModeSignal() ? 'edit' : 'create',
-      id: this.campaignId(), // Será null para create, y tendrá valor para edit
+      id: campaignId, // ID de la campaña para operaciones de update
     };
 
     this.dialogRef.close(result);

@@ -13,6 +13,7 @@ import { BackendTestService } from './backend-test.service';
 
 // ===== INTERFACES =====
 export interface Campaign {
+  _id?: string; //optional
   id: string;
   name: string;
   description: string;
@@ -20,8 +21,12 @@ export interface Campaign {
   status: 'draft' | 'active' | 'paused' | 'completed';
   hashtags: string[];
   keywords: string[];
+  mentions?: string[];
   startDate: Date;
   endDate: Date;
+  organizationId?: string;
+  dataSources?: string[];
+  languages?: string[];
   stats: {
     totalTweets: number;
     averageSentiment: number;

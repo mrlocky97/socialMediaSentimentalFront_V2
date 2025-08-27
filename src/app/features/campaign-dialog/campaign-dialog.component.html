@@ -251,7 +251,7 @@
         }
         <div class="chips-row" style="margin-top: 6px">
           @for (v of form.get('dataSources')?.value || []; track v) {
-          <mat-chip>{{ v }}</mat-chip>
+          <mat-chip>{{ getDataSourceLabel(v) }}</mat-chip>
           }
         </div>
       </mat-form-field>
@@ -264,6 +264,11 @@
           }
         </mat-select>
         <mat-hint>{{ 'campaign_dialog.optional' | transloco }}</mat-hint>
+        <div class="chips-row" style="margin-top: 6px">
+          @for (code of form.get('languages')?.value || []; track code) {
+          <mat-chip>{{ code }}</mat-chip>
+          }
+        </div>
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="full" style="grid-column: 1 / -1">
