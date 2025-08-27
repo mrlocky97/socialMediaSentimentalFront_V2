@@ -284,6 +284,6 @@ export class CampaignDialogComponent {
       organizationId: v.organizationId!,
     };
     
-    this.dialogRef.close(payload); // Devuelve lo que traiga el API (o el payload si no hay data)
+    this.dialogRef.close(payload); // Devuelve el payload para que el componente parent use el facade
   }
 }

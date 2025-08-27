@@ -1,165 +1,132 @@
-import { HttpClient } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable } from 'rxjs';
-import { environment } from '../../../../enviroments/environment';
-import { CampaignFormData } from '../campaign-dialog.component';
-
+import { Observable, catchError, firstValueFrom, from, map, of, tap } from 'rxjs';
+import { Campaign } from '../../../core/state/app.state';
+import { CampaignFacade } from '../../../core/store/fecades/campaign.facade';
+import { CampaignRequest } from '../interfaces/campaign-dialog.interface';
 
 export interface CampaignCreationResult {
   success: boolean;
-  campaignId?: string;
-  errors?: string[];
-  warnings?: string[];
-}
-
-export interface Campaign {
-  id: string;
-  name: string;
-  description: string;
-  type: 'hashtag' | 'keyword' | 'user';
-  status: 'active' | 'inactive' | 'completed';
-  hashtags: string[];
-  keywords: string[];
-  mentions: string[];
-  startDate: Date;
-  endDate: Date;
-  maxTweets: number;
-  sentimentAnalysis: boolean;
-  organizationId: string;
-  createdBy: string;
-  createdAt: Date;
-  updatedAt: Date;
+  campaign?: Campaign;
+  error?: string;
 }
 
 @Injectable({
   providedIn: 'root'
 })
-export class CampaignWizardService {
-  private readonly http = inject(HttpClient);
-  private readonly apiUrl = `${environment.apiUrl}/campaigns`;
+export class CampaignDialogService {
+  private readonly campaignFacade = inject(CampaignFacade);
 
-  async createCampaign(formData: CampaignFormData): Promise<CampaignCreationResult> {
-    try {
-      const campaignPayload = this.transformFormDataToCampaign(formData);
-
-      const response = await this.http.post<{ campaign: Campaign }>(
-        this.apiUrl,
-        campaignPayload
-      ).toPromise();
-
-      if (response?.campaign) {
-        return {
-          success: true,
-          campaignId: response.campaign.id
-        };
-      } else {
-        return {
+  /**
+   * Crear una nueva campaña usando el estado global NgRx
+   */
+  createCampaign(campaignRequest: CampaignRequest): Observable<CampaignCreationResult> {
+    return this.campaignFacade.createCampaign(campaignRequest).pipe(
+      map(action => {
+        if ('campaign' in action) {
+          // Éxito
+          return {
+            success: true,
+            campaign: action.campaign
+          };
+        } else {
+          // Error
+          return {
+            success: false,
+            error: action.error?.message || 'Error al crear la campaña'
+          };
+        }
+      }),
+      catchError(error => {
+        console.error('Error al crear campaña:', error);
+        return of({
           success: false,
-          errors: ['Failed to create campaign - no response data']
-        };
-      }
-    } catch (error: any) {
-      console.error('Campaign creation error:', error);
-
-      // Si el backend no está disponible, crear campaña mock
-      if (error.status === 0 || error.status === 404 || error.status === 500 || error.status === 401) {
-        console.warn('🔄 Backend no disponible, creando campaña mock para desarrollo');
-        return this.createMockCampaign(formData);
-      }
-
-      return {
-        success: false,
-        errors: this.extractErrorMessages(error)
-      };
-    }
-  }
-
-  getCampaignById(id: string): Observable<Campaign> {
-    return this.http.get<Campaign>(`${this.apiUrl}/${id}`);
-  }
-
-  updateCampaign(id: string, updates: Partial<Campaign>): Observable<Campaign> {
-    return this.http.put<Campaign>(`${this.apiUrl}/${id}`, updates);
-  }
-
-  deleteCampaign(id: string): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}`);
-  }
-
-  duplicateCampaign(id: string, newName?: string): Observable<Campaign> {
-    return this.http.post<Campaign>(`${this.apiUrl}/${id}/duplicate`, {
-      name: newName
-    });
-  }
-
-  validateCampaignName(name: string): Observable<{ isAvailable: boolean }> {
-    return this.http.get<{ isAvailable: boolean }>(
-      `${this.apiUrl}/validate-name?name=${encodeURIComponent(name)}`
+          error: error.message || 'Error inesperado al crear la campaña'
+        });
+      })
     );
   }
 
-  private transformFormDataToCampaign(formData: CampaignFormData): Partial<Campaign> {
-    return {
-      name: formData.basic.name,
-      description: formData.basic.description,
-      type: formData.basic.type,
-      hashtags: formData.targeting.hashtags.filter(tag => tag && tag.trim()),
-      keywords: formData.targeting.keywords.filter(keyword => keyword && keyword.trim()),
-      mentions: formData.targeting.mentions.filter(mention => mention && mention.trim()),
-      startDate: new Date(formData.settings.startDate),
-      endDate: new Date(formData.settings.endDate),
-      maxTweets: formData.settings.maxTweets,
-      sentimentAnalysis: formData.settings.sentimentAnalysis,
-      status: 'inactive' // New campaigns start as inactive
+  /**
+   * Obtener una campaña por su ID
+   */
+  getCampaignById(id: string): Observable<Campaign | null> {
+    return this.campaignFacade.getCampaignById(id);
+  }
+
+  /**
+   * Actualizar una campaña existente
+   */
+  updateCampaign(id: string, updates: Partial<Campaign>): Observable<any> {
+    // Convertir fechas a string ISO si existen
+    const convertedUpdates = {
+      id,
+      ...(updates.name && { name: updates.name }),
+      ...(updates.description && { description: updates.description }),
+      ...(updates.hashtags && { hashtags: updates.hashtags }),
+      ...(updates.keywords && { keywords: updates.keywords }),
+      ...(updates.mentions && { mentions: updates.mentions }),
+      ...(updates.endDate && { endDate: updates.endDate.toISOString() }),
+      ...(updates.maxTweets && { maxTweets: updates.maxTweets }),
+      ...(updates.sentimentAnalysis !== undefined && { sentimentAnalysis: updates.sentimentAnalysis })
     };
+    
+    return this.campaignFacade.updateCampaign(convertedUpdates);
   }
 
-  private extractErrorMessages(error: any): string[] {
-    if (error?.error?.message) {
-      return [error.error.message];
-    }
-
-    if (error?.error?.errors) {
-      if (Array.isArray(error.error.errors)) {
-        return error.error.errors;
-      }
-
-      if (typeof error.error.errors === 'object') {
-        return Object.values(error.error.errors).flat() as string[];
-      }
-    }
-
-    if (error?.message) {
-      return [error.message];
-    }
-
-    return ['An unexpected error occurred while creating the campaign'];
+  /**
+   * Eliminar una campaña
+   */
+  deleteCampaign(id: string): Observable<any> {
+    return this.campaignFacade.deleteCampaign(id);
   }
 
-  // Utility methods for campaign management
-  getDefaultFormData(): CampaignFormData {
-    return {
-      basic: {
-        name: '',
-        description: '',
-        type: 'hashtag'
-      },
-      targeting: {
-        hashtags: [],
-        keywords: [],
-        mentions: []
-      },
-      settings: {
-        startDate: new Date().toISOString().split('T')[0], // YYYY-MM-DD format
-        endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // 30 days from now
-        maxTweets: 1000,
-        sentimentAnalysis: true
-      }
-    };
+  /**
+   * Iniciar una campaña
+   */
+  startCampaign(id: string): Observable<any> {
+    return this.campaignFacade.startCampaign(id);
   }
 
-  isValidCampaignType(type: string): type is 'hashtag' | 'keyword' | 'user' {
-    return ['hashtag', 'keyword', 'user'].includes(type);
+  /**
+   * Detener una campaña
+   */
+  stopCampaign(id: string): Observable<any> {
+    return this.campaignFacade.stopCampaign(id);
+  }
+
+  /**
+   * Cargar todas las campañas
+   */
+  loadCampaigns(): void {
+    this.campaignFacade.loadCampaigns();
+  }
+
+  /**
+   * Obtener todas las campañas como Observable
+   */
+  get campaigns$(): Observable<Campaign[]> {
+    return this.campaignFacade.campaigns$;
+  }
+
+  /**
+   * Obtener estado de carga como Observable
+   */
+  get loading$(): Observable<boolean> {
+    return this.campaignFacade.loading$;
+  }
+
+  /**
+   * Obtener errores como Observable
+   */
+  get error$(): Observable<string | null> {
+    return this.campaignFacade.error$;
+  }
+
+  /**
+   * Utilitarios para validaciones
+   */
+  isValidCampaignType(type: string): boolean {
+    return ['hashtag', 'keyword', 'user', 'mention', 'custom'].includes(type);
   }
 
   calculateEstimatedDuration(startDate: Date, endDate: Date): number {
@@ -167,51 +134,10 @@ export class CampaignWizardService {
   }
 
   getMaxRecommendedTweets(duration: number): number {
-    // Recommend tweet limits based on campaign duration
+    // Recomendar límites de tweets basados en la duración de la campaña
     if (duration <= 7) return 500;
     if (duration <= 30) return 2000;
     if (duration <= 90) return 5000;
     return 10000;
-  }
-
-  /**
-   * Crear campaña mock para desarrollo cuando el backend no está disponible
-   */
-  private createMockCampaign(formData: CampaignFormData): CampaignCreationResult {
-    console.log('🚀 Creando campaña mock para desarrollo:', formData);
-
-    const mockCampaignId = `mock-campaign-${Date.now()}`;
-
-    // Simular guardado en localStorage para persistencia
-    const existingCampaigns = JSON.parse(localStorage.getItem('mock_campaigns') || '[]');
-    const newCampaign: Campaign = {
-      id: mockCampaignId,
-      name: formData.basic.name,
-      description: formData.basic.description,
-      type: formData.basic.type,
-      status: 'active',
-      hashtags: formData.targeting.hashtags.filter(tag => tag && tag.trim()),
-      keywords: formData.targeting.keywords.filter(keyword => keyword && keyword.trim()),
-      mentions: formData.targeting.mentions.filter(mention => mention && mention.trim()),
-      startDate: new Date(formData.settings.startDate),
-      endDate: new Date(formData.settings.endDate),
-      maxTweets: formData.settings.maxTweets,
-      sentimentAnalysis: formData.settings.sentimentAnalysis,
-      organizationId: 'mock-org-001',
-      createdBy: 'mock-user-001',
-      createdAt: new Date(),
-      updatedAt: new Date()
-    };
-
-    existingCampaigns.push(newCampaign);
-    localStorage.setItem('mock_campaigns', JSON.stringify(existingCampaigns));
-
-    console.log('✅ Campaña mock creada exitosamente:', newCampaign);
-
-    return {
-      success: true,
-      campaignId: mockCampaignId,
-      warnings: ['Campaña creada en modo desarrollo (mock data)']
-    };
   }
 }

@@ -1,22 +1,107 @@
-// ... existing imports
 import { Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
+import * as CampaignActions from '../actions/campaign.actions';
+import { BackendApiService } from '../../services/backend-api.service';
+import { CampaignAdapter } from '../../../features/campaign-dialog/adapters/campaign.adapter';
 
 @Injectable()
 export class CampaignEffects {
-  constructor(private actions$: Actions, private apiService: ApiService) {}
+  constructor(
+    private actions$: Actions, 
+    private apiService: BackendApiService
+  ) {}
 
-  // ... otros efectos
-
+  // Crear campaña
   createCampaign$ = createEffect(() =>
     this.actions$.pipe(
       ofType(CampaignActions.createCampaign),
       switchMap(({ campaign }) =>
-        this.apiService.createCampaign(campaign).pipe(
-          map((newCampaign) => CampaignActions.createCampaignSuccess({ campaign: newCampaign })),
+        this.apiService.createCampaign(CampaignAdapter.fromRequestToApi(campaign)).pipe(
+          map((newCampaign) => 
+            CampaignActions.createCampaignSuccess({ 
+              campaign: CampaignAdapter.fromApiToState(newCampaign) 
+            })
+          ),
           catchError((error) => of(CampaignActions.createCampaignFailure({ error })))
+        )
+      )
+    )
+  );
+  
+  // Cargar campañas
+  loadCampaigns$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(CampaignActions.loadCampaigns),
+      switchMap(({ filter, page, pageSize, sort }) =>
+        this.apiService.getCampaigns().pipe(
+          map((campaigns) => 
+            CampaignActions.loadCampaignsSuccess({ 
+              campaigns: campaigns.map(campaign => CampaignAdapter.fromApiToState(campaign))
+            })
+          ),
+          catchError((error) => of(CampaignActions.loadCampaignsFailure({ error })))
+        )
+      )
+    )
+  );
+  
+  // Actualizar campaña
+  updateCampaign$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(CampaignActions.updateCampaign),
+      switchMap(({ id, campaign }) =>
+        this.apiService.updateCampaign(id, CampaignAdapter.fromStateToApi(campaign as any)).pipe(
+          map((updatedCampaign) => 
+            CampaignActions.updateCampaignSuccess({ 
+              campaign: CampaignAdapter.fromApiToState(updatedCampaign)
+            })
+          ),
+          catchError((error) => of(CampaignActions.updateCampaignFailure({ error })))
+        )
+      )
+    )
+  );
+  
+  // Eliminar campaña
+  deleteCampaign$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(CampaignActions.deleteCampaign),
+      switchMap(({ id }) =>
+        this.apiService.deleteCampaign(id).pipe(
+          map(() => CampaignActions.deleteCampaignSuccess({ id })),
+          catchError((error) => of(CampaignActions.deleteCampaignFailure({ error })))
+        )
+      )
+    )
+  );
+  
+  // Iniciar campaña
+  startCampaign$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(CampaignActions.startCampaign),
+      switchMap(({ id }) =>
+        this.apiService.toggleCampaign(id, 'start').pipe(
+          map((updatedCampaign) => 
+            CampaignActions.startCampaignSuccess({ id })
+          ),
+          catchError((error) => of(CampaignActions.startCampaignFailure({ error })))
+        )
+      )
+    )
+  );
+  
+  // Detener campaña
+  stopCampaign$ = createEffect(() =>
+    this.actions$.pipe(
+      ofType(CampaignActions.stopCampaign),
+      switchMap(({ id }) =>
+        this.apiService.toggleCampaign(id, 'stop').pipe(
+          map((updatedCampaign) => 
+            CampaignActions.stopCampaignSuccess({ id })
+          ),
+          catchError((error) => of(CampaignActions.stopCampaignFailure({ error })))
         )
       )
     )

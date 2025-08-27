@@ -9,6 +9,7 @@ import { provideEffects } from '@ngrx/effects';
 import { provideStore } from '@ngrx/store';
 import { AuthEffects } from './core/store/effects/auth.effects';
 import { authReducer } from './core/store/reducers/auth.reducer';
+import { effects, reducers } from './core/store';
 
 import { provideServiceWorker } from '@angular/service-worker';
 import { provideTransloco } from '@ngneat/transloco';
@@ -62,7 +63,10 @@ export const appConfig: ApplicationConfig = {
     })
   ,
   // NgRx store and effects
-  provideStore({ auth: authReducer }),
-  provideEffects([AuthEffects])
+  provideStore({ 
+    auth: authReducer,
+    ...reducers
+  }),
+  provideEffects([AuthEffects, ...effects])
   ]
 };
