@@ -2,6 +2,12 @@ import { Campaign as AppStateCampaign } from '../../../core/state/app.state';
 import { Campaign as ApiCampaign } from '../../../core/services/data-manager.service';
 import { CampaignRequest } from '../interfaces/campaign-dialog.interface';
 
+// Extendemos la interfaz ApiCampaign para incluir los campos requeridos por la API
+interface ApiCampaignExtended extends Omit<ApiCampaign, 'type'> {
+  dataSources?: string[];
+  type: string; // Reemplazar el tipo original para permitir los valores que espera la API
+}
+
 /**
  * Adaptador para convertir entre los diferentes tipos de Campaign usados en la aplicación
  */
@@ -42,7 +48,7 @@ export class CampaignAdapter {
   /**
    * Convierte una campaña del estado global al formato usado por la API
    */
-  static fromStateToApi(stateCampaign: AppStateCampaign): Partial<ApiCampaign> {
+  static fromStateToApi(stateCampaign: AppStateCampaign): Partial<ApiCampaignExtended> & { organizationId?: string } {
     return {
       id: stateCampaign.id,
       name: stateCampaign.name,
@@ -54,6 +60,7 @@ export class CampaignAdapter {
       startDate: stateCampaign.startDate,
       endDate: stateCampaign.endDate,
       createdAt: stateCampaign.createdAt,
+      organizationId: stateCampaign.organizationId || 'default-org-id', // Aseguramos que se envíe el organizationId
       stats: stateCampaign.stats ? {
         totalTweets: stateCampaign.stats.totalTweets,
         averageSentiment: stateCampaign.stats.avgSentiment,
@@ -91,23 +98,24 @@ export class CampaignAdapter {
     };
   }
 
-  /**
-   * Convierte una campaña del request al formato usado por la API
-   */
-  static fromRequestToApi(request: CampaignRequest): Partial<ApiCampaign> {
-    return {
-      name: request.name,
-      description: request.description,
-      type: this.mapRequestType(request.type),
-      hashtags: request.hashtags,
-      keywords: request.keywords,
-      startDate: new Date(request.startDate),
-      endDate: new Date(request.endDate),
-      status: 'draft'
-    };
-  }
-
-  private static mapApiStatus(status: string): AppStateCampaign['status'] {
+/**
+ * Convierte una campaña del request al formato usado por la API
+ */
+static fromRequestToApi(request: CampaignRequest): Partial<ApiCampaignExtended> & { type: string, organizationId: string } {
+  // Extendemos el tipo para permitir cualquier string en type
+  return {
+    name: request.name,
+    description: request.description,
+    type: this.mapRequestType(request.type),
+    hashtags: request.hashtags,
+    keywords: request.keywords,
+    startDate: new Date(request.startDate),
+    endDate: new Date(request.endDate),
+    status: 'draft',
+    dataSources: request.dataSources || ['twitter'], // Asegurarnos de enviar el campo dataSources que es obligatorio
+    organizationId: request.organizationId || 'default-org-id' // Asegurarnos de enviar siempre un organizationId
+  };
+}  private static mapApiStatus(status: string): AppStateCampaign['status'] {
     switch (status) {
       case 'active': return 'active';
       case 'paused': return 'paused';
@@ -129,31 +137,34 @@ export class CampaignAdapter {
 
   private static mapApiType(type: string): AppStateCampaign['type'] {
     switch (type) {
-      case 'brand-monitoring': return 'hashtag';
-      case 'competitor-analysis': return 'user';
-      case 'market-research': 
+      case 'hashtag': return 'hashtag';
+      case 'competitor': return 'user';
+      case 'mention': return 'mention';
+      case 'keyword':
       default: return 'keyword';
     }
   }
 
-  private static mapStateType(type: string): ApiCampaign['type'] {
+  private static mapStateType(type: string): string {
+    // Usar los mismos valores que espera la API
     switch (type) {
-      case 'hashtag': return 'brand-monitoring';
-      case 'user': return 'competitor-analysis';
+      case 'hashtag': return 'hashtag';
+      case 'user': return 'competitor';
+      case 'mention': return 'mention';
       case 'keyword':
-      case 'mention':
-      default: return 'market-research';
+      default: return 'keyword';
     }
   }
 
-  private static mapRequestType(type: string): ApiCampaign['type'] {
+  private static mapRequestType(type: string): string {
+    // La API espera directamente: "hashtag", "keyword", "mention", "competitor"
     switch (type) {
-      case 'hashtag': return 'brand-monitoring';
-      case 'user': return 'competitor-analysis';
-      case 'keyword':
-      case 'mention':
+      case 'hashtag': return 'hashtag'; // Ya está en el formato correcto
+      case 'user': return 'competitor'; // Mapear user a competitor
+      case 'keyword': return 'keyword'; // Ya está en el formato correcto
+      case 'mention': return 'mention'; // Ya está en el formato correcto
       case 'custom':
-      default: return 'market-research';
+      default: return 'keyword'; // Por defecto usamos keyword
     }
   }
 }

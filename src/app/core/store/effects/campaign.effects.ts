@@ -19,16 +19,24 @@ export class CampaignEffects {
   createCampaign$ = createEffect(() =>
     this.actions$.pipe(
       ofType(CampaignActions.createCampaign),
-      switchMap(({ campaign }) =>
-        this.apiService.createCampaign(CampaignAdapter.fromRequestToApi(campaign)).pipe(
-          map((newCampaign) => 
-            CampaignActions.createCampaignSuccess({ 
+      switchMap(({ campaign }) => {
+        // Añadir logging para depurar
+        const campaignToCreate = CampaignAdapter.fromRequestToApi(campaign);
+        console.log('Sending campaign to API:', campaignToCreate);
+        
+        return this.apiService.createCampaign(campaignToCreate).pipe(
+          map((newCampaign) => {
+            console.log('Campaign created successfully:', newCampaign);
+            return CampaignActions.createCampaignSuccess({ 
               campaign: CampaignAdapter.fromApiToState(newCampaign) 
-            })
-          ),
-          catchError((error) => of(CampaignActions.createCampaignFailure({ error })))
-        )
-      )
+            });
+          }),
+          catchError((error) => {
+            console.error('Error creating campaign:', error);
+            return of(CampaignActions.createCampaignFailure({ error }));
+          })
+        );
+      })
     )
   );
   

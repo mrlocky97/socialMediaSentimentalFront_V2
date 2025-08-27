@@ -80,15 +80,27 @@ export class BackendApiService {
 
   /**
    * Crear nueva campaña
+   * Acepta campos adicionales como dataSources y organizationId que son requeridos por la API
+   * y permite que el tipo sea cualquiera de los aceptados por la API
    */
-  public createCampaign(campaign: Partial<Campaign>): Observable<Campaign> {
+  public createCampaign(campaign: Partial<Omit<Campaign, 'type'>> & { 
+    dataSources?: string[], 
+    type: string,
+    organizationId: string 
+  }): Observable<Campaign> {
+    console.log('Creating campaign with data:', campaign);
     return this.makeRequest<Campaign>('POST', this.endpoints.campaigns, campaign);
   }
 
   /**
    * Actualizar campaña
+   * Acepta actualizaciones con los tipos correctos para la API
    */
-  public updateCampaign(campaignId: string, updates: Partial<Campaign>): Observable<Campaign> {
+  public updateCampaign(campaignId: string, updates: Partial<Omit<Campaign, 'type'>> & { 
+    type?: string,
+    organizationId?: string 
+  }): Observable<Campaign> {
+    console.log('Updating campaign with data:', updates);
     return this.makeRequest<Campaign>('PUT', `${this.endpoints.campaigns}/${campaignId}`, updates);
   }
 
