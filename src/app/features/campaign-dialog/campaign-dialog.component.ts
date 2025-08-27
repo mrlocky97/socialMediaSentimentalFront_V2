@@ -1,3 +1,4 @@
+import { A11yModule } from '@angular/cdk/a11y';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
@@ -44,6 +45,8 @@ type DataSource = 'twitter' | 'instagram' | 'tiktok' | 'youtube' | 'facebook';
     MatIconModule,
     MatChipsModule,
     MatCardModule,
+    // Accesibilidad
+    A11yModule,
     // Transloco para traducciones
     TranslocoModule,
     MatProgressBarModule,
@@ -53,7 +56,7 @@ type DataSource = 'twitter' | 'instagram' | 'tiktok' | 'youtube' | 'facebook';
 })
 export class CampaignDialogComponent {
   // Inyecciones
-  private readonly transloco = inject(TranslocoService);
+  public transloco = inject(TranslocoService);
   private fb = inject(FormBuilder);
   private http = inject(HttpClient);
   private dialogRef = inject(MatDialogRef<CampaignDialogComponent, any>);

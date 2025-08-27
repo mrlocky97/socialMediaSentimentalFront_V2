@@ -1,8 +1,6 @@
 <h2 mat-dialog-title>
   <mat-icon aria-hidden="true">campaign</mat-icon>
-  {{
-    isEditMode ? 'campaign_dialog.edit_campaign' : ('campaign_dialog.create_campaign' | transloco)
-  }}
+  {{ isEditMode ? ('campaign_dialog.edit_campaign' | transloco) : ('campaign_dialog.create_campaign' | transloco) }}
 </h2>
 
 <mat-dialog-content class="dialog-content" [formGroup]="form">
@@ -90,7 +88,7 @@
             mat-icon-button
             color="warn"
             type="button"
-            aria-label="{{ 'campaign_dialog.remove_hashtag' | transloco }}"
+            [attr.aria-label]="transloco.translate('campaign_dialog.remove_hashtag')"
             (click)="removeControl(hashtags, $index)"
           >
             <mat-icon>remove_circle</mat-icon>
@@ -128,7 +126,7 @@
             mat-icon-button
             color="warn"
             type="button"
-            aria-label="{{ 'campaign_dialog.remove_keyword' | transloco }}"
+            [attr.aria-label]="transloco.translate('campaign_dialog.remove_keyword')"
             (click)="removeControl(keywords, $index)"
           >
             <mat-icon>remove_circle</mat-icon>
@@ -167,7 +165,7 @@
             mat-icon-button
             color="warn"
             type="button"
-            aria-label="{{ 'campaign_dialog.remove_mention' | transloco }}"
+            [attr.aria-label]="transloco.translate('campaign_dialog.remove_mention')"
             (click)="removeControl(mentions, $index)"
           >
             <mat-icon>remove_circle</mat-icon>
@@ -341,7 +339,7 @@
     <mat-icon>{{ isEditMode ? 'update' : 'campaign' }}</mat-icon
     >&nbsp;{{
       isEditMode
-        ? 'campaign_dialog.update_campaign'
+        ? ('campaign_dialog.update_campaign' | transloco)
         : ('campaign_dialog.create_campaign' | transloco)
     }}
   </button>
