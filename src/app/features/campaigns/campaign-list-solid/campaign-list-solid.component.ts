@@ -21,8 +21,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
-import { CampaignFacade } from '../../../core/facades/campaign.facade';
 import { Campaign } from '../../../core/state/app.state';
+import { CampaignFacade } from '../../../core/store/fecades/campaign.facade';
 import {
   CampaignActionService,
   CampaignDisplayService,

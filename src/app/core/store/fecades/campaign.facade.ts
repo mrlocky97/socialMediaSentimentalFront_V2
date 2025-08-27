@@ -3,18 +3,20 @@
  * Delegates to the consolidated CampaignService for all operations
  */
 import { Injectable, inject } from '@angular/core';
-import { BehaviorSubject, Observable, map, tap } from 'rxjs';
+import { ofType } from '@ngrx/effects';
+import { Store } from '@ngrx/store';
+import { BehaviorSubject, Observable, map, take, tap } from 'rxjs';
+import { CampaignRequest } from '../../../features/campaign-dialog/interfaces/campaign-dialog.interface';
 import {
   CampaignFilter,
   CampaignService,
   CampaignSortOptions,
-  CreateCampaignRequest,
   UpdateCampaignRequest
-} from '../services/campaign.service';
-import { Campaign } from '../state/app.state';
+} from '../../services/campaign.service';
+import { Campaign } from '../../state/app.state';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class CampaignFacade {
   private readonly campaignService = inject(CampaignService);
@@ -23,9 +25,11 @@ export class CampaignFacade {
   readonly campaigns$ = this.campaignService.campaigns$;
   readonly loading$ = this.campaignService.loading$;
   readonly error$ = this.campaignService.error$;
-  
+
   // Additional observables for backward compatibility
   readonly selectedCampaign$ = new BehaviorSubject<Campaign | null>(null);
+
+  constructor(private store: Store) {}
 
   /**
    * Select campaign (for backward compatibility)
@@ -45,31 +49,22 @@ export class CampaignFacade {
     pageSize: number = 10,
     sort?: CampaignSortOptions
   ): Observable<Campaign[]> {
-    return this.campaignService.getAll(filter, page, pageSize, sort).pipe(
-      map(response => response.success ? response.data.data : [])
-    );
+    return this.campaignService
+      .getAll(filter, page, pageSize, sort)
+      .pipe(map((response) => (response.success ? response.data.data : [])));
   }
 
   /**
-   * Create new campaign
+   * Despacha la acción para crear una campaña.
+   * Devuelve un observable para que el componente pueda reaccionar al éxito o error.
    */
-  createCampaign(campaignData: CreateCampaignRequest): Observable<Campaign | null> {
-    // Convert CreateCampaignRequest to Partial<Campaign>
-    const campaignPayload: Partial<Campaign> = {
-      name: campaignData.name,
-      description: campaignData.description,
-      type: campaignData.type,
-      hashtags: campaignData.hashtags,
-      keywords: campaignData.keywords,
-      mentions: campaignData.mentions,
-      startDate: new Date(campaignData.startDate),
-      endDate: new Date(campaignData.endDate),
-      maxTweets: campaignData.maxTweets,
-      sentimentAnalysis: campaignData.sentimentAnalysis
-    };
+  createCampaign(campaign: CampaignRequest): Observable<any> {
+    this.store.dispatch(CampaignActions.createCampaign({ campaign }));
 
-    return this.campaignService.create(campaignPayload).pipe(
-      map(response => response.success ? response.data : null)
+    // Devuelve un observable que se completa cuando la acción de éxito o fallo es despachada
+    return this.actions$.pipe(
+      ofType(CampaignActions.createCampaignSuccess, CampaignActions.createCampaignFailure),
+      take(1) // Solo nos interesa la primera respuesta
     );
   }
 
@@ -78,7 +73,7 @@ export class CampaignFacade {
    */
   updateCampaign(updateData: UpdateCampaignRequest): Observable<Campaign | null> {
     const { id, ...data } = updateData;
-    
+
     // Convert UpdateCampaignRequest to Partial<Campaign>
     const campaignPayload: Partial<Campaign> = {
       ...(data.name && { name: data.name }),
@@ -88,48 +83,42 @@ export class CampaignFacade {
       ...(data.mentions && { mentions: data.mentions }),
       ...(data.endDate && { endDate: new Date(data.endDate) }),
       ...(data.maxTweets && { maxTweets: data.maxTweets }),
-      ...(data.sentimentAnalysis !== undefined && { sentimentAnalysis: data.sentimentAnalysis })
+      ...(data.sentimentAnalysis !== undefined && { sentimentAnalysis: data.sentimentAnalysis }),
     };
 
-    return this.campaignService.update(id, campaignPayload).pipe(
-      map(response => response.success ? response.data : null)
-    );
+    return this.campaignService
+      .update(id, campaignPayload)
+      .pipe(map((response) => (response.success ? response.data : null)));
   }
 
   /**
    * Get campaign by ID
    */
   getCampaignById(id: string): Observable<Campaign | null> {
-    return this.campaignService.getById(id).pipe(
-      map(response => response.success ? response.data : null)
-    );
+    return this.campaignService
+      .getById(id)
+      .pipe(map((response) => (response.success ? response.data : null)));
   }
 
   /**
    * Start campaign data collection
    */
   startCampaign(campaignId: string): Observable<boolean> {
-    return this.campaignService.start(campaignId).pipe(
-      map(response => response.success)
-    );
+    return this.campaignService.start(campaignId).pipe(map((response) => response.success));
   }
 
   /**
    * Stop campaign data collection
    */
   stopCampaign(campaignId: string): Observable<boolean> {
-    return this.campaignService.stop(campaignId).pipe(
-      map(response => response.success)
-    );
+    return this.campaignService.stop(campaignId).pipe(map((response) => response.success));
   }
 
   /**
    * Delete campaign
    */
   deleteCampaign(campaignId: string): Observable<boolean> {
-    return this.campaignService.delete(campaignId).pipe(
-      map(response => response.success)
-    );
+    return this.campaignService.delete(campaignId).pipe(map((response) => response.success));
   }
 
   /**

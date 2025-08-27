@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { Store } from '@ngrx/store';
 import { Observable, of, throwError } from 'rxjs';
 import { catchError, finalize, map, retry, tap } from 'rxjs/operators';
-import { loadCurrentUser, loadCurrentUserSuccess } from '../../state/auth.actions';
+import { loadCurrentUserSuccess } from '../../store/actions/auth.actions';
 
 // ===== CONFIGURACIÓN DE AUTENTICACIÓN =====
 const AUTH_CONFIG = {

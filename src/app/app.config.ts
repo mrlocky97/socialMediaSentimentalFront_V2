@@ -7,18 +7,18 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter, withPreloading } from '@angular/router';
 import { provideEffects } from '@ngrx/effects';
 import { provideStore } from '@ngrx/store';
-import { AuthEffects } from './core/state/auth.effects';
-import { authReducer } from './core/state/auth.reducer';
+import { AuthEffects } from './core/store/effects/auth.effects';
+import { authReducer } from './core/store/reducers/auth.reducer';
 
 import { provideServiceWorker } from '@angular/service-worker';
 import { provideTransloco } from '@ngneat/transloco';
+import { environment } from '../enviroments/environment';
 import { routes } from './app.routes';
+import { provideApiBaseUrl } from './core/api/api.config';
 import { authInterceptorFn } from './core/auth/interceptors/auth-functional.interceptor';
+import { devBlockInterceptor } from './core/interceptors/dev-block.interceptor';
 import { errorHandlingInterceptor } from './core/interceptors/error-handling.interceptor';
 import { securityHeadersInterceptor } from './core/interceptors/security-headers.interceptor';
-import { devBlockInterceptor } from './core/interceptors/dev-block.interceptor';
-import { environment } from '../enviroments/environment';
-import { provideApiBaseUrl } from './core/api/api.config';
 import { SelectivePreloadingStrategy } from './core/routing/selective-preloading.strategy';
 import { TranslocoHttpLoader } from './transloco-loader';
 

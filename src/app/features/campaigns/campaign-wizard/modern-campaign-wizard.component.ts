@@ -13,7 +13,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { Router } from '@angular/router';
-import { CampaignFacade } from '../../../core/facades/campaign.facade';
+import { CampaignFacade } from '../../../core/store/fecades/campaign.facade';
 
 interface WizardStep {
   id: string;

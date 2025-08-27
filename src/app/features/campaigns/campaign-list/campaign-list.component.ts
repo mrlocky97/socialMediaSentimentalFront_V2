@@ -28,8 +28,9 @@ import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { TranslocoModule, TranslocoService } from '@ngneat/transloco';
-import { CampaignFacade } from '../../../core/facades/campaign.facade';
+import { BackendApiService } from '../../../core/services/backend-api.service';
 import { Campaign } from '../../../core/state/app.state';
+import { CampaignFacade } from '../../../core/store/fecades/campaign.facade';
 import {
   TableAction,
   TableColumn,
@@ -37,6 +38,7 @@ import {
 } from '../../../shared/components/solid-data-table/service/table-services';
 import { SolidDataTableRxjsComponent } from '../../../shared/components/solid-data-table/solid-data-table-rxjs.component';
 import { CampaignDialogComponent } from '../../campaign-dialog/campaign-dialog.component';
+import { CampaignRequest } from '../../campaign-dialog/interfaces/campaign-dialog.interface';
 
 @Component({
   selector: 'app-campaign-list',
@@ -69,6 +71,7 @@ import { CampaignDialogComponent } from '../../campaign-dialog/campaign-dialog.c
   styleUrls: ['./campaign-list.component.css'],
 })
 export class CampaignListComponent implements OnInit, OnDestroy {
+  private readonly BackendApiService = inject(BackendApiService);
   private readonly campaignFacade = inject(CampaignFacade);
   private dialogRef = inject(MatDialog);
 
@@ -333,23 +336,25 @@ export class CampaignListComponent implements OnInit, OnDestroy {
       },
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
+    dialogRef.afterClosed().subscribe((result: CampaignRequest) => {
       this.loading.set(false);
 
       if (result) {
-        // Handle successful form submission
+        // Llama al método de la fachada, que ahora despacha la acción
         this.campaignFacade.createCampaign(result).subscribe({
-          next: (createdCampaign) => {
-            this.snackBar.open(
-              this.transloco.translate('campaigns.create.success'),
-              this.transloco.translate('common.close'),
-              { duration: 3000, panelClass: 'success-snackbar' }
-            );
-
-            // Refresh campaign list
-            this.loadCampaigns();
+          next: (action) => {
+            // Opcional: puedes verificar si la acción fue de éxito o fallo
+            if (action.type === '[Campaigns API] Create Campaign Success') {
+              this.snackBar.open(
+                this.transloco.translate('campaigns.create.success'),
+                this.transloco.translate('common.close'),
+                { duration: 3000, panelClass: 'success-snackbar' }
+              );
+              // La lista se actualizará automáticamente gracias al reducer y los selectores
+            }
           },
           error: (error) => {
+            // El error ya se maneja en el estado de NgRx, pero puedes mostrar un snackbar aquí
             this.snackBar.open(
               this.transloco.translate('campaigns.create.error'),
               this.transloco.translate('common.close'),
