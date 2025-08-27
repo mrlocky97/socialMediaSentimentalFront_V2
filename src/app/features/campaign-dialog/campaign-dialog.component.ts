@@ -161,6 +161,19 @@ export class CampaignDialogComponent {
 
     // Preload (si viene preset)
     const p = this.data?.preset ?? {};
+    console.log('Preset data in constructor:', p);
+
+    // Primero limpiamos los arrays existentes por si acaso
+    while (this.hashtags.length) this.hashtags.removeAt(0);
+    while (this.keywords.length) this.keywords.removeAt(0);
+    while (this.mentions.length) this.mentions.removeAt(0);
+
+    // Luego añadimos los elementos de los arrays con valores reales
+    (p.hashtags ?? []).forEach((v) => this.addControl(this.hashtags, v));
+    (p.keywords ?? []).forEach((v) => this.addControl(this.keywords, v));
+    (p.mentions ?? []).forEach((v) => this.addControl(this.mentions, v));
+
+    // Ahora hacemos el patch value después de tener los arrays configurados
     this.form.patchValue(
       {
         name: p.name ?? '',
@@ -185,10 +198,12 @@ export class CampaignDialogComponent {
       },
       { emitEvent: false }
     );
-
-    (p.hashtags ?? []).forEach((v) => this.addControl(this.hashtags, v));
-    (p.keywords ?? []).forEach((v) => this.addControl(this.keywords, v));
-    (p.mentions ?? []).forEach((v) => this.addControl(this.mentions, v));
+    
+    // Forzar detección de cambios en caso de que haya problemas de actualización
+    setTimeout(() => {
+      // Validamos el formulario para actualizar estado
+      this.form.updateValueAndValidity();
+    }, 0);
 
     // Limpiar mensaje de error al cambiar el form
     this.form.valueChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => {
@@ -209,7 +224,7 @@ export class CampaignDialogComponent {
 
   // ---- Helpers arrays ----
   addControl(arr: FormArray<FormControl<string>>, initial = '') {
-    arr.push(this.fb.control('', { nonNullable: true, validators: [Validators.required] }));
+    arr.push(this.fb.control(initial, { nonNullable: true, validators: [Validators.required] }));
   }
   removeControl(arr: FormArray<FormControl<string>>, i: number) {
     if (i >= 0 && i < arr.length) arr.removeAt(i);
