@@ -486,6 +486,13 @@
     "clearFilters": "Clear Filters",
     "selected": "selected",
     "conversions": "Conversions",
+    "total_campaigns": "Total Campaigns",
+    "campaign_actives": "Active Campaigns",
+    "campaigns_pause": "Paused Campaigns",
+    "campaigns_draft": "Draft Campaigns",
+    "campaigns_status": "Campaign Status",
+    "campaigns_types": "Campaign Types",
+    "campaigns": "Campaigns",
     "status": {
       "active": "Active",
       "paused": "Paused",
@@ -495,6 +502,10 @@
       "scheduled": "Scheduled"
     },
     "type": {
+      "hastag": "Hashtag",
+      "keyword": "Keyword",
+      "monitoring": "Monitoring",
+      "tracking": "Tracking",
       "brandAwareness": "Brand Awareness",
       "brand_awareness": "Brand Awareness",
       "leadGeneration": "Lead Generation",
