@@ -224,7 +224,7 @@
         <mat-label>{{ 'campaign_dialog.max_tweets' | transloco }}</mat-label>
         <input matInput type="number" formControlName="maxTweets" min="100" max="1000" step="100" />
         <mat-hint>
-          {{ 'campaign_dialog.between_values' | transloco : { min: 100, max: 10000 }
+          {{ 'campaign_dialog.between_values' | transloco : { min: 100, max: 10000 } }}
         </mat-hint>
         @if (form.get('maxTweets')?.touched && form.get('maxTweets') ?.invalid) {
         <mat-error>
