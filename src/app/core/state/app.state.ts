@@ -10,22 +10,30 @@ export interface Campaign {
   name: string;
   description?: string;
   status: 'active' | 'inactive' | 'completed' | 'paused';
-  type: 'hashtag' | 'user' | 'keyword' | 'mention';
+  type: 'hashtag' | 'user' | 'keyword' | 'mention' | string;
   hashtags: string[];
   keywords: string[];
   mentions: string[];
-  startDate: Date;
-  endDate: Date;
+  startDate: Date | string;
+  endDate: Date | string;
   maxTweets: number;
   sentimentAnalysis: boolean;
   emotionAnalysis?: boolean;
   topicsAnalysis?: boolean;
   influencerAnalysis?: boolean;
-  organizationId?: string;
-  createdBy: string;
-  createdAt: Date;
-  updatedAt: Date;
-  lastDataCollection?: Date;
+  organizationId?: string; // Hacemos el campo opcional para que sea compatible con los tipos de la API
+  createdBy?: string;
+  createdAt: Date | string;
+  updatedAt?: Date | string;
+  lastDataCollection?: Date | string;
+  // Campos adicionales para operaciones CRUD
+  dataSources?: string[];
+  timezone?: string;
+  collectImages?: boolean;
+  collectVideos?: boolean;
+  collectReplies?: boolean;
+  collectRetweets?: boolean;
+  languages?: string[];
   stats?: {
     totalTweets: number;
     totalEngagement: number;

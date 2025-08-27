@@ -12,67 +12,74 @@ interface ApiCampaignExtended extends Omit<ApiCampaign, 'type'> {
  * Adaptador para convertir entre los diferentes tipos de Campaign usados en la aplicación
  */
 export class CampaignAdapter {
-  /**
-   * Convierte una campaña de la API al formato usado en el estado global
-   */
-  static fromApiToState(apiCampaign: ApiCampaign): AppStateCampaign {
-    return {
-      id: apiCampaign.id,
-      name: apiCampaign.name,
-      description: apiCampaign.description,
-      status: this.mapApiStatus(apiCampaign.status),
-      type: this.mapApiType(apiCampaign.type),
-      hashtags: apiCampaign.hashtags || [],
-      keywords: apiCampaign.keywords || [],
-      mentions: [], // La API no tiene mentions
-      startDate: apiCampaign.startDate,
-      endDate: apiCampaign.endDate,
-      maxTweets: 1000, // Default value, API no tiene este campo
-      sentimentAnalysis: true, // Default value, API no tiene este campo
-      createdBy: 'system', // Default value, API no tiene este campo
-      createdAt: apiCampaign.createdAt,
-      updatedAt: new Date(), // Default value, API no tiene este campo
-      stats: apiCampaign.stats ? {
-        totalTweets: apiCampaign.stats.totalTweets,
-        totalEngagement: apiCampaign.stats.engagementRate * 100, // Convertir tasa a valor total
-        avgSentiment: apiCampaign.stats.averageSentiment,
-        sentimentDistribution: apiCampaign.stats.sentimentDistribution,
-        topHashtags: [],
-        topMentions: [],
-        topKeywords: [],
-        influencers: []
-      } : undefined
-    };
-  }
-
-  /**
+/**
+ * Convierte una campaña de la API al formato usado en el estado global
+ */
+static fromApiToState(apiCampaign: ApiCampaign): AppStateCampaign {
+  return {
+    id: apiCampaign.id,
+    name: apiCampaign.name,
+    description: apiCampaign.description,
+    status: this.mapApiStatus(apiCampaign.status),
+    type: this.mapApiType(apiCampaign.type),
+    hashtags: apiCampaign.hashtags || [],
+    keywords: apiCampaign.keywords || [],
+    mentions: [], // La API no tiene mentions
+    startDate: apiCampaign.startDate,
+    endDate: apiCampaign.endDate,
+    maxTweets: 1000, // Default value, API no tiene este campo
+    sentimentAnalysis: true, // Default value, API no tiene este campo
+    createdBy: 'system', // Default value, API no tiene este campo
+    createdAt: apiCampaign.createdAt,
+    updatedAt: new Date(), // Default value, API no tiene este campo
+    organizationId: 'default-org-id', // Aseguramos tener un valor por defecto
+    stats: apiCampaign.stats ? {
+      totalTweets: apiCampaign.stats.totalTweets,
+      totalEngagement: apiCampaign.stats.engagementRate * 100, // Convertir tasa a valor total
+      avgSentiment: apiCampaign.stats.averageSentiment,
+      sentimentDistribution: apiCampaign.stats.sentimentDistribution,
+      topHashtags: [],
+      topMentions: [],
+      topKeywords: [],
+      influencers: []
+    } : undefined
+  };
+}  /**
    * Convierte una campaña del estado global al formato usado por la API
    */
-  static fromStateToApi(stateCampaign: AppStateCampaign): Partial<ApiCampaignExtended> & { organizationId?: string } {
-    return {
-      id: stateCampaign.id,
-      name: stateCampaign.name,
-      description: stateCampaign.description || '',
-      type: this.mapStateType(stateCampaign.type),
-      status: this.mapStateStatus(stateCampaign.status),
-      hashtags: stateCampaign.hashtags,
-      keywords: stateCampaign.keywords,
-      startDate: stateCampaign.startDate,
-      endDate: stateCampaign.endDate,
-      createdAt: stateCampaign.createdAt,
-      organizationId: stateCampaign.organizationId || 'default-org-id', // Aseguramos que se envíe el organizationId
-      stats: stateCampaign.stats ? {
-        totalTweets: stateCampaign.stats.totalTweets,
-        averageSentiment: stateCampaign.stats.avgSentiment,
-        sentimentDistribution: stateCampaign.stats.sentimentDistribution,
-        engagementRate: stateCampaign.stats.totalEngagement / 100, // Convertir total a tasa
-        reachEstimate: 0,
-        lastUpdated: new Date()
-      } : undefined
-    };
-  }
-
-  /**
+static fromStateToApi(stateCampaign: AppStateCampaign): Partial<ApiCampaignExtended> & { organizationId?: string } {
+  // Conversión de fechas para asegurar compatibilidad
+  const startDate = stateCampaign.startDate instanceof Date ? 
+    stateCampaign.startDate : new Date(stateCampaign.startDate as string);
+    
+  const endDate = stateCampaign.endDate instanceof Date ?
+    stateCampaign.endDate : new Date(stateCampaign.endDate as string);
+    
+  const createdAt = stateCampaign.createdAt instanceof Date ?
+    stateCampaign.createdAt : new Date(stateCampaign.createdAt as string);
+  
+  return {
+    id: stateCampaign.id,
+    name: stateCampaign.name,
+    description: stateCampaign.description || '',
+    type: this.mapStateType(stateCampaign.type),
+    status: this.mapStateStatus(stateCampaign.status),
+    hashtags: stateCampaign.hashtags,
+    keywords: stateCampaign.keywords,
+    startDate: startDate,
+    endDate: endDate,
+    createdAt: createdAt,
+    organizationId: stateCampaign.organizationId || 'default-org-id', // Aseguramos que se envíe el organizationId
+    stats: stateCampaign.stats ? {
+      totalTweets: stateCampaign.stats.totalTweets,
+      averageSentiment: stateCampaign.stats.avgSentiment,
+      sentimentDistribution: stateCampaign.stats.sentimentDistribution,
+      engagementRate: stateCampaign.stats.totalEngagement / 100, // Convertir total a tasa
+      reachEstimate: 0,
+      lastUpdated: new Date()
+    } : undefined
+  };
+}  /**
    * Convierte una campaña del request al formato usado en el estado global
    */
   static fromRequestToState(request: CampaignRequest): Partial<AppStateCampaign> {

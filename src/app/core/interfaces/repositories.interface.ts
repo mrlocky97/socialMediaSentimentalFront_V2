@@ -5,11 +5,13 @@
 
 import { Observable } from 'rxjs';
 import { 
-  Campaign, 
   User, 
   PaginatedResponse, 
   ApiResponse 
 } from '../types';
+
+// Importamos el Campaign desde el state para mantener consistencia
+import { Campaign } from '../state/app.state';
 
 // Use existing interfaces from campaign.service
 import { 

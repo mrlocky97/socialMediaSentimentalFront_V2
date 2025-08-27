@@ -8,6 +8,7 @@ import { BehaviorSubject, Observable, catchError, map, of, tap } from 'rxjs';
 import { API_BASE_URL, ApiUrlBuilder } from '../api/api.config';
 import { ICampaignRepository } from '../interfaces/repositories.interface';
 import { Campaign } from '../state/app.state';
+import { CampaignType } from '../types';
 
 export interface CreateCampaignRequest {
   name: string;

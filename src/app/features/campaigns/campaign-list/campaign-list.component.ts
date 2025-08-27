@@ -91,7 +91,7 @@ export class CampaignListComponent implements OnInit, OnDestroy {
         this.router.navigate(['/dashboard/campaigns', item.id]);
         break;
       case 'edit':
-        this.router.navigate(['/dashboard/campaigns', item.id, 'edit']);
+        this.editCampaign(item);
         break;
       case 'delete':
         this.deleteCampaign(item);
@@ -271,6 +271,7 @@ export class CampaignListComponent implements OnInit, OnDestroy {
             maxTweets: 1000,
             sentimentAnalysis: true,
             createdBy: 'user1',
+            organizationId: 'default-org', // Añadimos el organizationId
           },
           {
             id: '2',
@@ -288,6 +289,7 @@ export class CampaignListComponent implements OnInit, OnDestroy {
             maxTweets: 5000,
             sentimentAnalysis: true,
             createdBy: 'user1',
+            organizationId: 'default-org', // Añadimos el organizationId
           },
         ]);
         this.totalCount.set(this.campaigns().length);
@@ -336,33 +338,35 @@ export class CampaignListComponent implements OnInit, OnDestroy {
       },
     });
 
-    dialogRef.afterClosed().subscribe((result: CampaignRequest) => {
+    dialogRef.afterClosed().subscribe((result) => {
       this.loading.set(false);
 
       if (result) {
-        // Llama al método de la fachada, que ahora despacha la acción
-        this.campaignFacade.createCampaign(result).subscribe({
-          next: (action) => {
-            // Opcional: puedes verificar si la acción fue de éxito o fallo
-            if (action.type === '[Campaigns API] Create Campaign Success') {
+        if (result.mode === 'create') {
+          // Creación de campaña
+          this.campaignFacade.createCampaign(result.payload).subscribe({
+            next: (action) => {
+              // Opcional: puedes verificar si la acción fue de éxito o fallo
+              if (action.type === '[Campaign] Create Campaign Success') {
+                this.snackBar.open(
+                  this.transloco.translate('campaigns.create.success'),
+                  this.transloco.translate('common.close'),
+                  { duration: 3000, panelClass: 'success-snackbar' }
+                );
+                // La lista se actualizará automáticamente gracias al reducer y los selectores
+              }
+            },
+            error: (error) => {
+              // El error ya se maneja en el estado de NgRx, pero puedes mostrar un snackbar aquí
               this.snackBar.open(
-                this.transloco.translate('campaigns.create.success'),
+                this.transloco.translate('campaigns.create.error'),
                 this.transloco.translate('common.close'),
-                { duration: 3000, panelClass: 'success-snackbar' }
+                { duration: 5000, panelClass: 'error-snackbar' }
               );
-              // La lista se actualizará automáticamente gracias al reducer y los selectores
-            }
-          },
-          error: (error) => {
-            // El error ya se maneja en el estado de NgRx, pero puedes mostrar un snackbar aquí
-            this.snackBar.open(
-              this.transloco.translate('campaigns.create.error'),
-              this.transloco.translate('common.close'),
-              { duration: 5000, panelClass: 'error-snackbar' }
-            );
-            console.error('Campaign creation error:', error);
-          },
-        });
+              console.error('Campaign creation error:', error);
+            },
+          });
+        }
       }
       // If result is falsy, user canceled - no action needed
     });
@@ -438,18 +442,136 @@ export class CampaignListComponent implements OnInit, OnDestroy {
   }
 
   /**
+   * Edit campaign
+   */
+  editCampaign(campaign: Campaign): void {
+    this.loading.set(true);
+
+    // Abrimos el diálogo de edición con los datos pre-cargados
+    const dialogRef = this.dialogRef.open(CampaignDialogComponent, {
+      width: 'auto',
+      height: 'auto',
+      maxHeight: '100vh',
+      maxWidth: '90vw',
+      disableClose: true,
+      panelClass: 'campaign-wizard-dialog',
+      data: {
+        mode: 'edit',
+        title: this.transloco.translate('campaigns.edit.title'),
+        campaignId: campaign.id,
+        preset: {
+          name: campaign.name,
+          description: campaign.description,
+          type: campaign.type,
+          dataSources: campaign.dataSources,
+          hashtags: campaign.hashtags,
+          keywords: campaign.keywords,
+          mentions: campaign.mentions,
+          startDate: campaign.startDate,
+          endDate: campaign.endDate,
+          timezone: campaign.timezone,
+          maxTweets: campaign.maxTweets,
+          collectImages: campaign.collectImages,
+          collectVideos: campaign.collectVideos,
+          collectReplies: campaign.collectReplies,
+          collectRetweets: campaign.collectRetweets,
+          languages: campaign.languages,
+          sentimentAnalysis: campaign.sentimentAnalysis,
+          emotionAnalysis: campaign.emotionAnalysis,
+          topicsAnalysis: campaign.topicsAnalysis,
+          influencerAnalysis: campaign.influencerAnalysis,
+          organizationId: campaign.organizationId,
+        }
+      }
+    });
+
+    // Manejamos el resultado al cerrar el diálogo
+    dialogRef.afterClosed().subscribe((result) => {
+      this.loading.set(false);
+
+      if (result && result.mode === 'edit' && result.id) {
+        // Actualizamos la campaña
+        this.campaignFacade.updateCampaign({
+          id: result.id,
+          ...result.payload
+        }).subscribe({
+          next: (action) => {
+            if (action.type === '[Campaign] Update Campaign Success') {
+              this.snackBar.open(
+                this.transloco.translate('campaigns.edit.success', { name: result.payload.name }),
+                this.transloco.translate('common.close'),
+                { duration: 3000, panelClass: 'success-snackbar' }
+              );
+            }
+          },
+          error: (error) => {
+            this.snackBar.open(
+              this.transloco.translate('campaigns.edit.error', { name: result.payload.name }),
+              this.transloco.translate('common.close'),
+              { duration: 5000, panelClass: 'error-snackbar' }
+            );
+            console.error('Campaign update error:', error);
+          }
+        });
+      }
+    });
+  }
+
+  /**
    * Delete campaign
    */
   deleteCampaign(campaign: Campaign): void {
-    if (confirm(`Are you sure you want to delete "${campaign.name}"?`)) {
-      this.campaignFacade.deleteCampaign(campaign.id).subscribe((success) => {
-        if (success) {
-          this.snackBar.open('Campaign deleted successfully', 'Close', {
-            duration: 3000,
-          });
-        }
+    import('../delete-confirm-dialog/delete-confirm-dialog.component')
+      .then(module => {
+        const dialogRef = this.dialogRef.open(module.DeleteConfirmDialogComponent, {
+          width: '400px',
+          data: {
+            name: campaign.name,
+            id: campaign.id,
+            type: 'campaign'
+          }
+        });
+
+        dialogRef.afterClosed().subscribe(confirmed => {
+          if (confirmed) {
+            this.loading.set(true);
+            
+            this.campaignFacade.deleteCampaign(campaign.id).subscribe({
+              next: (action) => {
+                this.loading.set(false);
+                
+                if (action.type === '[Campaign] Delete Campaign Success') {
+                  this.snackBar.open(
+                    this.transloco.translate('campaigns.delete.success', { name: campaign.name }),
+                    this.transloco.translate('common.close'),
+                    { duration: 3000, panelClass: 'success-snackbar' }
+                  );
+                } else if ('error' in action) {
+                  this.snackBar.open(
+                    this.transloco.translate('campaigns.delete.error', { 
+                      name: campaign.name, 
+                      error: action.error?.message || 'Error desconocido'
+                    }),
+                    this.transloco.translate('common.close'),
+                    { duration: 5000, panelClass: 'error-snackbar' }
+                  );
+                }
+              },
+              error: (error) => {
+                this.loading.set(false);
+                this.snackBar.open(
+                  this.transloco.translate('campaigns.delete.error', { 
+                    name: campaign.name, 
+                    error: error?.message || 'Error desconocido'
+                  }),
+                  this.transloco.translate('common.close'),
+                  { duration: 5000, panelClass: 'error-snackbar' }
+                );
+              }
+            });
+          }
+        });
       });
-    }
   }
 
   /**
@@ -461,21 +583,66 @@ export class CampaignListComponent implements OnInit, OnDestroy {
 
     switch (action) {
       case 'pause':
+        selectedIds.forEach(id => {
+          this.campaignFacade.stopCampaign(id);
+        });
         this.snackBar.open(`${selectedIds.length} campaigns paused`, 'Close', { duration: 3000 });
         break;
       case 'resume':
+        selectedIds.forEach(id => {
+          this.campaignFacade.startCampaign(id);
+        });
         this.snackBar.open(`${selectedIds.length} campaigns resumed`, 'Close', { duration: 3000 });
         break;
       case 'delete':
-        if (confirm(`Are you sure you want to delete ${selectedIds.length} campaigns?`)) {
-          this.snackBar.open(`${selectedIds.length} campaigns deleted`, 'Close', {
-            duration: 3000,
+        import('../delete-confirm-dialog/delete-confirm-dialog.component')
+          .then(module => {
+            const dialogRef = this.dialogRef.open(module.DeleteConfirmDialogComponent, {
+              width: '400px',
+              data: {
+                name: `${selectedIds.length} campañas`,
+                id: 'bulk',
+                type: 'campaigns'
+              }
+            });
+
+            dialogRef.afterClosed().subscribe(confirmed => {
+              if (confirmed) {
+                this.loading.set(true);
+                
+                // Contador para llevar registro de las operaciones completadas
+                let completedCount = 0;
+                selectedIds.forEach(id => {
+                  this.campaignFacade.deleteCampaign(id).subscribe({
+                    next: () => {
+                      completedCount++;
+                      if (completedCount === selectedIds.length) {
+                        this.loading.set(false);
+                        this.snackBar.open(
+                          `${selectedIds.length} campañas eliminadas exitosamente`,
+                          'Cerrar',
+                          { duration: 3000, panelClass: 'success-snackbar' }
+                        );
+                        this.selectedCampaigns.set(new Set());
+                      }
+                    },
+                    error: () => {
+                      completedCount++;
+                      if (completedCount === selectedIds.length) {
+                        this.loading.set(false);
+                      }
+                    }
+                  });
+                });
+              }
+            });
           });
-        }
         break;
     }
 
-    this.selectedCampaigns.set(new Set());
+    if (action !== 'delete') {
+      this.selectedCampaigns.set(new Set());
+    }
   }
 
   // Helper methods for stats

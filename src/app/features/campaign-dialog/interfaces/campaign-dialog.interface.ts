@@ -3,6 +3,12 @@ type DataSource = 'twitter' | 'instagram' | 'tiktok' | 'youtube' | 'facebook';
 export interface CreateCampaignDialogData {
   /** Puedes inyectar valores iniciales, p.ej. organizationId, timezone, etc. */
   preset?: Partial<CampaignRequest>;
+  /** Modo de diálogo: 'create' o 'edit' */
+  mode?: 'create' | 'edit';
+  /** Título del diálogo */
+  title?: string;
+  /** ID de la campaña a editar (solo en modo edit) */
+  campaignId?: string;
 }
 
 export interface CampaignRequest {

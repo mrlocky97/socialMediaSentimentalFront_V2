@@ -1,6 +1,6 @@
 <h2 mat-dialog-title>
   <mat-icon aria-hidden="true">campaign</mat-icon>
-  Crear campaña
+  {{ isEditMode ? 'Editar campaña' : 'Crear campaña' }}
 </h2>
 
 <mat-dialog-content class="dialog-content" [formGroup]="form">
@@ -312,6 +312,6 @@
 <mat-dialog-actions align="end">
   <button mat-stroked-button (click)="cancel()" [disabled]="isSubmitting()">Cancelar</button>
   <button mat-raised-button color="primary" (click)="submit()">
-    <mat-icon>campaign</mat-icon>&nbsp;Crear campaña
+    <mat-icon>{{ isEditMode ? 'update' : 'campaign' }}</mat-icon>&nbsp;{{ isEditMode ? 'Actualizar campaña' : 'Crear campaña' }}
   </button>
 </mat-dialog-actions>

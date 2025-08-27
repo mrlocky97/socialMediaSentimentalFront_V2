@@ -59,6 +59,13 @@ export class CampaignDialogComponent {
   // Estado UI
   readonly isSubmitting = signal(false);
   readonly submitError = signal<string | null>(null);
+  readonly isEditModeSignal = signal<boolean>(false);
+  readonly campaignId = signal<string | null>(null);
+  
+  // Exponer isEditMode para la plantilla
+  get isEditMode(): boolean {
+    return this.isEditModeSignal();
+  }
 
   // --- Formulario Reactivo ---
   // Campos base
@@ -133,6 +140,18 @@ export class CampaignDialogComponent {
   readonly languageOptions = ['en', 'es', 'fr', 'de'];
 
   constructor() {
+    // Determinar si estamos en modo edición
+    this.isEditModeSignal.set(this.data?.mode === 'edit');
+    
+    if (this.isEditModeSignal()) {
+      // Si estamos en modo edición, guardamos el ID de la campaña
+      if (this.data?.campaignId) {
+        this.campaignId.set(this.data.campaignId);
+      } else {
+        console.error('Modo de edición sin ID de campaña');
+      }
+    }
+
     // Preload (si viene preset)
     const p = this.data?.preset ?? {};
     this.form.patchValue(
@@ -284,6 +303,13 @@ export class CampaignDialogComponent {
       organizationId: v.organizationId!,
     };
     
-    this.dialogRef.close(payload); // Devuelve el payload para que el componente parent use el facade
+    // Devolver el resultado con información del modo (create/edit)
+    const result = {
+      payload,
+      mode: this.isEditModeSignal() ? 'edit' : 'create',
+      id: this.campaignId() // Será null para create, y tendrá valor para edit
+    };
+    
+    this.dialogRef.close(result); 
   }
 }

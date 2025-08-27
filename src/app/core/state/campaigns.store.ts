@@ -126,12 +126,12 @@ export class CampaignsStore {
             bValue = b.name.toLowerCase();
             break;
           case 'createdAt':
-            aValue = new Date(a.createdAt);
-            bValue = new Date(b.createdAt);
+            aValue = a.createdAt ? new Date(a.createdAt) : new Date();
+            bValue = b.createdAt ? new Date(b.createdAt) : new Date();
             break;
           case 'updatedAt':
-            aValue = new Date(a.updatedAt);
-            bValue = new Date(b.updatedAt);
+            aValue = a.updatedAt ? new Date(a.updatedAt) : new Date();
+            bValue = b.updatedAt ? new Date(b.updatedAt) : new Date();
             break;
           case 'status':
             aValue = a.status;
@@ -377,7 +377,7 @@ export class CampaignsStore {
           campaignId: c.id,
           campaignName: c.name,
           action: `Campaign ${c.status}`,
-          timestamp: new Date(c.updatedAt)
+          timestamp: c.updatedAt ? new Date(c.updatedAt) : new Date()
         }))
     };
 
