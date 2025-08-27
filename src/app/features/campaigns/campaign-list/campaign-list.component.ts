@@ -314,7 +314,7 @@ export class CampaignListComponent implements OnInit, OnDestroy {
    * Load campaigns
    */
   loadCampaigns(): void {
-    this.campaignFacade.loadCampaigns().subscribe();
+    this.campaignFacade.loadCampaigns();
   }
 
   /**

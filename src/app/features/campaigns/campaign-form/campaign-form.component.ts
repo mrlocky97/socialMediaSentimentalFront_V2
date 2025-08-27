@@ -270,7 +270,19 @@ export class CampaignFormComponent implements OnInit {
         startDate: formValue.startDate.toISOString(),
         endDate: formValue.endDate.toISOString(),
         maxTweets: formValue.maxTweets,
-        sentimentAnalysis: formValue.sentimentAnalysis
+        sentimentAnalysis: formValue.sentimentAnalysis,
+        // Campos adicionales requeridos para CampaignRequest
+        dataSources: ['twitter' as 'twitter'],
+        timezone: 'UTC',
+        collectImages: true,
+        collectVideos: true,
+        collectReplies: false,
+        collectRetweets: true,
+        languages: ['es', 'en'],
+        emotionAnalysis: false,
+        topicsAnalysis: false,
+        influencerAnalysis: false,
+        organizationId: 'default-org-id'
       };
 
       const operation = this.isEditMode() 

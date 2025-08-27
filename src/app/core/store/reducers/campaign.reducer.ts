@@ -106,9 +106,9 @@ export const campaignReducer = createReducer(
 
   on(CampaignActions.startCampaignSuccess, (state, { id }) => ({
     ...state,
-    list: state.list.map(c => c.id === id ? { ...c, status: 'active' } : c),
+    list: state.list.map(c => c.id === id ? { ...c, status: 'active' as const } : c),
     selectedCampaign: state.selectedCampaign?.id === id 
-      ? { ...state.selectedCampaign, status: 'active' } 
+      ? { ...state.selectedCampaign, status: 'active' as const } 
       : state.selectedCampaign,
     loading: false,
   })),
@@ -128,9 +128,9 @@ export const campaignReducer = createReducer(
 
   on(CampaignActions.stopCampaignSuccess, (state, { id }) => ({
     ...state,
-    list: state.list.map(c => c.id === id ? { ...c, status: 'paused' } : c),
+    list: state.list.map(c => c.id === id ? { ...c, status: 'paused' as const } : c),
     selectedCampaign: state.selectedCampaign?.id === id 
-      ? { ...state.selectedCampaign, status: 'paused' } 
+      ? { ...state.selectedCampaign, status: 'paused' as const } 
       : state.selectedCampaign,
     loading: false,
   })),

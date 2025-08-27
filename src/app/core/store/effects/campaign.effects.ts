@@ -1,17 +1,19 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import * as CampaignActions from '../actions/campaign.actions';
 import { BackendApiService } from '../../services/backend-api.service';
 import { CampaignAdapter } from '../../../features/campaign-dialog/adapters/campaign.adapter';
+import { CampaignRequest } from '../../../features/campaign-dialog/interfaces/campaign-dialog.interface';
 
 @Injectable()
 export class CampaignEffects {
-  constructor(
-    private actions$: Actions, 
-    private apiService: BackendApiService
-  ) {}
+  // Usar inject() para la inyección de dependencias
+  private actions$ = inject(Actions);
+  private apiService = inject(BackendApiService);
+
+  constructor() {}
 
   // Crear campaña
   createCampaign$ = createEffect(() =>
