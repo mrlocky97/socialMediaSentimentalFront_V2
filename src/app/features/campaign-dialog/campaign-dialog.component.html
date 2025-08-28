@@ -6,7 +6,7 @@
 <mat-dialog-content class="dialog-content" [formGroup]="form">
   <!-- Barra de envío -->
   @if (isSubmitting()) {
-  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+  <mat-progress-bar mode="indeterminate" color="primary"></mat-progress-bar>
   }
 
   <!-- Información básica -->
@@ -65,9 +65,9 @@
     <!-- Hashtags -->
     <mat-card class="mb-8">
       <mat-card-header>
-        <mat-card-title
-          ><mat-icon>tag</mat-icon> {{ 'campaign_dialog.hashtags' | transloco }}</mat-card-title
-        >
+        <mat-card-title>
+          <mat-icon>tag</mat-icon> {{ 'campaign_dialog.hashtags' | transloco }}
+        </mat-card-title>
         <mat-card-subtitle>{{ 'campaign_dialog.hashtags_example' | transloco }}</mat-card-subtitle>
       </mat-card-header>
       <mat-card-content formArrayName="hashtags">
@@ -78,6 +78,7 @@
           <mat-form-field appearance="outline" class="full">
             <mat-label>{{ 'campaign_dialog.hashtag' | transloco }} {{ $index + 1 }}</mat-label>
             <input matInput [formControlName]="$index" placeholder="BrandName" />
+            <mat-icon matPrefix>tag</mat-icon>
             @if (ctrl.touched && ctrl.invalid) {
             <mat-error>
               {{ 'campaign_dialog.required_max_chars' | transloco : { chars: 100 } }}
@@ -95,7 +96,7 @@
           </button>
         </div>
         }
-        <button mat-stroked-button type="button" (click)="addControl(hashtags)">
+        <button mat-stroked-button type="button" (click)="addControl(hashtags)" class="add-button">
           <mat-icon>add</mat-icon> {{ 'campaign_dialog.add_hashtag' | transloco }}
         </button>
       </mat-card-content>
@@ -340,9 +341,9 @@
   <button mat-stroked-button (click)="cancel()" [disabled]="isSubmitting()">
     {{ 'campaign_dialog.cancel' | transloco }}
   </button>
-  <button mat-raised-button color="primary" (click)="submit()">
-    <mat-icon>{{ isEditMode ? 'update' : 'campaign' }}</mat-icon
-    >&nbsp;{{
+  <button mat-raised-button color="primary" (click)="submit()" [disabled]="isSubmitting()">
+    <mat-icon>{{ isEditMode ? 'update' : 'campaign' }}</mat-icon>
+    {{
       isEditMode
         ? ('campaign_dialog.update_campaign' | transloco)
         : ('campaign_dialog.create_campaign' | transloco)
