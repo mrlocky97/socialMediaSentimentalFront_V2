@@ -9,6 +9,7 @@
     "success": "Success"
   },
 "campaign_dialog": {
+    "type_hint": "Select the type that best fits your campaign goals",
     "edit_campaign": "Edit Campaign",
     "create_campaign": "Create Campaign",
     "basic_info": "Basic Information",

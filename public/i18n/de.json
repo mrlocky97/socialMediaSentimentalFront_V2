@@ -462,6 +462,7 @@
     }
   },
   "campaign_dialog": {
+    "type_hint": "Wählen Sie den Typ, der am besten zu den Zielen Ihrer Kampagne passt",
     "edit_campaign": "Kampagne Bearbeiten",
     "create_campaign": "Kampagne Erstellen",
     "basic_info": "Grundinformationen",
