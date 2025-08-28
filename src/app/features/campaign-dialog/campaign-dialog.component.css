@@ -126,6 +126,54 @@ mat-card:hover {
   border-color: rgba(255, 255, 255, 0.8);
 }
 
+/* Estilos específicos para las tarjetas de targeting */
+.targeting-card {
+  animation: fadeIn 0.5s ease-out;
+  position: relative;
+  overflow: hidden;
+}
+
+.targeting-hashtag {
+  border-left: 4px solid #8E24AA; /* Color morado para hashtags */
+}
+
+.targeting-keyword {
+  border-left: 4px solid #2196F3; /* Color azul para keywords */
+}
+
+.targeting-user {
+  border-left: 4px solid #FF9800; /* Color naranja para usuarios */
+}
+
+.custom-targeting-note {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--spacing-6);
+  padding: var(--spacing-8);
+  background-color: var(--color-info-alpha-10);
+  border-radius: var(--radius-lg);
+  margin-top: var(--spacing-8);
+  animation: slideUp 0.4s ease-out;
+}
+
+.custom-targeting-note mat-icon {
+  color: var(--color-info);
+  flex-shrink: 0;
+}
+
+.custom-targeting-note p {
+  margin: 0;
+  color: var(--color-gray-700);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+
+/* Animación para las tarjetas de targeting */
+@keyframes fadeIn { 
+  from { opacity: 0; } 
+  to { opacity: 1; } 
+}
+
 mat-card-header {
   padding: var(--spacing-8) var(--spacing-12) var(--spacing-4);
   background: var(--color-gray-50);
@@ -259,9 +307,40 @@ mat-select {
   font-weight: var(--font-medium);
 }
 
+/* Estilos mejorados para las opciones del selector de tipo */
+.type-option {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-4);
+  padding: var(--spacing-2) 0;
+}
+
 mat-option mat-icon {
   margin-right: var(--spacing-4);
   color: var(--color-primary);
+}
+
+/* Colores específicos para cada tipo de opción */
+.type-option-hashtag mat-icon {
+  color: #8E24AA; /* Morado para hashtags */
+}
+
+.type-option-keyword mat-icon {
+  color: #2196F3; /* Azul para keywords */
+}
+
+.type-option-user mat-icon {
+  color: #FF9800; /* Naranja para usuarios */
+}
+
+.type-option-custom mat-icon {
+  color: #4CAF50; /* Verde para personalizado */
+}
+
+/* Estilo para el selector de campaña */
+.campaign-type-select {
+  position: relative;
+  z-index: 10;
 }
 
 /* Checkbox styling */
@@ -300,4 +379,19 @@ mat-checkbox {
 @keyframes fadeInUp { 
   from { opacity: 0; transform: translateY(20px); } 
   to { opacity:1; transform: translateY(0); } 
+}
+
+@keyframes fadeIn { 
+  from { opacity: 0; } 
+  to { opacity: 1; } 
+}
+
+/* Estilo específico para cuando cambia el tipo de targeting */
+.section {
+  position: relative;
+}
+
+.targeting-card {
+  transition: all 0.3s ease-in-out;
+  transform-origin: top center;
 }

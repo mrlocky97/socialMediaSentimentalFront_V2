@@ -61,7 +61,8 @@
     "influencer_analysis": "Influencer Analysis",
     "date_range_error": "End date must be after start date",
     "cancel": "Cancel",
-    "update_campaign": "Update Campaign"
+    "update_campaign": "Update Campaign",
+    "custom_targeting_note": "Custom targeting options are available for enterprise plans. Contact sales for more information."
   },
   "login": {
     "app_name": "SentimentalSocial",

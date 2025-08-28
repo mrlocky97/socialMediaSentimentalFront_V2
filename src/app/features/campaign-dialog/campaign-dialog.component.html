@@ -27,19 +27,22 @@
         }
       </mat-form-field>
 
-      <mat-form-field appearance="outline" class="full">
+      <mat-form-field appearance="outline" class="full campaign-type-select">
         <mat-label>{{ 'campaign_dialog.type' | transloco }}</mat-label>
         <mat-select formControlName="type">
           @for (opt of typeOptions; track opt.value) {
-          <mat-option [value]="opt.value">
-            <mat-icon>{{ opt.icon }}</mat-icon
-            >&nbsp;{{ opt.label }}
+          <mat-option [value]="opt.value" [ngClass]="'type-option-' + opt.value">
+            <div class="type-option">
+              <mat-icon>{{ opt.icon }}</mat-icon>
+              <span>{{ opt.label }}</span>
+            </div>
           </mat-option>
           }
         </mat-select>
         @if (form.get('type')?.touched && form.get('type')?.invalid) {
         <mat-error>{{ 'campaign_dialog.select_type' | transloco }}</mat-error>
         }
+        <mat-hint>{{ 'campaign_dialog.type_hint' | transloco }}</mat-hint>
       </mat-form-field>
 
       <mat-form-field appearance="outline" class="full" style="grid-column: 1 / -1">
@@ -62,8 +65,9 @@
   <section class="section">
     <h3><mat-icon>tag</mat-icon> {{ 'campaign_dialog.targeting' | transloco }}</h3>
 
-    <!-- Hashtags -->
-    <mat-card class="mb-8">
+    <!-- Hashtags - mostrar solo si el tipo es 'hashtag' o 'custom' -->
+    @if (form.get('type')?.value === 'hashtag' || form.get('type')?.value === 'custom') {
+    <mat-card class="mb-8 targeting-card targeting-hashtag">
       <mat-card-header>
         <mat-card-title>
           <mat-icon>tag</mat-icon> {{ 'campaign_dialog.hashtags' | transloco }}
@@ -101,13 +105,16 @@
         </button>
       </mat-card-content>
     </mat-card>
+    }
 
-    <!-- Keywords -->
-    <mat-card class="mb-8">
+    <!-- Keywords - mostrar solo si el tipo es 'keyword' o 'custom' -->
+    @if (form.get('type')?.value === 'keyword' || form.get('type')?.value === 'custom') {
+    <mat-card class="mb-8 targeting-card targeting-keyword">
       <mat-card-header>
-        <mat-card-title
-          ><mat-icon>search</mat-icon> {{ 'campaign_dialog.keywords' | transloco }}</mat-card-title
-        >
+        <mat-card-title>
+          <mat-icon>search</mat-icon> {{ 'campaign_dialog.keywords' | transloco }}
+        </mat-card-title>
+        <mat-card-subtitle>{{ 'campaign_dialog.keywords_hint' | transloco }}</mat-card-subtitle>
       </mat-card-header>
       <mat-card-content formArrayName="keywords">
         @if (keywords.controls.length === 0) {
@@ -117,6 +124,7 @@
           <mat-form-field appearance="outline" class="full">
             <mat-label>{{ 'campaign_dialog.keyword' | transloco }} {{ $index + 1 }}</mat-label>
             <input matInput [formControlName]="$index" />
+            <mat-icon matPrefix>search</mat-icon>
             @if (ctrl.touched && ctrl.invalid) {
             <mat-error>
               {{ 'campaign_dialog.required_max_chars' | transloco : { chars: 100 } }}
@@ -134,19 +142,22 @@
           </button>
         </div>
         }
-        <button mat-stroked-button type="button" (click)="addControl(keywords)">
+        <button mat-stroked-button type="button" (click)="addControl(keywords)" class="add-button">
           <mat-icon>add</mat-icon> {{ 'campaign_dialog.add_keyword' | transloco }}
         </button>
       </mat-card-content>
     </mat-card>
+    }
 
-    <!-- Mentions -->
-    <mat-card>
+    <!-- Mentions - mostrar solo si el tipo es 'user' o 'custom' -->
+    @if (form.get('type')?.value === 'user' || form.get('type')?.value === 'custom') {
+    <mat-card class="targeting-card targeting-user">
       <mat-card-header>
-        <mat-card-title
-          ><mat-icon>alternate_email</mat-icon>
-          {{ 'campaign_dialog.mentions' | transloco }}</mat-card-title
-        >
+        <mat-card-title>
+          <mat-icon>alternate_email</mat-icon>
+          {{ 'campaign_dialog.mentions' | transloco }}
+        </mat-card-title>
+        <mat-card-subtitle>{{ 'campaign_dialog.mentions_hint' | transloco }}</mat-card-subtitle>
       </mat-card-header>
       <mat-card-content formArrayName="mentions">
         @if (mentions.controls.length === 0) {
@@ -156,6 +167,7 @@
           <mat-form-field appearance="outline" class="full">
             <mat-label>{{ 'campaign_dialog.mention' | transloco }} {{ $index + 1 }}</mat-label>
             <input matInput [formControlName]="$index" placeholder="@brand" />
+            <mat-icon matPrefix>person</mat-icon>
             @if (ctrl.touched && ctrl.invalid) {
             <mat-error>
               {{ 'campaign_dialog.required_max_chars' | transloco : { chars: 100 } }}
@@ -173,11 +185,19 @@
           </button>
         </div>
         }
-        <button mat-stroked-button type="button" (click)="addControl(mentions)">
+        <button mat-stroked-button type="button" (click)="addControl(mentions)" class="add-button">
           <mat-icon>add</mat-icon> {{ 'campaign_dialog.add_mention' | transloco }}
         </button>
       </mat-card-content>
     </mat-card>
+    }
+
+    @if (form.get('type')?.value === 'custom') {
+    <div class="custom-targeting-note">
+      <mat-icon color="primary">info</mat-icon>
+      <p>{{ 'campaign_dialog.custom_targeting_note' | transloco }}</p>
+    </div>
+    }
 
     @if (form.errors?.['noTargeting'] && (hashtags.touched || keywords.touched || mentions.touched))
     {

@@ -516,6 +516,7 @@
     "influencer_analysis": "Analyse d'Influenceurs",
     "date_range_error": "La date de fin doit être postérieure à la date de début",
     "cancel": "Annuler",
-    "update_campaign": "Mettre à Jour la Campagne"
+    "update_campaign": "Mettre à Jour la Campagne",
+    "custom_targeting_note": "Les options de ciblage personnalisées sont disponibles pour les plans entreprise. Contactez les ventes pour plus d'informations."
   }
 }

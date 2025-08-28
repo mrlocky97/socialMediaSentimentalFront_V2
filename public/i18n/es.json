@@ -61,7 +61,8 @@
     "influencer_analysis": "Análisis de Influenciadores",
     "date_range_error": "La fecha de fin debe ser posterior a la fecha de inicio",
     "cancel": "Cancelar",
-    "update_campaign": "Actualizar Campaña"
+    "update_campaign": "Actualizar Campaña",
+    "custom_targeting_note": "Las opciones de segmentación personalizadas están disponibles para planes empresariales. Contacta ventas para más información."
   },
   "login": {
     "app_name": "SentimentalSocial",
