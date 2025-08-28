@@ -8,7 +8,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { CampaignsStore } from '../../../core/state/campaigns.store';
 
 /**
- * Campaign Summary Widget - Presentational Component
+ * Campaign Summary Signals Component - Modern Architecture Example
  * 
  * This component demonstrates the new architecture:
  * - Consumes signals from CampaignsStore (computed)
@@ -17,7 +17,7 @@ import { CampaignsStore } from '../../../core/state/campaigns.store';
  * - Pure presentation logic
  */
 @Component({
-  selector: 'app-campaign-summary-widget',
+  selector: 'app-campaign-summary-signals',
   standalone: true,
   imports: [
     CommonModule,
@@ -27,10 +27,10 @@ import { CampaignsStore } from '../../../core/state/campaigns.store';
     MatProgressSpinnerModule,
     MatChipsModule
   ],
-  templateUrl: './campaign-summary-widget.component.html',
-  styleUrls: ['./campaign-summary-widget.component.css'],
+  templateUrl: './campaign-summary-signals.component.html',
+  styleUrls: ['./campaign-summary-signals.component.css'],
 })
-export class CampaignSummaryWidgetComponent {
+export class CampaignSummarySignalsComponent {
   // Inject store - no facade layer needed
   private campaignsStore = inject(CampaignsStore);
 

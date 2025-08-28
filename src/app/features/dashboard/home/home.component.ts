@@ -16,7 +16,7 @@ import { AuthService } from '../../../core/auth/services/auth.service';
 
 import { CampaignSummaryWidgetComponent } from '../../campaigns/campaign-summary-widget/campaign-summary-widget.component';
 import { PendingTweetWidgetComponent } from '../../pending-tweet-widget/pending-tweet-widget.component';
-import { DashboardService } from '../service/dashboard.container.service';
+import { DashboardFeatureService } from '../service/dashboard.feature.service';
 import { HomeService } from './service/home.service';
 
 @Component({
@@ -43,7 +43,7 @@ import { HomeService } from './service/home.service';
 export class HomeComponent implements OnInit {
   // Servicios
   public readonly authService = inject(AuthService);
-  public readonly dashboardService = inject(DashboardService);
+  public readonly dashboardService = inject(DashboardFeatureService);
   public readonly homeService = inject(HomeService);
   private readonly router = inject(Router);
 

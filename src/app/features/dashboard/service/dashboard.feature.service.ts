@@ -8,7 +8,7 @@ import { DataManagerService } from '../../../core/services/data-manager.service'
 @Injectable({
   providedIn: 'root',
 })
-export class DashboardService {
+export class DashboardFeatureService {
   private readonly dataManager = inject(DataManagerService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly router = inject(Router);
