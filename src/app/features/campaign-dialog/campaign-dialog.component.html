@@ -1,9 +1,13 @@
 <h2 mat-dialog-title>
-  <mat-icon aria-hidden="true">campaign</mat-icon>
+  <mat-icon aria-hidden="true">
+    {{ isViewMode ? 'visibility' : 'campaign' }}
+  </mat-icon>
   {{
-    isEditMode
-      ? ('campaign_dialog.edit_campaign' | transloco)
-      : ('campaign_dialog.create_campaign' | transloco)
+    isViewMode
+      ? ('campaign_dialog.view_campaign' | transloco)
+      : isEditMode
+        ? ('campaign_dialog.edit_campaign' | transloco)
+        : ('campaign_dialog.create_campaign' | transloco)
   }}
 </h2>
 
@@ -366,15 +370,22 @@
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-  <button mat-stroked-button (click)="cancel()" [disabled]="isSubmitting()">
-    {{ 'campaign_dialog.cancel' | transloco }}
-  </button>
-  <button mat-raised-button color="primary" (click)="submit()" [disabled]="isSubmitting()">
-    <mat-icon>{{ isEditMode ? 'update' : 'campaign' }}</mat-icon>
-    {{
-      isEditMode
-        ? ('campaign_dialog.update_campaign' | transloco)
-        : ('campaign_dialog.create_campaign' | transloco)
-    }}
-  </button>
+  @if (isViewMode) {
+    <button mat-raised-button color="primary" (click)="cancel()">
+      <mat-icon>close</mat-icon>
+      {{ 'campaign_dialog.close' | transloco }}
+    </button>
+  } @else {
+    <button mat-stroked-button (click)="cancel()" [disabled]="isSubmitting()">
+      {{ 'campaign_dialog.cancel' | transloco }}
+    </button>
+    <button mat-raised-button color="primary" (click)="submit()" [disabled]="isSubmitting()">
+      <mat-icon>{{ isEditMode ? 'update' : 'campaign' }}</mat-icon>
+      {{
+        isEditMode
+          ? ('campaign_dialog.update_campaign' | transloco)
+          : ('campaign_dialog.create_campaign' | transloco)
+      }}
+    </button>
+  }
 </mat-dialog-actions>

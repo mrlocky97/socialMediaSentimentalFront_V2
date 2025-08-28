@@ -3,6 +3,37 @@
   display: block;
 }
 
+/* View mode specific styles */
+:host-context(.campaign-view-dialog) {
+  --view-overlay: rgba(0, 0, 0, 0.03);
+}
+
+:host-context(.campaign-view-dialog) .mat-mdc-form-field-disabled {
+  --mdc-outlined-text-field-disabled-input-text-color: var(--color-gray-800);
+  --mdc-outlined-text-field-disabled-outline-color: var(--color-gray-300);
+  opacity: 1;
+}
+
+:host-context(.campaign-view-dialog) mat-card {
+  background: var(--view-overlay);
+}
+
+:host-context(.campaign-view-dialog) h2[mat-dialog-title] {
+  background-color: var(--color-primary-alpha-10);
+}
+
+:host-context(.campaign-view-dialog) h2[mat-dialog-title] mat-icon {
+  color: var(--color-primary);
+}
+
+:host-context(.campaign-view-dialog) .mat-mdc-form-field-disabled .mat-mdc-text-field-wrapper {
+  background-color: transparent;
+}
+
+:host-context(.campaign-view-dialog) .mat-mdc-form-field-disabled .mat-mdc-form-field-hint {
+  display: none;
+}
+
 h2[mat-dialog-title] {
   display: flex;
   align-items: center;

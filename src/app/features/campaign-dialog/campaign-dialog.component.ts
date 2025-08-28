@@ -69,11 +69,17 @@ export class CampaignDialogComponent implements OnInit, AfterViewInit {
   readonly isSubmitting = signal(false);
   readonly submitError = signal<string | null>(null);
   readonly isEditModeSignal = signal<boolean>(false);
+  readonly isViewModeSignal = signal<boolean>(false);
   readonly campaignId = signal<string | null>(null);
 
   // Exponer isEditMode para la plantilla
   get isEditMode(): boolean {
     return this.isEditModeSignal();
+  }
+  
+  // Exponer isViewMode para la plantilla
+  get isViewMode(): boolean {
+    return this.isViewModeSignal();
   }
   
   // Obtener etiqueta para datasource por valor
@@ -159,17 +165,26 @@ export class CampaignDialogComponent implements OnInit, AfterViewInit {
   readonly languageOptions = ['en', 'es', 'fr', 'de'];
 
   constructor() {
-    // Determinar si estamos en modo edición
+    // Determinar el modo del diálogo
     this.isEditModeSignal.set(this.data?.mode === 'edit');
+    this.isViewModeSignal.set(this.data?.mode === 'view');
 
-    if (this.isEditModeSignal()) {
-      // Si estamos en modo edición, guardamos el ID de la campaña
+    if (this.isEditModeSignal() || this.isViewModeSignal()) {
+      // Si estamos en modo edición o vista, guardamos el ID de la campaña
       if (this.data?.campaignId) {
         this.campaignId.set(this.data.campaignId);
-        console.log('Edit mode with campaign ID:', this.data.campaignId);
+        console.log(`${this.data?.mode} mode with campaign ID:`, this.data.campaignId);
       } else {
-        console.error('Modo de edición sin ID de campaña');
+        console.error(`Modo ${this.data?.mode} sin ID de campaña`);
       }
+    }
+    
+    // Si estamos en modo vista, hacemos que el formulario sea de solo lectura
+    if (this.isViewModeSignal()) {
+      // Esperamos hasta después de la inicialización para deshabilitar el formulario
+      setTimeout(() => {
+        this.form.disable();
+      });
     }
 
     // Preload (si viene preset)

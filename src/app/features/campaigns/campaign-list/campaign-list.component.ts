@@ -88,7 +88,7 @@ export class CampaignListComponent implements OnInit, OnDestroy {
     const { action, item } = event;
     switch (action.label.toLowerCase()) {
       case 'view':
-        this.router.navigate(['/dashboard/campaigns', item.id]);
+        this.viewCampaign(item);
         break;
       case 'edit':
         this.editCampaign(item);
@@ -438,6 +438,56 @@ export class CampaignListComponent implements OnInit, OnDestroy {
   duplicateCampaign(campaign: Campaign): void {
     this.snackBar.open('Campaign duplicated successfully', 'Close', {
       duration: 3000,
+    });
+  }
+
+  /**
+   * View campaign in read-only mode
+   */
+  viewCampaign(campaign: Campaign): void {
+    this.loading.set(true);
+
+    // Abrimos el diálogo en modo solo lectura con los datos pre-cargados
+    const dialogRef = this.dialogRef.open(CampaignDialogComponent, {
+      width: 'auto',
+      height: 'auto',
+      maxHeight: '100vh',
+      maxWidth: '90vw',
+      disableClose: false,
+      panelClass: ['campaign-wizard-dialog', 'campaign-view-dialog'],
+      data: {
+        mode: 'view',
+        title: this.transloco.translate('campaigns.view.title'),
+        campaignId: campaign.id,
+        preset: {
+          name: campaign.name,
+          description: campaign.description,
+          type: campaign.type,
+          dataSources: campaign.dataSources,
+          hashtags: campaign.hashtags,
+          keywords: campaign.keywords,
+          mentions: campaign.mentions,
+          startDate: campaign.startDate,
+          endDate: campaign.endDate,
+          timezone: campaign.timezone,
+          maxTweets: campaign.maxTweets,
+          collectImages: campaign.collectImages,
+          collectVideos: campaign.collectVideos,
+          collectReplies: campaign.collectReplies,
+          collectRetweets: campaign.collectRetweets,
+          languages: campaign.languages,
+          sentimentAnalysis: campaign.sentimentAnalysis,
+          emotionAnalysis: campaign.emotionAnalysis,
+          topicsAnalysis: campaign.topicsAnalysis,
+          influencerAnalysis: campaign.influencerAnalysis,
+          organizationId: campaign.organizationId,
+        }
+      }
+    });
+
+    // Manejamos el resultado al cerrar el diálogo
+    dialogRef.afterClosed().subscribe(() => {
+      this.loading.set(false);
     });
   }
 
