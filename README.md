@@ -68,6 +68,7 @@ All project documentation has been organized in the [`docs/`](./docs/) folder:
 - ✅ **Enhanced UI/UX** - Modern, responsive design
 - ✅ **Security Improvements** - Authentication and data protection
 - ✅ **Clean Architecture** - Following SOLID principles
+- ✅ **Automated Scraping** - Auto-scraping of social media content after campaign creation
 
 ### 📂 **Documentation Structure:**
 ```

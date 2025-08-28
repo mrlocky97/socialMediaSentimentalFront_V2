@@ -1,6 +1,6 @@
-import { TestBed } from '@angular/core/testing';
-import { RxjsBaseService } from './rxjs-base.service';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { TestBed } from '@angular/core/testing';
+import { RxjsBaseService } from '../rxjs-base.service';
 
 /**
  * Basic test suite for RxjsBaseService

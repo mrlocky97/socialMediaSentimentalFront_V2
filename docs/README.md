@@ -2,13 +2,18 @@
 
 ## 📋 Índice de Documentación
 
-### 🏗️ **Arquitectura y Análisis**
-- [📊 **ARCHITECTURE_ANALYSIS.md**](./ARCHITECTURE_ANALYSIS.md) - Análisis completo de la arquitectura del proyecto
+### 🏗️ **Arquitectura**
+- [📊 **ARCHITECTURE_ANALYSIS.md**](./architecture/ARCHITECTURE_ANALYSIS.md) - Análisis completo de la arquitectura del proyecto
 - [🧹 **CLEANUP_PLAN.md**](./CLEANUP_PLAN.md) - Plan de limpieza y organización del código
 
-### 🚀 **Implementaciones RxJS**
+### 🚀 **Características Implementadas**
+- [🔍 **SCRAPING_IMPLEMENTATION.md**](./features/SCRAPING_IMPLEMENTATION.md) - Implementación del sistema de scraping de redes sociales
+
+### ⚙️ **Implementaciones Técnicas**
 - [✅ **RXJS_IMPLEMENTATION_COMPLETE.md**](./RXJS_IMPLEMENTATION_COMPLETE.md) - ✨ **Guía completa de implementación RxJS** *(MÁS IMPORTANTE)*
 - [📖 **RXJS_IMPLEMENTATION_SUMMARY.md**](./RXJS_IMPLEMENTATION_SUMMARY.md) - Resumen de la implementación de RxJS
+- [🧪 **TEST_STRUCTURE.md**](./technical/TEST_STRUCTURE.md) - Estructura organizada de tests
+- [✅ **TESTING_GUIDE.md**](./technical/TESTING_GUIDE.md) - Guía de mejores prácticas para testing
 
 ### 🎨 **Experiencia de Usuario**
 - [🎯 **IMPLEMENTACION_UX_RESUMEN.md**](./IMPLEMENTACION_UX_RESUMEN.md) - Resumen de mejoras de UX implementadas
@@ -29,12 +34,16 @@
 3. Explora los servicios en `src/app/core/services/`
 
 ### 🏗️ **Para entender la arquitectura:**
-1. Lee [`ARCHITECTURE_ANALYSIS.md`](./ARCHITECTURE_ANALYSIS.md)
+1. Lee [`architecture/ARCHITECTURE_ANALYSIS.md`](./architecture/ARCHITECTURE_ANALYSIS.md)
 2. Revisa [`CLEANUP_PLAN.md`](./CLEANUP_PLAN.md) para mejores prácticas
 
 ### 🎨 **Para mejoras de UX:**
 1. Consulta [`IMPLEMENTACION_UX_RESUMEN.md`](./IMPLEMENTACION_UX_RESUMEN.md)
 2. Revisa los componentes mejorados en `src/app/features/`
+
+### 🔍 **Para implementación de scraping:**
+1. Lee [`features/SCRAPING_IMPLEMENTATION.md`](./features/SCRAPING_IMPLEMENTATION.md)
+2. Revisa los tests en `src/app/tests/unit/services/scraping.service.spec.ts`
 
 ---
 
@@ -43,9 +52,18 @@
 ```
 docs/
 ├── README.md                           # 📚 Este índice
+│
+├── architecture/                       # 🏗️ Documentación arquitectural
+│   └── ARCHITECTURE_ANALYSIS.md        # 📊 Análisis arquitectural completo
+│
+├── features/                           # 🚀 Documentación de características
+│   └── SCRAPING_IMPLEMENTATION.md      # 🔍 Implementación de scraping
+│
+├── technical/                          # ⚙️ Documentación técnica
+│   └── TEST_STRUCTURE.md               # 🧪 Estructura de tests
+│
 ├── RXJS_IMPLEMENTATION_COMPLETE.md     # ✨ Guía completa RxJS (PRINCIPAL)
 ├── RXJS_IMPLEMENTATION_SUMMARY.md      # 📖 Resumen RxJS
-├── ARCHITECTURE_ANALYSIS.md            # 🏗️ Análisis de arquitectura
 ├── IMPLEMENTACION_UX_RESUMEN.md        # 🎨 Mejoras UX
 ├── SECURITY_IMPROVEMENTS.md            # 🔒 Mejoras de seguridad
 ├── CLEANUP_PLAN.md                     # 🧹 Plan de limpieza
@@ -60,7 +78,9 @@ docs/
 ✅ **SOLID Data Table**: Funcionando perfectamente  
 ✅ **Reactive Architecture**: Implementada  
 ✅ **Components Enhanced**: Todos mejorados  
-✅ **Documentation**: Organizada  
+✅ **Documentation**: Organizada y estructurada  
+✅ **Social Media Scraping**: Implementado con seguimiento de progreso  
+✅ **Test Structure**: Organizada en carpetas especializadas
 
 ---
 
@@ -73,4 +93,4 @@ Para preguntas sobre la implementación:
 
 ---
 
-*📝 Documentación actualizada: {{ new Date().toLocaleDateString() }}*
+*📝 Documentación actualizada: 28/08/2025*

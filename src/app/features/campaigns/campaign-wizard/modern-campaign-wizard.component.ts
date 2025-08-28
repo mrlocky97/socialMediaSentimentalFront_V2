@@ -12,8 +12,10 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSelectModule } from '@angular/material/select';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
 import { CampaignFacade } from '../../../core/store/fecades/campaign.facade';
+import { ScrapingService } from '../../../core/services/scraping.service';
 
 interface WizardStep {
   id: string;
@@ -546,6 +548,8 @@ export class ModernCampaignWizardComponent {
   private fb = inject(FormBuilder);
   private router = inject(Router);
   private campaignFacade = inject(CampaignFacade);
+  private scrapingService = inject(ScrapingService);
+  private snackBar = inject(MatSnackBar);
 
   // State
   currentStep = signal(0);
@@ -714,13 +718,41 @@ export class ModernCampaignWizardComponent {
         keywords: this.keywords().map(k => k.name),
         mentions: this.mentions().map(m => m.name),
         status: 'active',
-        createdAt: new Date()
+        createdAt: new Date(),
+        dataSources: ['twitter'] // Add Twitter as data source for scraping
       };
 
-      await this.campaignFacade.createCampaign(campaignData);
-      
-  console.log('Campaign created successfully!');
-  this.router.navigate(['/dashboard/campaigns']);
+      // Create campaign using the facade
+      this.campaignFacade.createCampaign(campaignData).subscribe({
+        next: (result) => {
+          console.log('Campaign created successfully!', result);
+          
+          // If campaign creation was successful and dataSources includes twitter, navigate to detail page
+          if (result && result.type === '[Campaign] Create Campaign Success' && campaignData.dataSources.includes('twitter')) {
+            // Extract the campaign ID from the result
+            const campaignId = result.campaign?.id;
+            if (campaignId) {
+              this.snackBar.open('Campaign created! Initiating data scraping...', 'Close', { duration: 3000 });
+              // Navigate to campaign detail page which will handle the scraping
+              // Pass autoScrape parameter to trigger automatic scraping
+              this.router.navigate(['/dashboard/campaigns', campaignId], { 
+                queryParams: { autoScrape: true } 
+              });
+            } else {
+              // Fallback if we don't get the campaign ID
+              this.router.navigate(['/dashboard/campaigns']);
+            }
+          } else {
+            // Default navigation to campaigns list
+            this.router.navigate(['/dashboard/campaigns']);
+          }
+        },
+        error: (error) => {
+          console.error('Error in campaign creation subscription:', error);
+          this.error.set('Failed to create campaign. Please try again.');
+          this.isLoading.set(false);
+        }
+      });
     } catch (error) {
       console.error('Error creating campaign:', error);
       this.error.set('Failed to create campaign. Please try again.');

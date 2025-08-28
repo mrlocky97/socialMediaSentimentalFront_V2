@@ -11,6 +11,43 @@ import { catchError, map, retry, tap, timeout } from 'rxjs/operators';
 import { environment } from '../../../enviroments/environment';
 import { ApiResponse, Campaign, DashboardData, Tweet } from './data-manager.service';
 
+/**
+ * Options for scraping operations
+ */
+export interface ScrapeOpts {
+  limit?: number;
+  language?: string;
+  includeReplies?: boolean;
+  analyzeSentiment?: boolean;
+  campaignId?: string;
+}
+
+/**
+ * Summary of a single scraping operation
+ */
+export interface ScrapeItemSummary {
+  type: 'hashtag' | 'user' | 'search';
+  identifier: string;
+  requested: number;
+  totalFound: number;
+  totalScraped: number;
+  saved?: number;
+  errors?: any[];
+}
+
+/**
+ * Summary of a bulk scraping operation
+ */
+export interface BulkScrapeSummary {
+  success: boolean;
+  data: {
+    items: ScrapeItemSummary[];
+    totalTweets: number;
+    campaignId?: string;
+  };
+  message?: string;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -191,6 +228,51 @@ export class BackendApiService {
    */
   public controlScraping(campaignId: string, action: 'start' | 'stop' | 'pause' | 'resume'): Observable<any> {
     return this.makeRequest<any>('POST', `${this.endpoints.scraping}/${action}/${campaignId}`);
+  }
+
+  /**
+   * Scrape hashtags - handles both single string and array inputs
+   * @param input - String or string array of hashtags (with or without # prefix)
+   * @param opts - Optional parameters including campaignId
+   */
+  public scrapeHashtags(input: string | string[], opts: ScrapeOpts = {}): Observable<BulkScrapeSummary> {
+    const hashtags = Array.isArray(input) ? input : [input];
+    const body = { 
+      hashtag: hashtags,
+      ...opts
+    };
+    
+    return this.makeRequest<BulkScrapeSummary>('POST', `${environment.apiUrl}/api/${environment.apiVersion}/scraping/hashtag`, body);
+  }
+
+  /**
+   * Scrape search queries - handles both single string and array inputs
+   * @param input - String or string array of search queries
+   * @param opts - Optional parameters including campaignId
+   */
+  public scrapeSearch(input: string | string[], opts: ScrapeOpts = {}): Observable<BulkScrapeSummary> {
+    const queries = Array.isArray(input) ? input : [input];
+    const body = { 
+      query: queries,
+      ...opts
+    };
+    
+    return this.makeRequest<BulkScrapeSummary>('POST', `${environment.apiUrl}/api/${environment.apiVersion}/scraping/search`, body);
+  }
+
+  /**
+   * Scrape users - handles both single string and array inputs
+   * @param input - String or string array of usernames (with or without @ prefix)
+   * @param opts - Optional parameters including campaignId
+   */
+  public scrapeUsers(input: string | string[], opts: ScrapeOpts = {}): Observable<BulkScrapeSummary> {
+    const usernames = Array.isArray(input) ? input : [input];
+    const body = { 
+      username: usernames,
+      ...opts
+    };
+    
+    return this.makeRequest<BulkScrapeSummary>('POST', `${environment.apiUrl}/api/${environment.apiVersion}/scraping/user`, body);
   }
 
   // ===== UTILITY METHODS =====
