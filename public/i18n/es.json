@@ -363,10 +363,10 @@
       "hastag": "Hashtag",
       "keyword": "Palabra clave",
       "monitoring": "Monitoreo",
-      "tranking": "Seguimiento",
       "tracking": "Seguimiento"
     },
     "loading": "Cargando campañas...",
+    "loading_dialog": "Cargando diálogo...",
     "empty": "No se encontraron campañas",
     "create_first": "Crea tu primera campaña",
     "campaigns": "Campañas",

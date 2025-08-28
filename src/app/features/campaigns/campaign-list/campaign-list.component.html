@@ -66,61 +66,18 @@
     </mat-card>
   </div>
 
-  <!-- Filters Section -->
-  <mat-card class="filters-card" *ngIf="campaigns().length > 0">
-    <mat-card-content>
-      <form [formGroup]="filterForm" class="filters-form">
-        <div class="filter-row">
-          <mat-form-field appearance="outline" class="search-field">
-            <mat-label>{{ 'campaign_list.search' | transloco }}</mat-label>
-            <input
-              matInput
-              formControlName="search"
-              [placeholder]="'campaign_list.search' | transloco"
-            />
-            <mat-icon matSuffix>search</mat-icon>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'campaign_list.campaigns_status' | transloco }}</mat-label>
-            <mat-select formControlName="status" multiple>
-              <mat-option value="active">
-                {{ 'campaign_list.status.active' | transloco }}
-              </mat-option>
-              <mat-option value="paused">
-                {{ 'campaign_list.status.paused' | transloco }}
-              </mat-option>
-              <mat-option value="completed">
-                {{ 'campaign_list.status.completed' | transloco }}
-              </mat-option>
-              <mat-option value="draft">{{ 'campaign_list.status.draft' | transloco }}</mat-option>
-            </mat-select>
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>{{ 'campaign_list.campaigns_types' | transloco }}</mat-label>
-            <mat-select formControlName="type" multiple>
-              <mat-option value="hashtag">{{ 'campaign_list.type.hastag' | transloco }} Monitoring</mat-option>
-              <mat-option value="keyword">{{ 'campaign_list.type.keyword' | transloco }} Tracking</mat-option>
-              <mat-option value="user">{{ 'campaign_list.type.monitoring' | transloco }} Monitoring</mat-option>
-              <mat-option value="mention">{{ 'campaign_list.type.tracking' | transloco }} Tracking</mat-option>
-            </mat-select>
-          </mat-form-field>
-
-          <button mat-icon-button (click)="clearFilters()" matTooltip="Clear filters">
-            <mat-icon>clear</mat-icon>
-          </button>
-        </div>
-      </form>
-    </mat-card-content>
-  </mat-card>
-
   <!-- Loading State -->
   <div class="loading-container" *ngIf="loading()">
     <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
     <p>
       {{ "campaign_list.loading" | transloco}}
     </p>
+  </div>
+  
+  <!-- Dialog Loading Indicator (overlays only when opening dialogs) -->
+  <div class="dialog-loading-overlay" *ngIf="dialogLoading() && !loading()">
+    <mat-progress-spinner mode="indeterminate" diameter="40"></mat-progress-spinner>
+    <p>{{ "campaign_list.loading_dialog" | transloco }}</p>
   </div>
 
   <!-- Empty State -->

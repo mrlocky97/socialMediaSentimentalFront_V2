@@ -38,7 +38,6 @@ import {
 } from '../../../shared/components/solid-data-table/service/table-services';
 import { SolidDataTableRxjsComponent } from '../../../shared/components/solid-data-table/solid-data-table-rxjs.component';
 import { CampaignDialogComponent } from '../../campaign-dialog/campaign-dialog.component';
-import { CampaignRequest } from '../../campaign-dialog/interfaces/campaign-dialog.interface';
 
 @Component({
   selector: 'app-campaign-list',
@@ -110,6 +109,7 @@ export class CampaignListComponent implements OnInit, OnDestroy {
   // Reactive signals
   campaigns = signal<Campaign[]>([]);
   loading = signal<boolean>(false);
+  dialogLoading = signal<boolean>(false); // Nuevo estado para cargar diálogos sin afectar la tabla
   error = signal<string | null>(null);
   selectedCampaigns = signal<Set<string>>(new Set());
   totalCount = signal<number>(0);
@@ -323,7 +323,7 @@ export class CampaignListComponent implements OnInit, OnDestroy {
    * Navigate to create campaign
    */
   navigateToCreateCampaign(): void {
-    this.loading.set(true); // Show loading state while opening dialog
+    this.dialogLoading.set(true); // Show dialog loading state without affecting table visibility
 
     const dialogRef = this.dialogRef.open(CampaignDialogComponent, {
       width: 'auto',
@@ -339,7 +339,7 @@ export class CampaignListComponent implements OnInit, OnDestroy {
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      this.loading.set(false);
+      this.dialogLoading.set(false);
 
       if (result) {
         if (result.mode === 'create') {
@@ -369,18 +369,6 @@ export class CampaignListComponent implements OnInit, OnDestroy {
         }
       }
       // If result is falsy, user canceled - no action needed
-    });
-  }
-
-  /**
-   * Clear all filters
-   */
-  clearFilters(): void {
-    this.filterForm.reset({
-      search: '',
-      status: [],
-      type: [],
-      platforms: [],
     });
   }
 
@@ -445,7 +433,7 @@ export class CampaignListComponent implements OnInit, OnDestroy {
    * View campaign in read-only mode
    */
   viewCampaign(campaign: Campaign): void {
-    this.loading.set(true);
+    this.dialogLoading.set(true);
 
     // Abrimos el diálogo en modo solo lectura con los datos pre-cargados
     const dialogRef = this.dialogRef.open(CampaignDialogComponent, {
@@ -487,7 +475,7 @@ export class CampaignListComponent implements OnInit, OnDestroy {
 
     // Manejamos el resultado al cerrar el diálogo
     dialogRef.afterClosed().subscribe(() => {
-      this.loading.set(false);
+      this.dialogLoading.set(false);
     });
   }
 
@@ -495,7 +483,7 @@ export class CampaignListComponent implements OnInit, OnDestroy {
    * Edit campaign
    */
   editCampaign(campaign: Campaign): void {
-    this.loading.set(true);
+    this.dialogLoading.set(true);
 
     // Abrimos el diálogo de edición con los datos pre-cargados
     const dialogRef = this.dialogRef.open(CampaignDialogComponent, {
@@ -537,7 +525,7 @@ export class CampaignListComponent implements OnInit, OnDestroy {
 
     // Manejamos el resultado al cerrar el diálogo
     dialogRef.afterClosed().subscribe((result) => {
-      this.loading.set(false);
+      this.dialogLoading.set(false);
 
       if (result && result.mode === 'edit' && result.id) {
         // Actualizamos la campaña
@@ -584,7 +572,7 @@ export class CampaignListComponent implements OnInit, OnDestroy {
 
         dialogRef.afterClosed().subscribe(confirmed => {
           if (confirmed) {
-            this.loading.set(true);
+            this.loading.set(true); // Aquí sí usamos loading porque después de cerrar el diálogo de confirmación
             
             this.campaignFacade.deleteCampaign(campaign.id).subscribe({
               next: (action) => {
@@ -658,7 +646,7 @@ export class CampaignListComponent implements OnInit, OnDestroy {
 
             dialogRef.afterClosed().subscribe(confirmed => {
               if (confirmed) {
-                this.loading.set(true);
+                this.loading.set(true); // Aquí sí usamos loading normal
                 
                 // Contador para llevar registro de las operaciones completadas
                 let completedCount = 0;

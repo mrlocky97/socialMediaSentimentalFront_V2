@@ -309,6 +309,7 @@
       "tracking": "Suivi"
     },
     "loading": "Chargement des campagnes...",
+    "loading_dialog": "Chargement de la boîte de dialogue...",
     "empty": "Aucune campagne pour le moment",
     "create_first": "Créez votre première campagne",
     "campaigns": "Campagnes",

@@ -307,6 +307,7 @@
       "tracking": "Tracking"
     },
     "loading": "Lade Kampagnen...",
+    "loading_dialog": "Lade Dialog...",
     "empty": "Keine Kampagnen gefunden",
     "create_first": "Erstellen Sie Ihre erste Kampagne",
     "campaigns": "Kampagnen",
