@@ -22,6 +22,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslocoModule, TranslocoService } from '@ngneat/transloco';
 import { CampaignType } from '../../core/types';
 import { CampaignRequest, CreateCampaignDialogData } from './interfaces/campaign-dialog.interface';
@@ -45,6 +46,7 @@ type DataSource = 'twitter' | 'instagram' | 'tiktok' | 'youtube' | 'facebook';
     MatIconModule,
     MatChipsModule,
     MatCardModule,
+    MatTooltipModule,
     // Accesibilidad
     A11yModule,
     // Transloco para traducciones
@@ -132,6 +134,7 @@ export class CampaignDialogComponent implements OnInit, AfterViewInit {
     {
       validators: [
         this.dateRangeValidator('startDateLocal', 'endDateLocal'),
+        this.futureDateValidator('startDateLocal'), // Nuevo validador para fecha de inicio
         this.atLeastOneTargetingValidator(['hashtags', 'keywords', 'mentions']),
       ],
     }
@@ -329,6 +332,33 @@ export class CampaignDialogComponent implements OnInit, AfterViewInit {
     };
   }
 
+  /**
+   * Validador que verifica que la fecha de inicio no esté en el pasado
+   */
+  private futureDateValidator(dateKey: string) {
+    return (group: AbstractControl) => {
+      const g = group as FormGroup;
+      const dateValue = g.get(dateKey)?.value;
+      
+      if (!dateValue) return null;
+      
+      // Convertir el valor del formulario a Date
+      const dateToCheck = new Date(dateValue);
+      
+      // Crear fecha actual sin milisegundos para comparación más precisa
+      const now = new Date();
+      now.setMilliseconds(0);
+      now.setSeconds(0);
+      
+      // Si la fecha está en el pasado, retornar error
+      if (dateToCheck < now) {
+        return { pastStartDate: true };
+      }
+      
+      return null;
+    };
+  }
+
   /** Al menos uno entre hashtags/keywords/mentions con contenido */
   private atLeastOneTargetingValidator(keys: string[]) {
     return (group: AbstractControl) => {
@@ -368,6 +398,19 @@ export class CampaignDialogComponent implements OnInit, AfterViewInit {
   }
 
   async submit() {
+    // Verificar nuevamente si la fecha de inicio está en el pasado justo antes de enviar
+    const startDate = this.form.get('startDateLocal')?.value;
+    if (startDate) {
+      const dateToCheck = new Date(startDate);
+      const now = new Date();
+      now.setMilliseconds(0);
+      now.setSeconds(0);
+      
+      if (dateToCheck < now) {
+        this.form.setErrors({ pastStartDate: true });
+      }
+    }
+    
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;

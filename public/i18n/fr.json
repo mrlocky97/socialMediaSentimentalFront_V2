@@ -464,6 +464,7 @@
     }
   },
   "campaign_dialog": {
+    "past_start_date_error": "La date de début de la campagne ne peut pas être dans le passé",
     "type_hint": "Sélectionnez le type qui correspond le mieux aux objectifs de votre campagne",
     "edit_campaign": "Modifier la Campagne",
     "create_campaign": "Créer une Campagne",

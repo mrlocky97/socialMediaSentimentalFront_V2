@@ -9,6 +9,7 @@
     "success": "Éxito"
   },
   "campaign_dialog": {
+    "past_start_date_error": "La fecha de inicio de la campaña no puede estar en el pasado",
     "type_hint": "Selecciona el tipo que mejor se adapte a los objetivos de tu campaña",
     "edit_campaign": "Editar Campaña",
     "create_campaign": "Crear Campaña",

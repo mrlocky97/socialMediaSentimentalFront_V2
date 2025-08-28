@@ -212,9 +212,10 @@
     <h3><mat-icon>settings</mat-icon> {{ 'campaign_dialog.configuration' | transloco }}</h3>
 
     <div class="grid grid-3">
-      <mat-form-field appearance="outline" class="full">
+      <mat-form-field appearance="outline" class="full" [ngClass]="{'date-error': form.errors?.['pastStartDate']}">
         <mat-label>{{ 'campaign_dialog.start_date' | transloco }}</mat-label>
         <input matInput type="datetime-local" formControlName="startDateLocal" />
+        <mat-icon matSuffix *ngIf="form.errors?.['pastStartDate']" class="date-error-icon" [matTooltip]="('campaign_dialog.past_start_date_error' | transloco) || 'Campaign start date cannot be in the past'">error_outline</mat-icon>
         @if (form.get('startDateLocal')?.touched && form.get('startDateLocal')?.invalid) {
         <mat-error>{{ 'campaign_dialog.required' | transloco }}</mat-error>
         }
@@ -348,6 +349,13 @@
     @if (form.errors?.['dateRange']) {
     <div class="error-box" style="margin-top: 8px">
       {{ 'campaign_dialog.date_range_error' | transloco }}
+    </div>
+    }
+    
+    @if (form.errors?.['pastStartDate']) {
+    <div class="error-box" style="margin-top: 8px">
+      <mat-icon class="error-icon">schedule</mat-icon>
+      {{ ('campaign_dialog.past_start_date_error' | transloco) || 'Campaign start date cannot be in the past' }}
     </div>
     }
   </section>
