@@ -20,6 +20,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { Campaign } from '../../../core/state/app.state';
 import { CampaignFacade } from '../../../core/store/fecades/campaign.facade';
 import { ScrapingProgress, ScrapingService } from '../../../core/services/scraping.service';
+import { ScrapingDispatchService } from '../../../core/services/scraping-dispatch.service';
 import { MatTabsModule } from '@angular/material/tabs';
 
 @Component({
@@ -549,6 +550,7 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
   private route = inject(ActivatedRoute);
   private campaignFacade = inject(CampaignFacade);
   private scrapingService = inject(ScrapingService);
+  private scrapingDispatchService = inject(ScrapingDispatchService);
   private snackBar = inject(MatSnackBar);
   
   // Component state
@@ -635,7 +637,8 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
   }
   
   /**
-   * Start scraping process for this campaign
+   * Start scraping process for this campaign using the dispatch service
+   * This now uses the specialized dispatch service to handle different campaign types
    */
   runScraping(): void {
     if (!this.campaign || this.isScrapingRunning) {
@@ -644,9 +647,8 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
     
     this.snackBar.open('Starting scraping process...', 'Close', { duration: 2000 });
     
-    // Type assertion to handle the campaign model differences
-    // between app.state.ts and data-manager.service.ts
-    this.scrapingService.startScraping(this.campaign as any)
+    // Use the dispatch service which handles campaign type conversion and specialized scraping
+    this.scrapingDispatchService.dispatchScraping(this.campaign)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         error: (err) => {
