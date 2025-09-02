@@ -1,62 +1,34 @@
 /**
  * Scraping Selectors - NgRx selectors for scraping state
  */
-import { createFeatureSelector, createSelector } from '@ngrx/store';
-import { ScrapingState } from '../reducers/scraping.reducer';
+import { createSelector } from '@ngrx/store';
 
-// Feature selector
-export const selectScrapingState = createFeatureSelector<ScrapingState>('scraping');
+// Basic selectors
+export const selectScrapingState = (state: any) => state.scraping;
+export const selectScrapingError = (state: any) => state.scraping.error;
+export const selectScrapingLoading = (state: any) => state.scraping.loading;
 
-// Selectors for specific pieces of state
-export const selectScrapingLoading = createSelector(
-  selectScrapingState,
-  (state: ScrapingState) => state.loading
-);
+// Select campaign-specific scraping data
+export const selectCampaignScraping = (campaignId: string) => 
+  createSelector(
+    selectScrapingState,
+    (state) => ({
+      isActive: state.activeScraping?.[campaignId] || false,
+      progress: state.progress?.[campaignId] || null,
+      results: state.lastResults?.[campaignId] || null,
+      tweets: state.scrapedTweets?.[campaignId] || []
+    })
+  );
 
-export const selectScrapingError = createSelector(
-  selectScrapingState,
-  (state: ScrapingState) => state.error
-);
-
-export const selectActiveScrapings = createSelector(
-  selectScrapingState,
-  (state: ScrapingState) => state.activeScraping
-);
-
-export const selectCampaignIsActivelyScraped = (campaignId: string) => createSelector(
-  selectScrapingState,
-  (state: ScrapingState) => !!state.activeScraping[campaignId]
-);
-
-export const selectScrapingProgress = (campaignId: string) => createSelector(
-  selectScrapingState,
-  (state: ScrapingState) => state.progress[campaignId] || null
-);
-
-export const selectScrapingResults = (campaignId: string) => createSelector(
-  selectScrapingState,
-  (state: ScrapingState) => state.lastResults[campaignId] || null
-);
-
-export const selectScrapedTweets = (campaignId: string) => createSelector(
-  selectScrapingState,
-  (state: ScrapingState) => state.scrapedTweets[campaignId] || []
-);
-
-export const selectScrapingStatus = (campaignId: string) => createSelector(
-  selectScrapingState,
-  (state: ScrapingState) => state.statuses[campaignId] || null
-);
-
+// Active scraping selectors
 export const selectHasActiveScrapings = createSelector(
-  selectActiveScrapings,
-  (activeScrapings: Record<string, boolean>) => Object.values(activeScrapings).some(active => active)
+  selectScrapingState,
+  (state) => Object.values(state.activeScraping || {}).some(Boolean)
 );
 
 export const selectActiveScrapingIds = createSelector(
-  selectActiveScrapings,
-  (activeScrapings: Record<string, boolean>) => 
-    Object.entries(activeScrapings)
-      .filter(([_, active]) => active)
-      .map(([id, _]) => id)
+  selectScrapingState,
+  (state) => Object.entries(state.activeScraping || {})
+    .filter(([_, isActive]) => isActive)
+    .map(([id]) => id)
 );

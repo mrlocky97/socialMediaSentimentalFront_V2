@@ -5,7 +5,7 @@
 import { Injectable } from '@angular/core';
 import { Actions, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
-import { map, Observable, take } from 'rxjs';
+import { Observable, take } from 'rxjs';
 import { ScrapingProgress } from '../../services/scraping.service';
 import { Campaign } from '../../state/app.state';
 import * as ScrapingActions from '../actions/scraping.actions';
@@ -16,119 +16,28 @@ import * as ScrapingSelectors from '../selectors/scraping.selectors';
 })
 export class ScrapingFacade {
   // Selectors as observables
-  readonly loading$: Observable<boolean>;
   readonly error$: Observable<string | null>;
+  readonly loading$: Observable<boolean>;
   readonly hasActiveScrapings$: Observable<boolean>;
   readonly activeScrapingIds$: Observable<string[]>;
 
-  constructor(
-    private store: Store,
-    private actions$: Actions
-  ) {
+  constructor(private store: Store, private actions$: Actions) {
     // Initialize selectors
-    this.loading$ = this.store.select(ScrapingSelectors.selectScrapingLoading);
     this.error$ = this.store.select(ScrapingSelectors.selectScrapingError);
+    this.loading$ = this.store.select(ScrapingSelectors.selectScrapingLoading);
     this.hasActiveScrapings$ = this.store.select(ScrapingSelectors.selectHasActiveScrapings);
     this.activeScrapingIds$ = this.store.select(ScrapingSelectors.selectActiveScrapingIds);
   }
 
   /**
-   * Start scraping for a campaign
-   * @param campaign - Campaign to start scraping for
-   * @returns Observable that completes when the action is processed
+   * Get scraping data for a specific campaign
+   * @param campaignId - Campaign ID to select scraping data for
+   * @returns Observable with scraping data for the campaign
    */
-  startScraping(campaign: Campaign): Observable<any> {
-    this.store.dispatch(ScrapingActions.startScraping({ campaign }));
-    
-    return this.actions$.pipe(
-      ofType(ScrapingActions.startScrapingSuccess, ScrapingActions.startScrapingFailure),
-      take(1)
-    );
+  selectScraping(campaignId: string): Observable<any> {
+    return this.store.select(ScrapingSelectors.selectCampaignScraping(campaignId));
   }
 
-  /**
-   * Cancel active scraping for a campaign
-   * @param campaignId - ID of the campaign to cancel scraping for
-   * @returns Observable that completes when the action is processed
-   */
-  cancelScraping(campaignId: string): Observable<any> {
-    this.store.dispatch(ScrapingActions.cancelScraping({ campaignId }));
-    
-    return this.actions$.pipe(
-      ofType(ScrapingActions.cancelScrapingSuccess, ScrapingActions.cancelScrapingFailure),
-      take(1)
-    );
-  }
-
-  /**
-   * Get current scraping progress for a campaign
-   * @param campaignId - ID of the campaign to get progress for
-   * @returns Observable of scraping progress
-   */
-  getScrapingProgress(campaignId: string): Observable<ScrapingProgress | null> {
-    return this.store.select(ScrapingSelectors.selectScrapingProgress(campaignId));
-  }
-
-  /**
-   * Check if a campaign is currently being scraped
-   * @param campaignId - ID of the campaign to check
-   * @returns Observable boolean indicating if scraping is active
-   */
-  isScrapingActive(campaignId: string): Observable<boolean> {
-    return this.store.select(ScrapingSelectors.selectCampaignIsActivelyScraped(campaignId));
-  }
-
-  /**
-   * Fetch the latest scraped tweets for a campaign
-   * @param campaignId - ID of the campaign to fetch tweets for
-   * @param limit - Optional limit for number of tweets to fetch
-   */
-  fetchScrapedTweets(campaignId: string, limit?: number): void {
-    this.store.dispatch(ScrapingActions.fetchScrapedTweets({ campaignId, limit }));
-  }
-
-  /**
-   * Get the latest scraped tweets for a campaign
-   * @param campaignId - ID of the campaign to get tweets for
-   * @returns Observable of scraped tweets
-   */
-  getScrapedTweets(campaignId: string): Observable<any[]> {
-    return this.store.select(ScrapingSelectors.selectScrapedTweets(campaignId));
-  }
-
-  /**
-   * Get the scraping results for a campaign
-   * @param campaignId - ID of the campaign to get results for
-   * @returns Observable of scraping results
-   */
-  getScrapingResults(campaignId: string): Observable<any> {
-    return this.store.select(ScrapingSelectors.selectScrapingResults(campaignId));
-  }
-
-  /**
-   * Get the status of scraping for a campaign
-   * @param campaignId - ID of the campaign to get status for
-   */
-  getScrapingStatus(campaignId: string): void {
-    this.store.dispatch(ScrapingActions.getScrapingStatus({ campaignId }));
-  }
-
-  /**
-   * Select the status of scraping for a campaign
-   * @param campaignId - ID of the campaign to select status for
-   * @returns Observable of scraping status
-   */
-  selectScrapingStatus(campaignId: string): Observable<any> {
-    return this.store.select(ScrapingSelectors.selectScrapingStatus(campaignId));
-  }
-
-  /**
-   * Clear all scraping state
-   */
-  clearScrapingState(): void {
-    this.store.dispatch(ScrapingActions.clearScrapingState());
-  }
-  
   /**
    * Start hashtag scraping for a campaign result
    * @param result - Campaign result object with payload containing campaign data
@@ -139,27 +48,20 @@ export class ScrapingFacade {
       console.error('Invalid result for hashtag scraping', result);
       return this.handleInvalidResult();
     }
-    
+
     const campaign: Campaign = {
       id: result.id,
-      ...result.payload
+      ...result.payload,
     };
-    
-    this.store.dispatch(ScrapingActions.startScraping({ campaign }));
-    
+
+    this.store.dispatch(ScrapingActions.hashtagScraping({ campaign }));
+
     return this.actions$.pipe(
-      ofType(ScrapingActions.startScrapingSuccess, ScrapingActions.startScrapingFailure),
-      take(1),
-      map(action => {
-        if (action.type === ScrapingActions.startScrapingFailure.type) {
-          // Log the error for debugging
-          console.error('Hashtag scraping failed:', (action as any).error);
-        }
-        return action;
-      })
+      ofType(ScrapingActions.hashtagScrapingSuccess, ScrapingActions.hashtagScrapingFailure),
+      take(1)
     );
   }
-  
+
   /**
    * Start keyword scraping for a campaign result
    * @param result - Campaign result object with payload containing campaign data
@@ -170,26 +72,17 @@ export class ScrapingFacade {
       console.error('Invalid result for keyword scraping', result);
       return this.handleInvalidResult();
     }
-    
     const campaign: Campaign = {
       id: result.id,
-      ...result.payload
+      ...result.payload,
     };
-    
-    this.store.dispatch(ScrapingActions.startScraping({ campaign }));
-    
+    this.store.dispatch(ScrapingActions.keywordScraping({ campaign }));
     return this.actions$.pipe(
-      ofType(ScrapingActions.startScrapingSuccess, ScrapingActions.startScrapingFailure),
-      take(1),
-      map(action => {
-        if (action.type === ScrapingActions.startScrapingFailure.type) {
-          console.error('Keyword scraping failed:', (action as any).error);
-        }
-        return action;
-      })
+      ofType(ScrapingActions.keywordScrapingSuccess, ScrapingActions.keywordScrapingFailure),
+      take(1)
     );
   }
-  
+
   /**
    * Start user scraping for a campaign result
    * @param result - Campaign result object with payload containing campaign data
@@ -200,26 +93,20 @@ export class ScrapingFacade {
       console.error('Invalid result for user scraping', result);
       return this.handleInvalidResult();
     }
-    
+
     const campaign: Campaign = {
       id: result.id,
-      ...result.payload
+      ...result.payload,
     };
-    
-    this.store.dispatch(ScrapingActions.startScraping({ campaign }));
-    
+
+    this.store.dispatch(ScrapingActions.userScraping({ campaign }));
+
     return this.actions$.pipe(
-      ofType(ScrapingActions.startScrapingSuccess, ScrapingActions.startScrapingFailure),
-      take(1),
-      map(action => {
-        if (action.type === ScrapingActions.startScrapingFailure.type) {
-          console.error('User scraping failed:', (action as any).error);
-        }
-        return action;
-      })
+      ofType(ScrapingActions.userScrapingSuccess, ScrapingActions.userScrapingFailure),
+      take(1)
     );
   }
-  
+
   /**
    * Start mention scraping for a campaign result
    * @param result - Campaign result object with payload containing campaign data
@@ -230,26 +117,20 @@ export class ScrapingFacade {
       console.error('Invalid result for mention scraping', result);
       return this.handleInvalidResult();
     }
-    
+
     const campaign: Campaign = {
       id: result.id,
-      ...result.payload
+      ...result.payload,
     };
-    
-    this.store.dispatch(ScrapingActions.startScraping({ campaign }));
-    
+
+    this.store.dispatch(ScrapingActions.mentionScraping({ campaign }));
+
     return this.actions$.pipe(
-      ofType(ScrapingActions.startScrapingSuccess, ScrapingActions.startScrapingFailure),
-      take(1),
-      map(action => {
-        if (action.type === ScrapingActions.startScrapingFailure.type) {
-          console.error('Mention scraping failed:', (action as any).error);
-        }
-        return action;
-      })
+      ofType(ScrapingActions.mentionScrapingSuccess, ScrapingActions.mentionScrapingFailure),
+      take(1)
     );
   }
-  
+
   /**
    * Handle invalid result object
    * @returns Observable that emits an error action
@@ -257,10 +138,47 @@ export class ScrapingFacade {
    */
   private handleInvalidResult(): Observable<any> {
     const error = new Error('Invalid campaign result object');
-    return this.actions$.pipe(
-      ofType(ScrapingActions.startScrapingFailure),
-      take(1),
-      map(() => ({ type: ScrapingActions.startScrapingFailure.type, error }))
-    );
+    
+    // Dispatch the error action
+    this.store.dispatch(ScrapingActions.scrapingFailure({ error }));
+    
+    // Return an observable with the error action
+    return new Observable(subscriber => {
+      subscriber.next({ type: '[Scraping] Generic Scraping Failure', error });
+      subscriber.complete();
+    });
+  }
+  
+  /**
+   * Check if scraping is active for a campaign
+   * @param campaignId - ID of the campaign to check
+   * @returns Observable boolean indicating if scraping is active
+   */
+  isScrapingActive(campaignId: string): Observable<boolean> {
+    return this.store.select((state: any) => {
+      return state?.scraping?.activeScraping?.[campaignId] || false;
+    });
+  }
+  
+  /**
+   * Get current scraping progress for a campaign
+   * @param campaignId - ID of the campaign to get progress for
+   * @returns Observable of scraping progress
+   */
+  getScrapingProgress(campaignId: string): Observable<ScrapingProgress | null> {
+    return this.store.select((state: any) => {
+      return state?.scraping?.progress?.[campaignId] || null;
+    });
+  }
+  
+  /**
+   * Get the latest scraped tweets for a campaign
+   * @param campaignId - ID of the campaign to get tweets for
+   * @returns Observable of scraped tweets
+   */
+  getScrapedTweets(campaignId: string): Observable<any[]> {
+    return this.store.select((state: any) => {
+      return state?.scraping?.scrapedTweets?.[campaignId] || [];
+    });
   }
 }
