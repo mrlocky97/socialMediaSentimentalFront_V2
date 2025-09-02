@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
-import { ScrapingDispatchService } from '../../../core/services/scraping-dispatch.service';
-import { ScrapingService } from '../../../core/services/scraping.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { of } from 'rxjs';
+import { ScrapingDispatchService } from '../../../core/services/scraping-dispatch.service';
+import { ScrapingService } from '../../../core/services/scraping.service';
 import { Campaign } from '../../../core/state/app.state';
 
 describe('ScrapingDispatchService', () => {

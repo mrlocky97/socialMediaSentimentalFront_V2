@@ -31,6 +31,7 @@ import { TranslocoModule, TranslocoService } from '@ngneat/transloco';
 import { BackendApiService } from '../../../core/services/backend-api.service';
 import { Campaign } from '../../../core/state/app.state';
 import { CampaignFacade } from '../../../core/store/fecades/campaign.facade';
+import { ScrapingFacade } from '../../../core/store/fecades/scraping.facade';
 import {
   TableAction,
   TableColumn,
@@ -72,6 +73,7 @@ import { CampaignDialogComponent } from '../../campaign-dialog/campaign-dialog.c
 export class CampaignListComponent implements OnInit, OnDestroy {
   private readonly BackendApiService = inject(BackendApiService);
   private readonly campaignFacade = inject(CampaignFacade);
+  private readonly scrapingFacade = inject(ScrapingFacade);
   private dialogRef = inject(MatDialog);
 
   // Handler for row click from generic table
@@ -174,6 +176,7 @@ export class CampaignListComponent implements OnInit, OnDestroy {
     { icon: 'visibility', label: 'View', color: 'primary' },
     { icon: 'edit', label: 'Edit', color: 'primary' },
     { icon: 'delete', label: 'Delete', color: 'warn', confirm: true },
+    { icon: 'cloud_download', label: 'Scrape', color: 'accent' },
   ];
 
   // Filter form
@@ -354,6 +357,7 @@ export class CampaignListComponent implements OnInit, OnDestroy {
                   { duration: 3000, panelClass: 'success-snackbar' }
                 );
                 // La lista se actualizará automáticamente gracias al reducer y los selectores
+                this.createScraping(result);
               }
             },
             error: (error) => {
@@ -469,8 +473,8 @@ export class CampaignListComponent implements OnInit, OnDestroy {
           topicsAnalysis: campaign.topicsAnalysis,
           influencerAnalysis: campaign.influencerAnalysis,
           organizationId: campaign.organizationId,
-        }
-      }
+        },
+      },
     });
 
     // Manejamos el resultado al cerrar el diálogo
@@ -519,8 +523,8 @@ export class CampaignListComponent implements OnInit, OnDestroy {
           topicsAnalysis: campaign.topicsAnalysis,
           influencerAnalysis: campaign.influencerAnalysis,
           organizationId: campaign.organizationId,
-        }
-      }
+        },
+      },
     });
 
     // Manejamos el resultado al cerrar el diálogo
@@ -529,28 +533,30 @@ export class CampaignListComponent implements OnInit, OnDestroy {
 
       if (result && result.mode === 'edit' && result.id) {
         // Actualizamos la campaña
-        this.campaignFacade.updateCampaign({
-          id: result.id,
-          ...result.payload
-        }).subscribe({
-          next: (action) => {
-            if (action.type === '[Campaign] Update Campaign Success') {
+        this.campaignFacade
+          .updateCampaign({
+            id: result.id,
+            ...result.payload,
+          })
+          .subscribe({
+            next: (action) => {
+              if (action.type === '[Campaign] Update Campaign Success') {
+                this.snackBar.open(
+                  this.transloco.translate('campaigns.edit.success', { name: result.payload.name }),
+                  this.transloco.translate('common.close'),
+                  { duration: 3000, panelClass: 'success-snackbar' }
+                );
+              }
+            },
+            error: (error) => {
               this.snackBar.open(
-                this.transloco.translate('campaigns.edit.success', { name: result.payload.name }),
+                this.transloco.translate('campaigns.edit.error', { name: result.payload.name }),
                 this.transloco.translate('common.close'),
-                { duration: 3000, panelClass: 'success-snackbar' }
+                { duration: 5000, panelClass: 'error-snackbar' }
               );
-            }
-          },
-          error: (error) => {
-            this.snackBar.open(
-              this.transloco.translate('campaigns.edit.error', { name: result.payload.name }),
-              this.transloco.translate('common.close'),
-              { duration: 5000, panelClass: 'error-snackbar' }
-            );
-            console.error('Campaign update error:', error);
-          }
-        });
+              console.error('Campaign update error:', error);
+            },
+          });
       }
     });
   }
@@ -559,57 +565,56 @@ export class CampaignListComponent implements OnInit, OnDestroy {
    * Delete campaign
    */
   deleteCampaign(campaign: Campaign): void {
-    import('../delete-confirm-dialog/delete-confirm-dialog.component')
-      .then(module => {
-        const dialogRef = this.dialogRef.open(module.DeleteConfirmDialogComponent, {
-          width: '400px',
-          data: {
-            name: campaign.name,
-            id: campaign.id,
-            type: 'campaign'
-          }
-        });
+    import('../delete-confirm-dialog/delete-confirm-dialog.component').then((module) => {
+      const dialogRef = this.dialogRef.open(module.DeleteConfirmDialogComponent, {
+        width: '400px',
+        data: {
+          name: campaign.name,
+          id: campaign.id,
+          type: 'campaign',
+        },
+      });
 
-        dialogRef.afterClosed().subscribe(confirmed => {
-          if (confirmed) {
-            this.loading.set(true); // Aquí sí usamos loading porque después de cerrar el diálogo de confirmación
-            
-            this.campaignFacade.deleteCampaign(campaign.id).subscribe({
-              next: (action) => {
-                this.loading.set(false);
-                
-                if (action.type === '[Campaign] Delete Campaign Success') {
-                  this.snackBar.open(
-                    this.transloco.translate('campaigns.delete.success', { name: campaign.name }),
-                    this.transloco.translate('common.close'),
-                    { duration: 3000, panelClass: 'success-snackbar' }
-                  );
-                } else if ('error' in action) {
-                  this.snackBar.open(
-                    this.transloco.translate('campaigns.delete.error', { 
-                      name: campaign.name, 
-                      error: action.error?.message || 'Error desconocido'
-                    }),
-                    this.transloco.translate('common.close'),
-                    { duration: 5000, panelClass: 'error-snackbar' }
-                  );
-                }
-              },
-              error: (error) => {
-                this.loading.set(false);
+      dialogRef.afterClosed().subscribe((confirmed) => {
+        if (confirmed) {
+          this.loading.set(true); // Aquí sí usamos loading porque después de cerrar el diálogo de confirmación
+
+          this.campaignFacade.deleteCampaign(campaign.id).subscribe({
+            next: (action) => {
+              this.loading.set(false);
+
+              if (action.type === '[Campaign] Delete Campaign Success') {
                 this.snackBar.open(
-                  this.transloco.translate('campaigns.delete.error', { 
-                    name: campaign.name, 
-                    error: error?.message || 'Error desconocido'
+                  this.transloco.translate('campaigns.delete.success', { name: campaign.name }),
+                  this.transloco.translate('common.close'),
+                  { duration: 3000, panelClass: 'success-snackbar' }
+                );
+              } else if ('error' in action) {
+                this.snackBar.open(
+                  this.transloco.translate('campaigns.delete.error', {
+                    name: campaign.name,
+                    error: action.error?.message || 'Error desconocido',
                   }),
                   this.transloco.translate('common.close'),
                   { duration: 5000, panelClass: 'error-snackbar' }
                 );
               }
-            });
-          }
-        });
+            },
+            error: (error) => {
+              this.loading.set(false);
+              this.snackBar.open(
+                this.transloco.translate('campaigns.delete.error', {
+                  name: campaign.name,
+                  error: error?.message || 'Error desconocido',
+                }),
+                this.transloco.translate('common.close'),
+                { duration: 5000, panelClass: 'error-snackbar' }
+              );
+            },
+          });
+        }
       });
+    });
   }
 
   /**
@@ -621,60 +626,59 @@ export class CampaignListComponent implements OnInit, OnDestroy {
 
     switch (action) {
       case 'pause':
-        selectedIds.forEach(id => {
+        selectedIds.forEach((id) => {
           this.campaignFacade.stopCampaign(id);
         });
         this.snackBar.open(`${selectedIds.length} campaigns paused`, 'Close', { duration: 3000 });
         break;
       case 'resume':
-        selectedIds.forEach(id => {
+        selectedIds.forEach((id) => {
           this.campaignFacade.startCampaign(id);
         });
         this.snackBar.open(`${selectedIds.length} campaigns resumed`, 'Close', { duration: 3000 });
         break;
       case 'delete':
-        import('../delete-confirm-dialog/delete-confirm-dialog.component')
-          .then(module => {
-            const dialogRef = this.dialogRef.open(module.DeleteConfirmDialogComponent, {
-              width: '400px',
-              data: {
-                name: `${selectedIds.length} campañas`,
-                id: 'bulk',
-                type: 'campaigns'
-              }
-            });
-
-            dialogRef.afterClosed().subscribe(confirmed => {
-              if (confirmed) {
-                this.loading.set(true); // Aquí sí usamos loading normal
-                
-                // Contador para llevar registro de las operaciones completadas
-                let completedCount = 0;
-                selectedIds.forEach(id => {
-                  this.campaignFacade.deleteCampaign(id).subscribe({
-                    next: () => {
-                      completedCount++;
-                      if (completedCount === selectedIds.length) {
-                        this.loading.set(false);
-                        this.snackBar.open(
-                          `${selectedIds.length} campañas eliminadas exitosamente`,
-                          'Cerrar',
-                          { duration: 3000, panelClass: 'success-snackbar' }
-                        );
-                        this.selectedCampaigns.set(new Set());
-                      }
-                    },
-                    error: () => {
-                      completedCount++;
-                      if (completedCount === selectedIds.length) {
-                        this.loading.set(false);
-                      }
-                    }
-                  });
-                });
-              }
-            });
+        import('../delete-confirm-dialog/delete-confirm-dialog.component').then((module) => {
+          const dialogRef = this.dialogRef.open(module.DeleteConfirmDialogComponent, {
+            width: '400px',
+            data: {
+              name: `${selectedIds.length} campañas`,
+              id: 'bulk',
+              type: 'campaigns',
+            },
           });
+
+          dialogRef.afterClosed().subscribe((confirmed) => {
+            if (confirmed) {
+              this.loading.set(true); // Aquí sí usamos loading normal
+
+              // Contador para llevar registro de las operaciones completadas
+              let completedCount = 0;
+              selectedIds.forEach((id) => {
+                this.campaignFacade.deleteCampaign(id).subscribe({
+                  next: () => {
+                    completedCount++;
+                    if (completedCount === selectedIds.length) {
+                      this.loading.set(false);
+                      this.snackBar.open(
+                        `${selectedIds.length} campañas eliminadas exitosamente`,
+                        'Cerrar',
+                        { duration: 3000, panelClass: 'success-snackbar' }
+                      );
+                      this.selectedCampaigns.set(new Set());
+                    }
+                  },
+                  error: () => {
+                    completedCount++;
+                    if (completedCount === selectedIds.length) {
+                      this.loading.set(false);
+                    }
+                  },
+                });
+              });
+            }
+          });
+        });
         break;
     }
 
@@ -745,4 +749,64 @@ export class CampaignListComponent implements OnInit, OnDestroy {
 
     return Math.round((elapsed / total) * 100);
   }
+
+  // Function to create scraping based on campaign type
+  createScraping(result: any): void {
+    if (!result || !result.payload) return;
+
+    switch (result.payload.type) {
+      case 'hashtag':
+        this.scrapingFacade.startHashtagScraping(result).subscribe({
+          next: () => this.showSuccessMessage(),
+          error: (error: Error) => this.handleError(error, 'hashtag'),
+        });
+        break;
+      case 'keyword':
+        this.scrapingFacade.startKeywordScraping(result).subscribe({
+          next: () => this.showSuccessMessage(),
+          error: (error: Error) => this.handleError(error, 'keyword'),
+        });
+        break;
+      case 'user':
+        this.scrapingFacade.startUserScraping(result).subscribe({
+          next: () => this.showSuccessMessage(),
+          error: (error: Error) => this.handleError(error, 'user'),
+        });
+        break;
+      case 'mention':
+        this.scrapingFacade.startMentionScraping(result).subscribe({
+          next: () => this.showSuccessMessage(),
+          error: (error: Error) => this.handleError(error, 'mention'),
+        });
+        break;
+      default:
+        console.warn('Unknown campaign type for scraping:', result.payload.type);
+        break;
+    }
+  }
+  // Mostrar mensaje de éxito
+  showSuccessMessage(campaignName?: string): void {
+    const message = campaignName 
+      ? this.transloco.translate('campaigns.scraping.started', { name: campaignName })
+      : this.transloco.translate('campaigns.create.scraping_started');
+      
+    this.snackBar.open(
+      message,
+      this.transloco.translate('common.close'),
+      { duration: 3000, panelClass: 'success-snackbar' }
+    );
+  }
+
+  // Manejar errores
+  private handleError(error: any, type: string): void {
+    this.snackBar.open(
+      this.transloco.translate('campaigns.create.scraping_error', {
+        error: error?.message || 'Error desconocido',
+      }),
+      this.transloco.translate('common.close'),
+      { duration: 5000, panelClass: 'error-snackbar' }
+    );
+    console.error(`Error starting ${type} scraping:`, error);
+  }
+
 }

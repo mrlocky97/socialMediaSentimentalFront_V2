@@ -483,6 +483,7 @@
     }
   },
   "campaign_list": {
+    "loading_dialog": "Loading campaign data...",
     "campaign_manager": "Campaign Management",
     "subtitle": "Manage your social media monitoring campaigns",
     "new_campaign": "Create Campaign",

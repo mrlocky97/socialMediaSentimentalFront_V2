@@ -339,6 +339,7 @@
     }
   },
   "campaign_list": {
+    "loading_dialog": "Cargando datos de la campaña...",
     "campaign": "Campaña",
     "campaign_manager": "Gestor de Campañas",
     "subtitle": "Gestiona tus campañas de marketing social",
@@ -366,7 +367,6 @@
       "tracking": "Seguimiento"
     },
     "loading": "Cargando campañas...",
-    "loading_dialog": "Cargando diálogo...",
     "empty": "No se encontraron campañas",
     "create_first": "Crea tu primera campaña",
     "campaigns": "Campañas",

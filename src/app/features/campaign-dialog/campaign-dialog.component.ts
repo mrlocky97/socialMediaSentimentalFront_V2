@@ -116,10 +116,10 @@ export class CampaignDialogComponent implements OnInit, AfterViewInit {
       endDateLocal: ['', Validators.required],
       timezone: this.fb.control('UTC', [Validators.required]),
 
-      maxTweets: this.fb.control(1000, [
+      maxTweets: this.fb.control(10, [
         Validators.required,
-        Validators.min(100),
-        Validators.max(10000),
+        Validators.min(10),
+        Validators.max(1000),
       ]),
 
       // Flags de colección

@@ -278,6 +278,7 @@
     }
   },
   "campaign_list": {
+    "loading_dialog": "Chargement des données de la campagne...",
     "campaign": "Campagne",
     "campaign_manager": "Gestion des Campagnes",
     "subtitle": "Gérez vos campagnes de surveillance des réseaux sociaux",
@@ -309,7 +310,6 @@
       "tracking": "Suivi"
     },
     "loading": "Chargement des campagnes...",
-    "loading_dialog": "Chargement de la boîte de dialogue...",
     "empty": "Aucune campagne pour le moment",
     "create_first": "Créez votre première campagne",
     "campaigns": "Campagnes",

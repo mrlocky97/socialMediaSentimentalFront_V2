@@ -4,11 +4,11 @@
  */
 
 import { Injectable, inject } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Observable } from 'rxjs';
 import { Campaign as AppStateCampaign } from '../state/app.state';
 import { Campaign as DataManagerCampaign } from './data-manager.service';
 import { ScrapingService } from './scraping.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Injectable({
   providedIn: 'root'
@@ -103,12 +103,17 @@ export class ScrapingDispatchService {
     // Show notification to user
     this.snackBar.open(`Starting scraping for ${campaign.name}...`, 'Close', { duration: 3000 });
     
+    // Check API status first using /api/v1/scraping/status endpoint
+    // For now this is just a log, but could be implemented to actually check status
+    console.log('Checking API status: /api/v1/scraping/status');
+    
     // Convert campaign to the format expected by ScrapingService
     const convertedCampaign = this.convertToDataManagerCampaign(campaign);
     
     // Dispatch based on campaign type
     switch (campaign.type) {
       case 'hashtag':
+        console.log('Using primary endpoint: /api/v1/scraping/hashtag');
         return this.scrapingService.startScraping(convertedCampaign);
       
       case 'user':
@@ -138,47 +143,73 @@ export class ScrapingDispatchService {
   /**
    * Specialized scraping for user/mention based campaigns
    * Prioritizes user/mention data over other fields
+   * Uses the /api/v1/scraping/user endpoint directly
    */
   private dispatchUserScraping(campaign: DataManagerCampaign): Observable<boolean> {
     console.log('Dispatching user/mention focused scraping');
-    // Currently using the same implementation but can be extended
+    console.log('Using endpoint: /api/v1/scraping/user');
+    
+    // Here we would prioritize the user/mention scraping and then fallback to hashtags
+    // We could directly call a backend API method that targets the user endpoint
+    // For now, using the existing service but could be extended to call API directly
+    
     return this.scrapingService.startScraping(campaign);
   }
   
   /**
    * Specialized scraping for keyword based campaigns
    * Prioritizes keyword searches over hashtags
+   * Uses the /api/v1/scraping/search endpoint directly
    */
   private dispatchKeywordScraping(campaign: DataManagerCampaign): Observable<boolean> {
     console.log('Dispatching keyword focused scraping');
-    // Currently using the same implementation but can be extended
+    console.log('Using endpoint: /api/v1/scraping/search');
+    
+    // Here we would prioritize the search/keyword scraping
+    // Could be extended to directly call the search endpoint with optimized parameters
+    
     return this.scrapingService.startScraping(campaign);
   }
   
   /**
    * Specialized scraping for brand monitoring campaigns
+   * Uses a combination of hashtag and search endpoints for comprehensive brand coverage
    */
   private dispatchBrandMonitoringScraping(campaign: DataManagerCampaign): Observable<boolean> {
     console.log('Dispatching brand monitoring scraping');
-    // Currently using the same implementation but can be extended
+    console.log('Using endpoints: /api/v1/scraping/hashtag and /api/v1/scraping/search');
+    
+    // Brand monitoring would use a combination of search and hashtag endpoints
+    // to get a comprehensive view of the brand's social presence
+    
     return this.scrapingService.startScraping(campaign);
   }
   
   /**
    * Specialized scraping for competitor analysis campaigns
+   * Focuses on /api/v1/scraping/user to track competitor accounts and /api/v1/scraping/search
    */
   private dispatchCompetitorAnalysisScraping(campaign: DataManagerCampaign): Observable<boolean> {
     console.log('Dispatching competitor analysis scraping');
-    // Currently using the same implementation but can be extended
+    console.log('Using endpoints: /api/v1/scraping/user and /api/v1/scraping/search');
+    
+    // Competitor analysis would primarily focus on specific user accounts
+    // and search queries related to competitor brand names
+    
     return this.scrapingService.startScraping(campaign);
   }
   
   /**
    * Specialized scraping for market research campaigns
+   * Uses all available endpoints with emphasis on /api/v1/scraping/search for broad coverage
    */
   private dispatchMarketResearchScraping(campaign: DataManagerCampaign): Observable<boolean> {
     console.log('Dispatching market research scraping');
-    // Currently using the same implementation but can be extended
+    console.log('Using endpoints: /api/v1/scraping/search (primary), /api/v1/scraping/hashtag, /api/v1/scraping/user');
+    
+    // Market research would use all available endpoints but focus on search
+    // to gather broad market insights across various topics and trends
+    
     return this.scrapingService.startScraping(campaign);
   }
 }

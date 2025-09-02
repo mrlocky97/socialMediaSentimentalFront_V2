@@ -8,6 +8,19 @@ The scraping dispatch system enables different scraping strategies based on camp
 
 The implementation follows a dispatch pattern where a central service (`ScrapingDispatchService`) determines which specialized scraping method to use based on the campaign's type.
 
+## Available API Endpoints
+
+The scraping dispatch service leverages the following backend API endpoints:
+
+| Method | Endpoint | Description |
+|--------|---------|-------------|
+| POST | `/api/v1/scraping/hashtag` | Scrape tweets by hashtag |
+| POST | `/api/v1/scraping/reauth` | Force Twitter re-authentication |
+| POST | `/api/v1/scraping/search` | Scrape tweets by search query |
+| GET | `/api/v1/scraping/status` | Get scraping service status |
+| GET | `/api/v1/scraping/tweets` | List scraped tweets |
+| POST | `/api/v1/scraping/user` | Scrape tweets from user |
+
 ### Key Components
 
 1. **ScrapingDispatchService**: Central dispatcher that analyzes campaign type and routes to the appropriate scraping method
@@ -18,14 +31,14 @@ The implementation follows a dispatch pattern where a central service (`Scraping
 
 The system supports dispatching based on these campaign types:
 
-| Campaign Type | Primary Focus | Scraping Strategy |
-|---------------|--------------|-------------------|
-| `hashtag` | Hashtag tracking | Focus on hashtags first, then keywords/mentions |
-| `user` / `mention` | User activity | Focus on user mentions first, then related hashtags |
-| `keyword` | Keyword monitoring | Focus on keywords first, then related hashtags |
-| `brand-monitoring` | Brand mentions | Balanced approach with slight emphasis on brand terms |
-| `competitor-analysis` | Competitor tracking | Focus on competitor names and related terms |
-| `market-research` | General research | Broad approach covering multiple sources |
+| Campaign Type | Primary Focus | Scraping Strategy | Primary Endpoints |
+|---------------|--------------|-------------------|----------------|
+| `hashtag` | Hashtag tracking | Focus on hashtags first, then keywords/mentions | `/api/v1/scraping/hashtag` |
+| `user` / `mention` | User activity | Focus on user mentions first, then related hashtags | `/api/v1/scraping/user` |
+| `keyword` | Keyword monitoring | Focus on keywords first, then related hashtags | `/api/v1/scraping/search` |
+| `brand-monitoring` | Brand mentions | Balanced approach with slight emphasis on brand terms | `/api/v1/scraping/search`, `/api/v1/scraping/hashtag` |
+| `competitor-analysis` | Competitor tracking | Focus on competitor names and related terms | `/api/v1/scraping/user`, `/api/v1/scraping/search` |
+| `market-research` | General research | Broad approach covering multiple sources | All endpoints with emphasis on `/api/v1/scraping/search` |
 
 ## Implementation Details
 
@@ -92,6 +105,9 @@ The dispatch system is designed to be extended with:
 2. Custom rate limiting based on campaign priority
 3. Specialized data processing for different campaign objectives
 4. AI-powered scraping optimization based on previous results
+5. Direct integration with specific API endpoints rather than going through the general service
+6. Status monitoring and automatic re-authentication using the `/api/v1/scraping/status` and `/api/v1/scraping/reauth` endpoints
+7. Real-time polling of scraped tweets using the `/api/v1/scraping/tweets` endpoint
 
 ## Technical Notes
 

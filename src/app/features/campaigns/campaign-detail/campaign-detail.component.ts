@@ -13,15 +13,15 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { TranslocoModule } from '@ngneat/transloco';
 import { Subject, takeUntil } from 'rxjs';
+import { ScrapingDispatchService } from '../../../core/services/scraping-dispatch.service';
+import { ScrapingProgress, ScrapingService } from '../../../core/services/scraping.service';
 import { Campaign } from '../../../core/state/app.state';
 import { CampaignFacade } from '../../../core/store/fecades/campaign.facade';
-import { ScrapingProgress, ScrapingService } from '../../../core/services/scraping.service';
-import { ScrapingDispatchService } from '../../../core/services/scraping-dispatch.service';
-import { MatTabsModule } from '@angular/material/tabs';
 
 @Component({
   selector: 'app-campaign-detail',
