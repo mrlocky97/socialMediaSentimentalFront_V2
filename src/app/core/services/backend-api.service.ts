@@ -237,11 +237,20 @@ export class BackendApiService {
    */
   public scrapeHashtags(input: string | string[], opts: ScrapeOpts = {}): Observable<BulkScrapeSummary> {
     const hashtags = Array.isArray(input) ? input : [input];
+    
+    // Usar el primer hashtag para el campo "hashtag" y el formato correcto según endpoint
+    // Si hay múltiples hashtags, usamos el primero (se puede mejorar para hacer múltiples llamadas)
+    const firstHashtag = hashtags[0]?.replace('#', '') || '';
+    
     const body = { 
-      hashtag: hashtags,
-      ...opts
+      hashtag: firstHashtag,
+      limit: opts.limit || 20,
+      analyzeSentiment: true,
+      campaignId: opts.campaignId || '',
+      language: opts.language || 'en'
     };
     
+    console.log('Sending scrapeHashtags request with body:', body);
     return this.makeRequest<BulkScrapeSummary>('POST', `${environment.apiUrl}/api/${environment.apiVersion}/scraping/hashtag`, body);
   }
 

@@ -44,6 +44,8 @@ export class ScrapingFacade {
    * @returns Observable that completes when the action is processed
    */
   startHashtagScraping(result: any): Observable<any> {
+    console.log('ScrapingFacade.startHashtagScraping called with:', JSON.stringify(result, null, 2));
+    
     if (!result || !result.id || !result.payload) {
       console.error('Invalid result for hashtag scraping', result);
       return this.handleInvalidResult();
@@ -53,9 +55,11 @@ export class ScrapingFacade {
       id: result.id,
       ...result.payload,
     };
-
+    
+    console.log('Dispatching hashtagScraping action with campaign:', JSON.stringify(campaign, null, 2));
     this.store.dispatch(ScrapingActions.hashtagScraping({ campaign }));
 
+    console.log('Waiting for hashtagScrapingSuccess or hashtagScrapingFailure action');
     return this.actions$.pipe(
       ofType(ScrapingActions.hashtagScrapingSuccess, ScrapingActions.hashtagScrapingFailure),
       take(1)

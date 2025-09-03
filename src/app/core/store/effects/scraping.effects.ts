@@ -20,12 +20,38 @@ export class ScrapingEffects {
   hashtagScraping$ = createEffect(() =>
     this.actions$.pipe(
       ofType(ScrapingActions.hashtagScraping),
-      switchMap(({ campaign }) =>
-        this.apiService.scrapeHashtags(campaign.hashtags).pipe(
-          map(() => ScrapingActions.hashtagScrapingSuccess({ campaignId: campaign.id })),
-          catchError((error) => of(ScrapingActions.hashtagScrapingFailure({ error })))
-        )
-      )
+      switchMap(({ campaign }) => {
+        console.log('ScrapingEffects: Processing hashtag scraping for campaign:', campaign);
+        
+        // Verificar que la campaña tenga hashtags
+        if (!campaign.hashtags || campaign.hashtags.length === 0) {
+          console.error('Campaign has no hashtags:', campaign);
+          return of(ScrapingActions.hashtagScrapingFailure({ 
+            error: new Error('Campaign has no hashtags defined') 
+          }));
+        }
+        
+        return this.apiService.scrapeHashtags(
+          campaign.hashtags,
+          {
+            campaignId: campaign.id,
+            analyzeSentiment: campaign.sentimentAnalysis || true,
+            limit: campaign.maxTweets || 20,
+            language: (campaign.languages && campaign.languages.length > 0) 
+              ? campaign.languages[0] 
+              : 'en'
+          }
+        ).pipe(
+          map((response) => {
+            console.log('Hashtag scraping success response:', response);
+            return ScrapingActions.hashtagScrapingSuccess({ campaignId: campaign.id });
+          }),
+          catchError((error) => {
+            console.error('Hashtag scraping error:', error);
+            return of(ScrapingActions.hashtagScrapingFailure({ error }));
+          })
+        );
+      })
     )
   );
 }

@@ -175,8 +175,7 @@ export class CampaignListComponent implements OnInit, OnDestroy {
   tableActions: TableAction<Campaign>[] = [
     { icon: 'visibility', label: 'View', color: 'primary' },
     { icon: 'edit', label: 'Edit', color: 'primary' },
-    { icon: 'delete', label: 'Delete', color: 'warn', confirm: true },
-    { icon: 'cloud_download', label: 'Scrape', color: 'accent' },
+    { icon: 'delete', label: 'Delete', color: 'warn', confirm: true }
   ];
 
   // Filter form
@@ -356,8 +355,23 @@ export class CampaignListComponent implements OnInit, OnDestroy {
                   this.transloco.translate('common.close'),
                   { duration: 3000, panelClass: 'success-snackbar' }
                 );
-                // La lista se actualizará automáticamente gracias al reducer y los selectores
-                this.createScraping(result);
+    
+                const campaignId: string = action.campaign?.id;
+                
+                if (campaignId) {
+                  console.log('Starting scraping with ID:', campaignId);
+                  
+                  // Estructura limpia y directa que esperan los métodos de scraping
+                  this.startScraping({
+                    id: campaignId,
+                    payload: {
+                      ...result.payload,
+                      id: campaignId  // Aseguramos que el ID esté también en el payload
+                    }
+                  });
+                } else {
+                  console.error('No campaign ID found after creation! Cannot start scraping.');
+                }
               }
             },
             error: (error) => {
@@ -750,37 +764,96 @@ export class CampaignListComponent implements OnInit, OnDestroy {
     return Math.round((elapsed / total) * 100);
   }
 
-  // Function to create scraping based on campaign type
-  createScraping(result: any): void {
-    if (!result || !result.payload) return;
+  // Function to start scraping based on campaign type
+  startScraping(result: any): void {
+    console.log('startScraping called with:', JSON.stringify(result, null, 2));
+    
+    if (!result) {
+      console.error('startScraping received null or undefined result');
+      return;
+    }
+    
+    // Verificar la estructura del objeto result y normalizarla
+    let normalizedResult = result;
+    
+    // Caso 1: Es una acción de NgRx con campaignId en result.id y datos en result.payload
+    if (result.id && result.payload && result.payload.type) {
+      console.log('Case 1: Object already has correct structure with id and payload.type');
+      normalizedResult = result; // Ya tiene el formato correcto
+    }
+    // Caso 2: Es un objeto acción de NgRx con la campaña en payload
+    else if (result.payload && result.payload.id) {
+      console.log('Case 2: Object has campaign in payload, normalizing structure');
+      normalizedResult = {
+        id: result.payload.id,
+        payload: result.payload
+      };
+    }
+    // Si no tiene la estructura esperada, salimos
+    if (!normalizedResult.payload || !normalizedResult.payload.type) {
+      console.error('Invalid result structure for scraping', JSON.stringify(result, null, 2));
+      return;
+    }
+    
+    console.log('Normalized result:', JSON.stringify(normalizedResult, null, 2));
 
-    switch (result.payload.type) {
+    console.log('Campaign type for scraping:', normalizedResult.payload.type);
+    
+    switch (normalizedResult.payload.type) {
       case 'hashtag':
-        this.scrapingFacade.startHashtagScraping(result).subscribe({
-          next: () => this.showSuccessMessage(),
-          error: (error: Error) => this.handleError(error, 'hashtag'),
+        console.log('Processing hashtag scraping');
+        this.scrapingFacade.startHashtagScraping(normalizedResult).subscribe({
+          next: (response) => {
+            console.log('Hashtag scraping started successfully:', response);
+            this.showSuccessMessage();
+          },
+          error: (error: Error) => {
+            console.error('Error in hashtag scraping:', error);
+            this.handleError(error, 'hashtag');
+          },
         });
         break;
       case 'keyword':
-        this.scrapingFacade.startKeywordScraping(result).subscribe({
-          next: () => this.showSuccessMessage(),
-          error: (error: Error) => this.handleError(error, 'keyword'),
+        console.log('Processing keyword scraping');
+        this.scrapingFacade.startKeywordScraping(normalizedResult).subscribe({
+          next: (response) => {
+            console.log('Keyword scraping started successfully:', response);
+            this.showSuccessMessage();
+          },
+          error: (error: Error) => {
+            console.error('Error in keyword scraping:', error);
+            this.handleError(error, 'keyword');
+          },
         });
         break;
       case 'user':
-        this.scrapingFacade.startUserScraping(result).subscribe({
-          next: () => this.showSuccessMessage(),
-          error: (error: Error) => this.handleError(error, 'user'),
+        console.log('Processing user scraping');
+        this.scrapingFacade.startUserScraping(normalizedResult).subscribe({
+          next: (response) => {
+            console.log('User scraping started successfully:', response);
+            this.showSuccessMessage();
+          },
+          error: (error: Error) => {
+            console.error('Error in user scraping:', error);
+            this.handleError(error, 'user');
+          },
         });
         break;
       case 'mention':
-        this.scrapingFacade.startMentionScraping(result).subscribe({
-          next: () => this.showSuccessMessage(),
-          error: (error: Error) => this.handleError(error, 'mention'),
+        console.log('Processing mention scraping');
+        this.scrapingFacade.startMentionScraping(normalizedResult).subscribe({
+          next: (response) => {
+            console.log('Mention scraping started successfully:', response);
+            this.showSuccessMessage();
+          },
+          error: (error: Error) => {
+            console.error('Error in mention scraping:', error);
+            this.handleError(error, 'mention');
+          },
         });
         break;
       default:
-        console.warn('Unknown campaign type for scraping:', result.payload.type);
+        console.warn('Unknown campaign type for scraping:', normalizedResult.payload.type);
         break;
     }
   }
