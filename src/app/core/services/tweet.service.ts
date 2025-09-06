@@ -1,11 +1,11 @@
 /**
  * Tweet Service - API calls for tweet data
  */
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable } from 'rxjs';
-import { HttpClient, HttpParams } from '@angular/common/http';
 import { environment } from '../../../enviroments/environment';
-import { Tweet, TweetsResponse, TweetFilter } from '../interfaces/tweet.interface';
+import { Tweet, TweetFilter, TweetsResponse } from '../interfaces/tweet.interface';
 
 @Injectable({
   providedIn: 'root'

@@ -20,25 +20,29 @@ export const tweetReducer = createReducer(
   initialTweetState,
 
   // Load Tweets
-  on(TweetActions.loadTweets, (state, { campaignId }) => ({
-    ...state,
-    loading: true,
-    error: null
-  })),
+  on(TweetActions.loadTweets, (state, { campaignId }) => {
+    return {
+      ...state,
+      loading: true,
+      error: null
+    };
+  }),
 
-  on(TweetActions.loadTweetsSuccess, (state, { tweets, campaignId, pagination }) => ({
-    ...state,
-    loading: false,
-    error: null,
-    tweets: {
-      ...state.tweets,
-      [campaignId]: tweets
-    },
-    pagination: pagination ? {
-      ...state.pagination,
-      [campaignId]: pagination
-    } : state.pagination
-  })),
+  on(TweetActions.loadTweetsSuccess, (state, { tweets, campaignId, pagination }) => {
+    return {
+      ...state,
+      loading: false,
+      error: null,
+      tweets: {
+        ...state.tweets,
+        [campaignId]: tweets
+      },
+      pagination: pagination ? {
+        ...state.pagination,
+        [campaignId]: pagination
+      } : state.pagination
+    };
+  }),
 
   on(TweetActions.loadTweetsFailure, (state, { error, campaignId }) => ({
     ...state,

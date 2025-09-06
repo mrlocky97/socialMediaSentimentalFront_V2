@@ -25,15 +25,15 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { TranslocoModule } from '@ngneat/transloco';
-import { Subject, catchError, of, takeUntil, tap, combineLatest } from 'rxjs';
+import { Subject, catchError, combineLatest, of, takeUntil, tap } from 'rxjs';
+import { Tweet } from '../../../core/interfaces/tweet.interface';
 import { ScrapingDispatchService } from '../../../core/services/scraping-dispatch.service';
 import { ScrapingProgress, ScrapingService } from '../../../core/services/scraping.service';
 import { Campaign } from '../../../core/state/app.state';
 import { CampaignFacade } from '../../../core/store/fecades/campaign.facade';
 import { TweetFacade } from '../../../core/store/fecades/tweet.facade';
-import { Tweet } from '../../../core/interfaces/tweet.interface';
+import { TableAction, TableColumn, TableConfig } from '../../../shared/components/solid-data-table/service/table-services';
 import { SolidDataTableRxjsComponent } from '../../../shared/components/solid-data-table/solid-data-table-rxjs.component';
-import { TableColumn, TableConfig, TableAction } from '../../../shared/components/solid-data-table/service/table-services';
 
 // Constants for better maintainability
 const STATUS_ICONS: { [key: string]: string } = {
@@ -140,27 +140,6 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
       sortable: true, 
       width: '120px',
       formatter: (sentiment: any) => sentiment?.label || 'Unknown'
-    },
-    { 
-      key: 'metrics', 
-      label: 'Engagement', 
-      sortable: true, 
-      width: '120px',
-      formatter: (metrics: any) => metrics?.engagement?.toLocaleString() || '0'
-    },
-    { 
-      key: 'metrics', 
-      label: 'Likes', 
-      sortable: true, 
-      width: '100px',
-      formatter: (metrics: any) => metrics?.likes?.toLocaleString() || '0'
-    },
-    { 
-      key: 'metrics', 
-      label: 'Retweets', 
-      sortable: true, 
-      width: '100px',
-      formatter: (metrics: any) => metrics?.retweets?.toLocaleString() || '0'
     },
     { 
       key: 'language', 
