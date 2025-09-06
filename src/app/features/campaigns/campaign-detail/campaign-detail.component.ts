@@ -25,11 +25,15 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { TranslocoModule } from '@ngneat/transloco';
-import { Subject, catchError, of, takeUntil, tap } from 'rxjs';
+import { Subject, catchError, of, takeUntil, tap, combineLatest } from 'rxjs';
 import { ScrapingDispatchService } from '../../../core/services/scraping-dispatch.service';
 import { ScrapingProgress, ScrapingService } from '../../../core/services/scraping.service';
 import { Campaign } from '../../../core/state/app.state';
 import { CampaignFacade } from '../../../core/store/fecades/campaign.facade';
+import { TweetFacade } from '../../../core/store/fecades/tweet.facade';
+import { Tweet } from '../../../core/interfaces/tweet.interface';
+import { SolidDataTableRxjsComponent } from '../../../shared/components/solid-data-table/solid-data-table-rxjs.component';
+import { TableColumn, TableConfig, TableAction } from '../../../shared/components/solid-data-table/service/table-services';
 
 // Constants for better maintainability
 const STATUS_ICONS: { [key: string]: string } = {
@@ -78,6 +82,7 @@ const TYPE_LABELS: { [key: string]: string } = {
     MatProgressBarModule,
     MatTooltipModule,
     MatTabsModule,
+    SolidDataTableRxjsComponent,
   ],
   templateUrl: './campaign-detail.component.html',
   styleUrls: ['./campaign-detail.component.css'],
@@ -87,6 +92,7 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
   // Inject dependencies
   private route = inject(ActivatedRoute);
   private campaignFacade = inject(CampaignFacade);
+  private tweetFacade = inject(TweetFacade);
   private scrapingService = inject(ScrapingService);
   private scrapingDispatchService = inject(ScrapingDispatchService);
   private snackBar = inject(MatSnackBar);
@@ -97,6 +103,9 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
   loading = signal(true);
   error = signal<string | null>(null);
   scrapingProgress = signal<ScrapingProgress | null>(null);
+  tweets = signal<Tweet[]>([]);
+  tweetsLoading = signal(false);
+  tweetsError = signal<string | null>(null);
 
   // Computed properties using signals
   isScrapingRunning = computed(() => this.scrapingProgress()?.status === 'running');
@@ -108,6 +117,78 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
     const { totalScraped, saved, errors } = progress.metrics;
     return totalScraped > 0 || saved > 0 || errors > 0;
   });
+
+  // Table configuration for tweets
+  tweetTableColumns: TableColumn<Tweet>[] = [
+    { 
+      key: 'content', 
+      label: 'Tweet Content', 
+      sortable: false, 
+      width: '300px',
+      formatter: (content: string) => content.length > 100 ? content.substring(0, 100) + '...' : content
+    },
+    { 
+      key: 'author', 
+      label: 'Author', 
+      sortable: false, 
+      width: '150px',
+      formatter: (author: any) => author?.username || 'Unknown'
+    },
+    { 
+      key: 'sentiment', 
+      label: 'Sentiment', 
+      sortable: true, 
+      width: '120px',
+      formatter: (sentiment: any) => sentiment?.label || 'Unknown'
+    },
+    { 
+      key: 'metrics', 
+      label: 'Engagement', 
+      sortable: true, 
+      width: '120px',
+      formatter: (metrics: any) => metrics?.engagement?.toLocaleString() || '0'
+    },
+    { 
+      key: 'metrics', 
+      label: 'Likes', 
+      sortable: true, 
+      width: '100px',
+      formatter: (metrics: any) => metrics?.likes?.toLocaleString() || '0'
+    },
+    { 
+      key: 'metrics', 
+      label: 'Retweets', 
+      sortable: true, 
+      width: '100px',
+      formatter: (metrics: any) => metrics?.retweets?.toLocaleString() || '0'
+    },
+    { 
+      key: 'language', 
+      label: 'Language', 
+      sortable: true, 
+      width: '80px'
+    },
+    { 
+      key: 'tweetCreatedAt', 
+      label: 'Date', 
+      sortable: true, 
+      width: '120px',
+      formatter: (date: string) => new Date(date).toLocaleDateString()
+    }
+  ];
+
+  tweetTableConfig: TableConfig = {
+    showSearch: true,
+    showPagination: true,
+    showSelection: false,
+    multiSelection: false,
+    pageSize: 20,
+  };
+
+  tweetTableActions: TableAction<Tweet>[] = [
+    { icon: 'visibility', label: 'View', color: 'primary' },
+    { icon: 'link', label: 'Open Tweet', color: 'primary' }
+  ];
 
   // Destroy subject for cleanup
   private destroy$ = new Subject<void>();
@@ -123,6 +204,8 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
       return;
     }
 
+    console.log('Campaign Detail Component: Loading campaign with ID:', campaignId);
+
     // Check if we should auto-start scraping
     const autoStartScraping =
       this.route.snapshot.queryParamMap.has('autoScrape') ||
@@ -131,18 +214,23 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
     // First, try to load all campaigns to ensure we have the data
     this.campaignFacade.loadCampaigns();
 
-    // Load campaign data
-    this.campaignFacade
-      .selectCampaign(campaignId)
-      .pipe(
-        takeUntil(this.destroy$),
-        tap((campaign) => {
-          console.log('Campaign Detail Component: Received campaign:', campaign);
-          if (!campaign) {
-            this.error.set('Campaign not found');
-            return;
-          }
-
+    // Load campaign data and tweets in parallel
+    combineLatest([
+      this.campaignFacade.selectCampaign(campaignId),
+      this.tweetFacade.getTweetsByCampaign(campaignId),
+      this.tweetFacade.loading$,
+      this.tweetFacade.error$
+    ]).pipe(
+      takeUntil(this.destroy$),
+      tap(([campaign, tweets, tweetsLoading, tweetsError]) => {
+        console.log('Campaign Detail Component: Received data:', { campaign, tweets, tweetsLoading, tweetsError });
+        
+        // Handle campaign data
+        if (!campaign) {
+          console.log('No campaign found in store for ID:', campaignId);
+          this.error.set(`Campaign with ID "${campaignId}" not found`);
+          this.loading.set(false);
+        } else {
           this.campaign.set(campaign);
           this.loading.set(false);
 
@@ -154,15 +242,25 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
           if (shouldAutoScrape) {
             setTimeout(() => this.runScraping(), 1000);
           }
-        }),
-        catchError((err) => {
-          this.error.set(`Failed to load campaign: ${err.message || 'Unknown error'}`);
-          this.loading.set(false);
-          this.cdr.markForCheck();
-          return of(null);
-        })
-      )
-      .subscribe(() => this.cdr.markForCheck());
+        }
+
+        // Handle tweets data
+        this.tweets.set(tweets);
+        this.tweetsLoading.set(tweetsLoading);
+        this.tweetsError.set(tweetsError);
+      }),
+      catchError((err) => {
+        console.error('Error loading campaign or tweets:', err);
+        this.error.set(`Failed to load data: ${err.message || 'Unknown error'}`);
+        this.loading.set(false);
+        this.cdr.markForCheck();
+        return of(null);
+      })
+    ).subscribe(() => this.cdr.markForCheck());
+
+    // Load tweets for this campaign
+    console.log('Loading tweets for campaign:', campaignId);
+    this.tweetFacade.loadTweets(campaignId, { page: 1, limit: 20 });
 
     // Subscribe to scraping progress
     this.scrapingService.scrapingProgress$.pipe(takeUntil(this.destroy$)).subscribe((progress) => {
@@ -258,5 +356,73 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
 
   getStatusLabel(status: string): string {
     return STATUS_LABELS[status] || status;
+  }
+
+  /**
+   * Handle tweet table row click
+   */
+  onTweetRowClick(tweet: Tweet): void {
+    console.log('Tweet clicked:', tweet);
+    this.tweetFacade.selectTweet(tweet._id);
+  }
+
+  /**
+   * Handle tweet table action click
+   */
+  onTweetAction(event: { action: TableAction<Tweet>; item: Tweet }): void {
+    const { action, item } = event;
+    
+    switch (action.label.toLowerCase()) {
+      case 'view':
+        this.viewTweetDetails(item);
+        break;
+      case 'open tweet':
+        this.openTweetInNewTab(item);
+        break;
+      default:
+        console.log('Unknown action:', action.label);
+    }
+  }
+
+  /**
+   * View tweet details (could open a dialog or navigate to detail view)
+   */
+  private viewTweetDetails(tweet: Tweet): void {
+    console.log('Viewing tweet details:', tweet);
+    this.snackBar.open(`Viewing tweet: ${tweet.content.substring(0, 50)}...`, 'Close', {
+      duration: 3000
+    });
+  }
+
+  /**
+   * Open original tweet in new tab
+   */
+  private openTweetInNewTab(tweet: Tweet): void {
+    const tweetUrl = `https://twitter.com/i/web/status/${tweet.tweetId}`;
+    window.open(tweetUrl, '_blank');
+  }
+
+  /**
+   * Handle pagination change for tweets
+   */
+  onTweetPageChange(event: any): void {
+    const campaignId = this.route.snapshot.paramMap.get('id');
+    if (campaignId) {
+      this.tweetFacade.loadTweets(campaignId, { 
+        page: event.pageIndex + 1, 
+        limit: event.pageSize 
+      });
+    }
+  }
+
+  /**
+   * Refresh tweets data
+   */
+  refreshTweets(): void {
+    const campaignId = this.route.snapshot.paramMap.get('id');
+    if (campaignId) {
+      console.log('Refreshing tweets for campaign:', campaignId);
+      this.tweetFacade.loadTweets(campaignId, { page: 1, limit: 20 });
+    }
   }
 }

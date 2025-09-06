@@ -4,6 +4,7 @@
  */
 import { Injectable, computed, signal } from '@angular/core';
 import { UserInfo } from '../auth/model/auth.model';
+import { Tweet, TweetFilter } from '../interfaces/tweet.interface';
 
 export interface Campaign {
   id: string;
@@ -50,9 +51,26 @@ export interface Campaign {
   };
 }
 
+export interface TweetState {
+  tweets: { [campaignId: string]: Tweet[] };
+  loading: boolean;
+  error: string | null;
+  selectedTweet: Tweet | null;
+  filter: TweetFilter;
+  pagination: {
+    [campaignId: string]: {
+      page: number;
+      limit: number;
+      total: number;
+      totalPages: number;
+    };
+  };
+}
+
 export interface AppState {
   user: UserInfo | null;
   campaigns: Campaign[];
+  tweets: TweetState;
   loading: boolean;
   error: string | null;
   selectedCampaign: Campaign | null;
@@ -65,6 +83,14 @@ export class AppStateService {
   private state = signal<AppState>({
     user: null,
     campaigns: [],
+    tweets: {
+      tweets: {},
+      loading: false,
+      error: null,
+      selectedTweet: null,
+      filter: {},
+      pagination: {}
+    },
     loading: false,
     error: null,
     selectedCampaign: null

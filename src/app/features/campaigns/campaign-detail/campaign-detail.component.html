@@ -265,11 +265,79 @@
         </mat-card-content>
       </mat-card>
 
-      <!-- Placeholder for tweet table -->
-      <div class="placeholder-section">
-        <h3>Recent Tweets</h3>
-        <p class="placeholder-message">Tweet table will be implemented in the next iteration.</p>
-      </div>
+      <!-- Tweets Section -->
+      <mat-card class="tweets-section-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>article</mat-icon>
+            Campaign Tweets
+          </mat-card-title>
+          <mat-card-subtitle>
+            Analysis of tweets collected for this campaign
+          </mat-card-subtitle>
+          <div class="section-actions">
+            <button 
+              mat-icon-button 
+              matTooltip="Refresh Tweets" 
+              (click)="refreshTweets()"
+              [disabled]="tweetsLoading()">
+              <mat-icon>refresh</mat-icon>
+            </button>
+          </div>
+        </mat-card-header>
+
+        <mat-card-content>
+          <!-- Tweets Loading State -->
+          @if (tweetsLoading()) {
+            <div class="tweets-loading">
+              <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+              <p>Loading tweets...</p>
+            </div>
+          }
+
+          <!-- Tweets Error State -->
+          @if (tweetsError()) {
+            <div class="tweets-error">
+              <mat-icon color="warn">error</mat-icon>
+              <p>Error loading tweets: {{ tweetsError() }}</p>
+              <button mat-raised-button color="primary" (click)="refreshTweets()">
+                Try Again
+              </button>
+            </div>
+          }
+
+          <!-- Tweets Table -->
+          @if (!tweetsLoading() && !tweetsError()) {
+            @if (tweets().length > 0) {
+              <div class="tweets-table-container">
+                <app-solid-data-table-rxjs
+                  [data]="tweets()"
+                  [columns]="tweetTableColumns"
+                  [config]="tweetTableConfig"
+                  [actions]="tweetTableActions"
+                  [loading]="tweetsLoading()"
+                  [error]="tweetsError()"
+                  (rowClick)="onTweetRowClick($event)"
+                  (actionClick)="onTweetAction($event)"
+                  (pageChange)="onTweetPageChange($event)"
+                ></app-solid-data-table-rxjs>
+              </div>
+            } @else {
+              <div class="no-tweets">
+                <mat-icon class="no-data-icon">sentiment_neutral</mat-icon>
+                <h3>No Tweets Found</h3>
+                <p>This campaign doesn't have any tweets yet.</p>
+                <p>
+                  <button mat-raised-button color="primary" (click)="runScraping()" [disabled]="isScrapingRunning()">
+                    <mat-icon>play_arrow</mat-icon>
+                    Start Scraping
+                  </button>
+                </p>
+              </div>
+            }
+          }
+        </mat-card-content>
+      </mat-card>
     </div>
   }
 </div>
