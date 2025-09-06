@@ -23,7 +23,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Router, RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -80,7 +80,7 @@ export class CampaignListComponent implements OnInit, OnDestroy {
   navigateToCampaign(item: Campaign): void {
     // If the table emits the whole row, navigate to detail
     if (item && item.id) {
-      this.router.navigate(['/dashboard/campaigns', item.id]);
+      this.router.navigate(['/dashboard/campaigns/campaign-detail', item.id]);
     }
   }
 
@@ -104,6 +104,7 @@ export class CampaignListComponent implements OnInit, OnDestroy {
   }
   private transloco = inject(TranslocoService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
   private readonly snackBar = inject(MatSnackBar);
   private readonly fb = inject(FormBuilder);
   private readonly destroy$ = new Subject<void>();
@@ -175,7 +176,7 @@ export class CampaignListComponent implements OnInit, OnDestroy {
   tableActions: TableAction<Campaign>[] = [
     { icon: 'visibility', label: 'View', color: 'primary' },
     { icon: 'edit', label: 'Edit', color: 'primary' },
-    { icon: 'delete', label: 'Delete', color: 'warn', confirm: true }
+    { icon: 'delete', label: 'Delete', color: 'warn', confirm: true },
   ];
 
   // Filter form
@@ -355,19 +356,19 @@ export class CampaignListComponent implements OnInit, OnDestroy {
                   this.transloco.translate('common.close'),
                   { duration: 3000, panelClass: 'success-snackbar' }
                 );
-    
+
                 const campaignId: string = action.campaign?.id;
-                
+
                 if (campaignId) {
                   console.log('Starting scraping with ID:', campaignId);
-                  
+
                   // Estructura limpia y directa que esperan los métodos de scraping
                   this.startScraping({
                     id: campaignId,
                     payload: {
                       ...result.payload,
-                      id: campaignId  // Aseguramos que el ID esté también en el payload
-                    }
+                      id: campaignId
+                    },
                   });
                 } else {
                   console.error('No campaign ID found after creation! Cannot start scraping.');
@@ -451,50 +452,8 @@ export class CampaignListComponent implements OnInit, OnDestroy {
    * View campaign in read-only mode
    */
   viewCampaign(campaign: Campaign): void {
-    this.dialogLoading.set(true);
-
-    // Abrimos el diálogo en modo solo lectura con los datos pre-cargados
-    const dialogRef = this.dialogRef.open(CampaignDialogComponent, {
-      width: 'auto',
-      height: 'auto',
-      maxHeight: '100vh',
-      maxWidth: '90vw',
-      disableClose: false,
-      panelClass: ['campaign-wizard-dialog', 'campaign-view-dialog'],
-      data: {
-        mode: 'view',
-        title: this.transloco.translate('campaigns.view.title'),
-        campaignId: campaign.id,
-        preset: {
-          name: campaign.name,
-          description: campaign.description,
-          type: campaign.type,
-          dataSources: campaign.dataSources,
-          hashtags: campaign.hashtags,
-          keywords: campaign.keywords,
-          mentions: campaign.mentions,
-          startDate: campaign.startDate,
-          endDate: campaign.endDate,
-          timezone: campaign.timezone,
-          maxTweets: campaign.maxTweets,
-          collectImages: campaign.collectImages,
-          collectVideos: campaign.collectVideos,
-          collectReplies: campaign.collectReplies,
-          collectRetweets: campaign.collectRetweets,
-          languages: campaign.languages,
-          sentimentAnalysis: campaign.sentimentAnalysis,
-          emotionAnalysis: campaign.emotionAnalysis,
-          topicsAnalysis: campaign.topicsAnalysis,
-          influencerAnalysis: campaign.influencerAnalysis,
-          organizationId: campaign.organizationId,
-        },
-      },
-    });
-
-    // Manejamos el resultado al cerrar el diálogo
-    dialogRef.afterClosed().subscribe(() => {
-      this.dialogLoading.set(false);
-    });
+    // Navigate to campaign detail instead of opening dialog
+    this.navigateToCampaign(campaign);
   }
 
   /**
@@ -767,15 +726,15 @@ export class CampaignListComponent implements OnInit, OnDestroy {
   // Function to start scraping based on campaign type
   startScraping(result: any): void {
     console.log('startScraping called with:', JSON.stringify(result, null, 2));
-    
+
     if (!result) {
       console.error('startScraping received null or undefined result');
       return;
     }
-    
+
     // Verificar la estructura del objeto result y normalizarla
     let normalizedResult = result;
-    
+
     // Caso 1: Es una acción de NgRx con campaignId en result.id y datos en result.payload
     if (result.id && result.payload && result.payload.type) {
       console.log('Case 1: Object already has correct structure with id and payload.type');
@@ -786,7 +745,7 @@ export class CampaignListComponent implements OnInit, OnDestroy {
       console.log('Case 2: Object has campaign in payload, normalizing structure');
       normalizedResult = {
         id: result.payload.id,
-        payload: result.payload
+        payload: result.payload,
       };
     }
     // Si no tiene la estructura esperada, salimos
@@ -794,11 +753,11 @@ export class CampaignListComponent implements OnInit, OnDestroy {
       console.error('Invalid result structure for scraping', JSON.stringify(result, null, 2));
       return;
     }
-    
+
     console.log('Normalized result:', JSON.stringify(normalizedResult, null, 2));
 
     console.log('Campaign type for scraping:', normalizedResult.payload.type);
-    
+
     switch (normalizedResult.payload.type) {
       case 'hashtag':
         console.log('Processing hashtag scraping');
@@ -859,15 +818,14 @@ export class CampaignListComponent implements OnInit, OnDestroy {
   }
   // Mostrar mensaje de éxito
   showSuccessMessage(campaignName?: string): void {
-    const message = campaignName 
+    const message = campaignName
       ? this.transloco.translate('campaigns.scraping.started', { name: campaignName })
       : this.transloco.translate('campaigns.create.scraping_started');
-      
-    this.snackBar.open(
-      message,
-      this.transloco.translate('common.close'),
-      { duration: 3000, panelClass: 'success-snackbar' }
-    );
+
+    this.snackBar.open(message, this.transloco.translate('common.close'), {
+      duration: 3000,
+      panelClass: 'success-snackbar',
+    });
   }
 
   // Manejar errores

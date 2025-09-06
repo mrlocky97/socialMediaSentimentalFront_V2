@@ -28,7 +28,7 @@ export const campaignRoutes: Routes = [
         title: 'Create Campaign - Simple'
       },
       {
-        path: ':id',
+        path: 'campaign-detail/:id',
         loadComponent: () => 
           import('./campaign-detail/campaign-detail.component').then(c => c.CampaignDetailComponent),
         title: 'Campaign Details - SentimentalSocial'
