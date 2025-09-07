@@ -1,9 +1,13 @@
+<!-- =====================================
+     CAMPAIGN DETAIL - MODERN RESPONSIVE
+     ===================================== -->
+
 <div class="campaign-detail-container">
   <!-- Loading State -->
   @if (loading()) {
     <div class="loading-container">
       <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-      <p class="loading-text">Loading campaign details...</p>
+      <p class="loading-text">{{ 'campaign_detail.loading' | transloco: { default: 'Loading campaign details...' } }}</p>
     </div>
   }
 
@@ -12,11 +16,17 @@
     <div class="error-container">
       <mat-card class="error-card">
         <mat-card-content>
-          <mat-icon color="warn">error</mat-icon>
-          <h2>Error Loading Campaign</h2>
+          <mat-icon color="warn" aria-hidden="true">error</mat-icon>
+          <h2>{{ 'campaign_detail.error_title' | transloco: { default: 'Error Loading Campaign' } }}</h2>
           <p>{{ error() }}</p>
-          <button mat-raised-button color="primary" [routerLink]="['/dashboard/campaigns']">
-            Back to Campaigns
+          <button 
+            mat-raised-button 
+            color="primary" 
+            [routerLink]="['/dashboard/campaigns']"
+            type="button"
+            aria-label="Back to campaigns list">
+            <mat-icon>arrow_back</mat-icon>
+            {{ 'campaign_detail.back_to_campaigns' | transloco: { default: 'Back to Campaigns' } }}
           </button>
         </mat-card-content>
       </mat-card>
@@ -27,317 +37,385 @@
   @if (campaign() && !loading() && !error()) {
     <div class="campaign-content">
       <!-- Header -->
-      <div class="campaign-header">
+      <header class="campaign-header" role="banner">
         <div class="campaign-title">
           <h1>
-            <mat-icon [ngClass]="'icon-' + campaign()?.status">{{
-              getTypeIcon(campaign()?.type || '')
-            }}</mat-icon>
+            <mat-icon 
+              [ngClass]="'icon-' + campaign()?.status" 
+              aria-hidden="true">
+              {{ getTypeIcon(campaign()?.type || '') }}
+            </mat-icon>
             {{ campaign()?.name }}
           </h1>
-          <div class="campaign-badges">
-            <span class="status-badge" [ngClass]="'status-' + campaign()?.status">
+          <div class="campaign-badges" role="group" aria-label="Campaign status and type">
+            <span 
+              class="status-badge" 
+              [ngClass]="'status-' + campaign()?.status"
+              [attr.aria-label]="'Status: ' + getStatusLabel(campaign()?.status || '')">
               {{ getStatusLabel(campaign()?.status || '') }}
             </span>
-            <span class="type-badge">{{ getTypeLabel(campaign()?.type || '') }}</span>
+            <span 
+              class="type-badge"
+              [attr.aria-label]="'Type: ' + getTypeLabel(campaign()?.type || '')">
+              {{ getTypeLabel(campaign()?.type || '') }}
+            </span>
           </div>
         </div>
 
-        <div class="campaign-actions">
+        <div class="campaign-actions" role="group" aria-label="Campaign actions">
           <button
             mat-raised-button
             color="primary"
             [disabled]="isScrapingRunning()"
             (click)="runScraping()"
             class="run-scraping-button"
-          >
-            <mat-icon>cloud_download</mat-icon>
-            Run Scraping Now
+            type="button"
+            [attr.aria-label]="isScrapingRunning() ? 'Scraping in progress' : 'Start scraping process'">
+            <mat-icon aria-hidden="true">cloud_download</mat-icon>
+            {{ 'campaign_detail.run_scraping' | transloco: { default: 'Run Scraping Now' } }}
           </button>
-          <button mat-stroked-button [routerLink]="['/dashboard/campaigns']">
-            <mat-icon>arrow_back</mat-icon>
-            Back to Campaigns
+          <button 
+            mat-stroked-button 
+            [routerLink]="['/dashboard/campaigns']"
+            type="button"
+            aria-label="Navigate back to campaigns list">
+            <mat-icon aria-hidden="true">arrow_back</mat-icon>
+            {{ 'campaign_detail.back_to_campaigns' | transloco: { default: 'Back to Campaigns' } }}
           </button>
         </div>
-      </div>
+      </header>
 
       <!-- Scraping Progress Section -->
       @if (scrapingProgress()) {
-        <mat-card class="scraping-card">
-          <mat-card-header>
-            <mat-icon mat-card-avatar color="primary">analytics</mat-icon>
-            <mat-card-title>Scraping Progress</mat-card-title>
-            <mat-card-subtitle>
-              {{ getScrapingStatusText() }}
-            </mat-card-subtitle>
-          </mat-card-header>
+        <section class="scraping-card" aria-labelledby="scraping-progress-title">
+          <mat-card>
+            <mat-card-header>
+              <mat-icon mat-card-avatar color="primary" aria-hidden="true">analytics</mat-icon>
+              <mat-card-title id="scraping-progress-title">
+                {{ 'campaign_detail.scraping_progress' | transloco: { default: 'Scraping Progress' } }}
+              </mat-card-title>
+              <mat-card-subtitle>
+                {{ getScrapingStatusText() }}
+              </mat-card-subtitle>
+            </mat-card-header>
 
-          <mat-card-content>
-            <!-- Overall Progress -->
-            <div class="progress-container">
-              <h3>Overall Progress: {{ scrapingProgress()?.progress }}%</h3>
-              <mat-progress-bar
-                [mode]="isScrapingRunning() ? 'determinate' : 'determinate'"
-                [value]="scrapingProgress()?.progress"
-                class="overall-progress"
-              >
-              </mat-progress-bar>
-            </div>
+            <mat-card-content>
+              <!-- Overall Progress -->
+              <div class="progress-container">
+                <h3>
+                  <mat-icon aria-hidden="true">trending_up</mat-icon>
+                  {{ 'campaign_detail.overall_progress' | transloco: { default: 'Overall Progress' } }}: {{ scrapingProgress()?.progress }}%
+                </h3>
+                <mat-progress-bar
+                  [mode]="isScrapingRunning() ? 'determinate' : 'determinate'"
+                  [value]="scrapingProgress()?.progress"
+                  class="overall-progress"
+                  [attr.aria-label]="'Progress: ' + scrapingProgress()?.progress + ' percent'">
+                </mat-progress-bar>
+              </div>
 
-            <!-- Progress Tags -->
-            <div class="progress-tags">
-              @if ((scrapingProgress()?.hashtags?.total ?? 0) > 0) {
-                <div
-                  class="progress-tag"
-                  [class.in-progress]="scrapingProgress()?.hashtags?.inProgress"
-                >
-                  <mat-icon>tag</mat-icon>
-                  <span class="tag-label"
-                    >Hashtags: {{ scrapingProgress()?.hashtags?.completed }}/{{
-                      scrapingProgress()?.hashtags?.total
-                    }}</span
-                  >
-                  <mat-progress-bar
-                    mode="determinate"
-                    [value]="
-                      getProgressPercent(
+              <!-- Progress Tags -->
+              <div class="progress-tags" role="group" aria-label="Individual progress items">
+                @if ((scrapingProgress()?.hashtags?.total ?? 0) > 0) {
+                  <div
+                    class="progress-tag"
+                    [class.in-progress]="scrapingProgress()?.hashtags?.inProgress"
+                    role="progressbar"
+                    [attr.aria-valuenow]="scrapingProgress()?.hashtags?.completed"
+                    [attr.aria-valuemax]="scrapingProgress()?.hashtags?.total"
+                    [attr.aria-label]="'Hashtags progress: ' + scrapingProgress()?.hashtags?.completed + ' of ' + scrapingProgress()?.hashtags?.total">
+                    <mat-icon aria-hidden="true">tag</mat-icon>
+                    <span class="tag-label">
+                      {{ 'campaign_detail.hashtags_progress' | transloco: { 
+                        default: 'Hashtags: {{completed}}/{{total}}',
+                        completed: scrapingProgress()?.hashtags?.completed,
+                        total: scrapingProgress()?.hashtags?.total
+                      } }}
+                    </span>
+                    <mat-progress-bar
+                      mode="determinate"
+                      [value]="getProgressPercent(
                         scrapingProgress()?.hashtags?.completed || 0,
                         scrapingProgress()?.hashtags?.total || 0
-                      )
-                    "
-                    class="tag-progress"
-                  >
-                  </mat-progress-bar>
-                </div>
-              }
+                      )"
+                      class="tag-progress">
+                    </mat-progress-bar>
+                  </div>
+                }
 
-              @if ((scrapingProgress()?.search?.total ?? 0) > 0) {
-                <div
-                  class="progress-tag"
-                  [class.in-progress]="scrapingProgress()?.search?.inProgress"
-                >
-                  <mat-icon>search</mat-icon>
-                  <span class="tag-label"
-                    >Keywords: {{ scrapingProgress()?.search?.completed }}/{{
-                      scrapingProgress()?.search?.total
-                    }}</span
-                  >
-                  <mat-progress-bar
-                    mode="determinate"
-                    [value]="
-                      getProgressPercent(
+                @if ((scrapingProgress()?.search?.total ?? 0) > 0) {
+                  <div
+                    class="progress-tag"
+                    [class.in-progress]="scrapingProgress()?.search?.inProgress"
+                    role="progressbar"
+                    [attr.aria-valuenow]="scrapingProgress()?.search?.completed"
+                    [attr.aria-valuemax]="scrapingProgress()?.search?.total"
+                    [attr.aria-label]="'Keywords progress: ' + scrapingProgress()?.search?.completed + ' of ' + scrapingProgress()?.search?.total">
+                    <mat-icon aria-hidden="true">search</mat-icon>
+                    <span class="tag-label">
+                      {{ 'campaign_detail.keywords_progress' | transloco: { 
+                        default: 'Keywords: {{completed}}/{{total}}',
+                        completed: scrapingProgress()?.search?.completed,
+                        total: scrapingProgress()?.search?.total
+                      } }}
+                    </span>
+                    <mat-progress-bar
+                      mode="determinate"
+                      [value]="getProgressPercent(
                         scrapingProgress()?.search?.completed || 0, 
                         scrapingProgress()?.search?.total || 0
-                      )
-                    "
-                    class="tag-progress"
-                  >
-                  </mat-progress-bar>
-                </div>
-              }
+                      )"
+                      class="tag-progress">
+                    </mat-progress-bar>
+                  </div>
+                }
 
-              @if ((scrapingProgress()?.users?.total ?? 0) > 0) {
-                <div
-                  class="progress-tag"
-                  [class.in-progress]="scrapingProgress()?.users?.inProgress"
-                >
-                  <mat-icon>person</mat-icon>
-                  <span class="tag-label"
-                    >Users: {{ scrapingProgress()?.users?.completed }}/{{
-                      scrapingProgress()?.users?.total
-                    }}</span
-                  >
-                  <mat-progress-bar
-                    mode="determinate"
-                    [value]="
-                      getProgressPercent(
+                @if ((scrapingProgress()?.users?.total ?? 0) > 0) {
+                  <div
+                    class="progress-tag"
+                    [class.in-progress]="scrapingProgress()?.users?.inProgress"
+                    role="progressbar"
+                    [attr.aria-valuenow]="scrapingProgress()?.users?.completed"
+                    [attr.aria-valuemax]="scrapingProgress()?.users?.total"
+                    [attr.aria-label]="'Users progress: ' + scrapingProgress()?.users?.completed + ' of ' + scrapingProgress()?.users?.total">
+                    <mat-icon aria-hidden="true">person</mat-icon>
+                    <span class="tag-label">
+                      {{ 'campaign_detail.users_progress' | transloco: { 
+                        default: 'Users: {{completed}}/{{total}}',
+                        completed: scrapingProgress()?.users?.completed,
+                        total: scrapingProgress()?.users?.total
+                      } }}
+                    </span>
+                    <mat-progress-bar
+                      mode="determinate"
+                      [value]="getProgressPercent(
                         scrapingProgress()?.users?.completed || 0, 
                         scrapingProgress()?.users?.total || 0
-                      )
-                    "
-                    class="tag-progress"
-                  >
-                  </mat-progress-bar>
-                </div>
-              }
-            </div>
-
-            <!-- Metrics -->
-            @if (hasScrapingMetrics()) {
-              <div class="metrics-container">
-                <div class="metric">
-                  <span class="metric-value">{{ scrapingProgress()?.metrics?.totalScraped }}</span>
-                  <span class="metric-label">Total Scraped</span>
-                </div>
-
-                <div class="metric">
-                  <span class="metric-value">{{ scrapingProgress()?.metrics?.saved }}</span>
-                  <span class="metric-label">Saved</span>
-                </div>
-
-                @if ((scrapingProgress()?.metrics?.errors || 0) > 0) {
-                  <div class="metric">
-                    <span class="metric-value error-text">{{ scrapingProgress()?.metrics?.errors }}</span>
-                    <span class="metric-label">Errors</span>
+                      )"
+                      class="tag-progress">
+                    </mat-progress-bar>
                   </div>
                 }
               </div>
-            }
-          </mat-card-content>
-        </mat-card>
+
+              <!-- Metrics -->
+              @if (hasScrapingMetrics()) {
+                <div class="metrics-container" role="group" aria-label="Scraping metrics">
+                  <div class="metric">
+                    <span class="metric-value" [attr.aria-label]="'Total scraped: ' + scrapingProgress()?.metrics?.totalScraped">
+                      {{ scrapingProgress()?.metrics?.totalScraped }}
+                    </span>
+                    <span class="metric-label">{{ 'campaign_detail.total_scraped' | transloco: { default: 'Total Scraped' } }}</span>
+                  </div>
+
+                  <div class="metric">
+                    <span class="metric-value" [attr.aria-label]="'Saved: ' + scrapingProgress()?.metrics?.saved">
+                      {{ scrapingProgress()?.metrics?.saved }}
+                    </span>
+                    <span class="metric-label">{{ 'campaign_detail.saved' | transloco: { default: 'Saved' } }}</span>
+                  </div>
+
+                  @if ((scrapingProgress()?.metrics?.errors || 0) > 0) {
+                    <div class="metric">
+                      <span class="metric-value error-text" [attr.aria-label]="'Errors: ' + scrapingProgress()?.metrics?.errors">
+                        {{ scrapingProgress()?.metrics?.errors }}
+                      </span>
+                      <span class="metric-label">{{ 'campaign_detail.errors' | transloco: { default: 'Errors' } }}</span>
+                    </div>
+                  }
+                </div>
+              }
+            </mat-card-content>
+          </mat-card>
+        </section>
       }
 
       <!-- Campaign Details Card -->
-      <mat-card class="details-card">
-        <mat-card-content>
-          <div class="campaign-info">
-            <div class="info-section">
-              <h3>Campaign Details</h3>
-              @if (campaign()?.description) {
-                <p>{{ campaign()?.description }}</p>
-              }
+      <section class="details-card" aria-labelledby="campaign-details-title">
+        <mat-card>
+          <mat-card-content>
+            <div class="campaign-info">
+              <div class="info-section">
+                <h3 id="campaign-details-title">{{ 'campaign_detail.campaign_details' | transloco: { default: 'Campaign Details' } }}</h3>
+                @if (campaign()?.description) {
+                  <p>{{ campaign()?.description }}</p>
+                }
 
-              <div class="info-grid">
-                <div class="info-item">
-                  <strong>Status:</strong> {{ getStatusLabel(campaign()?.status || '') }}
-                </div>
-                <div class="info-item">
-                  <strong>Created:</strong> {{ campaign()?.createdAt | date : 'mediumDate' }}
-                </div>
-                <div class="info-item">
-                  <strong>Start Date:</strong> {{ campaign()?.startDate | date : 'mediumDate' }}
-                </div>
-                <div class="info-item">
-                  <strong>End Date:</strong> {{ campaign()?.endDate | date : 'mediumDate' }}
-                </div>
-                <div class="info-item">
-                  <strong>Max Tweets:</strong> {{ campaign()?.maxTweets || 'Unlimited' }}
-                </div>
-                <div class="info-item">
-                  <strong>Analysis:</strong>
-                  {{ campaign()?.sentimentAnalysis ? 'Sentiment Analysis Enabled' : 'Basic Analysis' }}
+                <div class="info-grid" role="list">
+                  <div class="info-item" role="listitem">
+                    <strong>{{ 'campaign_detail.status' | transloco: { default: 'Status' } }}:</strong> 
+                    <span>{{ getStatusLabel(campaign()?.status || '') }}</span>
+                  </div>
+                  <div class="info-item" role="listitem">
+                    <strong>{{ 'campaign_detail.created' | transloco: { default: 'Created' } }}:</strong> 
+                    <span>{{ campaign()?.createdAt | date : 'mediumDate' }}</span>
+                  </div>
+                  <div class="info-item" role="listitem">
+                    <strong>{{ 'campaign_detail.start_date' | transloco: { default: 'Start Date' } }}:</strong> 
+                    <span>{{ campaign()?.startDate | date : 'mediumDate' }}</span>
+                  </div>
+                  <div class="info-item" role="listitem">
+                    <strong>{{ 'campaign_detail.end_date' | transloco: { default: 'End Date' } }}:</strong> 
+                    <span>{{ campaign()?.endDate | date : 'mediumDate' }}</span>
+                  </div>
+                  <div class="info-item" role="listitem">
+                    <strong>{{ 'campaign_detail.max_tweets' | transloco: { default: 'Max Tweets' } }}:</strong> 
+                    <span>{{ campaign()?.maxTweets || ('campaign_detail.unlimited' | transloco: { default: 'Unlimited' }) }}</span>
+                  </div>
+                  <div class="info-item" role="listitem">
+                    <strong>{{ 'campaign_detail.analysis' | transloco: { default: 'Analysis' } }}:</strong>
+                    <span>{{ campaign()?.sentimentAnalysis ? 
+                      ('campaign_detail.sentiment_enabled' | transloco: { default: 'Sentiment Analysis Enabled' }) : 
+                      ('campaign_detail.basic_analysis' | transloco: { default: 'Basic Analysis' }) }}</span>
+                  </div>
                 </div>
               </div>
+
+              <mat-divider role="separator"></mat-divider>
+
+              <div class="tracking-section">
+                <h3>{{ 'campaign_detail.tracking_parameters' | transloco: { default: 'Tracking Parameters' } }}</h3>
+
+                <!-- Hashtags -->
+                @if (campaign()?.hashtags?.length) {
+                  <div class="tracking-group">
+                    <h4>
+                      <mat-icon aria-hidden="true">tag</mat-icon> 
+                      {{ 'campaign_detail.hashtags' | transloco: { default: 'Hashtags' } }}
+                    </h4>
+                    <div class="chips-container" role="list" [attr.aria-label]="'Hashtags: ' + campaign()?.hashtags?.length + ' items'">
+                      @for (hashtag of campaign()?.hashtags; track hashtag) {
+                        <span class="hashtag-chip" role="listitem">#{{ hashtag }}</span>
+                      }
+                    </div>
+                  </div>
+                }
+
+                <!-- Keywords -->
+                @if (campaign()?.keywords?.length) {
+                  <div class="tracking-group">
+                    <h4>
+                      <mat-icon aria-hidden="true">search</mat-icon> 
+                      {{ 'campaign_detail.keywords' | transloco: { default: 'Keywords' } }}
+                    </h4>
+                    <div class="chips-container" role="list" [attr.aria-label]="'Keywords: ' + campaign()?.keywords?.length + ' items'">
+                      @for (keyword of campaign()?.keywords; track keyword) {
+                        <span class="keyword-chip" role="listitem">{{ keyword }}</span>
+                      }
+                    </div>
+                  </div>
+                }
+
+                <!-- Mentions -->
+                @if (campaign()?.mentions?.length) {
+                  <div class="tracking-group">
+                    <h4>
+                      <mat-icon aria-hidden="true">alternate_email</mat-icon> 
+                      {{ 'campaign_detail.mentions' | transloco: { default: 'Mentions' } }}
+                    </h4>
+                    <div class="chips-container" role="list" [attr.aria-label]="'Mentions: ' + campaign()?.mentions?.length + ' items'">
+                      @for (mention of campaign()?.mentions; track mention) {
+                        <span class="mention-chip" role="listitem">{{ '@' + mention }}</span>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
             </div>
-
-            <mat-divider></mat-divider>
-
-            <div class="tracking-section">
-              <h3>Tracking Parameters</h3>
-
-              <!-- Hashtags -->
-              @if (campaign()?.hashtags?.length) {
-                <div class="tracking-group">
-                  <h4><mat-icon>tag</mat-icon> Hashtags</h4>
-                  <div class="chips-container">
-                    @for (hashtag of campaign()?.hashtags; track hashtag) {
-                      <span class="hashtag-chip">#{{ hashtag }}</span>
-                    }
-                  </div>
-                </div>
-              }
-
-              <!-- Keywords -->
-              @if (campaign()?.keywords?.length) {
-                <div class="tracking-group">
-                  <h4><mat-icon>search</mat-icon> Keywords</h4>
-                  <div class="chips-container">
-                    @for (keyword of campaign()?.keywords; track keyword) {
-                      <span class="keyword-chip">{{ keyword }}</span>
-                    }
-                  </div>
-                </div>
-              }
-
-              <!-- Mentions -->
-              @if (campaign()?.mentions?.length) {
-                <div class="tracking-group">
-                  <h4><mat-icon>alternate_email</mat-icon> Mentions</h4>
-                  <div class="chips-container">
-                    @for (mention of campaign()?.mentions; track mention) {
-                      <span class="mention-chip">{{ '@' + mention }}</span>
-                    }
-                  </div>
-                </div>
-              }
-            </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
+          </mat-card-content>
+        </mat-card>
+      </section>
 
       <!-- Tweets Section -->
-      <mat-card class="tweets-section-card">
-        <mat-card-header>
-          <mat-card-title>
-            <mat-icon>article</mat-icon>
-            Campaign Tweets
-          </mat-card-title>
-          <mat-card-subtitle>
-            Analysis of tweets collected for this campaign
-          </mat-card-subtitle>
-          <div class="section-actions">
-            <button 
-              mat-icon-button 
-              matTooltip="Refresh Tweets" 
-              (click)="refreshTweets()"
-              [disabled]="tweetsLoading()">
-              <mat-icon>refresh</mat-icon>
-            </button>
-          </div>
-        </mat-card-header>
-
-        <mat-card-content>
-          <!-- Tweets Loading State -->
-          @if (tweetsLoading()) {
-            <div class="tweets-loading">
-              <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-              <p>Loading tweets...</p>
-            </div>
-          }
-
-          <!-- Tweets Error State -->
-          @if (tweetsError()) {
-            <div class="tweets-error">
-              <mat-icon color="warn">error</mat-icon>
-              <p>Error loading tweets: {{ tweetsError() }}</p>
-              <button mat-raised-button color="primary" (click)="refreshTweets()">
-                Try Again
+      <section class="tweets-section-card" aria-labelledby="tweets-section-title">
+        <mat-card>
+          <mat-card-header>
+            <mat-card-title id="tweets-section-title">
+              <mat-icon aria-hidden="true">article</mat-icon>
+              {{ 'campaign_detail.campaign_tweets' | transloco: { default: 'Campaign Tweets' } }}
+            </mat-card-title>
+            <mat-card-subtitle>
+              {{ 'campaign_detail.tweets_analysis_description' | transloco: { default: 'Analysis of tweets collected for this campaign' } }}
+            </mat-card-subtitle>
+            <div class="section-actions">
+              <button 
+                mat-icon-button 
+                [matTooltip]="'campaign_detail.refresh_tweets' | transloco: { default: 'Refresh Tweets' }" 
+                (click)="refreshTweets()"
+                [disabled]="tweetsLoading()"
+                type="button"
+                [attr.aria-label]="'campaign_detail.refresh_tweets' | transloco: { default: 'Refresh Tweets' }">
+                <mat-icon aria-hidden="true">refresh</mat-icon>
               </button>
             </div>
-          }
+          </mat-card-header>
 
-          <!-- Tweets Table -->
-          @if (!tweetsLoading() && !tweetsError()) {
-            @if (tweets().length > 0) {
-              <div class="tweets-table-container">
-                <app-solid-data-table-rxjs
-                  [data]="tweets()"
-                  [columns]="tweetTableColumns"
-                  [config]="tweetTableConfig"
-                  [actions]="tweetTableActions"
-                  [loading]="tweetsLoading()"
-                  [error]="tweetsError()"
-                  (rowClick)="onTweetRowClick($event)"
-                  (actionClick)="onTweetAction($event)"
-                  (pageChange)="onTweetPageChange($event)"
-                ></app-solid-data-table-rxjs>
-              </div>
-            } @else {
-              <div class="no-tweets">
-                <mat-icon class="no-data-icon">sentiment_neutral</mat-icon>
-                <h3>No Tweets Found</h3>
-                <p>This campaign doesn't have any tweets yet.</p>
-                <p>
-                  <button mat-raised-button color="primary" (click)="runScraping()" [disabled]="isScrapingRunning()">
-                    <mat-icon>play_arrow</mat-icon>
-                    Start Scraping
-                  </button>
-                </p>
+          <mat-card-content>
+            <!-- Tweets Loading State -->
+            @if (tweetsLoading()) {
+              <div class="tweets-loading" role="status" aria-live="polite">
+                <mat-progress-bar mode="indeterminate" [attr.aria-label]="'campaign_detail.loading_tweets' | transloco: { default: 'Loading tweets' }"></mat-progress-bar>
+                <mat-icon aria-hidden="true">hourglass_empty</mat-icon>
+                <p>{{ 'campaign_detail.loading_tweets' | transloco: { default: 'Loading tweets...' } }}</p>
               </div>
             }
-          }
-        </mat-card-content>
-      </mat-card>
+
+            <!-- Tweets Error State -->
+            @if (tweetsError()) {
+              <div class="tweets-error" role="alert">
+                <mat-icon color="warn" aria-hidden="true">error</mat-icon>
+                <p>{{ 'campaign_detail.error_loading_tweets' | transloco: { default: 'Error loading tweets' } }}: {{ tweetsError() }}</p>
+                <button 
+                  mat-raised-button 
+                  color="primary" 
+                  (click)="refreshTweets()"
+                  type="button">
+                  <mat-icon aria-hidden="true">refresh</mat-icon>
+                  {{ 'campaign_detail.try_again' | transloco: { default: 'Try Again' } }}
+                </button>
+              </div>
+            }
+
+            <!-- Tweets Table -->
+            @if (!tweetsLoading() && !tweetsError()) {
+              @if (tweets().length > 0) {
+                <div class="tweets-table-container">
+                  <app-solid-data-table-rxjs
+                    [data]="tweets()"
+                    [columns]="tweetTableColumns"
+                    [config]="tweetTableConfig"
+                    [actions]="tweetTableActions"
+                    [loading]="tweetsLoading()"
+                    [error]="tweetsError()"
+                    (rowClick)="onTweetRowClick($event)"
+                    (actionClick)="onTweetAction($event)"
+                    (pageChange)="onTweetPageChange($event)"
+                    [attr.aria-label]="'Tweets table with ' + tweets().length + ' items'">
+                  </app-solid-data-table-rxjs>
+                </div>
+              } @else {
+                <div class="no-tweets" role="status">
+                  <mat-icon class="no-data-icon" aria-hidden="true">sentiment_neutral</mat-icon>
+                  <h3>{{ 'campaign_detail.no_tweets_found' | transloco: { default: 'No Tweets Found' } }}</h3>
+                  <p>{{ 'campaign_detail.no_tweets_description' | transloco: { default: "This campaign doesn't have any tweets yet." } }}</p>
+                  <p>
+                    <button 
+                      mat-raised-button 
+                      color="primary" 
+                      (click)="runScraping()" 
+                      [disabled]="isScrapingRunning()"
+                      type="button"
+                      [attr.aria-label]="isScrapingRunning() ? 'Scraping in progress' : 'Start scraping to collect tweets'">
+                      <mat-icon aria-hidden="true">play_arrow</mat-icon>
+                      {{ 'campaign_detail.start_scraping' | transloco: { default: 'Start Scraping' } }}
+                    </button>
+                  </p>
+                </div>
+              }
+            }
+          </mat-card-content>
+        </mat-card>
+      </section>
     </div>
   }
 </div>

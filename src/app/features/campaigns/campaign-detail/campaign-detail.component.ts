@@ -118,34 +118,34 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
     return totalScraped > 0 || saved > 0 || errors > 0;
   });
 
-  // Table configuration for tweets
+  // Table configuration for tweets - Optimized for web recommendations
   tweetTableColumns: TableColumn<Tweet>[] = [
     { 
       key: 'content', 
       label: 'Tweet Content', 
       sortable: false, 
-      width: '300px',
-      formatter: (content: string) => content.length > 100 ? content.substring(0, 100) + '...' : content
+      width: '280px',
+      formatter: (content: string) => content.length > 80 ? content.substring(0, 80) + '...' : content
     },
     { 
       key: 'author', 
       label: 'Author', 
       sortable: false, 
-      width: '150px',
+      width: '140px',
       formatter: (author: any) => author?.username || 'Unknown'
     },
     { 
       key: 'sentiment', 
       label: 'Sentiment', 
       sortable: true, 
-      width: '120px',
+      width: '110px',
       formatter: (sentiment: any) => sentiment?.label || 'Unknown'
     },
     { 
       key: 'language', 
       label: 'Language', 
       sortable: true, 
-      width: '80px'
+      width: '90px'
     },
     { 
       key: 'tweetCreatedAt', 
@@ -161,7 +161,8 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
     showPagination: true,
     showSelection: false,
     multiSelection: false,
-    pageSize: 20,
+    pageSize: 15, // Optimized page size for better UX
+    pageSizeOptions: [10, 15, 25, 50], // More flexible options
   };
 
   tweetTableActions: TableAction<Tweet>[] = [

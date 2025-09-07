@@ -143,13 +143,6 @@ export class CampaignListComponent implements OnInit, OnDestroy {
       formatter: (v) => (v || []).slice(0, 2).join(', '),
     },
     {
-      key: 'keywords',
-      label: 'Keywords',
-      sortable: false,
-      width: '200px',
-      formatter: (v) => (v || []).slice(0, 2).join(', '),
-    },
-    {
       key: 'startDate',
       label: 'Start',
       sortable: true,
