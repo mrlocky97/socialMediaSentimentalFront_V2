@@ -41,12 +41,12 @@ export interface TweetSentimentEmotions {
 export interface TweetSentiment {
   score: number;
   magnitude: number;
-  label: 'positive' | 'negative' | 'neutral';
+  label: 'positive' | 'negative' | 'neutral' | string; // Allow unknown values
   confidence: number;
   emotions: TweetSentimentEmotions;
   keywords: string[];
   analyzedAt: string;
-  processingTime: number;
+  processingTime: number; // Asumimos que está en milisegundos
 }
 
 export interface Tweet {
@@ -94,4 +94,120 @@ export interface TweetFilter {
   isRetweet?: boolean;
   dateFrom?: string;
   dateTo?: string;
+}
+
+/* =====================================
+   CAMPAIGN ANALYTICS INTERFACES
+   For aggregated metrics and statistics
+   ===================================== */
+
+export interface SentimentCounts {
+  positive: number;
+  negative: number;
+  neutral: number;
+  unknown: number;
+}
+
+export interface SentimentPercents {
+  positive: number;
+  negative: number;
+  neutral: number;
+  unknown: number;
+}
+
+export interface TopAuthor {
+  author: TweetAuthor;
+  totalEngagement: number;
+  tweets: number;
+}
+
+export interface TopHashtag {
+  hashtag: string;
+  count: number;
+  percentage: number;
+}
+
+export interface TopMention {
+  mention: string;
+  count: number;
+  percentage: number;
+}
+
+export interface TopKeyword {
+  keyword: string;
+  count: number;
+  percentage: number;
+}
+
+export interface LanguageDistribution {
+  [language: string]: {
+    count: number;
+    percentage: number;
+  };
+}
+
+export interface TweetsByDay {
+  [date: string]: number; // YYYY-MM-DD format
+}
+
+export interface TypeDistribution {
+  retweetsPercent: number;
+  repliesPercent: number;
+  quotesPercent: number;
+  originalPercent: number;
+}
+
+export interface CampaignStats {
+  // Basic counts
+  totalTweets: number;
+  tweetsByDay: TweetsByDay;
+
+  // Sentiment analysis
+  sentimentCounts: SentimentCounts;
+  sentimentPercents: SentimentPercents;
+
+  // Engagement metrics
+  totalEngagement: number;
+  avgEngagementPerTweet: number;
+  totalLikes: number;
+  totalRetweets: number;
+  totalReplies: number;
+  totalQuotes: number;
+  totalBookmarks: number;
+  totalViews: number;
+  avgLikes: number;
+  avgRetweets: number;
+  avgReplies: number;
+  avgQuotes: number;
+  avgBookmarks: number;
+  avgViews: number;
+
+  // Engagement rates
+  globalEngagementRate: number; // (total engagement / total views) * 100
+  avgEngagementPerTweetRate: number; // Average of individual tweet engagement rates
+
+  // Top content and influencers
+  topTweetsByEngagement: Tweet[];
+  topTweetsByViews: Tweet[];
+  topAuthorsByEngagement: TopAuthor[];
+
+  // Hashtags, mentions, keywords
+  topHashtags: TopHashtag[];
+  topMentions: TopMention[];
+  topKeywords: TopKeyword[];
+
+  // Performance metrics
+  avgProcessingTimeMs: number;
+  analysisCoverage: number; // % of tweets with valid sentiment analysis
+
+  // Distribution by language
+  languageDistribution: LanguageDistribution;
+
+  // Type distribution
+  typeDistribution: TypeDistribution;
+}
+
+export interface TweetWithCalculatedFields extends Tweet {
+  calculatedEngagement?: number;
+  calculatedEngagementRate?: number;
 }

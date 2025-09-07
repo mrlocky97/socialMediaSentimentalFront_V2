@@ -21,12 +21,15 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, RouterModule } from '@angular/router';
 import { TranslocoModule } from '@ngneat/transloco';
+import { Chart, ChartConfiguration, registerables } from 'chart.js';
+import { BaseChartDirective } from 'ng2-charts';
 import { Subject, catchError, combineLatest, of, takeUntil, tap } from 'rxjs';
-import { Tweet } from '../../../core/interfaces/tweet.interface';
+import { CampaignStats, Tweet, TweetWithCalculatedFields } from '../../../core/interfaces/tweet.interface';
 import { ScrapingDispatchService } from '../../../core/services/scraping-dispatch.service';
 import { ScrapingProgress, ScrapingService } from '../../../core/services/scraping.service';
 import { Campaign } from '../../../core/state/app.state';
@@ -34,6 +37,11 @@ import { CampaignFacade } from '../../../core/store/fecades/campaign.facade';
 import { TweetFacade } from '../../../core/store/fecades/tweet.facade';
 import { TableAction, TableColumn, TableConfig } from '../../../shared/components/solid-data-table/service/table-services';
 import { SolidDataTableRxjsComponent } from '../../../shared/components/solid-data-table/solid-data-table-rxjs.component';
+
+import { computeCampaignStats, safeDivide } from '../../../shared/utils/campaign-aggregator';
+
+// Register Chart.js components
+Chart.register(...registerables);
 
 // Constants for better maintainability
 const STATUS_ICONS: { [key: string]: string } = {
@@ -82,6 +90,8 @@ const TYPE_LABELS: { [key: string]: string } = {
     MatProgressBarModule,
     MatTooltipModule,
     MatTabsModule,
+    MatTableModule,
+    BaseChartDirective,
     SolidDataTableRxjsComponent,
   ],
   templateUrl: './campaign-detail.component.html',
@@ -107,6 +117,10 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
   tweetsLoading = signal(false);
   tweetsError = signal<string | null>(null);
 
+  // Campaign analytics signals
+  campaignStats = signal<CampaignStats | null>(null);
+  tweetsWithCalculatedFields = signal<TweetWithCalculatedFields[]>([]);
+
   // Computed properties using signals
   isScrapingRunning = computed(() => this.scrapingProgress()?.status === 'running');
 
@@ -117,6 +131,112 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
     const { totalScraped, saved, errors } = progress.metrics;
     return totalScraped > 0 || saved > 0 || errors > 0;
   });
+
+  // Analytics computed properties
+  hasTweetsData = computed(() => this.tweets().length > 0);
+  
+  // Chart configurations
+  sentimentChartConfig: ChartConfiguration<'doughnut'> = {
+    type: 'doughnut',
+    data: {
+      labels: ['Positive', 'Negative', 'Neutral', 'Unknown'],
+      datasets: [{
+        data: [0, 0, 0, 0],
+        backgroundColor: [
+          '#4CAF50', // Green for positive
+          '#F44336', // Red for negative  
+          '#9E9E9E', // Gray for neutral
+          '#FF9800'  // Orange for unknown
+        ],
+        borderWidth: 2,
+        borderColor: '#ffffff'
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom'
+        },
+        tooltip: {
+          callbacks: {
+            label: (context) => {
+              const label = context.label || '';
+              const value = context.parsed;
+              const total = context.dataset.data.reduce((a: number, b: number) => a + b, 0);
+              const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : '0';
+              return `${label}: ${value} (${percentage}%)`;
+            }
+          }
+        }
+      }
+    }
+  };
+
+  hashtagsChartConfig: ChartConfiguration<'bar'> = {
+    type: 'bar',
+    data: {
+      labels: [],
+      datasets: [{
+        label: 'Frequency',
+        data: [],
+        backgroundColor: '#2196F3',
+        borderColor: '#1976D2',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      indexAxis: 'y',
+      plugins: {
+        legend: {
+          display: false
+        }
+      },
+      scales: {
+        x: {
+          beginAtZero: true,
+          ticks: {
+            precision: 0
+          }
+        }
+      }
+    }
+  };
+
+  tweetsTimelineChartConfig: ChartConfiguration<'line'> = {
+    type: 'line',
+    data: {
+      labels: [],
+      datasets: [{
+        label: 'Tweets per Day',
+        data: [],
+        borderColor: '#2196F3',
+        backgroundColor: 'rgba(33, 150, 243, 0.1)',
+        fill: true,
+        tension: 0.1
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            precision: 0
+          }
+        }
+      }
+    }
+  };
 
   // Table configuration for tweets - Optimized for web recommendations
   tweetTableColumns: TableColumn<Tweet>[] = [
@@ -140,6 +260,27 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
       sortable: true, 
       width: '110px',
       formatter: (sentiment: any) => sentiment?.label || 'Unknown'
+    },
+    { 
+      key: 'engagement', 
+      label: 'Engagement', 
+      sortable: true, 
+      width: '100px',
+      formatter: (value: any, row?: any) => {
+        const tweet = row as TweetWithCalculatedFields;
+        return tweet?.calculatedEngagement?.toString() || tweet?.metrics?.engagement?.toString() || '0';
+      }
+    },
+    { 
+      key: 'engagementRate', 
+      label: 'Eng. Rate %', 
+      sortable: true, 
+      width: '110px',
+      formatter: (value: any, row?: any) => {
+        const tweet = row as TweetWithCalculatedFields;
+        const rate = tweet?.calculatedEngagementRate;
+        return rate !== undefined ? `${rate.toFixed(2)}%` : '0.00%';
+      }
     },
     { 
       key: 'language', 
@@ -228,6 +369,15 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
         this.tweets.set(tweets);
         this.tweetsLoading.set(tweetsLoading);
         this.tweetsError.set(tweetsError);
+        
+        // Calculate campaign statistics and update charts when tweets are available
+        if (tweets && tweets.length > 0) {
+          this.calculateCampaignAnalytics(tweets);
+        } else {
+          // Clear analytics when no tweets
+          this.campaignStats.set(null);
+          this.tweetsWithCalculatedFields.set([]);
+        }
       }),
       catchError((err) => {
         console.error('Error loading campaign or tweets:', err);
@@ -404,5 +554,120 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
       console.log('Refreshing tweets for campaign:', campaignId);
       this.tweetFacade.loadTweets(campaignId, { page: 1, limit: 20 });
     }
+  }
+
+  /**
+   * Calculate comprehensive campaign analytics from tweets data
+   */
+  private calculateCampaignAnalytics(tweets: Tweet[]): void {
+    try {
+      // Calculate campaign statistics
+      const stats = computeCampaignStats(tweets);
+      this.campaignStats.set(stats);
+
+      // Create tweets with calculated fields
+      const tweetsWithCalculated: TweetWithCalculatedFields[] = tweets.map(tweet => {
+        const engagement = tweet.metrics.engagement !== undefined 
+          ? tweet.metrics.engagement 
+          : (tweet.metrics.likes || 0) + (tweet.metrics.retweets || 0) + 
+            (tweet.metrics.replies || 0) + (tweet.metrics.quotes || 0) + (tweet.metrics.bookmarks || 0);
+        
+        const engagementRate = tweet.metrics.views > 0 
+          ? safeDivide(engagement * 100, tweet.metrics.views, 2)
+          : 0;
+
+        return {
+          ...tweet,
+          calculatedEngagement: engagement,
+          calculatedEngagementRate: engagementRate
+        };
+      });
+
+      this.tweetsWithCalculatedFields.set(tweetsWithCalculated);
+
+      // Update charts
+      this.updateSentimentChart(stats);
+      this.updateHashtagsChart(stats);
+      this.updateTimelineChart(stats);
+
+      console.log('Campaign analytics calculated:', stats);
+    } catch (error) {
+      console.error('Error calculating campaign analytics:', error);
+    }
+  }
+
+  /**
+   * Update sentiment distribution chart
+   */
+  private updateSentimentChart(stats: CampaignStats): void {
+    const { sentimentCounts } = stats;
+    this.sentimentChartConfig.data.datasets[0].data = [
+      sentimentCounts.positive,
+      sentimentCounts.negative,
+      sentimentCounts.neutral,
+      sentimentCounts.unknown
+    ];
+  }
+
+  /**
+   * Update hashtags frequency chart
+   */
+  private updateHashtagsChart(stats: CampaignStats): void {
+    const topHashtags = stats.topHashtags.slice(0, 10);
+    this.hashtagsChartConfig.data.labels = topHashtags.map(h => `#${h.hashtag}`);
+    this.hashtagsChartConfig.data.datasets[0].data = topHashtags.map(h => h.count);
+  }
+
+  /**
+   * Update tweets timeline chart
+   */
+  private updateTimelineChart(stats: CampaignStats): void {
+    const tweetsByDay = stats.tweetsByDay;
+    const sortedDates = Object.keys(tweetsByDay).sort();
+    
+    // Only show timeline if we have more than one day of data
+    if (sortedDates.length > 1) {
+      this.tweetsTimelineChartConfig.data.labels = sortedDates;
+      this.tweetsTimelineChartConfig.data.datasets[0].data = sortedDates.map(date => tweetsByDay[date]);
+    } else {
+      // Clear chart for single day data
+      this.tweetsTimelineChartConfig.data.labels = [];
+      this.tweetsTimelineChartConfig.data.datasets[0].data = [];
+    }
+  }
+
+  /**
+   * Get sentiment color for badges
+   */
+  getSentimentColor(sentiment: string): string {
+    switch (sentiment?.toLowerCase()) {
+      case 'positive': return 'primary';
+      case 'negative': return 'warn';
+      case 'neutral': return 'accent';
+      default: return 'accent';
+    }
+  }
+
+  /**
+   * Format number with appropriate suffix (K, M, etc.)
+   */
+  formatNumber(num: number): string {
+    if (num >= 1000000) {
+      return (num / 1000000).toFixed(1) + 'M';
+    } else if (num >= 1000) {
+      return (num / 1000).toFixed(1) + 'K';
+    }
+    return num.toString();
+  }
+
+  /**
+   * Get whether timeline chart should be shown
+   */
+  shouldShowTimelineChart(): boolean {
+    const stats = this.campaignStats();
+    if (!stats) return false;
+    
+    const dates = Object.keys(stats.tweetsByDay);
+    return dates.length > 1;
   }
 }

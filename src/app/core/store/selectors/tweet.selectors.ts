@@ -98,7 +98,8 @@ export const selectTweetAnalytics = (campaignId: string) => createSelector(
     const averageSentiment = sentimentScores.reduce((sum, score) => sum + score, 0) / totalTweets;
     
     const sentimentDistribution = tweets.reduce((acc, tweet) => {
-      acc[tweet.sentiment.label]++;
+      const label = tweet.sentiment.label as keyof typeof acc;
+      acc[label]++;
       return acc;
     }, { positive: 0, negative: 0, neutral: 0 });
 
