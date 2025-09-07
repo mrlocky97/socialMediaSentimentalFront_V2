@@ -180,12 +180,14 @@
               </mat-card-header>
               <mat-card-content>
                 <div class="chart-container">
-                  <canvas 
-                    baseChart
-                    [type]="sentimentChartConfig.type"
-                    [data]="sentimentChartConfig.data"
-                    [options]="sentimentChartConfig.options">
-                  </canvas>
+                  @if (sentimentChartConfig()) {
+                    <canvas 
+                      baseChart
+                      [type]="sentimentChartConfig()!.type"
+                      [data]="sentimentChartConfig()!.data"
+                      [options]="sentimentChartConfig()!.options">
+                    </canvas>
+                  }
                 </div>
               </mat-card-content>
             </mat-card>
@@ -201,12 +203,14 @@
                 </mat-card-header>
                 <mat-card-content>
                   <div class="chart-container">
-                    <canvas 
-                      baseChart
-                      [type]="hashtagsChartConfig.type"
-                      [data]="hashtagsChartConfig.data"
-                      [options]="hashtagsChartConfig.options">
-                    </canvas>
+                    @if (hashtagsChartConfig()) {
+                      <canvas 
+                        baseChart
+                        [type]="hashtagsChartConfig()!.type"
+                        [data]="hashtagsChartConfig()!.data"
+                        [options]="hashtagsChartConfig()!.options">
+                      </canvas>
+                    }
                   </div>
                 </mat-card-content>
               </mat-card>
@@ -223,12 +227,14 @@
                 </mat-card-header>
                 <mat-card-content>
                   <div class="chart-container">
-                    <canvas 
-                      baseChart
-                      [type]="tweetsTimelineChartConfig.type"
-                      [data]="tweetsTimelineChartConfig.data"
-                      [options]="tweetsTimelineChartConfig.options">
-                    </canvas>
+                    @if (tweetsTimelineChartConfig()) {
+                      <canvas 
+                        baseChart
+                        [type]="tweetsTimelineChartConfig()!.type"
+                        [data]="tweetsTimelineChartConfig()!.data"
+                        [options]="tweetsTimelineChartConfig()!.options">
+                      </canvas>
+                    }
                   </div>
                 </mat-card-content>
               </mat-card>
@@ -481,7 +487,7 @@
               @if (tweetsWithCalculatedFields().length > 0) {
                 <div class="tweets-table-container">
                   <app-solid-data-table-rxjs
-                    [data]="tweetsWithCalculatedFields()"
+                    [data]="mutableTweetsForTable()"
                     [columns]="tweetTableColumns"
                     [config]="tweetTableConfig"
                     [actions]="tweetTableActions"
