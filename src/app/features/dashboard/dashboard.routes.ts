@@ -17,9 +17,6 @@ export const routes: Routes = [
           import('../profile/profile.component').then(c => c.ProfileComponent)
       },
       {
-        // Mount the consolidated campaign routes under the dashboard path so the
-        // dashboard layout (toolbar/sidenav) remains visible when navigating
-        // to campaigns from within the dashboard.
         path: 'campaigns',
         loadChildren: () => import('../campaigns/campaign.routes').then(r => r.campaignRoutes)
       },

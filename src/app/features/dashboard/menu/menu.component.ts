@@ -11,9 +11,9 @@ import { AuthService } from '../../../core/auth/services/auth.service';
 
 export interface NavItem {
   route: string;
-  labelKey: string;  // Cambiar a clave de traducción
+  labelKey: string; // Cambiar a clave de traducción
   icon: string;
-  ariaLabelKey: string;  // Cambiar a clave de traducción
+  ariaLabelKey: string; // Cambiar a clave de traducción
 }
 
 @Component({
@@ -24,8 +24,8 @@ export interface NavItem {
     MatIconModule,
     MatButtonModule,
     RouterModule,
-  MatDividerModule,
-  TranslocoModule,
+    MatDividerModule,
+    TranslocoModule,
   ],
   templateUrl: './menu.component.html',
   styleUrl: './menu.component.css',
@@ -69,12 +69,6 @@ export class MenuComponent implements OnInit {
       ariaLabelKey: 'menu.aria.monitor',
     },
     {
-      route: '/wizard',
-      labelKey: 'menu.wizard',
-      icon: 'auto_fix_high',
-      ariaLabelKey: 'menu.aria.wizard',
-    },
-    {
       route: '/dashboard/profile',
       labelKey: 'menu.profile',
       icon: 'account_circle',
@@ -82,10 +76,7 @@ export class MenuComponent implements OnInit {
     },
   ];
 
-  ngOnInit(): void {
-    // Las traducciones ya se manejan dinámicamente en el template
-    // No necesitamos hacer nada aquí, pero podríamos suscribirnos a cambios de idioma si fuera necesario
-  }
+  ngOnInit(): void {}
 
   onNavigate() {
     this.navigate.emit();

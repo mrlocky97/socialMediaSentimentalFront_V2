@@ -3,8 +3,8 @@
    Unit tests for analytics calculations
    ===================================== */
 
-import { Tweet, TweetAuthor, TweetMetrics, TweetSentiment } from '../../core/interfaces/tweet.interface';
-import { computeCampaignStats, safeDivide } from './campaign-aggregator';
+import { Tweet, TweetAuthor, TweetMetrics, TweetSentiment } from '../core/interfaces/tweet.interface';
+import { computeCampaignStats, safeDivide } from '../shared/utils/campaign-aggregator';
 
 
 describe('CampaignAggregator', () => {

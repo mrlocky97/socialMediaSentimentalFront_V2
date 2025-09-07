@@ -99,7 +99,6 @@
             [disabled]="!loginForm.valid || isLoading()"
           >
             <!-- Keep a single label element to avoid layout shifts when text changes -->
-            <mat-spinner *ngIf="isLoading()" diameter="20" class="button-spinner"></mat-spinner>
             <span class="button-label">{{ isLoading() ? ('login.submitting' | transloco) : ('login.submit' | transloco) }}</span>
           </button>
         </form>

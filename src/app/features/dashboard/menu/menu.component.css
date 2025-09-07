@@ -80,6 +80,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   line-height: 1.2;
+  padding: 2px 8px;
 }
 
 .user-role {
