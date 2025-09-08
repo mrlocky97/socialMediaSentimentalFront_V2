@@ -6,8 +6,8 @@
     isViewMode
       ? ('campaign_dialog.view_campaign' | transloco)
       : isEditMode
-        ? ('campaign_dialog.edit_campaign' | transloco)
-        : ('campaign_dialog.create_campaign' | transloco)
+      ? ('campaign_dialog.edit_campaign' | transloco)
+      : ('campaign_dialog.create_campaign' | transloco)
   }}
 </h2>
 
@@ -221,29 +221,34 @@
         <mat-form-field appearance="outline" class="full">
           <mat-label>{{ 'campaign_dialog.date_range' | transloco }}</mat-label>
           <mat-date-range-input [rangePicker]="picker">
-            <input matStartDate formControlName="startDate" [placeholder]="'campaign_dialog.start_date' | transloco" [min]="today">
-            <input matEndDate formControlName="endDate" [placeholder]="'campaign_dialog.end_date' | transloco" [min]="today">
+            <input
+              matStartDate
+              formControlName="startDate"
+              [placeholder]="'campaign_dialog.start_date' | transloco"
+              [min]="today"
+            />
+            <input
+              matEndDate
+              formControlName="endDate"
+              [placeholder]="'campaign_dialog.end_date' | transloco"
+              [min]="today"
+            />
           </mat-date-range-input>
           <mat-hint>{{ 'campaign_dialog.select_campaign_duration' | transloco }}</mat-hint>
           <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
           <mat-date-range-picker #picker [startAt]="today"></mat-date-range-picker>
           @if (form.get('startDate')?.hasError('matStartDateInvalid')) {
-            <mat-error>{{ 'campaign_dialog.invalid_start_date' | transloco }}</mat-error>
-          }
-          @if (form.get('endDate')?.hasError('matEndDateInvalid')) {
-            <mat-error>{{ 'campaign_dialog.invalid_end_date' | transloco }}</mat-error>
-          }
-          @if (form.get('startDate')?.touched && form.get('startDate')?.hasError('required')) {
-            <mat-error>{{ 'campaign_dialog.required' | transloco }}</mat-error>
-          }
-          @if (form.get('endDate')?.touched && form.get('endDate')?.hasError('required')) {
-            <mat-error>{{ 'campaign_dialog.required' | transloco }}</mat-error>
-          }
-          @if (form.errors?.['pastStartDate']) {
-            <mat-error>{{ 'campaign_dialog.past_start_date_error' | transloco }}</mat-error>
-          }
-          @if (form.errors?.['dateRange']) {
-            <mat-error>{{ 'campaign_dialog.date_range_error' | transloco }}</mat-error>
+          <mat-error>{{ 'campaign_dialog.invalid_start_date' | transloco }}</mat-error>
+          } @if (form.get('endDate')?.hasError('matEndDateInvalid')) {
+          <mat-error>{{ 'campaign_dialog.invalid_end_date' | transloco }}</mat-error>
+          } @if (form.get('startDate')?.touched && form.get('startDate')?.hasError('required')) {
+          <mat-error>{{ 'campaign_dialog.required' | transloco }}</mat-error>
+          } @if (form.get('endDate')?.touched && form.get('endDate')?.hasError('required')) {
+          <mat-error>{{ 'campaign_dialog.required' | transloco }}</mat-error>
+          } @if (form.errors?.['pastStartDate']) {
+          <mat-error>{{ 'campaign_dialog.past_start_date_error' | transloco }}</mat-error>
+          } @if (form.errors?.['dateRange']) {
+          <mat-error>{{ 'campaign_dialog.date_range_error' | transloco }}</mat-error>
           }
         </mat-form-field>
       </div>
@@ -369,12 +374,13 @@
     <div class="error-box" style="margin-top: 8px">
       {{ 'campaign_dialog.date_range_error' | transloco }}
     </div>
-    }
-    
-    @if (form.errors?.['pastStartDate']) {
+    } @if (form.errors?.['pastStartDate']) {
     <div class="error-box" style="margin-top: 8px">
       <mat-icon class="error-icon">schedule</mat-icon>
-      {{ ('campaign_dialog.past_start_date_error' | transloco) || 'Campaign start date cannot be in the past' }}
+      {{
+        ('campaign_dialog.past_start_date_error' | transloco) ||
+          'Campaign start date cannot be in the past'
+      }}
     </div>
     }
   </section>
@@ -386,21 +392,21 @@
 
 <mat-dialog-actions align="end">
   @if (isViewMode) {
-    <button mat-raised-button color="primary" (click)="cancel()">
-      <mat-icon>close</mat-icon>
-      {{ 'campaign_dialog.close' | transloco }}
-    </button>
+  <button mat-raised-button color="primary" (click)="cancel()">
+    <mat-icon>close</mat-icon>
+    {{ 'campaign_dialog.close' | transloco }}
+  </button>
   } @else {
-    <button mat-stroked-button (click)="cancel()" [disabled]="isSubmitting()">
-      {{ 'campaign_dialog.cancel' | transloco }}
-    </button>
-    <button mat-raised-button color="primary" (click)="submit()" [disabled]="isSubmitting()">
-      <mat-icon>{{ isEditMode ? 'update' : 'campaign' }}</mat-icon>
-      {{
-        isEditMode
-          ? ('campaign_dialog.update_campaign' | transloco)
-          : ('campaign_dialog.create_campaign' | transloco)
-      }}
-    </button>
+  <button mat-stroked-button (click)="cancel()" [disabled]="isSubmitting()">
+    {{ 'campaign_dialog.cancel' | transloco }}
+  </button>
+  <button mat-raised-button color="primary" (click)="submit()" [disabled]="isSubmitting()">
+    <mat-icon>{{ isEditMode ? 'update' : 'campaign' }}</mat-icon>
+    {{
+      isEditMode
+        ? ('campaign_dialog.update_campaign' | transloco)
+        : ('campaign_dialog.create_campaign' | transloco)
+    }}
+  </button>
   }
 </mat-dialog-actions>

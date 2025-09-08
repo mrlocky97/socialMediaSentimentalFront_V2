@@ -1,17 +1,16 @@
 import {
-  provideHttpClient,
-  withInterceptors
+    provideHttpClient,
+    withInterceptors
 } from '@angular/common/http';
 import { ApplicationConfig, isDevMode, provideZoneChangeDetection } from '@angular/core';
-import { MAT_DATE_LOCALE } from '@angular/material/core';
-import { provideNativeDateAdapter } from '@angular/material/core';
+import { MAT_DATE_LOCALE, provideNativeDateAdapter } from '@angular/material/core';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter, withPreloading } from '@angular/router';
 import { provideEffects } from '@ngrx/effects';
 import { provideStore } from '@ngrx/store';
+import { effects, reducers } from './core/store';
 import { AuthEffects } from './core/store/effects/auth.effects';
 import { authReducer } from './core/store/reducers/auth.reducer';
-import { effects, reducers } from './core/store';
 
 import { provideServiceWorker } from '@angular/service-worker';
 import { provideTransloco } from '@ngneat/transloco';
