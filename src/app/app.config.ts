@@ -3,6 +3,8 @@ import {
   withInterceptors
 } from '@angular/common/http';
 import { ApplicationConfig, isDevMode, provideZoneChangeDetection } from '@angular/core';
+import { MAT_DATE_LOCALE } from '@angular/material/core';
+import { provideNativeDateAdapter } from '@angular/material/core';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideRouter, withPreloading } from '@angular/router';
 import { provideEffects } from '@ngrx/effects';
@@ -46,6 +48,10 @@ export const appConfig: ApplicationConfig = {
 
     // 4) Animaciones para Angular Material
     provideAnimations(),
+
+    // 5) Date adapter para Material Date Picker
+    provideNativeDateAdapter(),
+    { provide: MAT_DATE_LOCALE, useValue: 'es-ES' },
 
     // 5) Proveedor de Transloco
     provideTransloco({

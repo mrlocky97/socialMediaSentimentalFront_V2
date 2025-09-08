@@ -16,10 +16,12 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
+import { MatNativeDateModule } from '@angular/material/core';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
@@ -47,6 +49,8 @@ type DataSource = 'twitter' | 'instagram' | 'tiktok' | 'youtube' | 'facebook';
     MatChipsModule,
     MatCardModule,
     MatTooltipModule,
+    MatDatepickerModule,
+    MatNativeDateModule,
     // Accesibilidad
     A11yModule,
     // Transloco para traducciones
@@ -71,6 +75,11 @@ export class CampaignDialogComponent implements OnInit, AfterViewInit {
   readonly isEditModeSignal = signal<boolean>(false);
   readonly isViewModeSignal = signal<boolean>(false);
   readonly campaignId = signal<string | null>(null);
+
+  // Fecha mínima para el date picker (hoy)
+  get today(): Date {
+    return new Date();
+  }
 
   // Exponer isEditMode para la plantilla
   get isEditMode(): boolean {
@@ -111,9 +120,9 @@ export class CampaignDialogComponent implements OnInit, AfterViewInit {
       dataSources: this.fb.control<DataSource[]>([], [Validators.required, this.minLengthArray(1)]),
       languages: this.fb.control<string[]>([]),
 
-      // Fechas (usamos datetime-local y convertimos a ISO al enviar)
-      startDateLocal: ['', Validators.required],
-      endDateLocal: ['', Validators.required],
+      // Fechas (usando date range picker)
+      startDate: [null as Date | null, Validators.required],
+      endDate: [null as Date | null, Validators.required],
       timezone: this.fb.control('UTC', [Validators.required]),
 
       maxTweets: this.fb.control(10, [
@@ -139,8 +148,8 @@ export class CampaignDialogComponent implements OnInit, AfterViewInit {
     },
     {
       validators: [
-        this.dateRangeValidator('startDateLocal', 'endDateLocal'),
-        this.futureDateValidator('startDateLocal'), // Nuevo validador para fecha de inicio
+        this.dateRangeValidator(),
+        this.futureDateValidator(),
         this.atLeastOneTargetingValidator(['hashtags', 'keywords', 'mentions']),
       ],
     }
@@ -251,9 +260,9 @@ export class CampaignDialogComponent implements OnInit, AfterViewInit {
         // Organización
         organizationId: p.organizationId ?? '',
         
-        // Fechas (convertimos ISO a formato local)
-        startDateLocal: p.startDate ? this.isoToLocalDatetime(p.startDate) : '',
-        endDateLocal: p.endDate ? this.isoToLocalDatetime(p.endDate) : '',
+        // Fechas (configurar directamente)
+        startDate: p.startDate ? new Date(p.startDate) : null,
+        endDate: p.endDate ? new Date(p.endDate) : null,
       },
       { emitEvent: false }
     );
@@ -324,7 +333,6 @@ export class CampaignDialogComponent implements OnInit, AfterViewInit {
   removeControl(arr: FormArray<FormControl<string>>, i: number) {
     if (i >= 0 && i < arr.length) arr.removeAt(i);
   }
-
   // ---- Validadores custom ----
   private minLengthArray(min: number) {
     return (control: AbstractControl) => {
@@ -335,38 +343,41 @@ export class CampaignDialogComponent implements OnInit, AfterViewInit {
     };
   }
 
-  private dateRangeValidator(startKey: string, endKey: string) {
+  private dateRangeValidator() {
     return (group: AbstractControl) => {
       const g = group as FormGroup;
-      const s = g.get(startKey)?.value;
-      const e = g.get(endKey)?.value;
-      if (!s || !e) return null;
-      const start = new Date(s);
-      const end = new Date(e);
-      return start < end ? null : { dateRange: true };
+      const start = g.get('startDate')?.value;
+      const end = g.get('endDate')?.value;
+      
+      if (!start || !end) return null;
+      
+      const startDate = new Date(start);
+      const endDate = new Date(end);
+      
+      return startDate < endDate ? null : { dateRange: true };
     };
   }
 
   /**
    * Validador que verifica que la fecha de inicio no esté en el pasado
    */
-  private futureDateValidator(dateKey: string) {
+  private futureDateValidator() {
     return (group: AbstractControl) => {
       const g = group as FormGroup;
-      const dateValue = g.get(dateKey)?.value;
+      const startDate = g.get('startDate')?.value;
       
-      if (!dateValue) return null;
+      if (!startDate) return null;
       
       // Convertir el valor del formulario a Date
-      const dateToCheck = new Date(dateValue);
-      
-      // Crear fecha actual sin milisegundos para comparación más precisa
+      const dateToCheck = new Date(startDate);
       const now = new Date();
-      now.setMilliseconds(0);
-      now.setSeconds(0);
+      
+      // Comparar solo las fechas (sin horas) para evitar problemas de zona horaria
+      const startDateOnly = new Date(dateToCheck.getFullYear(), dateToCheck.getMonth(), dateToCheck.getDate());
+      const nowDateOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
       
       // Si la fecha está en el pasado, retornar error
-      if (dateToCheck < now) {
+      if (startDateOnly < nowDateOnly) {
         return { pastStartDate: true };
       }
       
@@ -386,27 +397,6 @@ export class CampaignDialogComponent implements OnInit, AfterViewInit {
     };
   }
 
-  // ---- Conversión fecha ----
-  /** Convierte ISO a valor compatible con input[type="datetime-local"] (sin zona) */
-  private isoToLocalDatetime(iso: string): string {
-    const d = new Date(iso);
-    const pad = (n: number) => n.toString().padStart(2, '0');
-    const yyyy = d.getFullYear();
-    const mm = pad(d.getMonth() + 1);
-    const dd = pad(d.getDate());
-    const hh = pad(d.getHours());
-    const mi = pad(d.getMinutes());
-    const ss = pad(d.getSeconds());
-    return `${yyyy}-${mm}-${dd}T${hh}:${mi}:${ss}`;
-  }
-
-  /** Toma datetime-local y devuelve ISO con 'Z' (UTC) */
-  private localDatetimeToIso(local: string): string {
-    // Interpreta el valor local como hora local del navegador
-    const d = new Date(local);
-    return new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString();
-  }
-
   // ---- Acciones ----
   cancel() {
     this.dialogRef.close(null);
@@ -414,14 +404,17 @@ export class CampaignDialogComponent implements OnInit, AfterViewInit {
 
   async submit() {
     // Verificar nuevamente si la fecha de inicio está en el pasado justo antes de enviar
-    const startDate = this.form.get('startDateLocal')?.value;
+    const startDate = this.form.get('startDate')?.value;
+    
     if (startDate) {
       const dateToCheck = new Date(startDate);
       const now = new Date();
-      now.setMilliseconds(0);
-      now.setSeconds(0);
       
-      if (dateToCheck < now) {
+      // Comparar solo las fechas (sin horas) para evitar problemas de zona horaria
+      const startDateOnly = new Date(dateToCheck.getFullYear(), dateToCheck.getMonth(), dateToCheck.getDate());
+      const nowDateOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      
+      if (startDateOnly < nowDateOnly) {
         this.form.setErrors({ pastStartDate: true });
       }
     }
@@ -435,6 +428,44 @@ export class CampaignDialogComponent implements OnInit, AfterViewInit {
 
     const v = this.form.value;
 
+    // Función helper para formatear fechas manteniendo la zona horaria local
+    const formatDateForAPI = (date: any): string => {
+      if (!date) return '';
+      
+      let dateObj: Date;
+      
+      // Si ya es un objeto Date de Material Datepicker
+      if (date instanceof Date) {
+        dateObj = date;
+      } else {
+        // Si es string o cualquier otro formato
+        dateObj = new Date(date);
+      }
+      
+      // Verificar que la fecha es válida
+      if (isNaN(dateObj.getTime())) {
+        console.error('Invalid date:', date);
+        return '';
+      }
+      
+      // Crear fecha al inicio del día en la zona horaria local del usuario
+      // Esto evita problemas de conversión UTC
+      const year = dateObj.getFullYear();
+      const month = dateObj.getMonth();
+      const day = dateObj.getDate();
+      
+      const localDate = new Date(year, month, day, 12, 0, 0); // Usar mediodía para evitar problemas de DST
+      
+      console.log('Formatting date:', {
+        input: date,
+        parsed: dateObj,
+        localDate: localDate,
+        isoString: localDate.toISOString()
+      });
+      
+      return localDate.toISOString();
+    };
+
     // Construir payload conforme al API
     const payload: CampaignRequest = {
       name: v.name!,
@@ -444,8 +475,8 @@ export class CampaignDialogComponent implements OnInit, AfterViewInit {
       hashtags: (this.hashtags.value ?? []).map((s) => s.trim()),
       keywords: (this.keywords.value ?? []).map((s) => s.trim()),
       mentions: (this.mentions.value ?? []).map((s) => s.trim()),
-      startDate: this.localDatetimeToIso(v.startDateLocal!),
-      endDate: this.localDatetimeToIso(v.endDateLocal!),
+      startDate: formatDateForAPI(v.startDate),
+      endDate: formatDateForAPI(v.endDate),
       timezone: v.timezone!,
       maxTweets: v.maxTweets!,
       collectImages: !!v.collectImages,
@@ -467,7 +498,12 @@ export class CampaignDialogComponent implements OnInit, AfterViewInit {
       id: campaignId,
       dataSources: v.dataSources,
       languages: v.languages,
-      organizationId: v.organizationId
+      organizationId: v.organizationId,
+      startDate: v.startDate,
+      endDate: v.endDate,
+      formattedStartDate: formatDateForAPI(v.startDate),
+      formattedEndDate: formatDateForAPI(v.endDate),
+      timezone: v.timezone
     });
 
     // Añadir el ID a la payload para operaciones de actualización

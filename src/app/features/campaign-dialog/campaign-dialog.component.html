@@ -216,22 +216,37 @@
     <h3><mat-icon>settings</mat-icon> {{ 'campaign_dialog.configuration' | transloco }}</h3>
 
     <div class="grid grid-3">
-      <mat-form-field appearance="outline" class="full" [ngClass]="{'date-error': form.errors?.['pastStartDate']}">
-        <mat-label>{{ 'campaign_dialog.start_date' | transloco }}</mat-label>
-        <input matInput type="datetime-local" formControlName="startDateLocal" />
-        <mat-icon matSuffix *ngIf="form.errors?.['pastStartDate']" class="date-error-icon" [matTooltip]="('campaign_dialog.past_start_date_error' | transloco) || 'Campaign start date cannot be in the past'">error_outline</mat-icon>
-        @if (form.get('startDateLocal')?.touched && form.get('startDateLocal')?.invalid) {
-        <mat-error>{{ 'campaign_dialog.required' | transloco }}</mat-error>
-        }
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" class="full">
-        <mat-label>{{ 'campaign_dialog.end_date' | transloco }}</mat-label>
-        <input matInput type="datetime-local" formControlName="endDateLocal" />
-        @if (form.get('endDateLocal')?.touched && form.get('endDateLocal')?.invalid) {
-        <mat-error>{{ 'campaign_dialog.required' | transloco }}</mat-error>
-        }
-      </mat-form-field>
+      <!-- Date Range Picker -->
+      <div class="full date-range-field" style="grid-column: 1 / 3">
+        <mat-form-field appearance="outline" class="full">
+          <mat-label>{{ 'campaign_dialog.date_range' | transloco }}</mat-label>
+          <mat-date-range-input [rangePicker]="picker">
+            <input matStartDate formControlName="startDate" [placeholder]="'campaign_dialog.start_date' | transloco" [min]="today">
+            <input matEndDate formControlName="endDate" [placeholder]="'campaign_dialog.end_date' | transloco" [min]="today">
+          </mat-date-range-input>
+          <mat-hint>{{ 'campaign_dialog.select_campaign_duration' | transloco }}</mat-hint>
+          <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+          <mat-date-range-picker #picker [startAt]="today"></mat-date-range-picker>
+          @if (form.get('startDate')?.hasError('matStartDateInvalid')) {
+            <mat-error>{{ 'campaign_dialog.invalid_start_date' | transloco }}</mat-error>
+          }
+          @if (form.get('endDate')?.hasError('matEndDateInvalid')) {
+            <mat-error>{{ 'campaign_dialog.invalid_end_date' | transloco }}</mat-error>
+          }
+          @if (form.get('startDate')?.touched && form.get('startDate')?.hasError('required')) {
+            <mat-error>{{ 'campaign_dialog.required' | transloco }}</mat-error>
+          }
+          @if (form.get('endDate')?.touched && form.get('endDate')?.hasError('required')) {
+            <mat-error>{{ 'campaign_dialog.required' | transloco }}</mat-error>
+          }
+          @if (form.errors?.['pastStartDate']) {
+            <mat-error>{{ 'campaign_dialog.past_start_date_error' | transloco }}</mat-error>
+          }
+          @if (form.errors?.['dateRange']) {
+            <mat-error>{{ 'campaign_dialog.date_range_error' | transloco }}</mat-error>
+          }
+        </mat-form-field>
+      </div>
 
       <mat-form-field appearance="outline" class="full">
         <mat-label>{{ 'campaign_dialog.timezone' | transloco }}</mat-label>
