@@ -119,7 +119,7 @@
     </div>
 
     <div class="table-container">
-      <app-solid-data-table-rxjs
+      <app-solid-data-table
         [data]="campaigns()"
         [columns]="tableColumns"
         [config]="tableConfig"
@@ -129,7 +129,7 @@
         (rowClick)="navigateToCampaign($event)"
         (actionClick)="onTableAction($event)"
         (pageChange)="onPageChange($event)"
-      ></app-solid-data-table-rxjs>
+      ></app-solid-data-table>
     </div>
 
     <!-- paginator is handled by the generic table component -->

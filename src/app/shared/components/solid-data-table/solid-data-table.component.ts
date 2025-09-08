@@ -48,7 +48,7 @@ import {
 
 // Open/Closed Principle - Extensible through configuration
 @Component({
-  selector: 'app-solid-data-table-rxjs',
+  selector: 'app-solid-data-table',
   standalone: true,
   imports: [
     CommonModule,

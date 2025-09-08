@@ -751,7 +751,7 @@
           <!-- Tweets Table -->
           @if (!tweetsLoading() && !tweetsError()) { @if (tweetsWithCalculatedFields().length > 0) {
           <div class="tweets-table-container">
-            <app-solid-data-table-rxjs
+            <app-solid-data-table
               [data]="mutableTweetsForTable()"
               [columns]="tweetTableColumns"
               [config]="tweetTableConfig"
@@ -765,7 +765,7 @@
                 'Tweets table with ' + tweetsWithCalculatedFields().length + ' items'
               "
             >
-            </app-solid-data-table-rxjs>
+            </app-solid-data-table>
           </div>
           } @else {
           <div class="no-tweets" role="status">

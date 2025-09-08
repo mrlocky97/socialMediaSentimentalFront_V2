@@ -362,23 +362,28 @@ export class CampaignAIService {
   }
 
   private generateSummary(campaign: Campaign, stats: CampaignStats, score: number): string {
+    // Umbrales basados en benchmarks de la industria de social media
     const performanceLevels = [
-      { threshold: 80, label: 'excellent' },
-      { threshold: 60, label: 'good' },
-      { threshold: 40, label: 'average' },
-      { threshold: 0, label: 'needs improvement' },
+      { threshold: 85, label: 'excellent' },      // Top 10% de campañas
+      { threshold: 70, label: 'good' },           // Top 25% de campañas  
+      { threshold: 50, label: 'average' },        // Promedio de la industria
+      { threshold: 30, label: 'below average' },  // Necesita atención
+      { threshold: 0, label: 'needs improvement' }, // Requiere acción inmediata
     ];
 
     const performance =
       performanceLevels.find((l) => score >= l.threshold)?.label || 'needs improvement';
 
-    return `Campaign "${
-      campaign.name
-    }" is showing ${performance} performance with a score of ${score}/100. 
-    ${stats.totalTweets} tweets analyzed with ${stats.sentimentPercents.positive.toFixed(
-      1
-    )}% positive sentiment 
-    and ${stats.globalEngagementRate.toFixed(2)}% engagement rate.`;
+    // Contexto adicional basado en métricas específicas
+    const engagementContext = stats.globalEngagementRate > 3 ? 'strong' : 
+                             stats.globalEngagementRate > 1 ? 'moderate' : 'low';
+    
+    const sentimentContext = stats.sentimentPercents.positive > 70 ? 'positive' :
+                            stats.sentimentPercents.positive > 50 ? 'neutral' : 'concerning';
+
+    return `Campaign "${campaign.name}" is showing ${performance} performance with a score of ${score}/100. 
+    ${stats.totalTweets} tweets analyzed with ${stats.sentimentPercents.positive.toFixed(1)}% positive sentiment (${sentimentContext}) 
+    and ${stats.globalEngagementRate.toFixed(2)}% engagement rate (${engagementContext} engagement).`;
   }
 
   private categorizeRecommendations(insights: AIInsight[]): {
