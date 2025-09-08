@@ -592,5 +592,13 @@
     "performance_score": "Leistungswert",
     "last_analyzed": "Zuletzt analysiert",
     "immediate_actions": "Sofortmaßnahmen"
+  },
+  "solid_table": {
+    "search": "Suchen",
+    "search_placeholder": "Suchen...",
+    "loading": "Wird geladen...",
+    "retry": "Erneut versuchen",
+    "clear_filters": "Filter löschen",
+    "actions": "Aktionen"
   }
 }

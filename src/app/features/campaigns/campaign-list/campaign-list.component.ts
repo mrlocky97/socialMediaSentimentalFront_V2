@@ -32,12 +32,13 @@ import { BackendApiService } from '../../../core/services/backend-api.service';
 import { Campaign } from '../../../core/state/app.state';
 import { CampaignFacade } from '../../../core/store/fecades/campaign.facade';
 import { ScrapingFacade } from '../../../core/store/fecades/scraping.facade';
+
 import {
   TableAction,
   TableColumn,
   TableConfig,
-} from '../../../shared/components/solid-data-table/service/table-services';
-import { SolidDataTableRxjsComponent } from '../../../shared/components/solid-data-table/solid-data-table-rxjs.component';
+} from '../../../shared/components/solid-data-table/interfaces/solid-data-table.interface';
+import { SolidDataTableRxjsComponent } from '../../../shared/components/solid-data-table/solid-data-table.component';
 import { CampaignDialogComponent } from '../../campaign-dialog/campaign-dialog.component';
 
 @Component({
@@ -133,28 +134,28 @@ export class CampaignListComponent implements OnInit, OnDestroy {
   // Generic table config for SolidDataTable
   tableColumns: TableColumn<Campaign>[] = [
     { key: 'name', label: 'Campaign', sortable: true, width: '250px' },
-    { key: 'status', label: 'Status', sortable: true, width: '120px', align: 'center' },
+    { key: 'status', label: 'Status', sortable: true, width: '150px' },
     { key: 'type', label: 'Type', sortable: true, width: '140px' },
     {
       key: 'hashtags',
       label: 'Hashtags',
       sortable: false,
       width: '200px',
-      formatter: (v) => (v || []).slice(0, 2).join(', '),
+      formatter: (v: any) => (v || []).slice(0, 2).join(', '),
     },
     {
       key: 'startDate',
       label: 'Start',
       sortable: true,
       width: '120px',
-      formatter: (v) => new Date(v).toLocaleDateString(),
+      formatter: (v: any) => new Date(v).toLocaleDateString(),
     },
     {
       key: 'endDate',
       label: 'End',
       sortable: true,
       width: '120px',
-      formatter: (v) => new Date(v).toLocaleDateString(),
+      formatter: (v: any) => new Date(v).toLocaleDateString(),
     },
   ];
 
@@ -360,7 +361,7 @@ export class CampaignListComponent implements OnInit, OnDestroy {
                     id: campaignId,
                     payload: {
                       ...result.payload,
-                      id: campaignId
+                      id: campaignId,
                     },
                   });
                 } else {
@@ -832,5 +833,4 @@ export class CampaignListComponent implements OnInit, OnDestroy {
     );
     console.error(`Error starting ${type} scraping:`, error);
   }
-
 }

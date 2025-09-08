@@ -6,7 +6,7 @@
 import { Injectable } from '@angular/core';
 import { Tweet, TweetWithCalculatedFields } from '../../../../core/interfaces/tweet.interface';
 import { Campaign } from '../../../../core/state/app.state';
-import { TableAction, TableColumn, TableConfig } from '../../../../shared/components/solid-data-table/service/table-services';
+import { TableAction, TableColumn, TableConfig } from '../../../../shared/components/solid-data-table/interfaces/solid-data-table.interface';
 
 @Injectable({
   providedIn: 'root',

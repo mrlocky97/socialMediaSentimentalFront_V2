@@ -594,5 +594,13 @@
     "performance_score": "Score de performance",
     "last_analyzed": "Dernière analyse",
     "immediate_actions": "Actions immédiates"
+  },
+  "solid_table": {
+    "search": "Rechercher",
+    "search_placeholder": "Rechercher...",
+    "loading": "Chargement...",
+    "retry": "Réessayer",
+    "clear_filters": "Effacer les filtres",
+    "actions": "Actions"
   }
 }

@@ -46,10 +46,10 @@ import { CampaignFacade } from '../../../core/store/fecades/campaign.facade';
 import { TweetFacade } from '../../../core/store/fecades/tweet.facade';
 
 // UI Components and services
-import { TableAction } from '../../../shared/components/solid-data-table/service/table-services';
-import { SolidDataTableRxjsComponent } from '../../../shared/components/solid-data-table/solid-data-table-rxjs.component';
+import { SolidDataTableRxjsComponent } from '../../../shared/components/solid-data-table/solid-data-table.component';
 
 // Business logic services
+import { TableAction } from '../../../shared/components/solid-data-table/interfaces/solid-data-table.interface';
 import { AIInsight } from './interfaces/campaign-detail-insight.interface';
 import { CampaignAnalyticsService } from './services/campaign-detail-analytic.service';
 import { CampaignAIService } from './services/campaign-detail-insight.service';

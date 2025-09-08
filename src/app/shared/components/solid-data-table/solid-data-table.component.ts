@@ -35,22 +35,16 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatPaginator, MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatSort, MatSortModule, Sort } from '@angular/material/sort';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
+import { TranslocoModule, TranslocoService } from '@ngneat/transloco';
 import { Observable, of } from 'rxjs';
 import { tap } from 'rxjs/operators';
+import { FilterEvent, SelectionEvent, SortEvent, TableAction, TableColumn, TableConfig, TableState } from './interfaces/solid-data-table.interface';
 import {
-  FilterEvent,
-  SelectionEvent,
-  SortEvent,
-  TableAction,
-  TableColumn,
-  TableConfig,
   TableDataService,
   TableSelectionService,
-  TableState,
-} from './service/table-services';
+} from './service/solid-data-table.service';
 
 // Open/Closed Principle - Extensible through configuration
 @Component({
@@ -68,18 +62,18 @@ import {
     MatCheckboxModule,
     MatProgressSpinnerModule,
     MatChipsModule,
-    MatSnackBarModule,
+    TranslocoModule,
   ],
   providers: [TableDataService, TableSelectionService],
-  templateUrl: './solid-data-table-rxjs.component.html',
-  styleUrls: ['./solid-data-table-rxjs.component.css'],
+  templateUrl: './solid-data-table.component.html',
+  styleUrls: ['./solid-data-table.component.css'],
 })
 export class SolidDataTableRxjsComponent<T = any> implements OnInit, AfterViewInit, OnChanges {
   // Dependency Injection - Services provided at component level
   private readonly dataService = inject(TableDataService<T>);
   private readonly selectionService = inject(TableSelectionService<T>);
-  private readonly snackBar = inject(MatSnackBar);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly transloco = inject(TranslocoService);
 
   // ================================
   // INPUT/OUTPUT PROPERTIES
@@ -92,7 +86,7 @@ export class SolidDataTableRxjsComponent<T = any> implements OnInit, AfterViewIn
     showPagination: true,
     showSelection: false,
     multiSelection: true,
-    pageSize: 10,
+    pageSize: 5,
     pageSizeOptions: [5, 10, 25, 50],
     autoRefresh: false,
     refreshInterval: 30000,
@@ -334,13 +328,6 @@ export class SolidDataTableRxjsComponent<T = any> implements OnInit, AfterViewIn
       this.isRefreshing.set(false);
       this.lastRefreshTime.set(new Date());
     }, 1000);
-  }
-
-  exportData(): void {
-    const data = this.hasSelection() ? this.getSelectedItems() : this.dataService.filteredData();
-
-    console.log('Exporting data:', data);
-    this.snackBar.open('Data export started', 'Close', { duration: 3000 });
   }
 
   // ================================

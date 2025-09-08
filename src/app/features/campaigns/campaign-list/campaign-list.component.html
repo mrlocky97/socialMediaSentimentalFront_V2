@@ -54,30 +54,20 @@
         <mat-icon class="stat-icon warning">pause_circle</mat-icon>
       </mat-card-content>
     </mat-card>
-
-    <mat-card class="stat-card">
-      <mat-card-content>
-        <div class="stat-content">
-          <div class="stat-number">{{ getDraftCampaigns() }}</div>
-          <div class="stat-label">{{ 'campaign_list.campaigns_draft' | transloco }}</div>
-        </div>
-        <mat-icon class="stat-icon secondary">drafts</mat-icon>
-      </mat-card-content>
-    </mat-card>
   </div>
 
   <!-- Loading State -->
   <div class="loading-container" *ngIf="loading()">
     <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
     <p>
-      {{ "campaign_list.loading" | transloco}}
+      {{ 'campaign_list.loading' | transloco }}
     </p>
   </div>
-  
+
   <!-- Dialog Loading Indicator (overlays only when opening dialogs) -->
   <div class="dialog-loading-overlay" *ngIf="dialogLoading() && !loading()">
     <mat-progress-spinner mode="indeterminate" diameter="40"></mat-progress-spinner>
-    <p>{{ "campaign_list.loading_dialog" | transloco }}</p>
+    <p>{{ 'campaign_list.loading_dialog' | transloco }}</p>
   </div>
 
   <!-- Empty State -->
@@ -86,8 +76,8 @@
       <mat-card-content>
         <div class="empty-content">
           <mat-icon class="empty-icon">campaign</mat-icon>
-          <h2>{{ "campaign_list.empty" | transloco }}</h2>
-          <p>{{ "campaign_list.create_first" | transloco }}</p>
+          <h2>{{ 'campaign_list.empty' | transloco }}</h2>
+          <p>{{ 'campaign_list.create_first' | transloco }}</p>
           <button
             mat-raised-button
             color="primary"
@@ -105,24 +95,24 @@
   <!-- Campaigns Table -->
   <mat-card class="table-card" *ngIf="!loading() && filteredCampaigns().length > 0">
     <div class="table-header">
-      <h3>{{ "campaign_list.campaigns" | transloco }} ({{ filteredCampaigns().length }})</h3>
+      <h3>{{ 'campaign_list.campaigns' | transloco }} ({{ filteredCampaigns().length }})</h3>
       <div class="table-actions" *ngIf="hasSelectedCampaigns()">
         <button mat-button [matMenuTriggerFor]="bulkMenu">
           <mat-icon>more_vert</mat-icon>
-          {{ "campaign_list.actions" | transloco}} ({{ selectedCampaigns().size }})
+          {{ 'campaign_list.actions' | transloco }} ({{ selectedCampaigns().size }})
         </button>
         <mat-menu #bulkMenu="matMenu">
           <button mat-menu-item (click)="bulkAction('pause')">
             <mat-icon>pause</mat-icon>
-            {{ "campaign_list.pause" | transloco }}
+            {{ 'campaign_list.pause' | transloco }}
           </button>
           <button mat-menu-item (click)="bulkAction('resume')">
             <mat-icon>play_arrow</mat-icon>
-            {{ "campaign_list.resume" | transloco }}
+            {{ 'campaign_list.resume' | transloco }}
           </button>
           <button mat-menu-item (click)="bulkAction('delete')" class="danger-action">
             <mat-icon>delete</mat-icon>
-            {{ "campaign_list.delete" | transloco }}
+            {{ 'campaign_list.delete' | transloco }}
           </button>
         </mat-menu>
       </div>
@@ -141,9 +131,8 @@
         (pageChange)="onPageChange($event)"
       ></app-solid-data-table-rxjs>
     </div>
-    
-    <!-- paginator is handled by the generic table component -->
 
+    <!-- paginator is handled by the generic table component -->
   </mat-card>
 
   <!-- Error State -->
@@ -151,9 +140,11 @@
     <mat-card class="error-card">
       <mat-card-content>
         <mat-icon class="error-icon">error</mat-icon>
-        <h3>{{ "campaign_list.error_loading" | transloco }}</h3>
+        <h3>{{ 'campaign_list.error_loading' | transloco }}</h3>
         <p>{{ error() }}</p>
-        <button mat-raised-button color="primary" (click)="loadCampaigns()">{{ "campaign_list.try_again" | transloco}}</button>
+        <button mat-raised-button color="primary" (click)="loadCampaigns()">
+          {{ 'campaign_list.try_again' | transloco }}
+        </button>
       </mat-card-content>
     </mat-card>
   </div>

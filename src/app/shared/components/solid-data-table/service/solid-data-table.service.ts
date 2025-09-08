@@ -2,90 +2,26 @@
  * Table Interfaces and Services with Advanced RxJS Patterns
  * Following SOLID principles with reactive programming enhancements
  */
-import { Injectable, signal, inject, DestroyRef } from '@angular/core';
-import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { MatTableDataSource } from '@angular/material/table';
-import { MatPaginator, PageEvent } from '@angular/material/paginator';
-import { MatSort, Sort } from '@angular/material/sort';
 import { SelectionModel } from '@angular/cdk/collections';
-import { 
-  Observable, 
-  BehaviorSubject, 
-  Subject, 
-  combineLatest,
-  of,
-  merge
+import { DestroyRef, Injectable, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { MatPaginator } from '@angular/material/paginator';
+import { MatSort, Sort } from '@angular/material/sort';
+import { MatTableDataSource } from '@angular/material/table';
+import {
+  BehaviorSubject,
+  Observable,
+  Subject,
+  combineLatest
 } from 'rxjs';
 import {
   debounceTime,
   distinctUntilChanged,
   map,
-  startWith,
-  switchMap,
-  tap,
   shareReplay,
-  filter,
-  scan
+  tap
 } from 'rxjs/operators';
-
-// Interface Segregation Principle - Focused interfaces
-export interface TableColumn<T = any> {
-  key: string;
-  label: string;
-  sortable?: boolean;
-  width?: string;
-  align?: 'left' | 'center' | 'right';
-  filterType?: 'text' | 'number' | 'date' | 'select';
-  formatter?: (value: any) => string;
-}
-
-export interface TableConfig {
-  showSearch?: boolean;
-  showPagination?: boolean;
-  showSelection?: boolean;
-  multiSelection?: boolean;
-  pageSize?: number;
-  pageSizeOptions?: number[];
-  virtualScrolling?: boolean;
-  infiniteScroll?: boolean;
-  autoRefresh?: boolean;
-  refreshInterval?: number;
-}
-
-export interface TableAction<T = any> {
-  icon: string;
-  label: string;
-  color?: 'primary' | 'accent' | 'warn';
-  visible?: (item: T) => boolean;
-  disabled?: (item: T) => boolean;
-  confirm?: boolean;
-}
-
-export interface SortEvent {
-  active: string;
-  direction: 'asc' | 'desc' | '';
-}
-
-export interface SelectionEvent<T = any> {
-  selected: T[];
-  isAllSelected: boolean;
-}
-
-export interface FilterEvent {
-  column: string;
-  value: any;
-  type: 'text' | 'number' | 'date' | 'select';
-}
-
-export interface TableState<T = any> {
-  data: T[];
-  filteredData: T[];
-  selectedItems: T[];
-  currentSort: SortEvent;
-  currentPage: PageEvent;
-  searchTerm: string;
-  columnFilters: Map<string, any>;
-}
+import { SelectionEvent, SortEvent, TableState } from '../interfaces/solid-data-table.interface';
 
 // Single Responsibility - Enhanced data service with reactive patterns
 @Injectable()
