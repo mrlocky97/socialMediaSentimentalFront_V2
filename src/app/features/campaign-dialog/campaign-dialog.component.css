@@ -9,8 +9,8 @@
 }
 
 :host-context(.campaign-view-dialog) .mat-mdc-form-field-disabled {
-  --mdc-outlined-text-field-disabled-input-text-color: var(--color-gray-800);
-  --mdc-outlined-text-field-disabled-outline-color: var(--color-gray-300);
+  --mat-form-field-outlined-disabled-input-text-color: var(--color-gray-800);
+  --mat-form-field-outlined-disabled-outline-color: var(--color-gray-300);
   opacity: 1;
 }
 
@@ -331,10 +331,10 @@ mat-progress-bar {
 
 /* Material Form Fields */
 mat-form-field.mat-mdc-form-field-appearance-outline {
-  --mdc-outlined-text-field-container-shape: var(--radius-lg);
-  --mdc-outlined-text-field-outline-color: var(--color-gray-300);
-  --mdc-outlined-text-field-hover-outline-color: var(--color-primary);
-  --mdc-outlined-text-field-focus-outline-color: var(--color-primary);
+  --mat-form-field-outlined-container-shape: var(--radius-lg);
+  --mat-form-field-outlined-outline-color: var(--color-gray-300);
+  --mat-form-field-outlined-hover-outline-color: var(--color-primary);
+  --mat-form-field-outlined-focus-outline-color: var(--color-primary);
 }
 
 mat-form-field {

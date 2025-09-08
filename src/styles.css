@@ -144,40 +144,40 @@ body {
 /* styles buttons */
 .mat-mdc-raised-button {
   padding: 0.5em 1em;
-  background-color: var(--mdc-protected-button-container-color, var(--wild-green-dos));
-  color: var(--mdc-protected-button-label-text-color, var(--wild-green-nueve));
+  background-color: var(--mat-button-protected-container-color, var(--wild-green-dos));
+  color: var(--mat-button-protected-label-text-color, var(--wild-green-nueve));
   border-radius: 0.25rem;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
 
 .mat-mdc-raised-button:hover {
-  background-color: var(--mdc-protected-button-hover-container-color, var(--wild-green-tres));
-  color: var(--mdc-protected-button-label-text-color, var(--wild-green-nueve));
+  background-color: var(--mat-button-protected-hover-container-color, var(--wild-green-tres));
+  color: var(--mat-button-protected-label-text-color, var(--wild-green-nueve));
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
 .mat-mdc-raised-button:active {
-  background-color: var(--mdc-protected-button-active-container-color, var(--wild-green-cinco));
-  color: var(--mdc-protected-button-label-text-color, var(--wild-green-nueve));
+  background-color: var(--mat-button-protected-active-container-color, var(--wild-green-cinco));
+  color: var(--mat-button-protected-label-text-color, var(--wild-green-nueve));
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
 .mat-mdc-raised-button:disabled {
-  background-color: var(--mdc-protected-button-disabled-container-color, var(--wild-green-dos));
-  color: var(--mdc-protected-button-disabled-label-text-color, var(--neutral-text));
+  background-color: var(--mat-button-protected-disabled-container-color, var(--wild-green-dos));
+  color: var(--mat-button-protected-disabled-label-text-color, var(--neutral-text));
   cursor: not-allowed;
 }
 
 /*estilos de boton cuando no esta hover*/
 .mat-mdc-raised-button:not(:hover) {
-  background-color: var(--mdc-protected-button-container-color, var(--wild-green-dos));
-  color: var(--mdc-protected-button-label-text-color, var(--wild-green-nueve));
+  background-color: var(--mat-button-protected-container-color, var(--wild-green-dos));
+  color: var(--mat-button-protected-label-text-color, var(--wild-green-nueve));
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
 button.mat-mdc-raised-button.mat-mdc-button-disabled {
-  color: var(--mdc-protected-button-label-text-color, var(--gray));
+  color: var(--mat-button-protected-label-text-color, var(--gray));
 }
 
 html,

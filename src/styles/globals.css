@@ -893,11 +893,11 @@ body {
 /* ===== LOGIN MATERIAL OVERRIDES & FEEDBACK MESSAGES ===== */
 /* Moved from login.component.css to reduce duplication and per-component size */
 .mat-mdc-form-field {
-  --mdc-filled-text-field-container-shape: var(--radius-xl);
-  --mdc-outlined-text-field-container-shape: var(--radius-xl);
-  --mdc-outlined-text-field-outline-color: var(--color-gray-300);
-  --mdc-outlined-text-field-hover-outline-color: var(--color-primary);
-  --mdc-outlined-text-field-focus-outline-color: var(--color-primary);
+  --mat-form-field-filled-container-shape: var(--radius-xl);
+  --mat-form-field-outlined-container-shape: var(--radius-xl);
+  --mat-form-field-outlined-outline-color: var(--color-gray-300);
+  --mat-form-field-outlined-hover-outline-color: var(--color-primary);
+  --mat-form-field-outlined-focus-outline-color: var(--color-primary);
   width: 100%;
   display: block;
   margin: var(--spacing-xs) 0 0 0;
