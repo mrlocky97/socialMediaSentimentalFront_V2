@@ -604,6 +604,12 @@
     "top_authors": "Top Authors",
     "last_updated": "Last Updated",
     "target_language": "Target Language",
-    "error_loading_tweets": "Error loading tweets"
+    "error_loading_tweets": "Error loading tweets",
+    "insights": "Insights",
+    "refresh_analysis": "Refresh Analysis",
+    "analyzing": "Analyzing your campaign data...",
+    "performance_score": "Performance Score",
+    "last_analyzed": "Last Analyzed",
+    "immediate_actions": "Immediate Actions"
   }
 }

@@ -38,12 +38,6 @@ export const campaignRoutes: Routes = [
         loadComponent: () => 
           import('./campaign-form/campaign-form.component').then(c => c.CampaignFormComponent),
         title: 'Edit Campaign - SentimentalSocial'
-      },
-      {
-        path: ':id/analytics',
-        loadComponent: () => 
-          import('./campaign-analytics/campaign-analytics.component').then(c => c.CampaignAnalyticsComponent),
-        title: 'Campaign Analytics - SentimentalSocial'
       }
     ]
   }

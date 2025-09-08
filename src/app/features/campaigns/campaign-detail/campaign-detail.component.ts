@@ -20,7 +20,9 @@ import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
+import { MatListModule } from '@angular/material/list';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTableModule } from '@angular/material/table';
 import { MatTabsModule } from '@angular/material/tabs';
@@ -48,7 +50,9 @@ import { TableAction } from '../../../shared/components/solid-data-table/service
 import { SolidDataTableRxjsComponent } from '../../../shared/components/solid-data-table/solid-data-table-rxjs.component';
 
 // Business logic services
+import { AIInsight } from './interfaces/campaign-detail-insight.interface';
 import { CampaignAnalyticsService } from './services/campaign-detail-analytic.service';
+import { CampaignAIService } from './services/campaign-detail-insight.service';
 import { CampaignUIService } from './services/campaign-detail-iu.service';
 
 // Register Chart.js components
@@ -64,6 +68,8 @@ interface ComponentState {
   readonly tweetsError: string | null;
   readonly campaignStats: CampaignStats | null;
   readonly tweetsWithCalculatedFields: readonly TweetWithCalculatedFields[];
+  readonly aiAnalyzing: boolean;
+  readonly aiError: string | null;
 }
 
 @Component({
@@ -79,7 +85,9 @@ interface ComponentState {
     MatChipsModule,
     MatBadgeModule,
     MatDividerModule,
+    MatListModule,
     MatProgressBarModule,
+    MatProgressSpinnerModule,
     MatTooltipModule,
     MatTabsModule,
     MatTableModule,
@@ -103,6 +111,7 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
   // Business logic services
   private readonly analyticsService = inject(CampaignAnalyticsService);
   private readonly uiService = inject(CampaignUIService);
+  private readonly aiService = inject(CampaignAIService);
 
   // Component state using signals
   private readonly state = signal<ComponentState>({
@@ -115,6 +124,8 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
     tweetsError: null,
     campaignStats: null,
     tweetsWithCalculatedFields: [],
+    aiAnalyzing: false,
+    aiError: null,
   });
 
   // Computed properties for template access
@@ -128,6 +139,16 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
   readonly campaignStats = computed(() => this.state().campaignStats);
   readonly tweetsWithCalculatedFields = computed(() => this.state().tweetsWithCalculatedFields);
   readonly mutableTweetsForTable = computed(() => [...this.state().tweetsWithCalculatedFields]);
+
+  // AI Insights computed properties
+  readonly intelligence = computed(() => this.aiService.intelligence());
+  readonly aiAnalyzing = computed(() => this.aiService.analyzing());
+  readonly aiError = computed(() => this.aiService.error());
+  readonly highPriorityInsightsCount = computed(() => {
+    const intelligence = this.intelligence();
+    if (!intelligence) return 0;
+    return intelligence.insights.filter((i: AIInsight) => i.priority === 'critical' || i.priority === 'high').length;
+  });
 
   // UI computed properties
   readonly isScrapingRunning = computed(() => this.scrapingProgress()?.status === 'running');
@@ -345,6 +366,12 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
       const { stats, tweetsWithCalculatedFields } =
         this.analyticsService.calculateAnalytics(tweets);
       this.updateState({ campaignStats: stats, tweetsWithCalculatedFields });
+      
+      // Generate AI insights when we have campaign data and stats
+      const campaign = this.campaign();
+      if (campaign && stats) {
+        this.aiService.generateIntelligence(campaign, stats);
+      }
     } else {
       this.updateState({ campaignStats: null, tweetsWithCalculatedFields: [] });
     }
@@ -365,6 +392,26 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
   private openTweetInNewTab(tweet: Tweet): void {
     const tweetUrl = this.uiService.generateTweetUrl(tweet.tweetId);
     window.open(tweetUrl, '_blank');
+  }
+
+  // AI Insights methods
+  async refreshAiAnalysis(): Promise<void> {
+    const campaign = this.campaign();
+    const stats = this.campaignStats();
+
+    if (campaign && stats) {
+      await this.aiService.refreshIntelligence(campaign, stats);
+    }
+  }
+
+  async applyRecommendation(insightId: string): Promise<void> {
+    await this.aiService.applyRecommendation(insightId);
+    this.snackBar.open('Recommendation applied successfully', 'Close', { duration: 2000 });
+  }
+
+  getInsightsByCategory(category: string): AIInsight[] {
+    const intelligence = this.intelligence();
+    return intelligence?.insights.filter(insight => insight.category === category) || [];
   }
 
   private updateState(updates: Partial<ComponentState>): void {

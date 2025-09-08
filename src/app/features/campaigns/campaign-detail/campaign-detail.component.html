@@ -5,523 +5,800 @@
 <div class="campaign-detail-container">
   <!-- Loading State -->
   @if (loading()) {
-    <div class="loading-container">
-      <mat-progress-bar mode="indeterminate"></mat-progress-bar>
-      <p class="loading-text">{{ 'campaign_detail.loading' | transloco: { default: 'Loading campaign details...' } }}</p>
-    </div>
+  <div class="loading-container">
+    <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+    <p class="loading-text">
+      {{ 'campaign_detail.loading' | transloco : { default: 'Loading campaign details...' } }}
+    </p>
+  </div>
   }
 
   <!-- Error State -->
   @if (error()) {
-    <div class="error-container">
-      <mat-card class="error-card">
-        <mat-card-content>
-          <mat-icon color="warn" aria-hidden="true">error</mat-icon>
-          <h2>{{ 'campaign_detail.error_title' | transloco: { default: 'Error Loading Campaign' } }}</h2>
-          <p>{{ error() }}</p>
-          <button 
-            mat-raised-button 
-            color="primary" 
-            [routerLink]="['/dashboard/campaigns']"
-            type="button"
-            aria-label="Back to campaigns list">
-            <mat-icon>arrow_back</mat-icon>
-            {{ 'campaign_detail.back_to_campaigns' | transloco: { default: 'Back to Campaigns' } }}
-          </button>
-        </mat-card-content>
-      </mat-card>
-    </div>
+  <div class="error-container">
+    <mat-card class="error-card">
+      <mat-card-content>
+        <mat-icon color="warn" aria-hidden="true">error</mat-icon>
+        <h2>
+          {{ 'campaign_detail.error_title' | transloco : { default: 'Error Loading Campaign' } }}
+        </h2>
+        <p>{{ error() }}</p>
+        <button
+          mat-raised-button
+          color="primary"
+          [routerLink]="['/dashboard/campaigns']"
+          type="button"
+          aria-label="Back to campaigns list"
+        >
+          <mat-icon>arrow_back</mat-icon>
+          {{ 'campaign_detail.back_to_campaigns' | transloco : { default: 'Back to Campaigns' } }}
+        </button>
+      </mat-card-content>
+    </mat-card>
+  </div>
   }
 
   <!-- Campaign Details -->
   @if (campaign() && !loading() && !error()) {
-    <div class="campaign-content">
-      <!-- Header -->
-      <header class="campaign-header" role="banner">
-        <div class="campaign-title">
-          <h1>
-            <mat-icon 
-              [ngClass]="'icon-' + campaign()?.status" 
-              aria-hidden="true">
-              {{ getTypeIcon(campaign()?.type || '') }}
-            </mat-icon>
-            {{ campaign()?.name }}
-          </h1>
-          <div class="campaign-badges" role="group" aria-label="Campaign status and type">
-            <span 
-              class="status-badge" 
-              [ngClass]="'status-' + campaign()?.status"
-              [attr.aria-label]="'Status: ' + getStatusLabel(campaign()?.status || '')">
-              {{ getStatusLabel(campaign()?.status || '') }}
-            </span>
-            <span 
-              class="type-badge"
-              [attr.aria-label]="'Type: ' + getTypeLabel(campaign()?.type || '')">
-              {{ getTypeLabel(campaign()?.type || '') }}
-            </span>
-          </div>
+  <div class="campaign-content">
+    <!-- Header -->
+    <header class="campaign-header" role="banner">
+      <div class="campaign-title">
+        <h1>
+          <mat-icon [ngClass]="'icon-' + campaign()?.status" aria-hidden="true">
+            {{ getTypeIcon(campaign()?.type || '') }}
+          </mat-icon>
+          {{ campaign()?.name }}
+        </h1>
+        <div class="campaign-badges" role="group" aria-label="Campaign status and type">
+          <span
+            class="status-badge"
+            [ngClass]="'status-' + campaign()?.status"
+            [attr.aria-label]="'Status: ' + getStatusLabel(campaign()?.status || '')"
+          >
+            {{ getStatusLabel(campaign()?.status || '') }}
+          </span>
+          <span
+            class="type-badge"
+            [attr.aria-label]="'Type: ' + getTypeLabel(campaign()?.type || '')"
+          >
+            {{ getTypeLabel(campaign()?.type || '') }}
+          </span>
         </div>
+      </div>
 
-        <div class="campaign-actions" role="group" aria-label="Campaign actions">
-          <button
-            mat-raised-button
-            color="primary"
-            [disabled]="isScrapingRunning()"
-            (click)="runScraping()"
-            class="run-scraping-button"
-            type="button"
-            [attr.aria-label]="isScrapingRunning() ? 'Scraping in progress' : 'Start scraping process'">
-            <mat-icon aria-hidden="true">cloud_download</mat-icon>
-            {{ 'campaign_detail.run_scraping' | transloco: { default: 'Run Scraping Now' } }}
-          </button>
-          <button 
-            mat-stroked-button 
-            [routerLink]="['/dashboard/campaigns']"
-            type="button"
-            aria-label="Navigate back to campaigns list">
-            <mat-icon aria-hidden="true">arrow_back</mat-icon>
-            {{ 'campaign_detail.back_to_campaigns' | transloco: { default: 'Back to Campaigns' } }}
-          </button>
-        </div>
-      </header>
+      <div class="campaign-actions" role="group" aria-label="Campaign actions">
+        <button
+          mat-raised-button
+          color="primary"
+          [disabled]="isScrapingRunning()"
+          (click)="runScraping()"
+          class="run-scraping-button"
+          type="button"
+          [attr.aria-label]="
+            isScrapingRunning() ? 'Scraping in progress' : 'Start scraping process'
+          "
+        >
+          <mat-icon aria-hidden="true">cloud_download</mat-icon>
+          {{ 'campaign_detail.run_scraping' | transloco : { default: 'Run Scraping Now' } }}
+        </button>
+        <button
+          mat-stroked-button
+          [routerLink]="['/dashboard/campaigns']"
+          type="button"
+          aria-label="Navigate back to campaigns list"
+        >
+          <mat-icon aria-hidden="true">arrow_back</mat-icon>
+          {{ 'campaign_detail.back_to_campaigns' | transloco : { default: 'Back to Campaigns' } }}
+        </button>
+      </div>
+    </header>
 
-      <!-- Campaign Analytics KPIs -->
-      @if (campaignStats() && hasTweetsData()) {
-        <section class="analytics-kpis" aria-labelledby="analytics-kpis-title">
-          <div class="kpis-grid">
-            <!-- Total Tweets -->
-            <mat-card class="kpi-card">
-              <mat-card-content>
-                <div class="kpi-content">
-                  <mat-icon class="kpi-icon" color="primary">article</mat-icon>
-                  <div class="kpi-data">
-                    <div class="kpi-value">{{ formatNumber(campaignStats()!.totalTweets) }}</div>
-                    <div class="kpi-label">{{ 'campaign_detail.total_tweets' | transloco: { default: 'Total Tweets' } }}</div>
-                  </div>
-                </div>
-              </mat-card-content>
-            </mat-card>
-
-            <!-- Positive Sentiment -->
-            <mat-card class="kpi-card positive">
-              <mat-card-content>
-                <div class="kpi-content">
-                  <mat-icon class="kpi-icon" color="primary">sentiment_very_satisfied</mat-icon>
-                  <div class="kpi-data">
-                    <div class="kpi-value">{{ campaignStats()!.sentimentPercents.positive }}%</div>
-                    <div class="kpi-label">{{ 'campaign_detail.positive_sentiment' | transloco: { default: 'Positive' } }}</div>
-                  </div>
-                </div>
-              </mat-card-content>
-            </mat-card>
-
-            <!-- Negative Sentiment -->
-            <mat-card class="kpi-card negative">
-              <mat-card-content>
-                <div class="kpi-content">
-                  <mat-icon class="kpi-icon" color="warn">sentiment_very_dissatisfied</mat-icon>
-                  <div class="kpi-data">
-                    <div class="kpi-value">{{ campaignStats()!.sentimentPercents.negative }}%</div>
-                    <div class="kpi-label">{{ 'campaign_detail.negative_sentiment' | transloco: { default: 'Negative' } }}</div>
-                  </div>
-                </div>
-              </mat-card-content>
-            </mat-card>
-
-            <!-- Total Engagement -->
-            <mat-card class="kpi-card">
-              <mat-card-content>
-                <div class="kpi-content">
-                  <mat-icon class="kpi-icon" color="accent">trending_up</mat-icon>
-                  <div class="kpi-data">
-                    <div class="kpi-value">{{ formatNumber(campaignStats()!.totalEngagement) }}</div>
-                    <div class="kpi-label">{{ 'campaign_detail.total_engagement' | transloco: { default: 'Total Engagement' } }}</div>
-                  </div>
-                </div>
-              </mat-card-content>
-            </mat-card>
-
-            <!-- Engagement Rate -->
-            <mat-card class="kpi-card">
-              <mat-card-content>
-                <div class="kpi-content">
-                  <mat-icon class="kpi-icon" color="accent">speed</mat-icon>
-                  <div class="kpi-data">
-                    <div class="kpi-value">
-                      {{ campaignStats()!.globalEngagementRate }}%
-                      <mat-icon 
-                        class="info-icon" 
-                        [matTooltip]="'Calculated as (Total Engagement / Total Views) × 100'"
-                        matTooltipPosition="above">
-                        info
-                      </mat-icon>
-                    </div>
-                    <div class="kpi-label">{{ 'campaign_detail.engagement_rate' | transloco: { default: 'Engagement Rate' } }}</div>
-                  </div>
-                </div>
-              </mat-card-content>
-            </mat-card>
-          </div>
-        </section>
-      }
-
-      <!-- Campaign Analytics Charts -->
-      @if (campaignStats() && hasTweetsData()) {
-        <section class="analytics-charts" aria-labelledby="analytics-charts-title">
-          <div class="charts-grid">
-            
-            <!-- Sentiment Distribution Chart -->
-            <mat-card class="chart-card">
-              <mat-card-header>
-                <mat-card-title>
-                  <mat-icon>pie_chart</mat-icon>
-                  {{ 'campaign_detail.sentiment_distribution' | transloco: { default: 'Sentiment Distribution' } }}
-                </mat-card-title>
-              </mat-card-header>
-              <mat-card-content>
-                <div class="chart-container">
-                  @if (sentimentChartConfig()) {
-                    <canvas 
-                      baseChart
-                      [type]="sentimentChartConfig()!.type"
-                      [data]="sentimentChartConfig()!.data"
-                      [options]="sentimentChartConfig()!.options">
-                    </canvas>
-                  }
-                </div>
-              </mat-card-content>
-            </mat-card>
-
-            <!-- Top Hashtags Chart -->
-            @if (campaignStats()!.topHashtags.length > 0) {
-              <mat-card class="chart-card">
-                <mat-card-header>
-                  <mat-card-title>
-                    <mat-icon>tag</mat-icon>
-                    {{ 'campaign_detail.top_hashtags' | transloco: { default: 'Top Hashtags' } }}
-                  </mat-card-title>
-                </mat-card-header>
-                <mat-card-content>
-                  <div class="chart-container">
-                    @if (hashtagsChartConfig()) {
-                      <canvas 
-                        baseChart
-                        [type]="hashtagsChartConfig()!.type"
-                        [data]="hashtagsChartConfig()!.data"
-                        [options]="hashtagsChartConfig()!.options">
-                      </canvas>
-                    }
-                  </div>
-                </mat-card-content>
-              </mat-card>
-            }
-
-            <!-- Tweets Timeline Chart -->
-            @if (shouldShowTimelineChart()) {
-              <mat-card class="chart-card timeline-chart">
-                <mat-card-header>
-                  <mat-card-title>
-                    <mat-icon>timeline</mat-icon>
-                    {{ 'campaign_detail.tweets_timeline' | transloco: { default: 'Tweets Timeline' } }}
-                  </mat-card-title>
-                </mat-card-header>
-                <mat-card-content>
-                  <div class="chart-container">
-                    @if (tweetsTimelineChartConfig()) {
-                      <canvas 
-                        baseChart
-                        [type]="tweetsTimelineChartConfig()!.type"
-                        [data]="tweetsTimelineChartConfig()!.data"
-                        [options]="tweetsTimelineChartConfig()!.options">
-                      </canvas>
-                    }
-                  </div>
-                </mat-card-content>
-              </mat-card>
-            }
-          </div>
-        </section>
-      }
-
-      <!-- Top Content Rankings -->
-      @if (campaignStats() && hasTweetsData()) {
-        <section class="top-content" aria-labelledby="top-content-title">
-          <div class="rankings-grid">
-            
-            <!-- Top Tweets by Engagement -->
-            <mat-card class="ranking-card">
-              <mat-card-header>
-                <mat-card-title>
-                  <mat-icon>star</mat-icon>
-                  {{ 'campaign_detail.top_tweets_engagement' | transloco: { default: 'Top Tweets by Engagement' } }}
-                </mat-card-title>
-              </mat-card-header>
-              <mat-card-content>
-                <div class="ranking-list">
-                  @for (tweet of campaignStats()!.topTweetsByEngagement; track tweet._id) {
-                    <div class="ranking-item">
-                      <div class="ranking-content">
-                        <p class="tweet-content">{{ tweet.content.length > 100 ? tweet.content.substring(0, 100) + '...' : tweet.content }}</p>
-                        <div class="tweet-meta">
-                          <span class="author">{{ '@' + tweet.author.username }}</span>
-                          <mat-chip [color]="getSentimentColor(tweet.sentiment.label || 'unknown')" selected>
-                            {{ tweet.sentiment.label || 'unknown' }}
-                          </mat-chip>
-                        </div>
-                      </div>
-                      <div class="ranking-metrics">
-                        <div class="metric">
-                          <span class="metric-value">{{ formatNumber(tweet.metrics.engagement) }}</span>
-                          <span class="metric-label">Engagement</span>
-                        </div>
-                        <div class="metric">
-                          <span class="metric-value">{{ formatNumber(tweet.metrics.views) }}</span>
-                          <span class="metric-label">Views</span>
-                        </div>
-                      </div>
-                    </div>
-                  }
-                </div>
-              </mat-card-content>
-            </mat-card>
-
-            <!-- Top Authors by Engagement -->
-            <mat-card class="ranking-card">
-              <mat-card-header>
-                <mat-card-title>
-                  <mat-icon>person_pin</mat-icon>
-                  {{ 'campaign_detail.top_authors' | transloco: { default: 'Top Authors by Engagement' } }}
-                </mat-card-title>
-              </mat-card-header>
-              <mat-card-content>
-                <div class="ranking-list">
-                  @for (authorData of campaignStats()!.topAuthorsByEngagement; track authorData.author.id) {
-                    <div class="ranking-item author-item">
-                      <div class="author-info">
-                        <div class="author-avatar">
-                          @if (authorData.author.avatar) {
-                            <img [src]="authorData.author.avatar" [alt]="authorData.author.displayName">
-                          } @else {
-                            <mat-icon>person</mat-icon>
-                          }
-                        </div>
-                        <div class="author-details">
-                          <p class="author-name">{{ authorData.author.displayName }}</p>
-                          <p class="author-username">{{ '@' + authorData.author.username }}</p>
-                        </div>
-                      </div>
-                      <div class="author-metrics">
-                        <div class="metric">
-                          <span class="metric-value">{{ formatNumber(authorData.totalEngagement) }}</span>
-                          <span class="metric-label">Total Engagement</span>
-                        </div>
-                        <div class="metric">
-                          <span class="metric-value">{{ authorData.tweets }}</span>
-                          <span class="metric-label">Tweets</span>
-                        </div>
-                      </div>
-                    </div>
-                  }
-                </div>
-              </mat-card-content>
-            </mat-card>
-          </div>
-        </section>
-      }
-
-      <!-- Campaign Details Card -->
-      <section class="details-card" aria-labelledby="campaign-details-title">
-        <mat-card>
+    <!-- Campaign Analytics KPIs -->
+    @if (campaignStats() && hasTweetsData()) {
+    <section class="analytics-kpis" aria-labelledby="analytics-kpis-title">
+      <div class="kpis-grid">
+        <!-- Total Tweets -->
+        <mat-card class="kpi-card">
           <mat-card-content>
-            <div class="campaign-info">
-              <div class="info-section">
-                <h3 id="campaign-details-title">{{ 'campaign_detail.campaign_details' | transloco: { default: 'Campaign Details' } }}</h3>
-                @if (campaign()?.description) {
-                  <p>{{ campaign()?.description }}</p>
-                }
-
-                <div class="info-grid" role="list">
-                  <div class="info-item" role="listitem">
-                    <mat-icon aria-hidden="true">schedule</mat-icon>
-                    <div>
-                      <strong>{{ 'campaign_detail.created' | transloco: { default: 'Created' } }}</strong>
-                      <span>{{ campaign()?.createdAt | date: 'medium' }}</span>
-                    </div>
-                  </div>
-
-                  <div class="info-item" role="listitem">
-                    <mat-icon aria-hidden="true">update</mat-icon>
-                    <div>
-                      <strong>{{ 'campaign_detail.last_updated' | transloco: { default: 'Last Updated' } }}</strong>
-                      <span>{{ campaign()?.updatedAt | date: 'medium' }}</span>
-                    </div>
-                  </div>
-
-                  <div class="info-item" role="listitem">
-                    <mat-icon aria-hidden="true">language</mat-icon>
-                    <div>
-                      <strong>{{ 'campaign_detail.target_language' | transloco: { default: 'Target Language' } }}</strong>
-                      <span>All Languages</span>
-                    </div>
-                  </div>
-
-                  <div class="info-item" role="listitem">
-                    <mat-icon [color]="getStatusIcon(campaign()?.status || '')" aria-hidden="true">
-                      {{ getStatusIcon(campaign()?.status || '') }}
-                    </mat-icon>
-                    <div>
-                      <strong>{{ 'campaign_detail.status' | transloco: { default: 'Status' } }}</strong>
-                      <span>{{ getStatusLabel(campaign()?.status || '') }}</span>
-                    </div>
-                  </div>
+            <div class="kpi-content">
+              <mat-icon class="kpi-icon" color="primary">article</mat-icon>
+              <div class="kpi-data">
+                <div class="kpi-value">{{ formatNumber(campaignStats()!.totalTweets) }}</div>
+                <div class="kpi-label">
+                  {{ 'campaign_detail.total_tweets' | transloco : { default: 'Total Tweets' } }}
                 </div>
-              </div>
-
-              <mat-divider role="separator"></mat-divider>
-
-              <div class="tracking-section">
-                <h3>{{ 'campaign_detail.tracking_parameters' | transloco: { default: 'Tracking Parameters' } }}</h3>
-
-                <!-- Hashtags -->
-                @if (campaign()?.hashtags?.length) {
-                  <div class="tracking-group">
-                    <h4>
-                      <mat-icon aria-hidden="true">tag</mat-icon> 
-                      {{ 'campaign_detail.hashtags' | transloco: { default: 'Hashtags' } }}
-                    </h4>
-                    <div class="chips-container" role="list" [attr.aria-label]="'Hashtags: ' + campaign()?.hashtags?.length + ' items'">
-                      @for (hashtag of campaign()?.hashtags; track hashtag) {
-                        <span class="hashtag-chip" role="listitem">{{ '#' + hashtag }}</span>
-                      }
-                    </div>
-                  </div>
-                }
-
-                <!-- Keywords -->
-                @if (campaign()?.keywords?.length) {
-                  <div class="tracking-group">
-                    <h4>
-                      <mat-icon aria-hidden="true">search</mat-icon> 
-                      {{ 'campaign_detail.keywords' | transloco: { default: 'Keywords' } }}
-                    </h4>
-                    <div class="chips-container" role="list" [attr.aria-label]="'Keywords: ' + campaign()?.keywords?.length + ' items'">
-                      @for (keyword of campaign()?.keywords; track keyword) {
-                        <span class="keyword-chip" role="listitem">{{ keyword }}</span>
-                      }
-                    </div>
-                  </div>
-                }
-
-                <!-- Mentions -->
-                @if (campaign()?.mentions?.length) {
-                  <div class="tracking-group">
-                    <h4>
-                      <mat-icon aria-hidden="true">alternate_email</mat-icon> 
-                      {{ 'campaign_detail.mentions' | transloco: { default: 'Mentions' } }}
-                    </h4>
-                    <div class="chips-container" role="list" [attr.aria-label]="'Mentions: ' + campaign()?.mentions?.length + ' items'">
-                      @for (mention of campaign()?.mentions; track mention) {
-                        <span class="mention-chip" role="listitem">{{ '@' + mention }}</span>
-                      }
-                    </div>
-                  </div>
-                }
               </div>
             </div>
           </mat-card-content>
         </mat-card>
-      </section>
 
-      <!-- Tweets Section -->
-      <section class="tweets-section-card" aria-labelledby="tweets-section-title">
-        <mat-card>
+        <!-- Positive Sentiment -->
+        <mat-card class="kpi-card positive">
+          <mat-card-content>
+            <div class="kpi-content">
+              <mat-icon class="kpi-icon" color="primary">sentiment_very_satisfied</mat-icon>
+              <div class="kpi-data">
+                <div class="kpi-value">{{ campaignStats()!.sentimentPercents.positive }}%</div>
+                <div class="kpi-label">
+                  {{ 'campaign_detail.positive_sentiment' | transloco : { default: 'Positive' } }}
+                </div>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Negative Sentiment -->
+        <mat-card class="kpi-card negative">
+          <mat-card-content>
+            <div class="kpi-content">
+              <mat-icon class="kpi-icon" color="warn">sentiment_very_dissatisfied</mat-icon>
+              <div class="kpi-data">
+                <div class="kpi-value">{{ campaignStats()!.sentimentPercents.negative }}%</div>
+                <div class="kpi-label">
+                  {{ 'campaign_detail.negative_sentiment' | transloco : { default: 'Negative' } }}
+                </div>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Total Engagement -->
+        <mat-card class="kpi-card">
+          <mat-card-content>
+            <div class="kpi-content">
+              <mat-icon class="kpi-icon" color="accent">trending_up</mat-icon>
+              <div class="kpi-data">
+                <div class="kpi-value">{{ formatNumber(campaignStats()!.totalEngagement) }}</div>
+                <div class="kpi-label">
+                  {{
+                    'campaign_detail.total_engagement' | transloco : { default: 'Total Engagement' }
+                  }}
+                </div>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Engagement Rate -->
+        <mat-card class="kpi-card">
+          <mat-card-content>
+            <div class="kpi-content">
+              <mat-icon class="kpi-icon" color="accent">speed</mat-icon>
+              <div class="kpi-data">
+                <div class="kpi-value">
+                  {{ campaignStats()!.globalEngagementRate }}%
+                  <mat-icon
+                    class="info-icon"
+                    [matTooltip]="'Calculated as (Total Engagement / Total Views) × 100'"
+                    matTooltipPosition="above"
+                  >
+                    info
+                  </mat-icon>
+                </div>
+                <div class="kpi-label">
+                  {{
+                    'campaign_detail.engagement_rate' | transloco : { default: 'Engagement Rate' }
+                  }}
+                </div>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </section>
+    }
+
+    <!-- Campaign Analytics Charts -->
+    @if (campaignStats() && hasTweetsData()) {
+    <section class="analytics-charts" aria-labelledby="analytics-charts-title">
+      <div class="charts-grid">
+        <!-- Sentiment Distribution Chart -->
+        <mat-card class="chart-card">
           <mat-card-header>
-            <mat-card-title id="tweets-section-title">
-              <mat-icon aria-hidden="true">article</mat-icon>
-              {{ 'campaign_detail.campaign_tweets' | transloco: { default: 'Campaign Tweets' } }}
+            <mat-card-title>
+              <mat-icon>pie_chart</mat-icon>
+              {{
+                'campaign_detail.sentiment_distribution'
+                  | transloco : { default: 'Sentiment Distribution' }
+              }}
             </mat-card-title>
-            <mat-card-subtitle>
-              {{ 'campaign_detail.tweets_analysis_description' | transloco: { default: 'Analysis of tweets collected for this campaign' } }}
-            </mat-card-subtitle>
-            <div class="section-actions">
-              <button 
-                mat-icon-button 
-                [matTooltip]="'campaign_detail.refresh_tweets' | transloco: { default: 'Refresh Tweets' }" 
-                (click)="refreshTweets()"
-                [disabled]="tweetsLoading()"
-                type="button"
-                [attr.aria-label]="'campaign_detail.refresh_tweets' | transloco: { default: 'Refresh Tweets' }">
-                <mat-icon aria-hidden="true">refresh</mat-icon>
-              </button>
-            </div>
           </mat-card-header>
-
           <mat-card-content>
-            <!-- Tweets Loading State -->
-            @if (tweetsLoading()) {
-              <div class="tweets-loading" role="status" aria-live="polite">
-                <mat-progress-bar mode="indeterminate" [attr.aria-label]="'campaign_detail.loading_tweets' | transloco: { default: 'Loading tweets' }"></mat-progress-bar>
-                <mat-icon aria-hidden="true">hourglass_empty</mat-icon>
-                <p>{{ 'campaign_detail.loading_tweets' | transloco: { default: 'Loading tweets...' } }}</p>
-              </div>
-            }
-
-            <!-- Tweets Error State -->
-            @if (tweetsError()) {
-              <div class="tweets-error" role="alert">
-                <mat-icon color="warn" aria-hidden="true">error</mat-icon>
-                <p>{{ 'campaign_detail.error_loading_tweets' | transloco: { default: 'Error loading tweets' } }}: {{ tweetsError() }}</p>
-                <button 
-                  mat-raised-button 
-                  color="primary" 
-                  (click)="refreshTweets()"
-                  type="button">
-                  <mat-icon aria-hidden="true">refresh</mat-icon>
-                  {{ 'campaign_detail.try_again' | transloco: { default: 'Try Again' } }}
-                </button>
-              </div>
-            }
-
-            <!-- Tweets Table -->
-            @if (!tweetsLoading() && !tweetsError()) {
-              @if (tweetsWithCalculatedFields().length > 0) {
-                <div class="tweets-table-container">
-                  <app-solid-data-table-rxjs
-                    [data]="mutableTweetsForTable()"
-                    [columns]="tweetTableColumns"
-                    [config]="tweetTableConfig"
-                    [actions]="tweetTableActions"
-                    [loading]="tweetsLoading()"
-                    [error]="tweetsError()"
-                    (rowClick)="onTweetRowClick($event)"
-                    (actionClick)="onTweetAction($event)"
-                    (pageChange)="onTweetPageChange($event)"
-                    [attr.aria-label]="'Tweets table with ' + tweetsWithCalculatedFields().length + ' items'">
-                  </app-solid-data-table-rxjs>
-                </div>
-              } @else {
-                <div class="no-tweets" role="status">
-                  <mat-icon class="no-data-icon" aria-hidden="true">sentiment_neutral</mat-icon>
-                  <h3>{{ 'campaign_detail.no_tweets_found' | transloco: { default: 'No Tweets Found' } }}</h3>
-                  <p>{{ 'campaign_detail.no_tweets_description' | transloco: { default: "This campaign doesn't have any tweets yet." } }}</p>
-                  <p>
-                    <button 
-                      mat-raised-button 
-                      color="primary" 
-                      (click)="runScraping()" 
-                      [disabled]="isScrapingRunning()"
-                      type="button"
-                      [attr.aria-label]="isScrapingRunning() ? 'Scraping in progress' : 'Start scraping to collect tweets'">
-                      <mat-icon aria-hidden="true">play_arrow</mat-icon>
-                      {{ 'campaign_detail.start_scraping' | transloco: { default: 'Start Scraping' } }}
-                    </button>
-                  </p>
-                </div>
+            <div class="chart-container">
+              @if (sentimentChartConfig()) {
+              <canvas
+                baseChart
+                [type]="sentimentChartConfig()!.type"
+                [data]="sentimentChartConfig()!.data"
+                [options]="sentimentChartConfig()!.options"
+              >
+              </canvas>
               }
-            }
+            </div>
           </mat-card-content>
         </mat-card>
-      </section>
-    </div>
+
+        <!-- Top Hashtags Chart -->
+        @if (campaignStats()!.topHashtags.length > 0) {
+        <mat-card class="chart-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>tag</mat-icon>
+              {{ 'campaign_detail.top_hashtags' | transloco : { default: 'Top Hashtags' } }}
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="chart-container">
+              @if (hashtagsChartConfig()) {
+              <canvas
+                baseChart
+                [type]="hashtagsChartConfig()!.type"
+                [data]="hashtagsChartConfig()!.data"
+                [options]="hashtagsChartConfig()!.options"
+              >
+              </canvas>
+              }
+            </div>
+          </mat-card-content>
+        </mat-card>
+        }
+
+        <!-- Tweets Timeline Chart -->
+        @if (shouldShowTimelineChart()) {
+        <mat-card class="chart-card timeline-chart">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>timeline</mat-icon>
+              {{ 'campaign_detail.tweets_timeline' | transloco : { default: 'Tweets Timeline' } }}
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="chart-container">
+              @if (tweetsTimelineChartConfig()) {
+              <canvas
+                baseChart
+                [type]="tweetsTimelineChartConfig()!.type"
+                [data]="tweetsTimelineChartConfig()!.data"
+                [options]="tweetsTimelineChartConfig()!.options"
+              >
+              </canvas>
+              }
+            </div>
+          </mat-card-content>
+        </mat-card>
+        }
+      </div>
+    </section>
+    }
+
+    <!-- AI Insights Section -->
+    @if (campaignStats() && hasTweetsData()) {
+    <section class="ai-insights-section" aria-labelledby="ai-insights-title">
+      <!-- AI Analysis Status -->
+      <div class="insights-header">
+        <h2 id="ai-insights-title">
+          <mat-icon>psychology</mat-icon>
+          {{ 'campaign_detail.insights' | transloco : { default: 'AI Insights' } }}
+          @if (highPriorityInsightsCount() > 0) {
+          <span class="badge-indicator">{{ highPriorityInsightsCount() }}</span>
+          }
+        </h2>
+        <button mat-button (click)="refreshAiAnalysis()" [disabled]="aiAnalyzing()">
+          <mat-icon>refresh</mat-icon>
+          {{ 'campaign_detail.refresh_analysis' | transloco : { default: 'Refresh Analysis' } }}
+        </button>
+      </div>
+
+      @if (aiAnalyzing()) {
+      <div class="ai-loading">
+        <mat-progress-spinner diameter="40"></mat-progress-spinner>
+        <p>
+          {{
+            'campaign_detail.analyzing' | transloco : { default: 'Analyzing your campaign data...' }
+          }}
+        </p>
+      </div>
+      } @else if (intelligence()) {
+      <div class="insights-container">
+        <!-- Performance Score -->
+        <mat-card class="score-card">
+          <mat-card-content>
+            <div class="score-display">
+              <div
+                class="score-circle"
+                [ngClass]="
+                  'score-' +
+                  (intelligence()!.score >= 80
+                    ? 'excellent'
+                    : intelligence()!.score >= 60
+                    ? 'good'
+                    : intelligence()!.score >= 40
+                    ? 'average'
+                    : 'poor')
+                "
+              >
+                <span class="score-value">{{ intelligence()!.score }}</span>
+                <span class="score-label">/100</span>
+              </div>
+              <div class="score-summary">
+                <h3>
+                  {{
+                    'campaign_detail.performance_score'
+                      | transloco : { default: 'Performance Score' }
+                  }}
+                </h3>
+                <p>{{ intelligence()!.summary }}</p>
+                <small
+                  >{{ 'campaign_detail.last_analyzed' | transloco : { default: 'Last analyzed' } }}:
+                  {{ intelligence()!.lastAnalyzed | date : 'medium' }}</small
+                >
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Critical Insights -->
+        @if (intelligence()!.recommendations.immediate.length > 0) {
+        <mat-card class="insights-card critical">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon color="warn">priority_high</mat-icon>
+              {{
+                'campaign_detail.immediate_actions'
+                  | transloco : { default: 'Immediate Actions Required' }
+              }}
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <mat-list>
+              @for (insight of intelligence()!.recommendations.immediate; track insight.id) {
+              <mat-list-item>
+                <mat-icon
+                  matListItemIcon
+                  [color]="insight.priority === 'critical' ? 'warn' : 'primary'"
+                >
+                  {{ insight.type === 'alert' ? 'warning' : 'lightbulb' }}
+                </mat-icon>
+                <div matListItemTitle>{{ insight.title }}</div>
+                <div matListItemLine>{{ insight.description }}</div>
+                <div matListItemMeta>
+                  @if (insight.actionable && insight.action) {
+                  <button
+                    mat-mini-fab
+                    color="primary"
+                    [matTooltip]="insight.action.label"
+                    (click)="applyRecommendation(insight.id)"
+                  >
+                    <mat-icon>{{
+                      insight.action.type === 'optimize' ? 'tune' : 'play_arrow'
+                    }}</mat-icon>
+                  </button>
+                  }
+                </div>
+              </mat-list-item>
+              <mat-divider></mat-divider>
+              }
+            </mat-list>
+          </mat-card-content>
+        </mat-card>
+        }
+
+        <!-- Insights by Category -->
+        <div class="insights-grid">
+          @for (category of ['engagement', 'sentiment', 'content', 'reach']; track category) { @if
+          (getInsightsByCategory(category).length > 0) {
+          <mat-card class="category-insights">
+            <mat-card-header>
+              <mat-card-title>
+                <mat-icon>
+                  {{
+                    category === 'engagement'
+                      ? 'trending_up'
+                      : category === 'sentiment'
+                      ? 'sentiment_satisfied'
+                      : category === 'content'
+                      ? 'article'
+                      : 'visibility'
+                  }}
+                </mat-icon>
+                {{ category | titlecase }}
+                {{ 'campaign_detail.insights' | transloco : { default: 'Insights' } }}
+              </mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <mat-list dense>
+                @for (insight of getInsightsByCategory(category); track insight.id) {
+                <mat-list-item>
+                  <mat-icon
+                    matListItemIcon
+                    [color]="
+                      insight.impact === 'positive'
+                        ? 'primary'
+                        : insight.impact === 'negative'
+                        ? 'warn'
+                        : 'accent'
+                    "
+                  >
+                    {{
+                      insight.type === 'prediction'
+                        ? 'trending_up'
+                        : insight.type === 'alert'
+                        ? 'warning'
+                        : 'lightbulb'
+                    }}
+                  </mat-icon>
+                  <div matListItemTitle>{{ insight.title }}</div>
+                  <div matListItemLine>{{ insight.description }}</div>
+                  <div matListItemMeta>
+                    <mat-chip
+                      [color]="insight.priority === 'critical' ? 'warn' : 'primary'"
+                      selected
+                    >
+                      {{ insight.priority | titlecase }}
+                    </mat-chip>
+                  </div>
+                </mat-list-item>
+                }
+              </mat-list>
+            </mat-card-content>
+          </mat-card>
+          } }
+        </div>
+      </div>
+      }
+    </section>
+    }
+
+    <!-- Top Content Rankings -->
+    @if (campaignStats() && hasTweetsData()) {
+    <section class="top-content" aria-labelledby="top-content-title">
+      <div class="rankings-grid">
+        <!-- Top Tweets by Engagement -->
+        <mat-card class="ranking-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>star</mat-icon>
+              {{
+                'campaign_detail.top_tweets_engagement'
+                  | transloco : { default: 'Top Tweets by Engagement' }
+              }}
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="ranking-list">
+              @for (tweet of campaignStats()!.topTweetsByEngagement; track tweet._id) {
+              <div class="ranking-item">
+                <div class="ranking-content">
+                  <p class="tweet-content">
+                    {{
+                      tweet.content.length > 100
+                        ? tweet.content.substring(0, 100) + '...'
+                        : tweet.content
+                    }}
+                  </p>
+                  <div class="tweet-meta">
+                    <span class="author">{{ '@' + tweet.author.username }}</span>
+                    <mat-chip
+                      [color]="getSentimentColor(tweet.sentiment.label || 'unknown')"
+                      selected
+                    >
+                      {{ tweet.sentiment.label || 'unknown' }}
+                    </mat-chip>
+                  </div>
+                </div>
+                <div class="ranking-metrics">
+                  <div class="metric">
+                    <span class="metric-value">{{ formatNumber(tweet.metrics.engagement) }}</span>
+                    <span class="metric-label">Engagement</span>
+                  </div>
+                  <div class="metric">
+                    <span class="metric-value">{{ formatNumber(tweet.metrics.views) }}</span>
+                    <span class="metric-label">Views</span>
+                  </div>
+                </div>
+              </div>
+              }
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        <!-- Top Authors by Engagement -->
+        <mat-card class="ranking-card">
+          <mat-card-header>
+            <mat-card-title>
+              <mat-icon>person_pin</mat-icon>
+              {{
+                'campaign_detail.top_authors' | transloco : { default: 'Top Authors by Engagement' }
+              }}
+            </mat-card-title>
+          </mat-card-header>
+          <mat-card-content>
+            <div class="ranking-list">
+              @for (authorData of campaignStats()!.topAuthorsByEngagement; track
+              authorData.author.id) {
+              <div class="ranking-item author-item">
+                <div class="author-info">
+                  <div class="author-avatar">
+                    @if (authorData.author.avatar) {
+                    <img [src]="authorData.author.avatar" [alt]="authorData.author.displayName" />
+                    } @else {
+                    <mat-icon>person</mat-icon>
+                    }
+                  </div>
+                  <div class="author-details">
+                    <p class="author-name">{{ authorData.author.displayName }}</p>
+                    <p class="author-username">{{ '@' + authorData.author.username }}</p>
+                  </div>
+                </div>
+                <div class="author-metrics">
+                  <div class="metric">
+                    <span class="metric-value">{{ formatNumber(authorData.totalEngagement) }}</span>
+                    <span class="metric-label">Total Engagement</span>
+                  </div>
+                  <div class="metric">
+                    <span class="metric-value">{{ authorData.tweets }}</span>
+                    <span class="metric-label">Tweets</span>
+                  </div>
+                </div>
+              </div>
+              }
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+    </section>
+    }
+
+    <!-- Campaign Details Card -->
+    <section class="details-card" aria-labelledby="campaign-details-title">
+      <mat-card>
+        <mat-card-content>
+          <div class="campaign-info">
+            <div class="info-section">
+              <h3 id="campaign-details-title">
+                {{
+                  'campaign_detail.campaign_details' | transloco : { default: 'Campaign Details' }
+                }}
+              </h3>
+              @if (campaign()?.description) {
+              <p>{{ campaign()?.description }}</p>
+              }
+
+              <div class="info-grid" role="list">
+                <div class="info-item" role="listitem">
+                  <mat-icon aria-hidden="true">schedule</mat-icon>
+                  <div>
+                    <strong>{{
+                      'campaign_detail.created' | transloco : { default: 'Created' }
+                    }}</strong>
+                    <span>{{ campaign()?.createdAt | date : 'medium' }}</span>
+                  </div>
+                </div>
+
+                <div class="info-item" role="listitem">
+                  <mat-icon aria-hidden="true">update</mat-icon>
+                  <div>
+                    <strong>{{
+                      'campaign_detail.last_updated' | transloco : { default: 'Last Updated' }
+                    }}</strong>
+                    <span>{{ campaign()?.updatedAt | date : 'medium' }}</span>
+                  </div>
+                </div>
+
+                <div class="info-item" role="listitem">
+                  <mat-icon aria-hidden="true">language</mat-icon>
+                  <div>
+                    <strong>{{
+                      'campaign_detail.target_language' | transloco : { default: 'Target Language' }
+                    }}</strong>
+                    <span>All Languages</span>
+                  </div>
+                </div>
+
+                <div class="info-item" role="listitem">
+                  <mat-icon [color]="getStatusIcon(campaign()?.status || '')" aria-hidden="true">
+                    {{ getStatusIcon(campaign()?.status || '') }}
+                  </mat-icon>
+                  <div>
+                    <strong>{{
+                      'campaign_detail.status' | transloco : { default: 'Status' }
+                    }}</strong>
+                    <span>{{ getStatusLabel(campaign()?.status || '') }}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <mat-divider role="separator"></mat-divider>
+
+            <div class="tracking-section">
+              <h3>
+                {{
+                  'campaign_detail.tracking_parameters'
+                    | transloco : { default: 'Tracking Parameters' }
+                }}
+              </h3>
+
+              <!-- Hashtags -->
+              @if (campaign()?.hashtags?.length) {
+              <div class="tracking-group">
+                <h4>
+                  <mat-icon aria-hidden="true">tag</mat-icon>
+                  {{ 'campaign_detail.hashtags' | transloco : { default: 'Hashtags' } }}
+                </h4>
+                <div
+                  class="chips-container"
+                  role="list"
+                  [attr.aria-label]="'Hashtags: ' + campaign()?.hashtags?.length + ' items'"
+                >
+                  @for (hashtag of campaign()?.hashtags; track hashtag) {
+                  <span class="hashtag-chip" role="listitem">{{ '#' + hashtag }}</span>
+                  }
+                </div>
+              </div>
+              }
+
+              <!-- Keywords -->
+              @if (campaign()?.keywords?.length) {
+              <div class="tracking-group">
+                <h4>
+                  <mat-icon aria-hidden="true">search</mat-icon>
+                  {{ 'campaign_detail.keywords' | transloco : { default: 'Keywords' } }}
+                </h4>
+                <div
+                  class="chips-container"
+                  role="list"
+                  [attr.aria-label]="'Keywords: ' + campaign()?.keywords?.length + ' items'"
+                >
+                  @for (keyword of campaign()?.keywords; track keyword) {
+                  <span class="keyword-chip" role="listitem">{{ keyword }}</span>
+                  }
+                </div>
+              </div>
+              }
+
+              <!-- Mentions -->
+              @if (campaign()?.mentions?.length) {
+              <div class="tracking-group">
+                <h4>
+                  <mat-icon aria-hidden="true">alternate_email</mat-icon>
+                  {{ 'campaign_detail.mentions' | transloco : { default: 'Mentions' } }}
+                </h4>
+                <div
+                  class="chips-container"
+                  role="list"
+                  [attr.aria-label]="'Mentions: ' + campaign()?.mentions?.length + ' items'"
+                >
+                  @for (mention of campaign()?.mentions; track mention) {
+                  <span class="mention-chip" role="listitem">{{ '@' + mention }}</span>
+                  }
+                </div>
+              </div>
+              }
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </section>
+
+    <!-- Tweets Section -->
+    <section class="tweets-section-card" aria-labelledby="tweets-section-title">
+      <mat-card>
+        <mat-card-header>
+          <mat-card-title id="tweets-section-title">
+            <mat-icon aria-hidden="true">article</mat-icon>
+            {{ 'campaign_detail.campaign_tweets' | transloco : { default: 'Campaign Tweets' } }}
+          </mat-card-title>
+          <mat-card-subtitle>
+            {{
+              'campaign_detail.tweets_analysis_description'
+                | transloco : { default: 'Analysis of tweets collected for this campaign' }
+            }}
+          </mat-card-subtitle>
+          <div class="section-actions">
+            <button
+              mat-icon-button
+              [matTooltip]="
+                'campaign_detail.refresh_tweets' | transloco : { default: 'Refresh Tweets' }
+              "
+              (click)="refreshTweets()"
+              [disabled]="tweetsLoading()"
+              type="button"
+              [attr.aria-label]="
+                'campaign_detail.refresh_tweets' | transloco : { default: 'Refresh Tweets' }
+              "
+            >
+              <mat-icon aria-hidden="true">refresh</mat-icon>
+            </button>
+          </div>
+        </mat-card-header>
+
+        <mat-card-content>
+          <!-- Tweets Loading State -->
+          @if (tweetsLoading()) {
+          <div class="tweets-loading" role="status" aria-live="polite">
+            <mat-progress-bar
+              mode="indeterminate"
+              [attr.aria-label]="
+                'campaign_detail.loading_tweets' | transloco : { default: 'Loading tweets' }
+              "
+            ></mat-progress-bar>
+            <mat-icon aria-hidden="true">hourglass_empty</mat-icon>
+            <p>
+              {{ 'campaign_detail.loading_tweets' | transloco : { default: 'Loading tweets...' } }}
+            </p>
+          </div>
+          }
+
+          <!-- Tweets Error State -->
+          @if (tweetsError()) {
+          <div class="tweets-error" role="alert">
+            <mat-icon color="warn" aria-hidden="true">error</mat-icon>
+            <p>
+              {{
+                'campaign_detail.error_loading_tweets'
+                  | transloco : { default: 'Error loading tweets' }
+              }}: {{ tweetsError() }}
+            </p>
+            <button mat-raised-button color="primary" (click)="refreshTweets()" type="button">
+              <mat-icon aria-hidden="true">refresh</mat-icon>
+              {{ 'campaign_detail.try_again' | transloco : { default: 'Try Again' } }}
+            </button>
+          </div>
+          }
+
+          <!-- Tweets Table -->
+          @if (!tweetsLoading() && !tweetsError()) { @if (tweetsWithCalculatedFields().length > 0) {
+          <div class="tweets-table-container">
+            <app-solid-data-table-rxjs
+              [data]="mutableTweetsForTable()"
+              [columns]="tweetTableColumns"
+              [config]="tweetTableConfig"
+              [actions]="tweetTableActions"
+              [loading]="tweetsLoading()"
+              [error]="tweetsError()"
+              (rowClick)="onTweetRowClick($event)"
+              (actionClick)="onTweetAction($event)"
+              (pageChange)="onTweetPageChange($event)"
+              [attr.aria-label]="
+                'Tweets table with ' + tweetsWithCalculatedFields().length + ' items'
+              "
+            >
+            </app-solid-data-table-rxjs>
+          </div>
+          } @else {
+          <div class="no-tweets" role="status">
+            <mat-icon class="no-data-icon" aria-hidden="true">sentiment_neutral</mat-icon>
+            <h3>
+              {{ 'campaign_detail.no_tweets_found' | transloco : { default: 'No Tweets Found' } }}
+            </h3>
+            <p>
+              {{
+                'campaign_detail.no_tweets_description'
+                  | transloco : { default: "This campaign doesn't have any tweets yet." }
+              }}
+            </p>
+            <p>
+              <button
+                mat-raised-button
+                color="primary"
+                (click)="runScraping()"
+                [disabled]="isScrapingRunning()"
+                type="button"
+                [attr.aria-label]="
+                  isScrapingRunning() ? 'Scraping in progress' : 'Start scraping to collect tweets'
+                "
+              >
+                <mat-icon aria-hidden="true">play_arrow</mat-icon>
+                {{ 'campaign_detail.start_scraping' | transloco : { default: 'Start Scraping' } }}
+              </button>
+            </p>
+          </div>
+          } }
+        </mat-card-content>
+      </mat-card>
+    </section>
+  </div>
   }
 </div>

@@ -587,6 +587,12 @@
     "top_authors": "Top auteurs",
     "last_updated": "Dernière mise à jour",
     "target_language": "Langue cible",
-    "error_loading_tweets": "Erreur lors du chargement des tweets"
+    "error_loading_tweets": "Erreur lors du chargement des tweets",
+    "insights": "Aperçus",
+    "refresh_analysis": "Actualiser l’analyse",
+    "analyzing": "Analyse des données de votre campagne...",
+    "performance_score": "Score de performance",
+    "last_analyzed": "Dernière analyse",
+    "immediate_actions": "Actions immédiates"
   }
 }
