@@ -32,7 +32,7 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import { TranslocoModule } from '@ngneat/transloco';
 import { Chart, registerables } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
-import { Subject, catchError, combineLatest, of, takeUntil, tap } from 'rxjs';
+import { Subject, catchError, combineLatest, of, take, takeUntil, tap } from 'rxjs';
 
 // Core interfaces and services
 import {
@@ -288,32 +288,47 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
 
     const autoStartScraping = this.shouldAutoStartScraping();
 
-    // Load initial data
+    // Cargar todas las campañas para asegurar que tenemos los datos
     this.campaignFacade.loadCampaigns();
+    
+    // Cargar tweets para esta campaña
     this.tweetFacade.loadTweets(campaignId, { page: 1, limit: 20 });
-
-    // Setup data subscriptions
+    
+    // Setup subscriptions
     this.setupDataSubscriptions(campaignId, autoStartScraping);
     this.setupScrapingProgressSubscription();
   }
 
   private setupDataSubscriptions(campaignId: string, autoStartScraping: boolean): void {
+    // Primero asegurar que las campañas estén cargadas
     combineLatest([
-      this.campaignFacade.selectCampaign(campaignId),
+      this.campaignFacade.campaigns$,
+      this.campaignFacade.loading$,
       this.tweetFacade.getTweetsByCampaign(campaignId),
       this.tweetFacade.loading$,
       this.tweetFacade.error$,
     ])
       .pipe(
         takeUntil(this.destroy$),
-        tap(([campaign, tweets, tweetsLoading, tweetsError]) => {
+        tap(([campaigns, campaignsLoading, tweets, tweetsLoading, tweetsError]) => {
+          console.log('Data update:', { 
+            campaignsCount: campaigns.length, 
+            campaignsLoading, 
+            campaignId,
+            tweetsCount: tweets.length 
+          });
+          
+          // Buscar la campaña específica en la lista cargada
+          const campaign = campaigns.find(c => c.id === campaignId) || null;
+          
           this.handleDataUpdate(
             campaign,
             tweets,
             tweetsLoading,
             tweetsError,
             campaignId,
-            autoStartScraping
+            autoStartScraping,
+            campaignsLoading
           );
         }),
         catchError((err) => {
@@ -334,10 +349,20 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
     tweetsLoading: boolean,
     tweetsError: string | null,
     campaignId: string,
-    autoStartScraping: boolean
+    autoStartScraping: boolean,
+    campaignsLoading: boolean = false
   ): void {
-    // Handle campaign data
-    if (!campaign) {
+    // Si las campañas están cargando y no tenemos la campaña, mantener estado de carga
+    if (campaignsLoading && !campaign) {
+      this.updateState({
+        loading: true,
+        error: null
+      });
+      return;
+    }
+
+    // Si las campañas ya se cargaron y no encontramos la campaña, mostrar error
+    if (!campaignsLoading && !campaign) {
       this.updateState({
         error: `Campaign with ID "${campaignId}" not found`,
         loading: false,
@@ -345,22 +370,24 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
       return;
     }
 
-    // Update campaign state
-    this.updateState({
-      campaign,
-      loading: false,
-      tweets,
-      tweetsLoading,
-      tweetsError,
-    });
+    // Si tenemos la campaña, actualizar el estado
+    if (campaign) {
+      this.updateState({
+        campaign,
+        loading: false,
+        tweets,
+        tweetsLoading,
+        tweetsError,
+      });
 
-    // Auto-start scraping if needed
-    if (autoStartScraping || this.uiService.isRecentlyCreated(campaign)) {
-      setTimeout(() => this.runScraping(), 1000);
+      // Auto-start scraping if needed
+      if (autoStartScraping || this.uiService.isRecentlyCreated(campaign)) {
+        setTimeout(() => this.runScraping(), 1000);
+      }
+
+      // Update analytics
+      this.updateAnalytics(tweets);
     }
-
-    // Update analytics
-    this.updateAnalytics(tweets);
   }
 
   private updateAnalytics(tweets: Tweet[]): void {

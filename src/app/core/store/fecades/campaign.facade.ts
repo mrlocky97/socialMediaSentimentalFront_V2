@@ -5,12 +5,12 @@
 import { Injectable } from '@angular/core';
 import { Actions, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
-import { Observable, map, take, tap, of } from 'rxjs';
+import { Observable, take, tap } from 'rxjs';
 import { CampaignRequest } from '../../../features/campaign-dialog/interfaces/campaign-dialog.interface';
 import {
-  CampaignFilter,
-  CampaignSortOptions,
-  UpdateCampaignRequest
+    CampaignFilter,
+    CampaignSortOptions,
+    UpdateCampaignRequest
 } from '../../services/campaign.service';
 import { Campaign } from '../../state/app.state';
 import * as CampaignActions from '../actions/campaign.actions';
@@ -41,6 +41,24 @@ export class CampaignFacade {
     this.activeCampaigns$ = this.store.select(CampaignSelectors.selectActiveCampaigns);
     this.campaignCount$ = this.store.select(CampaignSelectors.selectCampaignCount);
     this.activeCampaignCount$ = this.store.select(CampaignSelectors.selectActiveCampaignCount);
+  }
+
+  /**
+   * Carga una campaña específica por ID
+   */
+  loadCampaignById(campaignId: string): Observable<Campaign | null> {
+    // Primero intentar obtenerla del store
+    const campaignFromStore$ = this.store.select(CampaignSelectors.selectCampaignById(campaignId));
+    
+    return campaignFromStore$.pipe(
+      take(1),
+      tap(campaign => {
+        // Si no existe en el store, cargar todas las campañas
+        if (!campaign) {
+          this.loadCampaigns();
+        }
+      })
+    );
   }
 
   /**
