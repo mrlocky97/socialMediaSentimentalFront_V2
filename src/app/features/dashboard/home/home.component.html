@@ -11,61 +11,6 @@
         <h1 class="welcome-title">{{ 'dashboard.welcome'  | transloco}}</h1>
         <p class="welcome-subtitle">{{ 'dashboard.subtitle' | transloco }}</p>
       </div>
-
-      <div class="header-actions">
-        <!-- Primary Action - Create Campaign -->
-        <button 
-          mat-fab 
-          color="primary" 
-          (click)="navigateToCreateCampaign()" 
-          *ngIf="canManageCampaigns()"
-          class="create-campaign-fab"
-          matTooltip="Create New Campaign">
-          <mat-icon>add</mat-icon>
-        </button>
-        
-        <!-- Secondary Actions -->
-        <div class="action-buttons">
-          <button
-            mat-raised-button
-            color="primary"
-            (click)="navigateToCreateCampaign()"
-            *ngIf="canManageCampaigns()"
-            class="create-campaign-btn modern-btn"
-          >
-            <mat-icon>auto_awesome</mat-icon>
-            Create Campaign
-          </button>
-          
-          <button
-            mat-stroked-button
-            color="accent"
-            (click)="navigateToCampaigns()"
-            class="view-campaigns-btn modern-btn"
-          >
-            <mat-icon>campaign</mat-icon>
-            View All Campaigns
-          </button>
-          
-          <button
-            mat-button
-            (click)="navigateToSimpleForm()"
-            *ngIf="canManageCampaigns()"
-            class="simple-form-btn">
-            <mat-icon>edit</mat-icon>
-            Simple Form
-          </button>
-        </div>
-        
-        <button
-          mat-icon-button
-          (click)="dashboardService.refreshData()"
-          [title]="'shared.actions.refresh' | transloco"
-          class="refresh-btn modern-icon-btn"
-        >
-          <mat-icon>refresh</mat-icon>
-        </button>
-      </div>
     </div>
   </header>
 

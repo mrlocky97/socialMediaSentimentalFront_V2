@@ -21,13 +21,12 @@ export interface CampaignRequest {
   mentions: string[];
   startDate: string; // ISO
   endDate: string; // ISO
-  timezone: string;
   maxTweets: number;
   collectImages: boolean;
   collectVideos: boolean;
   collectReplies: boolean;
   collectRetweets: boolean;
-  languages: string[];
+  languages: string;
   sentimentAnalysis: boolean;
   emotionAnalysis: boolean;
   topicsAnalysis: boolean;

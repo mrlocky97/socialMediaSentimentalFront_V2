@@ -8,6 +8,12 @@
     "error": "Error",
     "success": "Éxito"
   },
+  "delete_dialog": {
+    "confirmation": "Confirmar eliminación",
+    "message": "¿Estás seguro de que quieres eliminar este elemento {{name}}? Esta acción no se puede deshacer.",
+    "cancel": "Cancelar",
+    "confirm": "Eliminar"
+  },
   "campaign_dialog": {
     "past_start_date_error": "La fecha de inicio de la campaña no puede estar en el pasado",
     "type_hint": "Selecciona el tipo que mejor se adapte a los objetivos de tu campaña",

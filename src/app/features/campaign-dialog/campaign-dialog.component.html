@@ -254,19 +254,6 @@
       </div>
 
       <mat-form-field appearance="outline" class="full">
-        <mat-label>{{ 'campaign_dialog.timezone' | transloco }}</mat-label>
-        <mat-select formControlName="timezone">
-          <mat-option value="UTC">UTC</mat-option>
-          <mat-option value="Europe/Zurich">Europe/Zurich</mat-option>
-          <mat-option value="America/New_York">America/New_York</mat-option>
-          <mat-option value="Europe/Madrid">Europe/Madrid</mat-option>
-        </mat-select>
-        @if (form.get('timezone')?.touched && form.get('timezone')?.invalid) {
-        <mat-error>{{ 'campaign_dialog.required' | transloco }}</mat-error>
-        }
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" class="full">
         <mat-label>{{ 'campaign_dialog.max_tweets' | transloco }}</mat-label>
         <input matInput type="number" formControlName="maxTweets" min="10" max="1000" step="100" />
         <mat-hint>
@@ -298,21 +285,6 @@
         <div class="chips-row" style="margin-top: 6px">
           @for (v of form.get('dataSources')?.value || []; track v) {
           <mat-chip>{{ getDataSourceLabel(v) }}</mat-chip>
-          }
-        </div>
-      </mat-form-field>
-
-      <mat-form-field appearance="outline" class="full" style="grid-column: 1 / -1">
-        <mat-label>{{ 'campaign_dialog.languages' | transloco }}</mat-label>
-        <mat-select formControlName="languages" multiple>
-          @for (code of languageOptions; track code) {
-          <mat-option [value]="code">{{ code }}</mat-option>
-          }
-        </mat-select>
-        <mat-hint>{{ 'campaign_dialog.optional' | transloco }}</mat-hint>
-        <div class="chips-row" style="margin-top: 6px">
-          @for (code of form.get('languages')?.value || []; track code) {
-          <mat-chip>{{ code }}</mat-chip>
           }
         </div>
       </mat-form-field>

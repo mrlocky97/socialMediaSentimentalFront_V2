@@ -1,8 +1,9 @@
-import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatDialogRef, MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
+import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { TranslocoModule, TranslocoService } from '@ngneat/transloco';
 
 export interface DeleteConfirmDialogData {
   name: string;
@@ -17,39 +18,16 @@ export interface DeleteConfirmDialogData {
     CommonModule,
     MatDialogModule,
     MatButtonModule,
-    MatIconModule
+    MatIconModule,
+    TranslocoModule
   ],
-  template: `
-    <h2 mat-dialog-title>
-      <mat-icon color="warn">warning</mat-icon>
-      Confirmar eliminación
-    </h2>
-    <mat-dialog-content>
-      <p>¿Estás seguro de que deseas eliminar la campaña <strong>"{{ data.name }}"</strong>?</p>
-      <p>Esta acción no se puede deshacer.</p>
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-button (click)="onCancel()">Cancelar</button>
-      <button mat-raised-button color="warn" (click)="onConfirm()">
-        <mat-icon>delete</mat-icon>
-        Eliminar
-      </button>
-    </mat-dialog-actions>
-  `,
-  styles: [`
-    h2 {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    mat-icon {
-      margin-right: 8px;
-    }
-  `]
+  templateUrl: './delete-confirm-dialog.component.html',
+  styleUrls: ['./delete-confirm-dialog.component.css']
 })
 export class DeleteConfirmDialogComponent {
   data = inject<DeleteConfirmDialogData>(MAT_DIALOG_DATA);
   dialogRef = inject(MatDialogRef<DeleteConfirmDialogComponent>);
+  private transloco = inject(TranslocoService);
 
   onCancel(): void {
     this.dialogRef.close(false);

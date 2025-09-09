@@ -1,10 +1,19 @@
 /* =====================================
-   CAMPAIGN LIST COMPONENT
-   Modern campaign list with improved UX/UI
+   CAMPAIGN LIST COMPONENT - Angular 20
+   Modern campaign list with improved UX/UI and performance optimizations
    ===================================== */
 
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  OnDestroy,
+  OnInit,
+  computed,
+  effect,
+  inject,
+  signal,
+} from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
@@ -40,10 +49,13 @@ import {
 } from '../../../shared/components/solid-data-table/interfaces/solid-data-table.interface';
 import { SolidDataTableRxjsComponent } from '../../../shared/components/solid-data-table/solid-data-table.component';
 import { CampaignDialogComponent } from '../../campaign-dialog/campaign-dialog.component';
+import { DeleteConfirmDialogComponent } from '../delete-confirm-dialog/delete-confirm-dialog.component';
+import { BulkActionConfig, CampaignStats, StatConfig } from './interfaces/campaign-list.interface';
 
 @Component({
   selector: 'app-campaign-list',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     ReactiveFormsModule,
@@ -72,38 +84,12 @@ import { CampaignDialogComponent } from '../../campaign-dialog/campaign-dialog.c
   styleUrls: ['./campaign-list.component.css'],
 })
 export class CampaignListComponent implements OnInit, OnDestroy {
-  private readonly BackendApiService = inject(BackendApiService);
+  // Injected services
+  private readonly backendApiService = inject(BackendApiService);
   private readonly campaignFacade = inject(CampaignFacade);
   private readonly scrapingFacade = inject(ScrapingFacade);
-  private dialogRef = inject(MatDialog);
-
-  // Handler for row click from generic table
-  navigateToCampaign(item: Campaign): void {
-    // If the table emits the whole row, navigate to detail
-    if (item && item.id) {
-      this.router.navigate(['/dashboard/campaigns/campaign-detail', item.id]);
-    }
-  }
-
-  // Handler for action clicks from generic table
-  onTableAction(event: { action: TableAction<Campaign>; item: Campaign }): void {
-    const { action, item } = event;
-    switch (action.label.toLowerCase()) {
-      case 'view':
-        this.viewCampaign(item);
-        break;
-      case 'edit':
-        this.editCampaign(item);
-        break;
-      case 'delete':
-        this.deleteCampaign(item);
-        break;
-      default:
-        // fallback - execute the action name if provided
-        this.snackBar.open(`${action.label} clicked`, 'Close', { duration: 2000 });
-    }
-  }
-  private transloco = inject(TranslocoService);
+  private readonly dialogRef = inject(MatDialog);
+  private readonly transloco = inject(TranslocoService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly snackBar = inject(MatSnackBar);
@@ -111,28 +97,67 @@ export class CampaignListComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
 
   // Reactive signals
-  campaigns = signal<Campaign[]>([]);
-  loading = signal<boolean>(false);
-  dialogLoading = signal<boolean>(false); // Nuevo estado para cargar diálogos sin afectar la tabla
-  error = signal<string | null>(null);
-  selectedCampaigns = signal<Set<string>>(new Set());
-  totalCount = signal<number>(0);
-  currentPage = signal<number>(0);
-  pageSize = signal<number>(10);
+  readonly campaigns = signal<Campaign[]>([]);
+  readonly loading = signal<boolean>(false);
+  readonly error = signal<string | null>(null);
+  readonly selectedCampaigns = signal<Set<string>>(new Set());
+  readonly totalCount = signal<number>(0);
+  readonly currentPage = signal<number>(0);
+  readonly pageSize = signal<number>(10);
 
-  // Table configuration
-  displayedColumns: string[] = [
-    'select',
-    'name',
-    'status',
-    'type',
-    'parameters',
-    'timeline',
-    'actions',
+  // Filter form
+  readonly filterForm: FormGroup;
+
+  // Configuration arrays for template iteration
+  readonly statsConfig: StatConfig[] = [
+    {
+      key: 'total',
+      icon: 'campaign',
+      iconClass: '',
+      labelKey: 'campaign_list.total_campaigns',
+    },
+    {
+      key: 'active',
+      icon: 'play_circle',
+      iconClass: 'active',
+      labelKey: 'campaign_list.campaign_actives',
+    },
+    {
+      key: 'paused',
+      icon: 'pause_circle',
+      iconClass: 'warning',
+      labelKey: 'campaign_list.campaigns_pause',
+    },
+    {
+      key: 'draft',
+      icon: 'drafts',
+      iconClass: 'draft',
+      labelKey: 'campaign_list.campaigns_draft',
+    },
+  ];
+
+  readonly bulkActions: BulkActionConfig[] = [
+    {
+      key: 'pause',
+      icon: 'pause',
+      labelKey: 'campaign_list.pause',
+    },
+    {
+      key: 'resume',
+      icon: 'play_arrow',
+      labelKey: 'campaign_list.resume',
+    },
+    {
+      key: 'delete',
+      icon: 'delete',
+      labelKey: 'campaign_list.delete',
+      cssClass: 'danger-action',
+      requiresConfirmation: true,
+    },
   ];
 
   // Generic table config for SolidDataTable
-  tableColumns: TableColumn<Campaign>[] = [
+  readonly tableColumns: TableColumn<Campaign>[] = [
     { key: 'name', label: 'Campaign', sortable: true, width: '250px' },
     { key: 'status', label: 'Status', sortable: true, width: '150px' },
     { key: 'type', label: 'Type', sortable: true, width: '140px' },
@@ -141,25 +166,25 @@ export class CampaignListComponent implements OnInit, OnDestroy {
       label: 'Hashtags',
       sortable: false,
       width: '200px',
-      formatter: (v: any) => (v || []).slice(0, 2).join(', '),
+      formatter: (v: string[]) => (v || []).slice(0, 2).join(', '),
     },
     {
       key: 'startDate',
       label: 'Start',
       sortable: true,
       width: '120px',
-      formatter: (v: any) => new Date(v).toLocaleDateString(),
+      formatter: (v: Date) => new Date(v).toLocaleDateString(),
     },
     {
       key: 'endDate',
       label: 'End',
       sortable: true,
       width: '120px',
-      formatter: (v: any) => new Date(v).toLocaleDateString(),
+      formatter: (v: Date) => new Date(v).toLocaleDateString(),
     },
   ];
 
-  tableConfig: TableConfig = {
+  readonly tableConfig: TableConfig = {
     showSearch: true,
     showPagination: true,
     showSelection: true,
@@ -167,22 +192,22 @@ export class CampaignListComponent implements OnInit, OnDestroy {
     pageSize: 10,
   };
 
-  tableActions: TableAction<Campaign>[] = [
+  readonly tableActions: TableAction<Campaign>[] = [
     { icon: 'visibility', label: 'View', color: 'primary' },
     { icon: 'edit', label: 'Edit', color: 'primary' },
     { icon: 'delete', label: 'Delete', color: 'warn', confirm: true },
   ];
 
-  // Filter form
-  filterForm: FormGroup;
+  // Computed values with memoization
+  readonly hasSelectedCampaigns = computed(() => this.selectedCampaigns().size > 0);
 
-  // Computed values
-  hasSelectedCampaigns = computed(() => this.selectedCampaigns().size > 0);
-  isAllSelected = computed(
-    () => this.campaigns().length > 0 && this.selectedCampaigns().size === this.campaigns().length
-  );
+  readonly isAllSelected = computed(() => {
+    const campaigns = this.campaigns();
+    const selected = this.selectedCampaigns();
+    return campaigns.length > 0 && selected.size === campaigns.length;
+  });
 
-  filteredCampaigns = computed(() => {
+  readonly filteredCampaigns = computed(() => {
     const campaigns = this.campaigns();
     const filters = this.filterForm?.value;
 
@@ -211,6 +236,16 @@ export class CampaignListComponent implements OnInit, OnDestroy {
     });
   });
 
+  readonly campaignStats = computed((): CampaignStats => {
+    const campaigns = this.campaigns();
+    return {
+      total: campaigns.length,
+      active: campaigns.filter((c) => c.status === 'active').length,
+      paused: campaigns.filter((c) => c.status === 'paused').length,
+      draft: campaigns.filter((c) => c.status === 'inactive').length,
+    };
+  });
+
   constructor() {
     // Initialize filter form
     this.filterForm = this.fb.group({
@@ -220,13 +255,13 @@ export class CampaignListComponent implements OnInit, OnDestroy {
       platforms: [[]],
     });
 
-    // Setup search debouncing
-    this.filterForm
-      .get('search')
-      ?.valueChanges.pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
-      .subscribe(() => {
-        // Filters are applied automatically via computed signal
-      });
+    // Setup search debouncing using effect
+    effect(() => {
+      this.filterForm
+        .get('search')
+        ?.valueChanges.pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
+        .subscribe();
+    });
   }
 
   ngOnInit(): void {
@@ -240,73 +275,86 @@ export class CampaignListComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Subscribe to facade state - using effect instead of direct subscription
+   * Subscribe to facade state
    */
   private subscribeToFacade(): void {
-    // Subscribe to facade observables and map into signals.
-    // If the facade emits campaigns, use them; otherwise keep a small local fallback for demos.
+    // Subscribe to facade observables and map into signals
     this.campaignFacade.campaigns$.pipe(takeUntil(this.destroy$)).subscribe((campaigns) => {
       if (Array.isArray(campaigns) && campaigns.length > 0) {
         this.campaigns.set(campaigns as Campaign[]);
         this.totalCount.set(campaigns.length);
       } else {
-        // Fallback demo data (only used when facade provides no items)
-        this.campaigns.set([
-          {
-            id: '1',
-            name: 'Brand Monitoring Campaign',
-            description: 'Monitor brand mentions across social media platforms',
-            type: 'hashtag',
-            status: 'active',
-            hashtags: ['brandname', 'product'],
-            keywords: ['artificial intelligence', 'machine learning'],
-            mentions: [],
-            startDate: new Date('2024-01-01'),
-            endDate: new Date('2024-12-31'),
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            maxTweets: 1000,
-            sentimentAnalysis: true,
-            createdBy: 'user1',
-            organizationId: 'default-org', // Añadimos el organizationId
-          },
-          {
-            id: '2',
-            name: 'Product Launch Tracking',
-            description: 'Track sentiment and reach for new product launch',
-            type: 'keyword',
-            status: 'paused',
-            hashtags: [],
-            keywords: ['new product', 'innovation'],
-            mentions: ['@company'],
-            startDate: new Date('2024-02-01'),
-            endDate: new Date('2024-06-30'),
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            maxTweets: 5000,
-            sentimentAnalysis: true,
-            createdBy: 'user1',
-            organizationId: 'default-org', // Añadimos el organizationId
-          },
-        ]);
+        // Fallback demo data
+        this.campaigns.set(this.getFallbackCampaigns());
         this.totalCount.set(this.campaigns().length);
       }
     });
 
     this.campaignFacade.loading$
       .pipe(takeUntil(this.destroy$))
-      .subscribe((l) => this.loading.set(!!l));
+      .subscribe((loading) => this.loading.set(!!loading));
 
     this.campaignFacade.error$
       .pipe(takeUntil(this.destroy$))
-      .subscribe((e) => this.error.set(e || null));
+      .subscribe((error) => this.error.set(error || null));
 
-    // If the facade exposes a totalCount$ observable, wire it; otherwise keep the computed/local value.
-    if ((this.campaignFacade as any).totalCount$) {
+    // Wire totalCount$ if available
+    if ('totalCount$' in this.campaignFacade) {
       (this.campaignFacade as any).totalCount$
         .pipe(takeUntil(this.destroy$))
         .subscribe((count: number) => this.totalCount.set(count || this.campaigns().length));
     }
+  }
+
+  /**
+   * Get fallback demo data
+   */
+  private getFallbackCampaigns(): Campaign[] {
+    return [
+      {
+        id: '1',
+        name: 'Brand Monitoring Campaign',
+        description: 'Monitor brand mentions across social media platforms',
+        type: 'hashtag',
+        status: 'active',
+        hashtags: ['brandname', 'product'],
+        keywords: ['artificial intelligence', 'machine learning'],
+        mentions: [],
+        startDate: new Date('2024-01-01'),
+        endDate: new Date('2024-12-31'),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        maxTweets: 1000,
+        sentimentAnalysis: true,
+        createdBy: 'user1',
+        organizationId: 'default-org',
+      },
+      {
+        id: '2',
+        name: 'Product Launch Tracking',
+        description: 'Track sentiment and reach for new product launch',
+        type: 'keyword',
+        status: 'paused',
+        hashtags: [],
+        keywords: ['new product', 'innovation'],
+        mentions: ['@company'],
+        startDate: new Date('2024-02-01'),
+        endDate: new Date('2024-06-30'),
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        maxTweets: 5000,
+        sentimentAnalysis: true,
+        createdBy: 'user1',
+        organizationId: 'default-org',
+      },
+    ];
+  }
+
+  /**
+   * Get statistic value by key
+   */
+  getStatValue(key: keyof CampaignStats): number {
+    return this.campaignStats()[key];
   }
 
   /**
@@ -320,15 +368,13 @@ export class CampaignListComponent implements OnInit, OnDestroy {
    * Navigate to create campaign
    */
   navigateToCreateCampaign(): void {
-    this.dialogLoading.set(true); // Show dialog loading state without affecting table visibility
-
     const dialogRef = this.dialogRef.open(CampaignDialogComponent, {
       width: 'auto',
-      height: 'auto', // Let the content determine the height with min/max constraints
-      maxHeight: '100vh', // Prevent dialog from being too tall
-      maxWidth: '90vw', // Prevent dialog from being too wide
-      disableClose: true, // Prevent closing by clicking outside
-      panelClass: 'campaign-wizard-dialog', // Custom styling class
+      height: 'auto',
+      maxHeight: '100vh',
+      maxWidth: '90vw',
+      disableClose: true,
+      panelClass: 'campaign-wizard-dialog',
       data: {
         mode: 'create',
         title: this.transloco.translate('campaigns.create.title'),
@@ -336,53 +382,66 @@ export class CampaignListComponent implements OnInit, OnDestroy {
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      this.dialogLoading.set(false);
-
-      if (result) {
-        if (result.mode === 'create') {
-          // Creación de campaña
-          this.campaignFacade.createCampaign(result.payload).subscribe({
-            next: (action) => {
-              // Opcional: puedes verificar si la acción fue de éxito o fallo
-              if (action.type === '[Campaign] Create Campaign Success') {
-                this.snackBar.open(
-                  this.transloco.translate('campaigns.create.success'),
-                  this.transloco.translate('common.close'),
-                  { duration: 3000, panelClass: 'success-snackbar' }
-                );
-
-                const campaignId: string = action.campaign?.id;
-
-                if (campaignId) {
-                  console.log('Starting scraping with ID:', campaignId);
-
-                  // Estructura limpia y directa que esperan los métodos de scraping
-                  this.startScraping({
-                    id: campaignId,
-                    payload: {
-                      ...result.payload,
-                      id: campaignId,
-                    },
-                  });
-                } else {
-                  console.error('No campaign ID found after creation! Cannot start scraping.');
-                }
-              }
-            },
-            error: (error) => {
-              // El error ya se maneja en el estado de NgRx, pero puedes mostrar un snackbar aquí
-              this.snackBar.open(
-                this.transloco.translate('campaigns.create.error'),
-                this.transloco.translate('common.close'),
-                { duration: 5000, panelClass: 'error-snackbar' }
-              );
-              console.error('Campaign creation error:', error);
-            },
-          });
-        }
+      if (result?.mode === 'create') {
+        this.handleCampaignCreation(result);
       }
-      // If result is falsy, user canceled - no action needed
     });
+  }
+
+  /**
+   * Handle campaign creation
+   */
+  private handleCampaignCreation(result: any): void {
+    this.campaignFacade.createCampaign(result.payload).subscribe({
+      next: (action) => {
+        if (action.type === '[Campaign] Create Campaign Success') {
+          this.showSuccessMessage('campaigns.create.success');
+
+          const campaignId: string = action.campaign?.id;
+          if (campaignId) {
+            this.startScraping({
+              id: campaignId,
+              payload: { ...result.payload, id: campaignId },
+            });
+          } else {
+            console.error('No campaign ID found after creation!');
+          }
+        }
+      },
+      error: (error) => {
+        this.showErrorMessage('campaigns.create.error');
+        console.error('Campaign creation error:', error);
+      },
+    });
+  }
+
+  /**
+   * Handler for row click from generic table
+   */
+  navigateToCampaign(item: Campaign): void {
+    if (item?.id) {
+      this.router.navigate(['/dashboard/campaigns/campaign-detail', item.id]);
+    }
+  }
+
+  /**
+   * Handler for action clicks from generic table
+   */
+  onTableAction(event: { action: TableAction<Campaign>; item: Campaign }): void {
+    const { action, item } = event;
+
+    const actionHandlers: Record<string, (item: Campaign) => void> = {
+      view: this.viewCampaign.bind(this),
+      edit: this.editCampaign.bind(this),
+      delete: this.deleteCampaign.bind(this),
+    };
+
+    const handler = actionHandlers[action.label.toLowerCase()];
+    if (handler) {
+      handler(item);
+    } else {
+      this.snackBar.open(`${action.label} clicked`, 'Close', { duration: 2000 });
+    }
   }
 
   /**
@@ -419,34 +478,9 @@ export class CampaignListComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Toggle campaign status
-   */
-  toggleCampaignStatus(campaign: Campaign): void {
-    const newStatus = campaign.status === 'active' ? 'paused' : 'active';
-    // For now, we'll just show a message since the facade doesn't have this method yet
-    this.snackBar.open(
-      `Campaign ${newStatus === 'active' ? 'resumed' : 'paused'} successfully`,
-      'Close',
-      {
-        duration: 3000,
-      }
-    );
-  }
-
-  /**
-   * Duplicate campaign
-   */
-  duplicateCampaign(campaign: Campaign): void {
-    this.snackBar.open('Campaign duplicated successfully', 'Close', {
-      duration: 3000,
-    });
-  }
-
-  /**
    * View campaign in read-only mode
    */
   viewCampaign(campaign: Campaign): void {
-    // Navigate to campaign detail instead of opening dialog
     this.navigateToCampaign(campaign);
   }
 
@@ -454,9 +488,6 @@ export class CampaignListComponent implements OnInit, OnDestroy {
    * Edit campaign
    */
   editCampaign(campaign: Campaign): void {
-    this.dialogLoading.set(true);
-
-    // Abrimos el diálogo de edición con los datos pre-cargados
     const dialogRef = this.dialogRef.open(CampaignDialogComponent, {
       width: 'auto',
       height: 'auto',
@@ -468,212 +499,285 @@ export class CampaignListComponent implements OnInit, OnDestroy {
         mode: 'edit',
         title: this.transloco.translate('campaigns.edit.title'),
         campaignId: campaign.id,
-        preset: {
-          name: campaign.name,
-          description: campaign.description,
-          type: campaign.type,
-          dataSources: campaign.dataSources,
-          hashtags: campaign.hashtags,
-          keywords: campaign.keywords,
-          mentions: campaign.mentions,
-          startDate: campaign.startDate,
-          endDate: campaign.endDate,
-          timezone: campaign.timezone,
-          maxTweets: campaign.maxTweets,
-          collectImages: campaign.collectImages,
-          collectVideos: campaign.collectVideos,
-          collectReplies: campaign.collectReplies,
-          collectRetweets: campaign.collectRetweets,
-          languages: campaign.languages,
-          sentimentAnalysis: campaign.sentimentAnalysis,
-          emotionAnalysis: campaign.emotionAnalysis,
-          topicsAnalysis: campaign.topicsAnalysis,
-          influencerAnalysis: campaign.influencerAnalysis,
-          organizationId: campaign.organizationId,
-        },
+        preset: this.mapCampaignToPreset(campaign),
       },
     });
 
-    // Manejamos el resultado al cerrar el diálogo
     dialogRef.afterClosed().subscribe((result) => {
-      this.dialogLoading.set(false);
-
-      if (result && result.mode === 'edit' && result.id) {
-        // Actualizamos la campaña
-        this.campaignFacade
-          .updateCampaign({
-            id: result.id,
-            ...result.payload,
-          })
-          .subscribe({
-            next: (action) => {
-              if (action.type === '[Campaign] Update Campaign Success') {
-                this.snackBar.open(
-                  this.transloco.translate('campaigns.edit.success', { name: result.payload.name }),
-                  this.transloco.translate('common.close'),
-                  { duration: 3000, panelClass: 'success-snackbar' }
-                );
-              }
-            },
-            error: (error) => {
-              this.snackBar.open(
-                this.transloco.translate('campaigns.edit.error', { name: result.payload.name }),
-                this.transloco.translate('common.close'),
-                { duration: 5000, panelClass: 'error-snackbar' }
-              );
-              console.error('Campaign update error:', error);
-            },
-          });
+      if (result?.mode === 'edit' && result.id) {
+        this.handleCampaignUpdate(result);
       }
     });
+  }
+
+  /**
+   * Map campaign to preset format
+   */
+  private mapCampaignToPreset(campaign: Campaign): Partial<Campaign> {
+    return {
+      name: campaign.name,
+      description: campaign.description,
+      type: campaign.type,
+      dataSources: campaign.dataSources,
+      hashtags: campaign.hashtags,
+      keywords: campaign.keywords,
+      mentions: campaign.mentions,
+      startDate: campaign.startDate,
+      endDate: campaign.endDate,
+      timezone: campaign.timezone,
+      maxTweets: campaign.maxTweets,
+      collectImages: campaign.collectImages,
+      collectVideos: campaign.collectVideos,
+      collectReplies: campaign.collectReplies,
+      collectRetweets: campaign.collectRetweets,
+      languages: campaign.languages,
+      sentimentAnalysis: campaign.sentimentAnalysis,
+      emotionAnalysis: campaign.emotionAnalysis,
+      topicsAnalysis: campaign.topicsAnalysis,
+      influencerAnalysis: campaign.influencerAnalysis,
+      organizationId: campaign.organizationId,
+    };
+  }
+
+  /**
+   * Handle campaign update
+   */
+  private handleCampaignUpdate(result: any): void {
+    this.campaignFacade
+      .updateCampaign({
+        id: result.id,
+        ...result.payload,
+      })
+      .subscribe({
+        next: (action) => {
+          if (action.type === '[Campaign] Update Campaign Success') {
+            this.showSuccessMessage('campaigns.edit.success', { name: result.payload.name });
+          }
+        },
+        error: (error) => {
+          this.showErrorMessage('campaigns.edit.error', { name: result.payload.name });
+          console.error('Campaign update error:', error);
+        },
+      });
   }
 
   /**
    * Delete campaign
    */
   deleteCampaign(campaign: Campaign): void {
-    import('../delete-confirm-dialog/delete-confirm-dialog.component').then((module) => {
-      const dialogRef = this.dialogRef.open(module.DeleteConfirmDialogComponent, {
-        width: '400px',
-        data: {
-          name: campaign.name,
-          id: campaign.id,
-          type: 'campaign',
-        },
-      });
+    const dialogRef = this.dialogRef.open(DeleteConfirmDialogComponent, {
+      width: '400px',
+      data: {
+        name: campaign.name,
+        id: campaign.id,
+        type: 'campaign',
+      },
+    });
 
-      dialogRef.afterClosed().subscribe((confirmed) => {
-        if (confirmed) {
-          this.loading.set(true); // Aquí sí usamos loading porque después de cerrar el diálogo de confirmación
+    dialogRef.afterClosed().subscribe((confirmed) => {
+      if (confirmed) {
+        this.handleCampaignDeletion(campaign);
+      }
+    });
+  }
 
-          this.campaignFacade.deleteCampaign(campaign.id).subscribe({
-            next: (action) => {
-              this.loading.set(false);
+  /**
+   * Handle campaign deletion
+   */
+  private handleCampaignDeletion(campaign: Campaign): void {
+    this.loading.set(true);
 
-              if (action.type === '[Campaign] Delete Campaign Success') {
-                this.snackBar.open(
-                  this.transloco.translate('campaigns.delete.success', { name: campaign.name }),
-                  this.transloco.translate('common.close'),
-                  { duration: 3000, panelClass: 'success-snackbar' }
-                );
-              } else if ('error' in action) {
-                this.snackBar.open(
-                  this.transloco.translate('campaigns.delete.error', {
-                    name: campaign.name,
-                    error: action.error?.message || 'Error desconocido',
-                  }),
-                  this.transloco.translate('common.close'),
-                  { duration: 5000, panelClass: 'error-snackbar' }
-                );
-              }
-            },
-            error: (error) => {
-              this.loading.set(false);
-              this.snackBar.open(
-                this.transloco.translate('campaigns.delete.error', {
-                  name: campaign.name,
-                  error: error?.message || 'Error desconocido',
-                }),
-                this.transloco.translate('common.close'),
-                { duration: 5000, panelClass: 'error-snackbar' }
-              );
-            },
+    this.campaignFacade.deleteCampaign(campaign.id).subscribe({
+      next: (action) => {
+        this.loading.set(false);
+
+        if (action.type === '[Campaign] Delete Campaign Success') {
+          this.showSuccessMessage('campaigns.delete.success', { name: campaign.name });
+        } else if ('error' in action) {
+          this.showErrorMessage('campaigns.delete.error', {
+            name: campaign.name,
+            error: action.error?.message || 'Unknown error',
           });
         }
-      });
+      },
+      error: (error) => {
+        this.loading.set(false);
+        this.showErrorMessage('campaigns.delete.error', {
+          name: campaign.name,
+          error: error?.message || 'Unknown error',
+        });
+      },
     });
   }
 
   /**
    * Bulk actions
    */
-  bulkAction(action: string): void {
+  bulkAction(action: BulkActionConfig['key']): void {
     const selectedIds = Array.from(this.selectedCampaigns());
     if (selectedIds.length === 0) return;
 
-    switch (action) {
-      case 'pause':
-        selectedIds.forEach((id) => {
-          this.campaignFacade.stopCampaign(id);
-        });
-        this.snackBar.open(`${selectedIds.length} campaigns paused`, 'Close', { duration: 3000 });
-        break;
-      case 'resume':
-        selectedIds.forEach((id) => {
-          this.campaignFacade.startCampaign(id);
-        });
-        this.snackBar.open(`${selectedIds.length} campaigns resumed`, 'Close', { duration: 3000 });
-        break;
-      case 'delete':
-        import('../delete-confirm-dialog/delete-confirm-dialog.component').then((module) => {
-          const dialogRef = this.dialogRef.open(module.DeleteConfirmDialogComponent, {
-            width: '400px',
-            data: {
-              name: `${selectedIds.length} campañas`,
-              id: 'bulk',
-              type: 'campaigns',
-            },
-          });
+    const actionHandlers: Record<BulkActionConfig['key'], (ids: string[]) => void> = {
+      pause: this.handleBulkPause.bind(this),
+      resume: this.handleBulkResume.bind(this),
+      delete: this.handleBulkDelete.bind(this),
+    };
 
-          dialogRef.afterClosed().subscribe((confirmed) => {
-            if (confirmed) {
-              this.loading.set(true); // Aquí sí usamos loading normal
-
-              // Contador para llevar registro de las operaciones completadas
-              let completedCount = 0;
-              selectedIds.forEach((id) => {
-                this.campaignFacade.deleteCampaign(id).subscribe({
-                  next: () => {
-                    completedCount++;
-                    if (completedCount === selectedIds.length) {
-                      this.loading.set(false);
-                      this.snackBar.open(
-                        `${selectedIds.length} campañas eliminadas exitosamente`,
-                        'Cerrar',
-                        { duration: 3000, panelClass: 'success-snackbar' }
-                      );
-                      this.selectedCampaigns.set(new Set());
-                    }
-                  },
-                  error: () => {
-                    completedCount++;
-                    if (completedCount === selectedIds.length) {
-                      this.loading.set(false);
-                    }
-                  },
-                });
-              });
-            }
-          });
-        });
-        break;
-    }
-
-    if (action !== 'delete') {
-      this.selectedCampaigns.set(new Set());
+    const handler = actionHandlers[action];
+    if (handler) {
+      handler(selectedIds);
     }
   }
 
-  // Helper methods for stats
-  getTotalCampaigns(): number {
-    return this.campaigns().length;
+  /**
+   * Handle bulk pause
+   */
+  private handleBulkPause(selectedIds: string[]): void {
+    selectedIds.forEach((id) => {
+      this.campaignFacade.stopCampaign(id);
+    });
+
+    this.snackBar.open(`${selectedIds.length} campaigns paused`, 'Close', { duration: 3000 });
+    this.selectedCampaigns.set(new Set());
   }
 
-  getActiveCampaigns(): number {
-    return this.campaigns().filter((c) => c.status === 'active').length;
+  /**
+   * Handle bulk resume
+   */
+  private handleBulkResume(selectedIds: string[]): void {
+    selectedIds.forEach((id) => {
+      this.campaignFacade.startCampaign(id);
+    });
+
+    this.snackBar.open(`${selectedIds.length} campaigns resumed`, 'Close', { duration: 3000 });
+    this.selectedCampaigns.set(new Set());
   }
 
-  getPausedCampaigns(): number {
-    return this.campaigns().filter((c) => c.status === 'paused').length;
+  /**
+   * Handle bulk delete
+   */
+  private handleBulkDelete(selectedIds: string[]): void {
+    const dialogRef = this.dialogRef.open(DeleteConfirmDialogComponent, {
+      width: '400px',
+      data: {
+        name: `${selectedIds.length} campaigns`,
+        id: 'bulk',
+        type: 'campaigns',
+      },
+    });
+
+    dialogRef.afterClosed().subscribe((confirmed) => {
+      if (confirmed) {
+        this.processBulkDeletion(selectedIds);
+      }
+    });
   }
 
-  getDraftCampaigns(): number {
-    return this.campaigns().filter((c) => c.status === 'inactive').length;
+  /**
+   * Process bulk deletion
+   */
+  private processBulkDeletion(selectedIds: string[]): void {
+    this.loading.set(true);
+    let completedCount = 0;
+
+    selectedIds.forEach((id) => {
+      this.campaignFacade.deleteCampaign(id).subscribe({
+        next: () => {
+          completedCount++;
+          if (completedCount === selectedIds.length) {
+            this.loading.set(false);
+            this.snackBar.open(`${selectedIds.length} campaigns deleted successfully`, 'Close', {
+              duration: 3000,
+              panelClass: 'success-snackbar',
+            });
+            this.selectedCampaigns.set(new Set());
+          }
+        },
+        error: () => {
+          completedCount++;
+          if (completedCount === selectedIds.length) {
+            this.loading.set(false);
+          }
+        },
+      });
+    });
+  }
+
+  /**
+   * Start scraping based on campaign type
+   */
+  private startScraping(result: any): void {
+    if (!result?.payload?.type) {
+      console.error('Invalid result structure for scraping');
+      return;
+    }
+
+    const normalizedResult = this.normalizeScrapingResult(result);
+    const scrapingHandlers: Record<string, (result: any) => void> = {
+      hashtag: (r) =>
+        this.handleScrapingAction(this.scrapingFacade.startHashtagScraping(r), 'hashtag'),
+      keyword: (r) =>
+        this.handleScrapingAction(this.scrapingFacade.startKeywordScraping(r), 'keyword'),
+      user: (r) => this.handleScrapingAction(this.scrapingFacade.startUserScraping(r), 'user'),
+      mention: (r) =>
+        this.handleScrapingAction(this.scrapingFacade.startMentionScraping(r), 'mention'),
+    };
+
+    const handler = scrapingHandlers[normalizedResult.payload.type];
+    if (handler) {
+      handler(normalizedResult);
+    } else {
+      console.warn('Unknown campaign type for scraping:', normalizedResult.payload.type);
+    }
+  }
+
+  /**
+   * Normalize scraping result structure
+   */
+  private normalizeScrapingResult(result: any): any {
+    if (result.id && result.payload?.type) {
+      return result;
+    }
+
+    if (result.payload?.id) {
+      return {
+        id: result.payload.id,
+        payload: result.payload,
+      };
+    }
+
+    return result;
+  }
+
+  /**
+   * Handle scraping action
+   */
+  private handleScrapingAction(scrapingObservable: any, type: string): void {
+    scrapingObservable.subscribe({
+      next: (response: any) => {
+        console.log(`${type} scraping started successfully:`, response);
+        this.showSuccessMessage('campaigns.create.scraping_started');
+      },
+      error: (error: Error) => {
+        console.error(`Error in ${type} scraping:`, error);
+        this.handleScrapingError(error, type);
+      },
+    });
+  }
+
+  /**
+   * Handle scraping errors
+   */
+  private handleScrapingError(error: any, type: string): void {
+    this.showErrorMessage('campaigns.create.scraping_error', {
+      error: error?.message || 'Unknown error',
+    });
+    console.error(`Error starting ${type} scraping:`, error);
   }
 
   // Helper methods for display
   getStatusIcon(status: string): string {
-    const icons: { [key: string]: string } = {
+    const icons: Record<string, string> = {
       active: 'play_circle',
       paused: 'pause_circle',
       completed: 'check_circle',
@@ -684,7 +788,7 @@ export class CampaignListComponent implements OnInit, OnDestroy {
   }
 
   getTypeIcon(type: string): string {
-    const icons: { [key: string]: string } = {
+    const icons: Record<string, string> = {
       hashtag: 'tag',
       keyword: 'search',
       user: 'person',
@@ -694,7 +798,7 @@ export class CampaignListComponent implements OnInit, OnDestroy {
   }
 
   getTypeLabel(type: string): string {
-    const labels: { [key: string]: string } = {
+    const labels: Record<string, string> = {
       hashtag: 'Hashtag Monitoring',
       keyword: 'Keyword Tracking',
       user: 'User Monitoring',
@@ -717,120 +821,42 @@ export class CampaignListComponent implements OnInit, OnDestroy {
     return Math.round((elapsed / total) * 100);
   }
 
-  // Function to start scraping based on campaign type
-  startScraping(result: any): void {
-    console.log('startScraping called with:', JSON.stringify(result, null, 2));
-
-    if (!result) {
-      console.error('startScraping received null or undefined result');
-      return;
-    }
-
-    // Verificar la estructura del objeto result y normalizarla
-    let normalizedResult = result;
-
-    // Caso 1: Es una acción de NgRx con campaignId en result.id y datos en result.payload
-    if (result.id && result.payload && result.payload.type) {
-      console.log('Case 1: Object already has correct structure with id and payload.type');
-      normalizedResult = result; // Ya tiene el formato correcto
-    }
-    // Caso 2: Es un objeto acción de NgRx con la campaña en payload
-    else if (result.payload && result.payload.id) {
-      console.log('Case 2: Object has campaign in payload, normalizing structure');
-      normalizedResult = {
-        id: result.payload.id,
-        payload: result.payload,
-      };
-    }
-    // Si no tiene la estructura esperada, salimos
-    if (!normalizedResult.payload || !normalizedResult.payload.type) {
-      console.error('Invalid result structure for scraping', JSON.stringify(result, null, 2));
-      return;
-    }
-
-    console.log('Normalized result:', JSON.stringify(normalizedResult, null, 2));
-
-    console.log('Campaign type for scraping:', normalizedResult.payload.type);
-
-    switch (normalizedResult.payload.type) {
-      case 'hashtag':
-        console.log('Processing hashtag scraping');
-        this.scrapingFacade.startHashtagScraping(normalizedResult).subscribe({
-          next: (response) => {
-            console.log('Hashtag scraping started successfully:', response);
-            this.showSuccessMessage();
-          },
-          error: (error: Error) => {
-            console.error('Error in hashtag scraping:', error);
-            this.handleError(error, 'hashtag');
-          },
-        });
-        break;
-      case 'keyword':
-        console.log('Processing keyword scraping');
-        this.scrapingFacade.startKeywordScraping(normalizedResult).subscribe({
-          next: (response) => {
-            console.log('Keyword scraping started successfully:', response);
-            this.showSuccessMessage();
-          },
-          error: (error: Error) => {
-            console.error('Error in keyword scraping:', error);
-            this.handleError(error, 'keyword');
-          },
-        });
-        break;
-      case 'user':
-        console.log('Processing user scraping');
-        this.scrapingFacade.startUserScraping(normalizedResult).subscribe({
-          next: (response) => {
-            console.log('User scraping started successfully:', response);
-            this.showSuccessMessage();
-          },
-          error: (error: Error) => {
-            console.error('Error in user scraping:', error);
-            this.handleError(error, 'user');
-          },
-        });
-        break;
-      case 'mention':
-        console.log('Processing mention scraping');
-        this.scrapingFacade.startMentionScraping(normalizedResult).subscribe({
-          next: (response) => {
-            console.log('Mention scraping started successfully:', response);
-            this.showSuccessMessage();
-          },
-          error: (error: Error) => {
-            console.error('Error in mention scraping:', error);
-            this.handleError(error, 'mention');
-          },
-        });
-        break;
-      default:
-        console.warn('Unknown campaign type for scraping:', normalizedResult.payload.type);
-        break;
-    }
+  // Legacy compatibility methods
+  getTotalCampaigns(): number {
+    return this.getStatValue('total');
   }
-  // Mostrar mensaje de éxito
-  showSuccessMessage(campaignName?: string): void {
-    const message = campaignName
-      ? this.transloco.translate('campaigns.scraping.started', { name: campaignName })
-      : this.transloco.translate('campaigns.create.scraping_started');
 
+  getActiveCampaigns(): number {
+    return this.getStatValue('active');
+  }
+
+  getPausedCampaigns(): number {
+    return this.getStatValue('paused');
+  }
+
+  getDraftCampaigns(): number {
+    return this.getStatValue('draft');
+  }
+
+  /**
+   * Show success message
+   */
+  private showSuccessMessage(messageKey: string, params?: Record<string, any>): void {
+    const message = this.transloco.translate(messageKey, params);
     this.snackBar.open(message, this.transloco.translate('common.close'), {
       duration: 3000,
       panelClass: 'success-snackbar',
     });
   }
 
-  // Manejar errores
-  private handleError(error: any, type: string): void {
-    this.snackBar.open(
-      this.transloco.translate('campaigns.create.scraping_error', {
-        error: error?.message || 'Error desconocido',
-      }),
-      this.transloco.translate('common.close'),
-      { duration: 5000, panelClass: 'error-snackbar' }
-    );
-    console.error(`Error starting ${type} scraping:`, error);
+  /**
+   * Show error message
+   */
+  private showErrorMessage(messageKey: string, params?: Record<string, any>): void {
+    const message = this.transloco.translate(messageKey, params);
+    this.snackBar.open(message, this.transloco.translate('common.close'), {
+      duration: 5000,
+      panelClass: 'error-snackbar',
+    });
   }
 }

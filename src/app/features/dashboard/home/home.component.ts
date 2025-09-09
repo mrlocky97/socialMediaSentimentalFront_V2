@@ -84,18 +84,6 @@ export class HomeComponent implements OnInit {
     this.loadDashboardData();
   }
 
-  // Métodos de navegación mejorados para campañas
-  public async navigateToCreateCampaign(): Promise<void> {
-  await this.router.navigate(['/dashboard/campaigns/create']);
-  }
-
-  public async navigateToCampaigns(): Promise<void> {
-  await this.router.navigate(['/dashboard/campaigns']);
-  }
-
-  public async navigateToSimpleForm(): Promise<void> {
-  await this.router.navigate(['/dashboard/campaigns/create-simple']);
-  }
 
   // Métodos de acción
   public async handleNavigation(route: string): Promise<void> {

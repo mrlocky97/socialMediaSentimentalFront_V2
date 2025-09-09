@@ -1,0 +1,18 @@
+<h2 mat-dialog-title>
+  <mat-icon color="warn">warning</mat-icon>
+  {{ 'delete_dialog.confirmation' | transloco }}
+</h2>
+<mat-dialog-content>
+  <p>
+    {{ 'delete_dialog.message' | transloco : { name: data.name } }}
+  </p>
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button (click)="onCancel()">
+    {{ 'delete_dialog.cancel' | transloco }}
+  </button>
+  <button mat-raised-button color="warn" (click)="onConfirm()">
+    <mat-icon>delete</mat-icon>
+    {{ 'delete_dialog.confirm' | transloco }}
+  </button>
+</mat-dialog-actions>

@@ -8,6 +8,12 @@
     "error": "Error",
     "success": "Success"
   },
+  "delete_dialog":{ 
+    "confirmation": "Confirm deletion",
+    "message": "Are you sure you want to delete this {{name}} item? This action cannot be undone.",
+    "cancel": "Cancel",
+    "confirm": "Delete"
+  },
   "campaign_dialog": {
     "past_start_date_error": "Campaign start date cannot be in the past",
     "type_hint": "Select the type that best fits your campaign goals",

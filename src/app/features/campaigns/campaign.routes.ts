@@ -22,23 +22,11 @@ export const campaignRoutes: Routes = [
         title: 'Campaign Management - SentimentalSocial'
       },
       {
-        path: 'create-simple',
-        loadComponent: () => 
-          import('./campaign-form/campaign-form.component').then(c => c.CampaignFormComponent),
-        title: 'Create Campaign - Simple'
-      },
-      {
         path: 'campaign-detail/:id',
         loadComponent: () => 
           import('./campaign-detail/campaign-detail.component').then(c => c.CampaignDetailComponent),
         title: 'Campaign Details - SentimentalSocial'
       },
-      {
-        path: ':id/edit',
-        loadComponent: () => 
-          import('./campaign-form/campaign-form.component').then(c => c.CampaignFormComponent),
-        title: 'Edit Campaign - SentimentalSocial'
-      }
     ]
   }
 ];

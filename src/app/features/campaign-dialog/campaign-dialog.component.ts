@@ -1,16 +1,24 @@
 import { A11yModule } from '@angular/cdk/a11y';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { AfterViewInit, ChangeDetectionStrategy, Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  Component,
+  DestroyRef,
+  inject,
+  OnInit,
+  signal,
+} from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
-    AbstractControl,
-    FormArray,
-    FormBuilder,
-    FormControl,
-    FormGroup,
-    ReactiveFormsModule,
-    Validators,
+  AbstractControl,
+  FormArray,
+  FormBuilder,
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators,
 } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -26,6 +34,7 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { TranslocoModule, TranslocoService } from '@ngneat/transloco';
+import { LanguageService } from '../../core/services/language.service';
 import { CampaignType } from '../../core/types';
 import { CampaignRequest, CreateCampaignDialogData } from './interfaces/campaign-dialog.interface';
 
@@ -67,6 +76,7 @@ export class CampaignDialogComponent implements OnInit, AfterViewInit {
   private http = inject(HttpClient);
   private dialogRef = inject(MatDialogRef<CampaignDialogComponent, any>);
   private destroyRef = inject(DestroyRef);
+  private languageService = inject(LanguageService);
   data = inject<CreateCampaignDialogData | null>(MAT_DIALOG_DATA, { optional: true });
 
   // Estado UI
@@ -85,15 +95,15 @@ export class CampaignDialogComponent implements OnInit, AfterViewInit {
   get isEditMode(): boolean {
     return this.isEditModeSignal();
   }
-  
+
   // Exponer isViewMode para la plantilla
   get isViewMode(): boolean {
     return this.isViewModeSignal();
   }
-  
+
   // Obtener etiqueta para datasource por valor
   getDataSourceLabel(value: string): string {
-    const source = this.dataSourceOptions.find(src => src.value === value);
+    const source = this.dataSourceOptions.find((src) => src.value === value);
     return source ? source.label : value;
   }
 
@@ -103,7 +113,7 @@ export class CampaignDialogComponent implements OnInit, AfterViewInit {
     {
       // ID de campaña (oculto, solo para edición)
       id: [''],
-      
+
       // Basic info
       name: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(100)]],
       description: ['', [Validators.required, Validators.minLength(10), Validators.maxLength(500)]],
@@ -118,7 +128,7 @@ export class CampaignDialogComponent implements OnInit, AfterViewInit {
 
       // Fuentes y settings
       dataSources: this.fb.control<DataSource[]>([], [Validators.required, this.minLengthArray(1)]),
-      languages: this.fb.control<string[]>([]),
+      languages: this.fb.control<string>(this.languageService.getCurrentLanguage()),
 
       // Fechas (usando date range picker)
       startDate: [null as Date | null, Validators.required],
@@ -165,13 +175,13 @@ export class CampaignDialogComponent implements OnInit, AfterViewInit {
 
   readonly dataSourceOptions: { value: DataSource; label: string }[] = [
     { value: 'twitter', label: 'Twitter/X' },
-    { value: 'instagram', label: 'Instagram' },
-    { value: 'tiktok', label: 'TikTok' },
-    { value: 'youtube', label: 'YouTube' },
-    { value: 'facebook', label: 'Facebook' },
+    // { value: 'instagram', label: 'Instagram' },
+    // { value: 'tiktok', label: 'TikTok' },
+    // { value: 'youtube', label: 'YouTube' },
+    // { value: 'facebook', label: 'Facebook' },
   ];
 
-  readonly languageOptions = ['en', 'es', 'fr', 'de'];
+  // readonly languageOptions = ['en', 'es', 'fr', 'de'];
 
   constructor() {
     // Determinar el modo del diálogo
@@ -182,12 +192,11 @@ export class CampaignDialogComponent implements OnInit, AfterViewInit {
       // Si estamos en modo edición o vista, guardamos el ID de la campaña
       if (this.data?.campaignId) {
         this.campaignId.set(this.data.campaignId);
-        console.log(`${this.data?.mode} mode with campaign ID:`, this.data.campaignId);
       } else {
         console.error(`Modo ${this.data?.mode} sin ID de campaña`);
       }
     }
-    
+
     // Si estamos en modo vista, hacemos que el formulario sea de solo lectura
     if (this.isViewModeSignal()) {
       // Esperamos hasta después de la inicialización para deshabilitar el formulario
@@ -198,16 +207,6 @@ export class CampaignDialogComponent implements OnInit, AfterViewInit {
 
     // Preload (si viene preset)
     const p = this.data?.preset ?? {};
-    console.log('Preset data in constructor:', p);
-    
-    // Debug especificamente los arrays que causan problemas
-    console.log('Arrays from preset:', {
-      dataSources: p.dataSources,
-      languages: p.languages,
-      hashtags: p.hashtags,
-      keywords: p.keywords,
-      mentions: p.mentions
-    });
 
     // Primero limpiamos los arrays existentes por si acaso
     while (this.hashtags.length) this.hashtags.removeAt(0);
@@ -221,69 +220,51 @@ export class CampaignDialogComponent implements OnInit, AfterViewInit {
 
     // Asegurarnos de que dataSources y languages son arrays válidos
     const dataSources = Array.isArray(p.dataSources) ? p.dataSources : [];
-    const languages = Array.isArray(p.languages) ? p.languages : [];
-    
-    console.log('DataSources before form patch:', dataSources);
-    console.log('Languages before form patch:', languages);
 
     // Ahora hacemos el patch value después de tener los arrays configurados
     this.form.patchValue(
       {
         // ID de campaña (para edición)
         id: this.data?.campaignId ?? '',
-        
+
         // Información básica
         name: p.name ?? '',
         description: p.description ?? '',
         type: p.type ?? 'hashtag',
-        
+
         // Arrays - asegurarnos de que son arrays válidos
         dataSources: dataSources,
-        languages: languages,
-        
+        languages: this.languageService.getCurrentLanguage(),
+
         // Configuración
-        timezone: p.timezone ?? 'UTC',
         maxTweets: p.maxTweets ?? 1000,
-        
+
         // Checkboxes de colección
         collectImages: p.collectImages ?? true,
         collectVideos: p.collectVideos ?? true,
         collectReplies: p.collectReplies ?? false,
         collectRetweets: p.collectRetweets ?? true,
-        
+
         // Checkboxes de análisis
         sentimentAnalysis: p.sentimentAnalysis ?? true,
         emotionAnalysis: p.emotionAnalysis ?? false,
         topicsAnalysis: p.topicsAnalysis ?? false,
         influencerAnalysis: p.influencerAnalysis ?? false,
-        
+
         // Organización
         organizationId: p.organizationId ?? '',
-        
+
         // Fechas (configurar directamente)
         startDate: p.startDate ? new Date(p.startDate) : null,
         endDate: p.endDate ? new Date(p.endDate) : null,
       },
       { emitEvent: false }
     );
-    
-    console.log('Form after initialization:', {
-      id: this.form.get('id')?.value,
-      dataSources: this.form.get('dataSources')?.value,
-      languages: this.form.get('languages')?.value,
-      organizationId: this.form.get('organizationId')?.value
-    });
-    
+
     // Forzar detección de cambios en caso de que haya problemas de actualización
     setTimeout(() => {
       // Validamos el formulario para actualizar estado
       this.form.updateValueAndValidity();
-      console.log('Form after updateValueAndValidity:', {
-        id: this.form.get('id')?.value,
-        dataSources: this.form.get('dataSources')?.value,
-        languages: this.form.get('languages')?.value,
-        organizationId: this.form.get('organizationId')?.value
-      });
     }, 0);
 
     // Limpiar mensaje de error al cambiar el form
@@ -291,28 +272,11 @@ export class CampaignDialogComponent implements OnInit, AfterViewInit {
       if (this.submitError()) this.submitError.set(null);
     });
   }
-  
-  ngOnInit() {
-    console.log('OnInit - Form values:', {
-      id: this.form.get('id')?.value,
-      dataSources: this.form.get('dataSources')?.value,
-      languages: this.form.get('languages')?.value,
-      organizationId: this.form.get('organizationId')?.value,
-      isEditMode: this.isEditMode
-    });
-  }
-  
+
+  ngOnInit() {}
+
   ngAfterViewInit() {
     // Use setTimeout to avoid ExpressionChangedAfterItHasBeenCheckedError
-    setTimeout(() => {
-      console.log('AfterViewInit - Form values:', {
-        id: this.form.get('id')?.value,
-        dataSources: this.form.get('dataSources')?.value,
-        languages: this.form.get('languages')?.value,
-        organizationId: this.form.get('organizationId')?.value,
-        isEditMode: this.isEditMode
-      });
-    });
   }
 
   // ---- Getters de arrays ----
@@ -348,12 +312,12 @@ export class CampaignDialogComponent implements OnInit, AfterViewInit {
       const g = group as FormGroup;
       const start = g.get('startDate')?.value;
       const end = g.get('endDate')?.value;
-      
+
       if (!start || !end) return null;
-      
+
       const startDate = new Date(start);
       const endDate = new Date(end);
-      
+
       return startDate < endDate ? null : { dateRange: true };
     };
   }
@@ -365,22 +329,26 @@ export class CampaignDialogComponent implements OnInit, AfterViewInit {
     return (group: AbstractControl) => {
       const g = group as FormGroup;
       const startDate = g.get('startDate')?.value;
-      
+
       if (!startDate) return null;
-      
+
       // Convertir el valor del formulario a Date
       const dateToCheck = new Date(startDate);
       const now = new Date();
-      
+
       // Comparar solo las fechas (sin horas) para evitar problemas de zona horaria
-      const startDateOnly = new Date(dateToCheck.getFullYear(), dateToCheck.getMonth(), dateToCheck.getDate());
+      const startDateOnly = new Date(
+        dateToCheck.getFullYear(),
+        dateToCheck.getMonth(),
+        dateToCheck.getDate()
+      );
       const nowDateOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      
+
       // Si la fecha está en el pasado, retornar error
       if (startDateOnly < nowDateOnly) {
         return { pastStartDate: true };
       }
-      
+
       return null;
     };
   }
@@ -405,20 +373,24 @@ export class CampaignDialogComponent implements OnInit, AfterViewInit {
   async submit() {
     // Verificar nuevamente si la fecha de inicio está en el pasado justo antes de enviar
     const startDate = this.form.get('startDate')?.value;
-    
+
     if (startDate) {
       const dateToCheck = new Date(startDate);
       const now = new Date();
-      
+
       // Comparar solo las fechas (sin horas) para evitar problemas de zona horaria
-      const startDateOnly = new Date(dateToCheck.getFullYear(), dateToCheck.getMonth(), dateToCheck.getDate());
+      const startDateOnly = new Date(
+        dateToCheck.getFullYear(),
+        dateToCheck.getMonth(),
+        dateToCheck.getDate()
+      );
       const nowDateOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      
+
       if (startDateOnly < nowDateOnly) {
         this.form.setErrors({ pastStartDate: true });
       }
     }
-    
+
     if (this.form.invalid) {
       this.form.markAllAsTouched();
       return;
@@ -431,9 +403,9 @@ export class CampaignDialogComponent implements OnInit, AfterViewInit {
     // Función helper para formatear fechas manteniendo la zona horaria local
     const formatDateForAPI = (date: any): string => {
       if (!date) return '';
-      
+
       let dateObj: Date;
-      
+
       // Si ya es un objeto Date de Material Datepicker
       if (date instanceof Date) {
         dateObj = date;
@@ -441,28 +413,21 @@ export class CampaignDialogComponent implements OnInit, AfterViewInit {
         // Si es string o cualquier otro formato
         dateObj = new Date(date);
       }
-      
+
       // Verificar que la fecha es válida
       if (isNaN(dateObj.getTime())) {
         console.error('Invalid date:', date);
         return '';
       }
-      
+
       // Crear fecha al inicio del día en la zona horaria local del usuario
       // Esto evita problemas de conversión UTC
       const year = dateObj.getFullYear();
       const month = dateObj.getMonth();
       const day = dateObj.getDate();
-      
+
       const localDate = new Date(year, month, day, 12, 0, 0); // Usar mediodía para evitar problemas de DST
-      
-      console.log('Formatting date:', {
-        input: date,
-        parsed: dateObj,
-        localDate: localDate,
-        isoString: localDate.toISOString()
-      });
-      
+
       return localDate.toISOString();
     };
 
@@ -477,13 +442,12 @@ export class CampaignDialogComponent implements OnInit, AfterViewInit {
       mentions: (this.mentions.value ?? []).map((s) => s.trim()),
       startDate: formatDateForAPI(v.startDate),
       endDate: formatDateForAPI(v.endDate),
-      timezone: v.timezone!,
       maxTweets: v.maxTweets!,
       collectImages: !!v.collectImages,
       collectVideos: !!v.collectVideos,
       collectReplies: !!v.collectReplies,
       collectRetweets: !!v.collectRetweets,
-      languages: v.languages ?? [],
+      languages: v.languages || 'en',
       sentimentAnalysis: !!v.sentimentAnalysis,
       emotionAnalysis: !!v.emotionAnalysis,
       topicsAnalysis: !!v.topicsAnalysis,
@@ -493,26 +457,12 @@ export class CampaignDialogComponent implements OnInit, AfterViewInit {
 
     // Obtener el ID de la campaña para edición (prioridad: form.id > campaignId signal > data.campaignId)
     const campaignId = v.id || this.campaignId() || this.data?.campaignId || null;
-    
-    console.log('Submit form with values:', {
-      id: campaignId,
-      dataSources: v.dataSources,
-      languages: v.languages,
-      organizationId: v.organizationId,
-      startDate: v.startDate,
-      endDate: v.endDate,
-      formattedStartDate: formatDateForAPI(v.startDate),
-      formattedEndDate: formatDateForAPI(v.endDate),
-      timezone: v.timezone
-    });
 
     // Añadir el ID a la payload para operaciones de actualización
     if (this.isEditModeSignal() && campaignId) {
       Object.assign(payload, { id: campaignId });
     }
-    
-    console.log('Final payload with all fields:', payload);
-    
+
     // Devolver el resultado con información del modo (create/edit)
     const result = {
       payload,

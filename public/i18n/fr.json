@@ -8,6 +8,12 @@
     "error": "Erreur",
     "success": "Succès"
   },
+  "delete_dialog": {
+    "confirmation": "Confirmer la suppression",
+    "message": "Êtes-vous sûr de vouloir supprimer cet élément {{name}} ? Cette action ne peut pas être annulée.",
+    "cancel": "Annuler",
+    "confirm": "Supprimer"
+  },
   "login": {
     "app_name": "SentimentalSocial",
     "subtitle": "Analyse de Sentiment Entreprise",

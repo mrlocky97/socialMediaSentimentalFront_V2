@@ -1,6 +1,6 @@
 <div class="campaigns-container">
   <!-- Header Section -->
-  <div class="page-header">
+  <header class="page-header">
     <div class="header-content">
       <h1 class="page-title">
         {{ 'campaign_list.campaign_manager' | transloco }}
@@ -16,136 +16,135 @@
         color="primary"
         class="create-campaign-btn"
         (click)="navigateToCreateCampaign()"
+        [attr.aria-label]="'campaign_list.new_campaign' | transloco"
       >
         <mat-icon>add</mat-icon>
         {{ 'campaign_list.new_campaign' | transloco }}
       </button>
     </div>
-  </div>
+  </header>
 
   <!-- Quick Stats Cards -->
-  <div class="stats-grid" *ngIf="campaigns().length > 0">
-    <mat-card class="stat-card">
-      <mat-card-content>
-        <div class="stat-content">
-          <div class="stat-number">{{ getTotalCampaigns() }}</div>
-          <div class="stat-label">{{ 'campaign_list.total_campaigns' | transloco }}</div>
-        </div>
-        <mat-icon class="stat-icon">campaign</mat-icon>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card class="stat-card">
-      <mat-card-content>
-        <div class="stat-content">
-          <div class="stat-number">{{ getActiveCampaigns() }}</div>
-          <div class="stat-label">{{ 'campaign_list.campaign_actives' | transloco }}</div>
-        </div>
-        <mat-icon class="stat-icon active">play_circle</mat-icon>
-      </mat-card-content>
-    </mat-card>
-
-    <mat-card class="stat-card">
-      <mat-card-content>
-        <div class="stat-content">
-          <div class="stat-number">{{ getPausedCampaigns() }}</div>
-          <div class="stat-label">{{ 'campaign_list.campaigns_pause' | transloco }}</div>
-        </div>
-        <mat-icon class="stat-icon warning">pause_circle</mat-icon>
-      </mat-card-content>
-    </mat-card>
-  </div>
+  @if (campaigns().length > 0) {
+    <section class="stats-grid">
+      @for (stat of statsConfig; track stat.key) {
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <div class="stat-content">
+              <div class="stat-number">{{ getStatValue(stat.key) }}</div>
+              <div class="stat-label">{{ stat.labelKey | transloco }}</div>
+            </div>
+            <mat-icon [class]="'stat-icon ' + stat.iconClass">{{ stat.icon }}</mat-icon>
+          </mat-card-content>
+        </mat-card>
+      }
+    </section>
+  }
 
   <!-- Loading State -->
-  <div class="loading-container" *ngIf="loading()">
-    <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
-    <p>
-      {{ 'campaign_list.loading' | transloco }}
-    </p>
-  </div>
-
-  <!-- Dialog Loading Indicator (overlays only when opening dialogs) -->
-  <div class="dialog-loading-overlay" *ngIf="dialogLoading() && !loading()">
-    <mat-progress-spinner mode="indeterminate" diameter="40"></mat-progress-spinner>
-    <p>{{ 'campaign_list.loading_dialog' | transloco }}</p>
-  </div>
+  @if (loading()) {
+    <div class="loading-container" role="status" [attr.aria-label]="'campaign_list.loading' | transloco">
+      <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
+      <p>{{ 'campaign_list.loading' | transloco }}</p>
+    </div>
+  }
 
   <!-- Empty State -->
-  <div class="empty-state" *ngIf="!loading() && campaigns().length === 0">
-    <mat-card class="empty-card">
-      <mat-card-content>
-        <div class="empty-content">
-          <mat-icon class="empty-icon">campaign</mat-icon>
-          <h2>{{ 'campaign_list.empty' | transloco }}</h2>
-          <p>{{ 'campaign_list.create_first' | transloco }}</p>
-          <button
-            mat-raised-button
-            color="primary"
-            class="empty-action-btn"
-            (click)="navigateToCreateCampaign()"
-          >
-            <mat-icon>add</mat-icon>
-            {{ 'campaign_list.new_campaign' | transloco }}
-          </button>
-        </div>
-      </mat-card-content>
-    </mat-card>
-  </div>
+  @if (!loading() && campaigns().length === 0 && !error()) {
+    <section class="empty-state">
+      <mat-card class="empty-card">
+        <mat-card-content>
+          <div class="empty-content">
+            <mat-icon class="empty-icon" aria-hidden="true">campaign</mat-icon>
+            <h2>{{ 'campaign_list.empty' | transloco }}</h2>
+            <p>{{ 'campaign_list.create_first' | transloco }}</p>
+            <button
+              mat-raised-button
+              color="primary"
+              class="empty-action-btn"
+              (click)="navigateToCreateCampaign()"
+              [attr.aria-label]="'campaign_list.new_campaign' | transloco"
+            >
+              <mat-icon>add</mat-icon>
+              {{ 'campaign_list.new_campaign' | transloco }}
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </section>
+  }
 
   <!-- Campaigns Table -->
-  <mat-card class="table-card" *ngIf="!loading() && filteredCampaigns().length > 0">
-    <div class="table-header">
-      <h3>{{ 'campaign_list.campaigns' | transloco }} ({{ filteredCampaigns().length }})</h3>
-      <div class="table-actions" *ngIf="hasSelectedCampaigns()">
-        <button mat-button [matMenuTriggerFor]="bulkMenu">
-          <mat-icon>more_vert</mat-icon>
-          {{ 'campaign_list.actions' | transloco }} ({{ selectedCampaigns().size }})
-        </button>
-        <mat-menu #bulkMenu="matMenu">
-          <button mat-menu-item (click)="bulkAction('pause')">
-            <mat-icon>pause</mat-icon>
-            {{ 'campaign_list.pause' | transloco }}
-          </button>
-          <button mat-menu-item (click)="bulkAction('resume')">
-            <mat-icon>play_arrow</mat-icon>
-            {{ 'campaign_list.resume' | transloco }}
-          </button>
-          <button mat-menu-item (click)="bulkAction('delete')" class="danger-action">
-            <mat-icon>delete</mat-icon>
-            {{ 'campaign_list.delete' | transloco }}
-          </button>
-        </mat-menu>
+  @if (!loading() && filteredCampaigns().length > 0) {
+    <mat-card class="table-card">
+      <header class="table-header">
+        <h3>
+          {{ 'campaign_list.campaigns' | transloco }} 
+          <span class="campaign-count">({{ filteredCampaigns().length }})</span>
+        </h3>
+        
+        @if (hasSelectedCampaigns()) {
+          <div class="table-actions">
+            <button 
+              mat-button 
+              [matMenuTriggerFor]="bulkMenu"
+              [attr.aria-label]="'campaign_list.bulk_actions' | transloco"
+            >
+              <mat-icon>more_vert</mat-icon>
+              {{ 'campaign_list.actions' | transloco }} ({{ selectedCampaigns().size }})
+            </button>
+            
+            <mat-menu #bulkMenu="matMenu">
+              @for (action of bulkActions; track action.key) {
+                <button 
+                  mat-menu-item 
+                  (click)="bulkAction(action.key)"
+                  [class]="action.cssClass || ''"
+                  [attr.aria-label]="action.labelKey | transloco"
+                >
+                  <mat-icon>{{ action.icon }}</mat-icon>
+                  {{ action.labelKey | transloco }}
+                </button>
+              }
+            </mat-menu>
+          </div>
+        }
+      </header>
+
+      <div class="table-container">
+        <app-solid-data-table
+          [data]="campaigns()"
+          [columns]="tableColumns"
+          [config]="tableConfig"
+          [actions]="tableActions"
+          [loading]="loading()"
+          [error]="error()"
+          (rowClick)="navigateToCampaign($event)"
+          (actionClick)="onTableAction($event)"
+          (pageChange)="onPageChange($event)"
+        />
       </div>
-    </div>
-
-    <div class="table-container">
-      <app-solid-data-table
-        [data]="campaigns()"
-        [columns]="tableColumns"
-        [config]="tableConfig"
-        [actions]="tableActions"
-        [loading]="loading()"
-        [error]="error()"
-        (rowClick)="navigateToCampaign($event)"
-        (actionClick)="onTableAction($event)"
-        (pageChange)="onPageChange($event)"
-      ></app-solid-data-table>
-    </div>
-
-    <!-- paginator is handled by the generic table component -->
-  </mat-card>
+    </mat-card>
+  }
 
   <!-- Error State -->
-  <div class="error-state" *ngIf="error()">
-    <mat-card class="error-card">
-      <mat-card-content>
-        <mat-icon class="error-icon">error</mat-icon>
-        <h3>{{ 'campaign_list.error_loading' | transloco }}</h3>
-        <p>{{ error() }}</p>
-        <button mat-raised-button color="primary" (click)="loadCampaigns()">
-          {{ 'campaign_list.try_again' | transloco }}
-        </button>
-      </mat-card-content>
-    </mat-card>
-  </div>
+  @if (error()) {
+    <section class="error-state" role="alert">
+      <mat-card class="error-card">
+        <mat-card-content>
+          <mat-icon class="error-icon" aria-hidden="true">error</mat-icon>
+          <h3>{{ 'campaign_list.error_loading' | transloco }}</h3>
+          <p>{{ error() }}</p>
+          <button 
+            mat-raised-button 
+            color="primary" 
+            (click)="loadCampaigns()"
+            [attr.aria-label]="'campaign_list.try_again' | transloco"
+          >
+            {{ 'campaign_list.try_again' | transloco }}
+          </button>
+        </mat-card-content>
+      </mat-card>
+    </section>
+  }
 </div>
