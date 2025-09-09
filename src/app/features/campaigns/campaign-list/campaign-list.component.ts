@@ -49,6 +49,7 @@ import {
 } from '../../../shared/components/solid-data-table/interfaces/solid-data-table.interface';
 import { SolidDataTableRxjsComponent } from '../../../shared/components/solid-data-table/solid-data-table.component';
 import { CampaignDialogComponent } from '../../campaign-dialog/campaign-dialog.component';
+import { CampaignRequest } from '../../campaign-dialog/interfaces/campaign-dialog.interface';
 import { DeleteConfirmDialogComponent } from '../delete-confirm-dialog/delete-confirm-dialog.component';
 import { BulkActionConfig, CampaignStats, StatConfig } from './interfaces/campaign-list.interface';
 
@@ -391,7 +392,11 @@ export class CampaignListComponent implements OnInit, OnDestroy {
   /**
    * Handle campaign creation
    */
-  private handleCampaignCreation(result: any): void {
+  private handleCampaignCreation(result: {
+    payload: CampaignRequest;
+    mode: string;
+    id: string | null;
+  }): void {
     this.campaignFacade.createCampaign(result.payload).subscribe({
       next: (action) => {
         if (action.type === '[Campaign] Create Campaign Success') {

@@ -49,19 +49,19 @@ export interface BulkScrapeSummary {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class BackendApiService {
   private readonly http = inject(HttpClient);
-  
+
   // Estado de conectividad
   private readonly connectionStatus = new BehaviorSubject<boolean>(true);
   public readonly isOnline$ = this.connectionStatus.asObservable();
-  
+
   // Headers base para las requests
   private readonly baseHeaders = new HttpHeaders({
     'Content-Type': 'application/json',
-    'Accept': 'application/json',
+    Accept: 'application/json',
   });
 
   // URLs de endpoints
@@ -86,10 +86,9 @@ export class BackendApiService {
    * Obtener datos completos del dashboard
    */
   public getDashboardData(): Observable<DashboardData> {
-    return this.makeRequest<DashboardData>('GET', this.endpoints.dashboard)
-      .pipe(
-        tap(() => this.setOnlineStatus(true))
-      );
+    return this.makeRequest<DashboardData>('GET', this.endpoints.dashboard).pipe(
+      tap(() => this.setOnlineStatus(true))
+    );
   }
 
   /**
@@ -120,11 +119,13 @@ export class BackendApiService {
    * Acepta campos adicionales como dataSources y organizationId que son requeridos por la API
    * y permite que el tipo sea cualquiera de los aceptados por la API
    */
-  public createCampaign(campaign: Partial<Omit<Campaign, 'type'>> & { 
-    dataSources?: string[], 
-    type: string,
-    organizationId: string 
-  }): Observable<Campaign> {
+  public createCampaign(
+    campaign: Partial<Omit<Campaign, 'type'>> & {
+      dataSources?: string[];
+      type: string;
+      organizationId: string;
+    }
+  ): Observable<Campaign> {
     console.log('Creating campaign with data:', campaign);
     return this.makeRequest<Campaign>('POST', this.endpoints.campaigns, campaign);
   }
@@ -133,10 +134,13 @@ export class BackendApiService {
    * Actualizar campaña
    * Acepta actualizaciones con los tipos correctos para la API
    */
-  public updateCampaign(campaignId: string, updates: Partial<Omit<Campaign, 'type'>> & { 
-    type?: string,
-    organizationId?: string 
-  }): Observable<Campaign> {
+  public updateCampaign(
+    campaignId: string,
+    updates: Partial<Omit<Campaign, 'type'>> & {
+      type?: string;
+      organizationId?: string;
+    }
+  ): Observable<Campaign> {
     console.log('Updating campaign with data:', updates);
     return this.makeRequest<Campaign>('PUT', `${this.endpoints.campaigns}/${campaignId}`, updates);
   }
@@ -151,8 +155,14 @@ export class BackendApiService {
   /**
    * Controlar estado de campaña
    */
-  public toggleCampaign(campaignId: string, action: 'start' | 'stop' | 'pause' | 'resume'): Observable<Campaign> {
-    return this.makeRequest<Campaign>('POST', `${this.endpoints.campaigns}/${campaignId}/${action}`);
+  public toggleCampaign(
+    campaignId: string,
+    action: 'start' | 'stop' | 'pause' | 'resume'
+  ): Observable<Campaign> {
+    return this.makeRequest<Campaign>(
+      'POST',
+      `${this.endpoints.campaigns}/${campaignId}/${action}`
+    );
   }
 
   // ===== TWEETS ENDPOINTS =====
@@ -160,13 +170,16 @@ export class BackendApiService {
   /**
    * Obtener tweets de una campaña
    */
-  public getCampaignTweets(campaignId: string, params?: {
-    limit?: number;
-    offset?: number;
-    sentiment?: 'positive' | 'negative' | 'neutral';
-    dateFrom?: string;
-    dateTo?: string;
-  }): Observable<Tweet[]> {
+  public getCampaignTweets(
+    campaignId: string,
+    params?: {
+      limit?: number;
+      offset?: number;
+      sentiment?: 'positive' | 'negative' | 'neutral';
+      dateFrom?: string;
+      dateTo?: string;
+    }
+  ): Observable<Tweet[]> {
     const queryParams = new URLSearchParams();
     if (params) {
       Object.entries(params).forEach(([key, value]) => {
@@ -175,7 +188,7 @@ export class BackendApiService {
         }
       });
     }
-    
+
     const url = `${this.endpoints.campaigns}/${campaignId}/tweets?${queryParams.toString()}`;
     return this.makeRequest<Tweet[]>('GET', url);
   }
@@ -184,15 +197,20 @@ export class BackendApiService {
    * Obtener tweets pendientes de procesamiento
    */
   public getPendingTweets(): Observable<{ count: number; tweets: Tweet[] }> {
-    return this.makeRequest<{ count: number; tweets: Tweet[] }>('GET', `${this.endpoints.tweets}/pending`);
+    return this.makeRequest<{ count: number; tweets: Tweet[] }>(
+      'GET',
+      `${this.endpoints.tweets}/pending`
+    );
   }
 
   /**
    * Procesar tweets pendientes
    */
-  public processPendingTweets(tweetIds?: string[]): Observable<{ processed: number; success: boolean }> {
+  public processPendingTweets(
+    tweetIds?: string[]
+  ): Observable<{ processed: number; success: boolean }> {
     return this.makeRequest<{ processed: number; success: boolean }>(
-      'POST', 
+      'POST',
       `${this.endpoints.tweets}/process`,
       tweetIds ? { tweetIds } : {}
     );
@@ -203,8 +221,14 @@ export class BackendApiService {
   /**
    * Obtener analytics de campaña
    */
-  public getCampaignAnalytics(campaignId: string, timeframe: 'day' | 'week' | 'month' = 'week'): Observable<any> {
-    return this.makeRequest<any>('GET', `${this.endpoints.analytics}/campaigns/${campaignId}?timeframe=${timeframe}`);
+  public getCampaignAnalytics(
+    campaignId: string,
+    timeframe: 'day' | 'week' | 'month' = 'week'
+  ): Observable<any> {
+    return this.makeRequest<any>(
+      'GET',
+      `${this.endpoints.analytics}/campaigns/${campaignId}?timeframe=${timeframe}`
+    );
   }
 
   /**
@@ -226,32 +250,69 @@ export class BackendApiService {
   /**
    * Controlar scraping
    */
-  public controlScraping(campaignId: string, action: 'start' | 'stop' | 'pause' | 'resume'): Observable<any> {
+  public controlScraping(
+    campaignId: string,
+    action: 'start' | 'stop' | 'pause' | 'resume'
+  ): Observable<any> {
     return this.makeRequest<any>('POST', `${this.endpoints.scraping}/${action}/${campaignId}`);
   }
 
   /**
    * Scrape hashtags - handles both single string and array inputs
-   * @param input - String or string array of hashtags (with or without # prefix)
+   * @param input - String or string array of hashtags (with or without # prefix) OR complete campaign payload
    * @param opts - Optional parameters including campaignId
    */
-  public scrapeHashtags(input: string | string[], opts: ScrapeOpts = {}): Observable<BulkScrapeSummary> {
-    const hashtags = Array.isArray(input) ? input : [input];
-    
-    // Usar el primer hashtag para el campo "hashtag" y el formato correcto según endpoint
-    // Si hay múltiples hashtags, usamos el primero (se puede mejorar para hacer múltiples llamadas)
-    const firstHashtag = hashtags[0]?.replace('#', '') || '';
-    
-    const body = { 
-      hashtag: firstHashtag,
-      limit: opts.limit || 20,
-      analyzeSentiment: true,
-      campaignId: opts.campaignId || '',
-      language: opts.language || 'en'
-    };
-    
+  public scrapeHashtags(
+    input: string | string[] | any,
+    opts: ScrapeOpts = {}
+  ): Observable<BulkScrapeSummary> {
+    let body: any;
+
+    // Si el input es un objeto (payload completo de campaña)
+    if (typeof input === 'object' && !Array.isArray(input) && input.hashtags) {
+      // Usar el payload completo de la campaña
+      body = {
+        name: input.name,
+        description: input.description,
+        type: input.type,
+        dataSources: input.dataSources || ['twitter'],
+        hashtags: input.hashtags,
+        startDate: input.startDate,
+        endDate: input.endDate,
+        maxTweets: input.maxTweets || 10,
+        collectImages: input.collectImages !== undefined ? input.collectImages : true,
+        collectReplies: input.collectReplies !== undefined ? input.collectReplies : false,
+        collectRetweets: input.collectRetweets !== undefined ? input.collectRetweets : true,
+        collectVideos: input.collectVideos !== undefined ? input.collectVideos : true,
+        languages: input.languages || 'en',
+        sentimentAnalysis: input.sentimentAnalysis !== undefined ? input.sentimentAnalysis : true,
+        emotionAnalysis: input.emotionAnalysis !== undefined ? input.emotionAnalysis : false,
+        topicsAnalysis: input.topicsAnalysis !== undefined ? input.topicsAnalysis : false,
+        influencerAnalysis:
+          input.influencerAnalysis !== undefined ? input.influencerAnalysis : false,
+        organizationId: input.organizationId,
+        campaignId: input.campaignId || '',
+      };
+    } else {
+      // Comportamiento legacy: input como hashtags
+      const hashtags = Array.isArray(input) ? input : [input];
+      const firstHashtag = hashtags[0]?.replace('#', '') || '';
+
+      body = {
+        hashtag: firstHashtag,
+        limit: opts.limit || 20,
+        analyzeSentiment: true,
+        campaignId: opts.campaignId || '',
+        language: opts.language || 'en',
+      };
+    }
+
     console.log('Sending scrapeHashtags request with body:', body);
-    return this.makeRequest<BulkScrapeSummary>('POST', `${environment.apiUrl}/api/${environment.apiVersion}/scraping/hashtag`, body);
+    return this.makeRequest<BulkScrapeSummary>(
+      'POST',
+      `${environment.apiUrl}/api/${environment.apiVersion}/scraping/hashtag`,
+      body
+    );
   }
 
   /**
@@ -259,14 +320,21 @@ export class BackendApiService {
    * @param input - String or string array of search queries
    * @param opts - Optional parameters including campaignId
    */
-  public scrapeSearch(input: string | string[], opts: ScrapeOpts = {}): Observable<BulkScrapeSummary> {
+  public scrapeSearch(
+    input: string | string[],
+    opts: ScrapeOpts = {}
+  ): Observable<BulkScrapeSummary> {
     const queries = Array.isArray(input) ? input : [input];
-    const body = { 
+    const body = {
       query: queries,
-      ...opts
+      ...opts,
     };
-    
-    return this.makeRequest<BulkScrapeSummary>('POST', `${environment.apiUrl}/api/${environment.apiVersion}/scraping/search`, body);
+
+    return this.makeRequest<BulkScrapeSummary>(
+      'POST',
+      `${environment.apiUrl}/api/${environment.apiVersion}/scraping/search`,
+      body
+    );
   }
 
   /**
@@ -274,14 +342,21 @@ export class BackendApiService {
    * @param input - String or string array of usernames (with or without @ prefix)
    * @param opts - Optional parameters including campaignId
    */
-  public scrapeUsers(input: string | string[], opts: ScrapeOpts = {}): Observable<BulkScrapeSummary> {
+  public scrapeUsers(
+    input: string | string[],
+    opts: ScrapeOpts = {}
+  ): Observable<BulkScrapeSummary> {
     const usernames = Array.isArray(input) ? input : [input];
-    const body = { 
+    const body = {
       username: usernames,
-      ...opts
+      ...opts,
     };
-    
-    return this.makeRequest<BulkScrapeSummary>('POST', `${environment.apiUrl}/api/${environment.apiVersion}/scraping/user`, body);
+
+    return this.makeRequest<BulkScrapeSummary>(
+      'POST',
+      `${environment.apiUrl}/api/${environment.apiVersion}/scraping/user`,
+      body
+    );
   }
 
   // ===== UTILITY METHODS =====
@@ -290,19 +365,20 @@ export class BackendApiService {
    * Verificar salud del backend
    */
   public checkBackendHealth(): Observable<boolean> {
-    return this.http.get(`${environment.apiUrl}/health`, { 
-      headers: this.baseHeaders,
-      responseType: 'json'
-    })
-    .pipe(
-      timeout(5000), // 5 segundos timeout
-      map(() => true),
-      tap(() => this.setOnlineStatus(true)),
-      catchError(() => {
-        this.setOnlineStatus(false);
-        return of(false);
+    return this.http
+      .get(`${environment.apiUrl}/health`, {
+        headers: this.baseHeaders,
+        responseType: 'json',
       })
-    );
+      .pipe(
+        timeout(5000), // 5 segundos timeout
+        map(() => true),
+        tap(() => this.setOnlineStatus(true)),
+        catchError(() => {
+          this.setOnlineStatus(false);
+          return of(false);
+        })
+      );
   }
 
   /**
@@ -325,7 +401,7 @@ export class BackendApiService {
   ): Observable<T> {
     const requestOptions = {
       headers: options?.headers || this.baseHeaders,
-      body: method === 'GET' ? undefined : body
+      body: method === 'GET' ? undefined : body,
     };
 
     let httpRequest: Observable<ApiResponse<T>>;
@@ -350,15 +426,15 @@ export class BackendApiService {
       retry({
         count: 2,
         delay: 1000,
-        resetOnSuccess: true
+        resetOnSuccess: true,
       }),
-      map(response => {
+      map((response) => {
         if (!response.success) {
           throw new Error(response.message || `Error en ${method} ${url}`);
         }
         return response.data;
       }),
-      catchError(error => {
+      catchError((error) => {
         this.handleError(error, `${method} ${url}`);
         return throwError(() => error);
       })
@@ -370,7 +446,7 @@ export class BackendApiService {
    */
   private handleError(error: HttpErrorResponse | Error, context: string): void {
     console.error(`🔥 Backend API Error [${context}]:`, error);
-    
+
     if (error instanceof HttpErrorResponse) {
       // Error HTTP específico
       if (error.status === 0 || error.status >= 500) {
