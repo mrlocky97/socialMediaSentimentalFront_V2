@@ -27,6 +27,7 @@ export interface Campaign {
   organizationId?: string;
   dataSources?: string[];
   languages?: string[];
+  maxTweets?: number;
   stats: {
     totalTweets: number;
     averageSentiment: number;

@@ -2,10 +2,9 @@ import { inject, Injectable } from '@angular/core';
 import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
-import * as CampaignActions from '../actions/campaign.actions';
-import { BackendApiService } from '../../services/backend-api.service';
 import { CampaignAdapter } from '../../../features/campaign-dialog/adapters/campaign.adapter';
-import { CampaignRequest } from '../../../features/campaign-dialog/interfaces/campaign-dialog.interface';
+import { BackendApiService } from '../../services/backend-api.service';
+import * as CampaignActions from '../actions/campaign.actions';
 
 @Injectable()
 export class CampaignEffects {
@@ -23,12 +22,12 @@ export class CampaignEffects {
         // Añadir logging para depurar
         const campaignToCreate = CampaignAdapter.fromRequestToApi(campaign);
         console.log('Sending campaign to API:', campaignToCreate);
-        
+
         return this.apiService.createCampaign(campaignToCreate).pipe(
           map((newCampaign) => {
             console.log('Campaign created successfully:', newCampaign);
-            return CampaignActions.createCampaignSuccess({ 
-              campaign: CampaignAdapter.fromApiToState(newCampaign) 
+            return CampaignActions.createCampaignSuccess({
+              campaign: CampaignAdapter.fromApiToState(newCampaign),
             });
           }),
           catchError((error) => {
@@ -39,16 +38,16 @@ export class CampaignEffects {
       })
     )
   );
-  
+
   // Cargar campañas
   loadCampaigns$ = createEffect(() =>
     this.actions$.pipe(
       ofType(CampaignActions.loadCampaigns),
       switchMap(({ filter, page, pageSize, sort }) =>
         this.apiService.getCampaigns().pipe(
-          map((campaigns) => 
-            CampaignActions.loadCampaignsSuccess({ 
-              campaigns: campaigns.map(campaign => CampaignAdapter.fromApiToState(campaign))
+          map((campaigns) =>
+            CampaignActions.loadCampaignsSuccess({
+              campaigns: campaigns.map((campaign) => CampaignAdapter.fromApiToState(campaign)),
             })
           ),
           catchError((error) => of(CampaignActions.loadCampaignsFailure({ error })))
@@ -56,16 +55,16 @@ export class CampaignEffects {
       )
     )
   );
-  
+
   // Actualizar campaña
   updateCampaign$ = createEffect(() =>
     this.actions$.pipe(
       ofType(CampaignActions.updateCampaign),
       switchMap(({ id, campaign }) =>
         this.apiService.updateCampaign(id, CampaignAdapter.fromStateToApi(campaign as any)).pipe(
-          map((updatedCampaign) => 
-            CampaignActions.updateCampaignSuccess({ 
-              campaign: CampaignAdapter.fromApiToState(updatedCampaign)
+          map((updatedCampaign) =>
+            CampaignActions.updateCampaignSuccess({
+              campaign: CampaignAdapter.fromApiToState(updatedCampaign),
             })
           ),
           catchError((error) => of(CampaignActions.updateCampaignFailure({ error })))
@@ -73,7 +72,7 @@ export class CampaignEffects {
       )
     )
   );
-  
+
   // Eliminar campaña
   deleteCampaign$ = createEffect(() =>
     this.actions$.pipe(
@@ -86,31 +85,27 @@ export class CampaignEffects {
       )
     )
   );
-  
+
   // Iniciar campaña
   startCampaign$ = createEffect(() =>
     this.actions$.pipe(
       ofType(CampaignActions.startCampaign),
       switchMap(({ id }) =>
         this.apiService.toggleCampaign(id, 'start').pipe(
-          map((updatedCampaign) => 
-            CampaignActions.startCampaignSuccess({ id })
-          ),
+          map((updatedCampaign) => CampaignActions.startCampaignSuccess({ id })),
           catchError((error) => of(CampaignActions.startCampaignFailure({ error })))
         )
       )
     )
   );
-  
+
   // Detener campaña
   stopCampaign$ = createEffect(() =>
     this.actions$.pipe(
       ofType(CampaignActions.stopCampaign),
       switchMap(({ id }) =>
         this.apiService.toggleCampaign(id, 'stop').pipe(
-          map((updatedCampaign) => 
-            CampaignActions.stopCampaignSuccess({ id })
-          ),
+          map((updatedCampaign) => CampaignActions.stopCampaignSuccess({ id })),
           catchError((error) => of(CampaignActions.stopCampaignFailure({ error })))
         )
       )

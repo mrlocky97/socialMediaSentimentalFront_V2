@@ -535,6 +535,10 @@
     "custom_targeting_note": "Les options de ciblage personnalisées sont disponibles pour les plans entreprise. Contactez les ventes pour plus d'informations."
   },
   "campaign_detail": {
+    "analytics_insights": "Aperçus et Analyses",
+    "key_metrics": "Métriques Clés",
+    "analytics_charts": "Graphiques Analytiques",
+    "top_content": "Contenu Principal",
     "campaign_details": "Détails de la campagne",
     "loading": "Chargement des détails de la campagne...",
     "error_title": "Erreur lors du chargement de la campagne",

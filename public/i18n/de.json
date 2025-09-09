@@ -533,6 +533,10 @@
     "custom_targeting_note": "Benutzerdefinierte Zieloptionen sind für Unternehmenskunden verfügbar. Kontaktieren Sie den Vertrieb für weitere Informationen."
   },
   "campaign_detail": {
+    "analytics_insights": "Analysen und Erkenntnisse",
+    "key_metrics": "Wichtige Kennzahlen",
+    "analytics_charts": "Analyse-Diagramme",
+    "top_content": "Top-Inhalte",
     "campaign_details": "Kampagnendetails",
     "loading": "Kampagnendetails werden geladen...",
     "error_title": "Fehler beim Laden der Kampagne",

@@ -533,6 +533,10 @@
     }
   },
   "campaign_detail": {
+    "analytics_insights": "Insights y Análisis",
+    "key_metrics": "Métricas Clave",
+    "analytics_charts": "Gráficos Analíticos",
+    "top_content": "Contenido Destacado",
     "campaign_details": "Detalles de la Campaña",
     "loading": "Cargando detalles de la campaña...",
     "error_title": "Error al cargar campaña",

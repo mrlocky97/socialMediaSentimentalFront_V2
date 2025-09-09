@@ -552,6 +552,10 @@
     }
   },
   "campaign_detail": {
+    "analytics_insights": "Insights and Analysis",
+    "key_metrics": "Key Metrics",
+    "analytics_charts": "Analytics Charts",
+    "top_content": "Top Content",
     "campaign_details": "Campaign Details",
     "loading": "Loading campaign details...",
     "error_title": "Error loading campaign",
