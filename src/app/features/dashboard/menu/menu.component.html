@@ -1,60 +1,71 @@
 <nav class="menu-container" role="navigation" aria-label="Menú principal de navegación">
   <!-- Información del usuario -->
-  <header class="user-profile-section" *ngIf="currentUser()" role="banner">
+  @if (currentUser()) {
+  <header class="user-profile-section" role="banner">
     <div class="user-profile">
-      <div class="user-avatar" [attr.aria-label]="transloco.translate('menu.messages.avatar_alt', {name: currentUser()?.displayName || currentUser()?.username})">
-        {{ (currentUser()?.displayName || currentUser()?.username || '??').charAt(0).toUpperCase() }}
+      <div
+        class="user-avatar"
+        [attr.aria-label]="
+          transloco.translate('menu.messages.avatar_alt', {
+            name: currentUser()?.displayName || currentUser()?.username
+          })
+        "
+      >
+        {{
+          (currentUser()?.displayName || currentUser()?.username || '??').charAt(0).toUpperCase()
+        }}
       </div>
       <div class="user-details">
-        <div class="user-name" 
-             [attr.title]="currentUser()?.displayName || currentUser()?.username">
+        <div class="user-name" [attr.title]="currentUser()?.displayName || currentUser()?.username">
           {{ currentUser()?.displayName || currentUser()?.username }}
         </div>
-        <div class="user-role" 
-             [attr.aria-label]="transloco.translate('menu.messages.user_role', {role: getRoleDisplayText()})">
+        <div
+          class="user-role"
+          [attr.aria-label]="
+            transloco.translate('menu.messages.user_role', { role: getRoleDisplayText() })
+          "
+        >
           {{ getRoleDisplayText() }}
         </div>
       </div>
     </div>
   </header>
+  }
 
   <mat-divider role="separator"></mat-divider>
 
   <!-- Navegación principal -->
   <section class="navigation-section" role="main">
     <mat-nav-list class="main-nav" role="list">
-      @for (item of navItems; track item.route) {
-        <ng-container *ngIf="item">
-          <a mat-list-item 
-             [routerLink]="item.route" 
-             (click)="onNavigate()" 
-             routerLinkActive="active"
-             [routerLinkActiveOptions]="{exact: item.route === '/dashboard/home'}"
-             [attr.aria-label]="transloco.translate(item.ariaLabelKey)"
-             [attr.title]="transloco.translate(item.labelKey)"
-             class="nav-item"
-             role="listitem">
-            <mat-icon [attr.aria-hidden]="true" 
-                      [fontIcon]="item.icon">
-            </mat-icon>
-            <span class="nav-label">{{ transloco.translate(item.labelKey) }}</span>
-          </a>
-        </ng-container>
-      }
+      @for (item of navItems; track item.route) { @if (item) {
+      <a
+        mat-list-item
+        [routerLink]="item.route"
+        (click)="onNavigate()"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: item.route === '/dashboard/home' }"
+        [attr.aria-label]="transloco.translate(item.ariaLabelKey)"
+        [attr.title]="transloco.translate(item.labelKey)"
+        class="nav-item"
+        role="listitem"
+      >
+        <mat-icon [attr.aria-hidden]="true" [fontIcon]="item.icon"> </mat-icon>
+        <span class="nav-label">{{ transloco.translate(item.labelKey) }}</span>
+      </a>
+      } }
     </mat-nav-list>
   </section>
 
   <!-- Sección de logout -->
   <footer class="logout-section" role="contentinfo">
-    <button (click)="onLogout()"
-            class="logout-item"
-            type="button"
-            [attr.aria-label]="'menu.aria.logout' | transloco"
-            [attr.title]="'menu.logout' | transloco">
-      <mat-icon [fontIcon]="'logout'"
-                class="logout-icon"
-                [attr.aria-hidden]="true">
-      </mat-icon>
+    <button
+      (click)="onLogout()"
+      class="logout-item"
+      type="button"
+      [attr.aria-label]="'menu.aria.logout' | transloco"
+      [attr.title]="'menu.logout' | transloco"
+    >
+      <mat-icon [fontIcon]="'logout'" class="logout-icon" [attr.aria-hidden]="true"> </mat-icon>
       <span class="logout-label">{{ 'menu.logout' | transloco }}</span>
     </button>
   </footer>
