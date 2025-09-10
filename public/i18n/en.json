@@ -6,9 +6,10 @@
     "cancel": "Cancel",
     "loading": "Loading...",
     "error": "Error",
-    "success": "Success"
+    "success": "Success",
+    "refresh": "Refresh"
   },
-  "delete_dialog":{ 
+  "delete_dialog": {
     "confirmation": "Confirm deletion",
     "message": "Are you sure you want to delete this {{name}} item? This action cannot be undone.",
     "cancel": "Cancel",
@@ -199,7 +200,9 @@
       "salesConversion": "Sales Conversion",
       "engagement": "Engagement",
       "trafficDrive": "Traffic Drive",
-      "appPromotion": "App Promotion"
+      "appPromotion": "App Promotion",
+      "hashtag": "Hashtag",
+      "keyword": "Keyword"
     },
     "platforms": {
       "twitter": "Twitter",
@@ -348,20 +351,26 @@
     }
   },
   "dashboard": {
+    "viewFullAnalytics": "View Full Analytics",
+    "viewFullSentiment": "View Full Sentiment Analysis",
     "welcome": "Welcome to SentimentalSocial",
     "subtitle": "Social media sentiment analysis platform",
     "auth_required": "Authentication required",
-    "login_to_view_campaigns": "Please log in to view campaign summary.",
-    "login_to_view_tweets": "Please log in to view pending tweets.",
-    "login_to_view_analytics": "Please log in to view real-time metrics.",
-    "login_to_view_sentiment": "Please log in to view sentiment analysis.",
+    "login_to_view_campaigns": "Log in to view the campaign summary.",
+    "login_to_view_tweets": "Log in to view pending tweets.",
+    "login_to_view_analytics": "Log in to view real-time metrics.",
+    "login_to_view_sentiment": "Log in to view sentiment analysis.",
+    "type": {
+      "hashtag": "Hashtag",
+      "keyword": "Keyword"
+    },
     "analytics": {
       "title": "Analytics Overview",
       "subtitle": "Real-time metrics"
     },
     "sentiment": {
       "title": "Sentiment Analysis",
-      "subtitle": "Latest campaign sentiment",
+      "subtitle": "Sentiment for recent campaigns",
       "overall": "Overall",
       "positive": "Positive",
       "neutral": "Neutral",
@@ -369,7 +378,7 @@
     },
     "stats": {
       "total_tweets": "Total Tweets",
-      "avg_sentiment": "Avg Sentiment",
+      "avg_sentiment": "Average Sentiment",
       "active_campaigns": "Active Campaigns",
       "engagement": "Engagement"
     }

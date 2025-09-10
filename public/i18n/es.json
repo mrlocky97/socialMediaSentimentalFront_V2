@@ -203,7 +203,9 @@
       "salesConversion": "Conversión de Ventas",
       "engagement": "Engagement",
       "trafficDrive": "Tráfico Web",
-      "appPromotion": "Promoción de App"
+      "appPromotion": "Promoción de App",
+      "hashtag": "Hashtag",
+      "keyword": "Palabra Clave"
     },
     "platforms": {
       "twitter": "Twitter",
@@ -390,6 +392,8 @@
     "try_again": "Intentar de nuevo"
   },
   "dashboard": {
+    "viewFullAnalytics": "Ver Análisis Completo",
+    "viewFullSentiment": "Ver Análisis Completo",
     "welcome": "Bienvenido a SentimentalSocial",
     "subtitle": "Plataforma de análisis de sentimientos en redes sociales",
     "auth_required": "Autenticación requerida",
@@ -397,6 +401,10 @@
     "login_to_view_tweets": "Inicia sesión para ver tweets pendientes.",
     "login_to_view_analytics": "Inicia sesión para ver métricas en tiempo real.",
     "login_to_view_sentiment": "Inicia sesión para ver análisis de sentimientos.",
+    "type":{
+      "hashtag": "Hashtag",
+      "keyword": "Palabra clave"
+    },
     "analytics": {
       "title": "Resumen Analítico",
       "subtitle": "Métricas en tiempo real"

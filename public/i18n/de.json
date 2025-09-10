@@ -6,7 +6,8 @@
     "cancel": "Abbrechen",
     "loading": "Laden...",
     "error": "Fehler",
-    "success": "Erfolg"
+    "success": "Erfolg",
+    "refresh": "Aktualisieren"
   },
   "delete_dialog": {
     "confirmation": "Löschen bestätigen",
@@ -135,7 +136,9 @@
       "salesConversion": "Verkaufskonversion",
       "engagement": "Engagement",
       "trafficDrive": "Traffic-Generierung",
-      "appPromotion": "App-Promotion"
+      "appPromotion": "App-Promotion",
+      "hashtag": "Hashtag",
+      "keyword": "Keyword"
     },
     "platforms": {
       "twitter": "Twitter",
@@ -324,28 +327,34 @@
     "try_again": "Erneut versuchen"
   },
   "dashboard": {
+    "viewFullAnalytics": "Vollständige Analyse anzeigen",
+    "viewFullSentiment": "Vollständige Stimmungsanalyse anzeigen",
     "welcome": "Willkommen bei SentimentalSocial",
-    "subtitle": "Social-Media-Stimmungsanalyse-Plattform",
+    "subtitle": "Plattform für Stimmungsanalyse in sozialen Medien",
     "auth_required": "Authentifizierung erforderlich",
-    "login_to_view_campaigns": "Bitte melden Sie sich an, um die Kampagnen-Zusammenfassung zu sehen.",
-    "login_to_view_tweets": "Bitte melden Sie sich an, um ausstehende Tweets zu sehen.",
-    "login_to_view_analytics": "Bitte melden Sie sich an, um Echtzeit-Metriken zu sehen.",
-    "login_to_view_sentiment": "Bitte melden Sie sich an, um die Stimmungsanalyse zu sehen.",
+    "login_to_view_campaigns": "Melden Sie sich an, um die Kampagnenübersicht zu sehen.",
+    "login_to_view_tweets": "Melden Sie sich an, um ausstehende Tweets zu sehen.",
+    "login_to_view_analytics": "Melden Sie sich an, um Echtzeitmetriken zu sehen.",
+    "login_to_view_sentiment": "Melden Sie sich an, um die Stimmungsanalyse zu sehen.",
+    "type": {
+      "hashtag": "Hashtag",
+      "keyword": "Schlüsselwort"
+    },
     "analytics": {
       "title": "Analytics-Übersicht",
-      "subtitle": "Echtzeit-Metriken"
+      "subtitle": "Echtzeitmetriken"
     },
     "sentiment": {
       "title": "Stimmungsanalyse",
-      "subtitle": "Neueste Kampagnenstimmung",
+      "subtitle": "Stimmung aktueller Kampagnen",
       "overall": "Gesamt",
       "positive": "Positiv",
       "neutral": "Neutral",
       "negative": "Negativ"
     },
     "stats": {
-      "total_tweets": "Gesamte Tweets",
-      "avg_sentiment": "Durchschn. Stimmung",
+      "total_tweets": "Gesamtzahl der Tweets",
+      "avg_sentiment": "Durchschnittliche Stimmung",
       "active_campaigns": "Aktive Kampagnen",
       "engagement": "Engagement"
     }

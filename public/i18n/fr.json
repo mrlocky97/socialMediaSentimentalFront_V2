@@ -6,7 +6,8 @@
     "cancel": "Annuler",
     "loading": "Chargement...",
     "error": "Erreur",
-    "success": "Succès"
+    "success": "Succès",
+    "refresh": "Actualiser"
   },
   "delete_dialog": {
     "confirmation": "Confirmer la suppression",
@@ -135,7 +136,9 @@
       "salesConversion": "Conversion de Ventes",
       "engagement": "Engagement",
       "trafficDrive": "Génération de Trafic",
-      "appPromotion": "Promotion d'Application"
+      "appPromotion": "Promotion d'Application",
+      "hashtag": "Hashtag",
+      "keyword": "Mot Clé"
     },
     "platforms": {
       "twitter": "Twitter",
@@ -326,29 +329,35 @@
     "try_again": "Réessayer"
   },
   "dashboard": {
+    "viewFullAnalytics": "Voir l’analyse complète",
+    "viewFullSentiment": "Voir l’analyse complète des sentiments",
     "welcome": "Bienvenue sur SentimentalSocial",
-    "subtitle": "Plateforme d'analyse de sentiment des réseaux sociaux",
+    "subtitle": "Plateforme d’analyse des sentiments sur les réseaux sociaux",
     "auth_required": "Authentification requise",
-    "login_to_view_campaigns": "Veuillez vous connecter pour voir le résumé des campagnes.",
-    "login_to_view_tweets": "Veuillez vous connecter pour voir les tweets en attente.",
-    "login_to_view_analytics": "Veuillez vous connecter pour voir les métriques en temps réel.",
-    "login_to_view_sentiment": "Veuillez vous connecter pour voir l'analyse de sentiment.",
+    "login_to_view_campaigns": "Connectez-vous pour voir le résumé des campagnes.",
+    "login_to_view_tweets": "Connectez-vous pour voir les tweets en attente.",
+    "login_to_view_analytics": "Connectez-vous pour voir les métriques en temps réel.",
+    "login_to_view_sentiment": "Connectez-vous pour voir l’analyse des sentiments.",
+    "type": {
+      "hashtag": "Hashtag",
+      "keyword": "Mot-clé"
+    },
     "analytics": {
-      "title": "Aperçu Analytique",
+      "title": "Aperçu analytique",
       "subtitle": "Métriques en temps réel"
     },
     "sentiment": {
-      "title": "Analyse de Sentiment",
-      "subtitle": "Sentiment des dernières campagnes",
-      "overall": "Général",
+      "title": "Analyse des sentiments",
+      "subtitle": "Sentiment des campagnes récentes",
+      "overall": "Global",
       "positive": "Positif",
       "neutral": "Neutre",
       "negative": "Négatif"
     },
     "stats": {
-      "total_tweets": "Total des Tweets",
-      "avg_sentiment": "Sentiment Moyen",
-      "active_campaigns": "Campagnes Actives",
+      "total_tweets": "Nombre total de tweets",
+      "avg_sentiment": "Sentiment moyen",
+      "active_campaigns": "Campagnes actives",
       "engagement": "Engagement"
     }
   },
