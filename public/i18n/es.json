@@ -522,7 +522,7 @@
     },
     "roles": {
       "admin": "Administrador",
-      "manager": "Manager",
+      "manager": "Gerente",
       "analyst": "Analista",
       "onlyView": "Solo lectura",
       "client": "Cliente",
