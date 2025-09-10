@@ -597,6 +597,8 @@
     "try_again": "Intentar de nuevo",
     "no_tweets_found": "No se encontraron tweets",
     "no_tweets_description": "Aún no se han recopilado tweets para esta campaña.",
+    "no_data_available": "No hay datos disponibles",
+    "no_tweets_collected": "No se han recopilado tweets para esta campaña",
     "start_scraping": "Iniciar Scraping",
     "total_tweets": "Total de Tweets",
     "positive_sentiment": "Sentimiento Positivo",

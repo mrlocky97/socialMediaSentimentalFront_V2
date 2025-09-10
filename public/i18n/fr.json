@@ -17,8 +17,11 @@
   },
   "login": {
     "app_name": "SentimentalSocial",
-    "subtitle": "Analyse de Sentiment Entreprise",
-    "title": "Connexion",
+    "subtitle": "Analyse de Sentiment Entreprise",    "no_tweets_found": "Aucun tweet trouvé",
+    "no_tweets_description": "Aucun tweet n'a encore été collecté pour cette campagne.",
+    "no_data_available": "Aucune donnée disponible",
+    "no_tweets_collected": "Aucun tweet n'a été collecté pour cette campagne",
+    "start_scraping": "Démarrer le scraping",  "title": "Connexion",
     "email": "E-mail Corporate",
     "email_placeholder": "utilisateur@entreprise.com",
     "password": "Mot de Passe",
