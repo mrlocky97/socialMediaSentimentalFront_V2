@@ -543,7 +543,14 @@
       "trafficDrive": "Traffic Drive",
       "appPromotion": "App Promotion"
     },
-    "loading:¡_dialog": "Loading dialog...",
+    "loading": "Loading campaigns...",
+    "empty": "No campaigns found",
+    "create_first": "Create your first campaign",
+    "actions": "Actions",
+    "resume": "Resume",
+    "delete": "Delete",
+    "error_loading": "Error loading campaigns",
+    "try_again": "Try again",
     "platforms": {
       "twitter": "Twitter",
       "facebook": "Facebook",
