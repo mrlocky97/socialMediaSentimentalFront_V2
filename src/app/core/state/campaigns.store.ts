@@ -242,6 +242,32 @@ export class CampaignsStore {
         sentimentAnalysis: true,
         organizationId: 'org-1',
         maxTweets: 1000,
+        stats: {
+          totalTweets: 1247,
+          totalEngagement: 3892,
+          avgSentiment: 0.75,
+          sentimentDistribution: {
+            positive: 689,
+            negative: 156,
+            neutral: 402
+          },
+          topHashtags: [
+            { tag: '#brand', count: 423 },
+            { tag: '#sentiment', count: 298 }
+          ],
+          topMentions: [
+            { mention: '@company', count: 234 },
+            { mention: '@support', count: 189 }
+          ],
+          topKeywords: [
+            { keyword: 'customer satisfaction', count: 567 },
+            { keyword: 'brand perception', count: 321 }
+          ],
+          influencers: [
+            { username: '@influencer1', followers: 15000, engagement: 1250 },
+            { username: '@influencer2', followers: 8500, engagement: 890 }
+          ]
+        }
       },
       {
         id: 'campaign-2',
@@ -261,6 +287,30 @@ export class CampaignsStore {
         sentimentAnalysis: true,
         organizationId: 'org-1',
         maxTweets: 500,
+        stats: {
+          totalTweets: 789,
+          totalEngagement: 2156,
+          avgSentiment: 0.68,
+          sentimentDistribution: {
+            positive: 456,
+            negative: 98,
+            neutral: 235
+          },
+          topHashtags: [
+            { tag: '#newproduct', count: 398 },
+            { tag: '#launch', count: 245 }
+          ],
+          topMentions: [
+            { mention: '@productteam', count: 167 }
+          ],
+          topKeywords: [
+            { keyword: 'product launch', count: 423 },
+            { keyword: 'innovation', count: 298 }
+          ],
+          influencers: [
+            { username: '@techreviewer', followers: 25000, engagement: 1890 }
+          ]
+        }
       },
       {
         id: 'campaign-3',
@@ -280,6 +330,30 @@ export class CampaignsStore {
         sentimentAnalysis: true,
         organizationId: 'org-1',
         maxTweets: 750,
+        stats: {
+          totalTweets: 623,
+          totalEngagement: 1456,
+          avgSentiment: 0.45,
+          sentimentDistribution: {
+            positive: 187,
+            negative: 234,
+            neutral: 202
+          },
+          topHashtags: [
+            { tag: '#competitor', count: 298 }
+          ],
+          topMentions: [
+            { mention: '@competitor1', count: 234 },
+            { mention: '@competitor2', count: 189 }
+          ],
+          topKeywords: [
+            { keyword: 'competition', count: 345 },
+            { keyword: 'market analysis', count: 278 }
+          ],
+          influencers: [
+            { username: '@analyst', followers: 12000, engagement: 670 }
+          ]
+        }
       },
     ];
   }
