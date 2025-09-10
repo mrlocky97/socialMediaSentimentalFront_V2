@@ -4,6 +4,7 @@
     "required": "requerido",
     "save": "Guardar",
     "cancel": "Cancelar",
+    "close": "Cerrar",
     "loading": "Cargando...",
     "error": "Error",
     "success": "Éxito",
@@ -232,6 +233,9 @@
       "activate": "Activar",
       "pause": "Pausar",
       "delete": "Eliminar"
+    },
+    "delete": {
+      "success": "Campaña eliminada correctamente"
     },
     "noData": {
       "title": "No hay campañas creadas",

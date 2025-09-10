@@ -4,6 +4,7 @@
     "required": "required",
     "save": "Save",
     "cancel": "Cancel",
+    "close": "Close",
     "loading": "Loading...",
     "error": "Error",
     "success": "Success",
@@ -230,6 +231,9 @@
       "activate": "Activate",
       "pause": "Pause",
       "delete": "Delete"
+    },
+    "delete": {
+      "success": "Campaign deleted successfully"
     },
     "noData": {
       "title": "No campaigns created",
