@@ -6,7 +6,9 @@
     "cancel": "Cancelar",
     "loading": "Cargando...",
     "error": "Error",
-    "success": "Éxito"
+    "success": "Éxito",
+    "retry": "Reintentar",
+    "refresh": "Actualizar"
   },
   "delete_dialog": {
     "confirmation": "Confirmar eliminación",
@@ -244,7 +246,8 @@
       "conversions": "Conversiones",
       "avgCTR": "CTR Promedio",
       "avgROAS": "ROAS Promedio",
-      "recentCampaigns": "Campañas Recientes"
+      "recentCampaigns": "Campañas Recientes",
+      "noRecentCampaigns": "No hay campañas recientes"
     },
     "viewAll": "Ver Todas las Campañas",
     "wizard": {

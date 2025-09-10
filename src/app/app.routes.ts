@@ -31,13 +31,6 @@ export const routes: Routes = [
     title: 'Campaigns - Sentimental Social',
   },
   {
-    path: 'analytics',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/analytics-exporter/analytics-exporter.component').then((c) => c.AnalyticsExporterComponent),
-    title: 'Analytics - Sentimental Social',
-  },
-  {
     path: 'profile',
     redirectTo: '/dashboard/profile',
     pathMatch: 'full'

@@ -10,14 +10,40 @@
         <mat-card-title>{{ 'campaigns.summary.title' | transloco }}</mat-card-title>
         <mat-card-subtitle>{{ 'campaigns.summary.subtitle' | transloco }}</mat-card-subtitle>
       </div>
-  <button mat-icon-button [routerLink]="['/dashboard/campaigns']" [attr.aria-label]="'campaigns.viewAll' | transloco">
-        <mat-icon>arrow_forward</mat-icon>
-      </button>
+      <div class="header-actions">
+        <button
+          mat-icon-button
+          (click)="onRefresh()"
+          [disabled]="componentLoading()"
+          [attr.aria-label]="'common.refresh' | transloco"
+        >
+          <mat-icon>refresh</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          [routerLink]="['/dashboard/campaigns']"
+          [attr.aria-label]="'campaigns.viewAll' | transloco"
+        >
+          <mat-icon>arrow_forward</mat-icon>
+        </button>
+      </div>
     </div>
   </mat-card-header>
 
   <mat-card-content>
-    <div class="summary-metrics" *ngIf="!loading(); else loadingTemplate">
+    @if (!componentLoading()) {
+    <!-- Error State -->
+    @if (componentError()) {
+    <div class="error-state">
+      <mat-icon class="error-icon" color="warn">error_outline</mat-icon>
+      <p class="error-message">{{ componentError() }}</p>
+      <button mat-button color="primary" (click)="onRetry()">
+        <mat-icon>refresh</mat-icon>
+        {{ 'common.retry' | transloco }}
+      </button>
+    </div>
+    } @else {
+    <div class="summary-metrics">
       <!-- Top Metrics Row -->
       <div class="metrics-row">
         <div class="metric-card">
@@ -47,7 +73,11 @@
           <span class="budget-title">{{ 'campaigns.summary.budgetOverview' | transloco }}</span>
           <span class="budget-percentage">{{ getBudgetPercentage() }}%</span>
         </div>
-        <mat-progress-bar mode="determinate" [value]="getBudgetPercentage()" class="budget-progress">
+        <mat-progress-bar
+          mode="determinate"
+          [value]="getBudgetPercentage()"
+          class="budget-progress"
+        >
         </mat-progress-bar>
         <div class="budget-details">
           <span class="budget-spent">{{ formatCurrency(summary().totalSpent) }}</span>
@@ -91,10 +121,12 @@
       </div>
 
       <!-- Recent Campaigns -->
-      <div class="recent-campaigns" *ngIf="recentCampaigns().length > 0">
+      @if (recentCampaigns().length > 0) {
+      <div class="recent-campaigns">
         <h4>{{ 'campaigns.summary.recentCampaigns' | transloco }}</h4>
         <div class="campaign-list">
-          <div *ngFor="let campaign of recentCampaigns(); trackBy: trackByCampaignId" class="campaign-item">
+          @for (campaign of recentCampaigns(); track campaign.id) {
+          <div class="campaign-item">
             <div class="campaign-info">
               <div class="campaign-name">{{ campaign.name }}</div>
               <div class="campaign-type">{{ 'campaigns.type.' + campaign.type | transloco }}</div>
@@ -105,25 +137,32 @@
               </mat-chip>
             </mat-chip-set>
           </div>
+          }
         </div>
       </div>
-    </div>
-
-    <!-- Loading Template -->
-    <ng-template #loadingTemplate>
-      <div class="loading-state">
-        <mat-icon class="loading-icon">hourglass_empty</mat-icon>
-        <p>{{ 'campaigns.summary.loading' | transloco }}</p>
+      } @else {
+      <!-- Empty State for Recent Campaigns -->
+      <div class="empty-recent-campaigns">
+        <mat-icon class="empty-icon">campaign</mat-icon>
+        <p class="empty-message">{{ 'campaigns.summary.noRecentCampaigns' | transloco }}</p>
       </div>
-    </ng-template>
+      }
+    </div>
+    } } @else {
+    <!-- Loading State -->
+    <div class="loading-state">
+      <mat-progress-spinner diameter="40" mode="indeterminate"></mat-progress-spinner>
+      <p>{{ 'campaigns.summary.loading' | transloco }}</p>
+    </div>
+    }
   </mat-card-content>
 
   <mat-card-actions>
-  <button mat-button [routerLink]="['/dashboard/campaigns']">
+    <button mat-button [routerLink]="['/dashboard/campaigns']">
       <mat-icon>list</mat-icon>
       {{ 'campaigns.viewAll' | transloco }}
     </button>
-  <button mat-button [routerLink]="['/dashboard/campaigns/create']" color="primary">
+    <button mat-button [routerLink]="['/dashboard/campaigns/create']" color="primary">
       <mat-icon>add</mat-icon>
       {{ 'campaigns.create' | transloco }}
     </button>
