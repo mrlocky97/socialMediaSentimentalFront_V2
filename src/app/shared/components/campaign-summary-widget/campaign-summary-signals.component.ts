@@ -1,4 +1,3 @@
-
 import { Component, computed, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -9,7 +8,7 @@ import { CampaignsStore } from '../../../core/state/campaigns.store';
 
 /**
  * Campaign Summary Signals Component - Modern Architecture Example
- * 
+ *
  * This component demonstrates the new architecture:
  * - Consumes signals from CampaignsStore (computed)
  * - Emits actions to the store (method calls)
@@ -24,8 +23,8 @@ import { CampaignsStore } from '../../../core/state/campaigns.store';
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
-    MatChipsModule
-],
+    MatChipsModule,
+  ],
   templateUrl: './campaign-summary-signals.component.html',
   styleUrls: ['./campaign-summary-signals.component.css'],
 })
@@ -64,20 +63,20 @@ export class CampaignSummarySignalsComponent {
   // Pure utility methods for template
   getStatusText(status: string): string {
     const statusMap: { [key: string]: string } = {
-      'active': 'Active',
-      'paused': 'Paused', 
-      'completed': 'Completed',
-      'inactive': 'Inactive'
+      active: 'Active',
+      paused: 'Paused',
+      completed: 'Completed',
+      inactive: 'Inactive',
     };
     return statusMap[status] || status;
   }
 
   getTypeText(type: string): string {
     const typeMap: { [key: string]: string } = {
-      'hashtag': 'Hashtag',
-      'keyword': 'Keyword',
-      'user': 'User',
-      'mention': 'Mention'
+      hashtag: 'Hashtag',
+      keyword: 'Keyword',
+      user: 'User',
+      mention: 'Mention',
     };
     return typeMap[type] || type;
   }

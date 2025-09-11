@@ -1,0 +1,264 @@
+.create-job-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.job-form-card {
+  margin-bottom: 24px;
+}
+
+.form-section {
+  margin-bottom: 32px;
+}
+
+.form-section h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #1976d2;
+  margin-bottom: 16px;
+  font-size: 18px;
+}
+
+.type-selection {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.type-card {
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.type-card:hover {
+  border-color: #1976d2;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.type-card.selected {
+  border-color: #1976d2;
+  background: #e3f2fd;
+}
+
+.type-card mat-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+  color: #1976d2;
+  margin-bottom: 8px;
+}
+
+.type-card h4 {
+  margin: 8px 0 4px 0;
+  color: #333;
+}
+
+.type-card p {
+  margin: 0;
+  font-size: 14px;
+  color: #666;
+}
+
+.full-width {
+  width: 100%;
+}
+
+.examples-section {
+  margin-top: 16px;
+}
+
+.examples-section label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 500;
+  color: #666;
+}
+
+.example-chip {
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.example-chip:hover {
+  background-color: #e3f2fd;
+}
+
+.volume-controls {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.target-count-field {
+  flex: 1;
+  max-width: 300px;
+}
+
+.volume-indicator {
+  flex: 1;
+  padding: 16px;
+  background: #f5f5f5;
+  border-radius: 8px;
+  min-width: 200px;
+}
+
+.volume-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.volume-label {
+  color: #666;
+}
+
+.volume-value {
+  font-weight: 500;
+}
+
+.volume-value.low {
+  color: #4caf50;
+}
+
+.volume-value.medium {
+  color: #ff9800;
+}
+
+.volume-value.high {
+  color: #f44336;
+}
+
+.estimated-time {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #666;
+  font-size: 14px;
+}
+
+.estimated-time mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.config-row {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.config-row mat-form-field {
+  flex: 1;
+}
+
+.priority-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.priority-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.priority-icon.high {
+  color: #f44336;
+}
+
+.priority-icon.medium {
+  color: #ff9800;
+}
+
+.priority-icon.low {
+  color: #4caf50;
+}
+
+.options-section h4 {
+  margin-bottom: 16px;
+  color: #333;
+}
+
+.checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.checkbox-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.checkbox-content small {
+  color: #666;
+  margin-top: 2px;
+}
+
+.job-summary {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.summary-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.summary-item:last-child {
+  margin-bottom: 0;
+}
+
+.summary-item mat-icon {
+  color: #1976d2;
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.creation-progress {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+mat-card-actions {
+  position: relative;
+}
+
+@media (max-width: 768px) {
+  .create-job-container {
+    padding: 16px;
+  }
+
+  .type-selection {
+    grid-template-columns: 1fr;
+  }
+
+  .volume-controls {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .target-count-field {
+    max-width: none;
+  }
+
+  .config-row {
+    flex-direction: column;
+  }
+}

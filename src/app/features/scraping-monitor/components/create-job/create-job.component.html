@@ -1,0 +1,241 @@
+<div class="create-job-container">
+  <mat-card class="job-form-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>rocket_launch</mat-icon>
+        Create Advanced Scraping Job
+      </mat-card-title>
+      <mat-card-subtitle>
+        Configure a new high-volume social media data collection job
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="jobForm" (ngSubmit)="onSubmit()">
+        <!-- Scraping Type Selection -->
+        <div class="form-section">
+          <h3>
+            <mat-icon>category</mat-icon>
+            Scraping Type
+          </h3>
+          <div class="type-selection">
+            @for (type of scrapingTypes; track type.value) {
+            <div
+              class="type-card"
+              [class.selected]="selectedType() === type.value"
+              (click)="selectType(type.value)"
+            >
+              <mat-icon>{{ type.icon }}</mat-icon>
+              <h4>{{ type.label }}</h4>
+              <p>{{ type.description }}</p>
+            </div>
+            }
+          </div>
+        </div>
+
+        <!-- Query Configuration -->
+        <div class="form-section">
+          <h3>
+            <mat-icon>search</mat-icon>
+            Query Configuration
+          </h3>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ getSelectedTypeConfig()?.label || 'Query' }}</mat-label>
+            <mat-icon matPrefix>{{ getSelectedTypeConfig()?.icon || 'search' }}</mat-icon>
+            <input
+              matInput
+              formControlName="query"
+              [placeholder]="getSelectedTypeConfig()?.placeholder || 'Enter your query'"
+            />
+            <mat-hint>{{ getQueryHint() }}</mat-hint>
+            @if (jobForm.get('query')?.hasError('required')) {
+            <mat-error>Query is required</mat-error>
+            } @if (jobForm.get('query')?.hasError('minlength')) {
+            <mat-error>Query must be at least 2 characters</mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Query Examples -->
+          @if (getSelectedTypeConfig()?.examples?.length) {
+          <div class="examples-section">
+            <label>Examples:</label>
+            <mat-chip-set>
+              @for (example of getSelectedTypeConfig()?.examples; track example) {
+              <mat-chip (click)="useExample(example)" class="example-chip">
+                {{ example }}
+              </mat-chip>
+              }
+            </mat-chip-set>
+          </div>
+          }
+        </div>
+
+        <!-- Volume Configuration -->
+        <div class="form-section">
+          <h3>
+            <mat-icon>bar_chart</mat-icon>
+            Volume Configuration
+          </h3>
+
+          <div class="volume-controls">
+            <mat-form-field appearance="outline" class="target-count-field">
+              <mat-label>Target Tweet Count</mat-label>
+              <mat-icon matPrefix>target</mat-icon>
+              <input matInput type="number" formControlName="targetCount" min="1" max="10000" />
+              <mat-hint>1 - 10,000 tweets</mat-hint>
+              @if (jobForm.get('targetCount')?.hasError('required')) {
+              <mat-error>Target count is required</mat-error>
+              } @if (jobForm.get('targetCount')?.hasError('min')) {
+              <mat-error>Minimum 1 tweet</mat-error>
+              } @if (jobForm.get('targetCount')?.hasError('max')) {
+              <mat-error>Maximum 10,000 tweets</mat-error>
+              }
+            </mat-form-field>
+
+            <div class="volume-indicator">
+              <div class="volume-info">
+                <span class="volume-label">Volume Level:</span>
+                <span class="volume-value" [class]="getVolumeClass()">
+                  {{ getVolumeLabel() }}
+                </span>
+              </div>
+              <div class="estimated-time">
+                <mat-icon>schedule</mat-icon>
+                <span>Est. Time: {{ getEstimatedTime() }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Job Configuration -->
+        <div class="form-section">
+          <h3>
+            <mat-icon>settings</mat-icon>
+            Job Configuration
+          </h3>
+
+          <div class="config-row">
+            <mat-form-field appearance="outline">
+              <mat-label>Priority</mat-label>
+              <mat-icon matPrefix>flag</mat-icon>
+              <mat-select formControlName="priority">
+                <mat-option value="high">
+                  <div class="priority-option">
+                    <mat-icon class="priority-icon high">priority_high</mat-icon>
+                    <span>High Priority</span>
+                  </div>
+                </mat-option>
+                <mat-option value="medium">
+                  <div class="priority-option">
+                    <mat-icon class="priority-icon medium">remove</mat-icon>
+                    <span>Medium Priority</span>
+                  </div>
+                </mat-option>
+                <mat-option value="low">
+                  <div class="priority-option">
+                    <mat-icon class="priority-icon low">keyboard_arrow_down</mat-icon>
+                    <span>Low Priority</span>
+                  </div>
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+
+            <mat-form-field appearance="outline">
+              <mat-label>Campaign ID (Optional)</mat-label>
+              <mat-icon matPrefix>campaign</mat-icon>
+              <input matInput formControlName="campaignId" placeholder="my-campaign-2024" />
+              <mat-hint>Link to existing campaign</mat-hint>
+            </mat-form-field>
+          </div>
+
+          <!-- Content Options -->
+          <div class="options-section">
+            <h4>Content Options</h4>
+            <div class="checkbox-group">
+              <mat-checkbox formControlName="includeReplies">
+                <div class="checkbox-content">
+                  <span>Include Replies</span>
+                  <small>Include reply tweets in results</small>
+                </div>
+              </mat-checkbox>
+
+              <mat-checkbox formControlName="includeRetweets">
+                <div class="checkbox-content">
+                  <span>Include Retweets</span>
+                  <small>Include retweeted content</small>
+                </div>
+              </mat-checkbox>
+            </div>
+          </div>
+        </div>
+
+        <!-- Job Summary -->
+        <div class="form-section">
+          <h3>
+            <mat-icon>summarize</mat-icon>
+            Job Summary
+          </h3>
+
+          <div class="job-summary">
+            <div class="summary-item">
+              <mat-icon>{{ getSelectedTypeConfig()?.icon || 'search' }}</mat-icon>
+              <div>
+                <strong>Type:</strong> {{ getSelectedTypeConfig()?.label || 'Not selected' }}
+              </div>
+            </div>
+
+            <div class="summary-item">
+              <mat-icon>search</mat-icon>
+              <div>
+                <strong>Query:</strong> "{{ jobForm.get('query')?.value || 'Not specified' }}"
+              </div>
+            </div>
+
+            <div class="summary-item">
+              <mat-icon>target</mat-icon>
+              <div>
+                <strong>Target:</strong> {{ jobForm.get('targetCount')?.value || 0 }} tweets
+              </div>
+            </div>
+
+            <div class="summary-item">
+              <mat-icon>flag</mat-icon>
+              <div><strong>Priority:</strong> {{ jobForm.get('priority')?.value || 'medium' }}</div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </mat-card-content>
+
+    <mat-card-actions align="end">
+      <button mat-button type="button" (click)="onCancel()" [disabled]="isCreating()">
+        Cancel
+      </button>
+
+      <button
+        mat-raised-button
+        color="primary"
+        type="submit"
+        (click)="onSubmit()"
+        [disabled]="jobForm.invalid || isCreating()"
+      >
+        @if (isCreating()) {
+        <ng-container>
+          <mat-icon>hourglass_empty</mat-icon>
+          Creating...
+        </ng-container>
+        } @else {
+        <ng-container>
+          <mat-icon>rocket_launch</mat-icon>
+          Create Job
+        </ng-container>
+        }
+      </button>
+    </mat-card-actions>
+
+    @if (isCreating()) {
+    <mat-progress-bar mode="indeterminate" class="creation-progress"></mat-progress-bar>
+    }
+  </mat-card>
+</div>

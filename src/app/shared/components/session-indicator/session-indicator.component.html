@@ -1,19 +1,18 @@
 @if (isAuthenticated()) {
-  <div class="session-indicator">
-    <button
-      mat-icon-button
-      [matTooltip]="getTooltipText()"
-      [class.warning]="remainingMinutes() <= 10"
-      [class.critical]="remainingMinutes() <= 5"
-      (click)="extendSession()"
-      >
-      <mat-icon>{{ getIconName() }}</mat-icon>
-    </button>
-    @if (showTimeDisplay()) {
-      <span class="time-display"> {{ remainingMinutes() }}m </span>
-    }
-    @if (showExtendedMessage()) {
-      <div class="extended-message" [@fadeInOut]>✓ Sesión extendida</div>
-    }
-  </div>
+<div class="session-indicator">
+  <button
+    mat-icon-button
+    [matTooltip]="getTooltipText()"
+    [class.warning]="remainingMinutes() <= 10"
+    [class.critical]="remainingMinutes() <= 5"
+    (click)="extendSession()"
+  >
+    <mat-icon>{{ getIconName() }}</mat-icon>
+  </button>
+  @if (showTimeDisplay()) {
+  <span class="time-display"> {{ remainingMinutes() }}m </span>
+  } @if (showExtendedMessage()) {
+  <div class="extended-message" [@fadeInOut]>✓ Sesión extendida</div>
+  }
+</div>
 }

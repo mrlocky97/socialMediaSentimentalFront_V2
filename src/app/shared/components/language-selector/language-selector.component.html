@@ -1,32 +1,40 @@
-    <button mat-icon-button 
-        [matMenuTriggerFor]="languageMenu"
-        [matTooltip]="'language_selector.tooltip' | transloco"
-        class="language-selector">
+<button
+  mat-icon-button
+  [matMenuTriggerFor]="languageMenu"
+  [matTooltip]="'language_selector.tooltip' | transloco"
+  class="language-selector"
+>
   <div class="current-language-container">
-    <img [src]="getCurrentLanguageInfo()?.flagIcon || '/icons/lang/ES.png'" 
-         [alt]="getCurrentLanguageInfo()?.label + ' flag'"
-         class="current-language-flag"
-         (error)="onImageError($event, getCurrentLanguageInfo()?.flag || '🌐')" />
+    <img
+      [src]="getCurrentLanguageInfo()?.flagIcon || '/icons/lang/ES.png'"
+      [alt]="getCurrentLanguageInfo()?.label + ' flag'"
+      class="current-language-flag"
+      (error)="onImageError($event, getCurrentLanguageInfo()?.flag || '🌐')"
+    />
   </div>
 </button>
 
 <mat-menu #languageMenu="matMenu" class="language-menu">
   @for (language of availableLanguages; track language.value) {
-    <button mat-menu-item 
-            (click)="changeLanguage(language.value)"
-            [class.active]="currentLanguage() === language.value">
-      <div class="language-option">
-        <div class="language-flag-container">
-          <img [src]="language.flagIcon" 
-               [alt]="language.label + ' flag'"
-               class="language-flag"
-               (error)="onImageError($event, language.flag)" />
-        </div>
-        <span class="language-name">{{ language.label }}</span>
+  <button
+    mat-menu-item
+    (click)="changeLanguage(language.value)"
+    [class.active]="currentLanguage() === language.value"
+  >
+    <div class="language-option">
+      <div class="language-flag-container">
+        <img
+          [src]="language.flagIcon"
+          [alt]="language.label + ' flag'"
+          class="language-flag"
+          (error)="onImageError($event, language.flag)"
+        />
       </div>
-      @if (currentLanguage() === language.value) {
-        <mat-icon class="check-icon">check</mat-icon>
-      }
-    </button>
+      <span class="language-name">{{ language.label }}</span>
+    </div>
+    @if (currentLanguage() === language.value) {
+    <mat-icon class="check-icon">check</mat-icon>
+    }
+  </button>
   }
 </mat-menu>

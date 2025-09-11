@@ -1,0 +1,101 @@
+.full-width {
+  width: 100%;
+  margin-bottom: 16px;
+}
+
+.form-field-container {
+  margin-bottom: 16px;
+}
+
+.checkbox-container {
+  margin-bottom: 16px;
+}
+
+.radio-container {
+  margin-bottom: 16px;
+}
+
+.radio-group-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: rgba(0, 0, 0, 0.87);
+}
+
+.radio-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.file-input-container {
+  margin-bottom: 16px;
+}
+
+.file-input-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: rgba(0, 0, 0, 0.87);
+}
+
+.file-input {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.range-container {
+  margin-bottom: 16px;
+}
+
+.range-label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 8px;
+  color: rgba(0, 0, 0, 0.87);
+}
+
+.range-value {
+  text-align: center;
+  margin-top: 8px;
+  font-weight: 500;
+}
+
+.field-hint {
+  font-size: 12px;
+  color: rgba(0, 0, 0, 0.54);
+  margin-top: 4px;
+}
+
+.field-error {
+  font-size: 12px;
+  color: #f44336;
+  margin-top: 4px;
+}
+
+.form-actions {
+  display: flex;
+  gap: 16px;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.form-actions button {
+  min-width: 120px;
+}
+
+@media (max-width: 600px) {
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .form-actions button {
+    width: 100%;
+  }
+}

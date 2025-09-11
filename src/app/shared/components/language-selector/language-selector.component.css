@@ -1,4 +1,4 @@
-    .language-selector {
+.language-selector {
   min-width: 44px;
   height: 44px;
   border-radius: 50%;
@@ -172,33 +172,33 @@
     min-width: 40px;
     height: 40px;
   }
-  
+
   .current-language-container {
     width: 28px;
     height: 28px;
   }
-  
+
   .current-language-flag {
     width: 28px;
     height: 28px;
   }
-  
+
   .language-flag-container {
     width: 24px;
     height: 24px;
   }
-  
+
   .language-flag {
     width: 24px;
     height: 24px;
   }
-  
+
   .mat-mdc-menu-item {
     min-width: 180px;
     padding: 10px 12px;
     margin: 1px 2px;
   }
-  
+
   /* Ajustar focus indicators en móvil */
   .language-selector:focus .mat-mdc-focus-indicator,
   .language-selector.cdk-keyboard-focused .mat-mdc-focus-indicator {
