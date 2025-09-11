@@ -1,31 +1,19 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
-import { MatBadgeModule } from '@angular/material/badge';
+import { Component, inject, signal, computed, OnInit, OnDestroy } from '@angular/core';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressBarModule } from '@angular/material/progress-bar';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { Router } from '@angular/router';
-
-export interface CampaignStatus {
-  id: string;
-  name: string;
-  status: 'running' | 'paused' | 'completed' | 'error';
-  progress: number;
-  tweetsCollected: number;
-  sentimentScore: number;
-  startTime: Date;
-  estimatedCompletion?: Date;
-}
-
-export interface ScrapingMetrics {
-  totalCampaigns: number;
-  activeCampaigns: number;
-  totalTweets: number;
-  averageSentiment: number;
-}
+import { MatTabsModule } from '@angular/material/tabs';
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatBadgeModule } from '@angular/material/badge';
+import { MatTooltipModule } from '@angular/material/tooltip';
+import { AdvancedScrapingService } from '../../core/services/advanced-scraping.service';
+import { CreateJobComponent } from './components/create-job.component';
+import { JobListComponent } from './components/job-list.component';
+import { ScrapingDashboardComponent } from './components/scraping-dashboard.component';
 
 @Component({
   selector: 'app-scraping-monitor',
@@ -35,418 +23,235 @@ export interface ScrapingMetrics {
     MatCardModule,
     MatButtonModule,
     MatIconModule,
-    MatProgressBarModule,
-    MatProgressSpinnerModule,
+    MatTabsModule,
+    MatDialogModule,
+    MatToolbarModule,
     MatBadgeModule,
-    MatChipsModule
+    MatTooltipModule,
+    CreateJobComponent,
+    JobListComponent,
+    ScrapingDashboardComponent
   ],
   template: `
-    <div class="scraping-monitor-container">
-      <!-- Header -->
-      <div class="monitor-header">
-        <h1>
-          <mat-icon>monitor</mat-icon>
-          Scraping Monitor
-        </h1>
-        <p>Real-time monitoring of your data collection campaigns</p>
+    <div class="scraping-monitor-page">
+      <!-- Page Header -->
+      <div class="page-header">
+        <div class="header-content">
+          <h1>
+            <mat-icon>rocket_launch</mat-icon>
+            Advanced Scraping Monitor
+          </h1>
+          <p>Real-time monitoring and management of high-volume social media data collection</p>
+        </div>
+        
+        <div class="header-actions">
+          <!-- Connection Status -->
+          <div class="connection-indicator" [class]="connectionStatus() ? 'connected' : 'disconnected'">
+            <div class="status-dot"></div>
+            <span>{{ connectionStatus() ? 'Connected' : 'Disconnected' }}</span>
+          </div>
+          
+          <!-- Create Job Button -->
+          <button 
+            mat-raised-button 
+            color="primary"
+            (click)="openCreateJobDialog()"
+            class="create-job-btn"
+          >
+            <mat-icon>add</mat-icon>
+            Create Job
+          </button>
+        </div>
       </div>
 
-      <!-- Metrics Overview -->
-      <div class="metrics-grid">
-        <mat-card class="metric-card">
-          <mat-card-content>
-            <div class="metric-content">
-              <mat-icon class="metric-icon total">campaign</mat-icon>
-              <div class="metric-data">
-                <span class="metric-value">{{ metrics().totalCampaigns }}</span>
-                <span class="metric-label">Total Campaigns</span>
-              </div>
-            </div>
-          </mat-card-content>
-        </mat-card>
+      <!-- Content Container -->
+      <div class="content-container">
+        <!-- Navigation Tabs -->
+        <mat-tab-group 
+          [selectedIndex]="selectedTabIndex()"
+          (selectedIndexChange)="onTabChange($event)"
+          animationDuration="300ms"
+          class="main-tabs"
+        >
+        <!-- Dashboard Tab -->
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <mat-icon>dashboard</mat-icon>
+            Dashboard
+          </ng-template>
+          
+          <div class="tab-content">
+            <app-scraping-dashboard></app-scraping-dashboard>
+          </div>
+        </mat-tab>
 
-        <mat-card class="metric-card">
-          <mat-card-content>
-            <div class="metric-content">
-              <mat-icon class="metric-icon active">play_circle</mat-icon>
-              <div class="metric-data">
-                <span class="metric-value">{{ metrics().activeCampaigns }}</span>
-                <span class="metric-label">Active Now</span>
-              </div>
-            </div>
-          </mat-card-content>
-        </mat-card>
+        <!-- Active Jobs Tab -->
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <mat-icon>list_alt</mat-icon>
+            Jobs
+            @if (activeJobsCount() > 0) {
+              <span 
+                matBadge="{{ activeJobsCount() }}"
+                matBadgePosition="after"
+                matBadgeColor="accent"
+                matBadgeSize="small"
+                class="tab-badge">
+              </span>
+            }
+          </ng-template>
+          
+          <div class="tab-content">
+            <app-job-list></app-job-list>
+          </div>
+        </mat-tab>
 
-        <mat-card class="metric-card">
-          <mat-card-content>
-            <div class="metric-content">
-              <mat-icon class="metric-icon tweets">trending_up</mat-icon>
-              <div class="metric-data">
-                <span class="metric-value">{{ formatNumber(metrics().totalTweets) }}</span>
-                <span class="metric-label">Tweets Collected</span>
-              </div>
-            </div>
-          </mat-card-content>
-        </mat-card>
+        <!-- Create Job Tab -->
+        <mat-tab>
+          <ng-template mat-tab-label>
+            <mat-icon>rocket_launch</mat-icon>
+            Create Job
+          </ng-template>
+          
+          <div class="tab-content">
+            <app-create-job 
+              (jobCreated)="onJobCreated($event)"
+              (cancelled)="onJobCreationCancelled()">
+            </app-create-job>
+          </div>
+        </mat-tab>
+      </mat-tab-group>
 
-        <mat-card class="metric-card">
-          <mat-card-content>
-            <div class="metric-content">
-              <mat-icon class="metric-icon sentiment">sentiment_satisfied</mat-icon>
-              <div class="metric-data">
-                <span class="metric-value">{{ formatSentiment(metrics().averageSentiment) }}</span>
-                <span class="metric-label">Avg Sentiment</span>
-              </div>
+      <!-- Quick Actions Toolbar -->
+      <div class="quick-actions-toolbar">
+        <div class="toolbar-content">
+          <div class="quick-stats">
+            <div class="stat-item">
+              <mat-icon>work</mat-icon>
+              <span>{{ totalJobs() }} Total Jobs</span>
             </div>
-          </mat-card-content>
-        </mat-card>
-      </div>
-
-      <!-- Active Campaigns -->
-      <mat-card class="campaigns-card">
-        <mat-card-header>
-          <mat-card-title>
-            <mat-icon>list</mat-icon>
-            Active Campaigns
-          </mat-card-title>
-          <div class="header-actions">
-            <button mat-icon-button [disabled]="isRefreshing()" (click)="refreshData()">
+            
+            <div class="stat-item">
+              <mat-icon>play_arrow</mat-icon>
+              <span>{{ activeJobsCount() }} Running</span>
+            </div>
+            
+            <div class="stat-item">
+              <mat-icon>trending_up</mat-icon>
+              <span>{{ formatNumber(totalTweetsCollected()) }} Tweets</span>
+            </div>
+          </div>
+          
+          <div class="quick-actions">
+            <button 
+              mat-icon-button 
+              (click)="refreshAllData()"
+              [disabled]="isRefreshing()"
+              matTooltip="Refresh all data"
+            >
               <mat-icon [class.spinning]="isRefreshing()">refresh</mat-icon>
             </button>
-            <button mat-raised-button color="primary" (click)="startNewCampaign()">
-              <mat-icon>add</mat-icon>
-              New Campaign
+            
+            <button 
+              mat-icon-button 
+              (click)="toggleConnectionStatus()"
+              [matTooltip]="connectionStatus() ? 'Disconnect from real-time updates' : 'Connect to real-time updates'"
+            >
+              <mat-icon>{{ connectionStatus() ? 'wifi_off' : 'wifi' }}</mat-icon>
             </button>
           </div>
-        </mat-card-header>
-
-        <mat-card-content>
-          @if (campaigns().length === 0) {
-            <div class="empty-state">
-              <mat-icon>inbox</mat-icon>
-              <h3>No Active Campaigns</h3>
-              <p>Start a new campaign to begin monitoring social media data</p>
-              <button mat-raised-button color="primary" (click)="startNewCampaign()">
-                Create Campaign
-              </button>
-            </div>
-          } @else {
-            <div class="campaigns-list">
-              @for (campaign of campaigns(); track campaign.id) {
-                <div class="campaign-item">
-                  <div class="campaign-info">
-                    <div class="campaign-header">
-                      <h3>{{ campaign.name }}</h3>
-                      <mat-chip [class]="'status-' + campaign.status">
-                        {{ getStatusLabel(campaign.status) }}
-                      </mat-chip>
-                    </div>
-                    
-                    <div class="campaign-details">
-                      <span class="detail-item">
-                        <mat-icon>schedule</mat-icon>
-                        Started: {{ formatTime(campaign.startTime) }}
-                      </span>
-                      
-                      @if (campaign.estimatedCompletion) {
-                        <span class="detail-item">
-                          <mat-icon>timer</mat-icon>
-                          ETA: {{ formatTime(campaign.estimatedCompletion) }}
-                        </span>
-                      }
-                      
-                      <span class="detail-item">
-                        <mat-icon>trending_up</mat-icon>
-                        {{ formatNumber(campaign.tweetsCollected) }} tweets
-                      </span>
-                      
-                      <span class="detail-item">
-                        <mat-icon>sentiment_satisfied</mat-icon>
-                        {{ formatSentiment(campaign.sentimentScore) }}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div class="campaign-progress">
-                    <div class="progress-info">
-                      <span class="progress-label">Progress</span>
-                      <span class="progress-value">{{ campaign.progress }}%</span>
-                    </div>
-                    <mat-progress-bar 
-                      [value]="campaign.progress" 
-                      [color]="getProgressColor(campaign.status)"
-                      mode="determinate">
-                    </mat-progress-bar>
-                  </div>
-
-                  <div class="campaign-actions">
-                    @if (campaign.status === 'running') {
-                      <button mat-icon-button color="warn" (click)="pauseCampaign(campaign.id)" title="Pause">
-                        <mat-icon>pause</mat-icon>
-                      </button>
-                    } @else if (campaign.status === 'paused') {
-                      <button mat-icon-button color="primary" (click)="resumeCampaign(campaign.id)" title="Resume">
-                        <mat-icon>play_arrow</mat-icon>
-                      </button>
-                    }
-                    
-                    <button mat-icon-button (click)="viewCampaignDetails(campaign.id)" title="View Details">
-                      <mat-icon>visibility</mat-icon>
-                    </button>
-                    
-                    <button mat-icon-button color="warn" (click)="stopCampaign(campaign.id)" title="Stop">
-                      <mat-icon>stop</mat-icon>
-                    </button>
-                  </div>
-                </div>
-              }
-            </div>
-          }
-        </mat-card-content>
-      </mat-card>
-
-      <!-- Real-time Updates -->
-      @if (hasActiveCampaigns()) {
-        <mat-card class="updates-card">
-          <mat-card-header>
-            <mat-card-title>
-              <mat-icon>update</mat-icon>
-              Live Updates
-            </mat-card-title>
-          </mat-card-header>
-          <mat-card-content>
-            <div class="live-indicator">
-              <div class="pulse-dot"></div>
-              <span>Monitoring {{ activeCampaignsCount() }} active campaigns</span>
-            </div>
-          </mat-card-content>
-        </mat-card>
-      }
+        </div>
+      </div>
     </div>
   `,
   styles: [`
-    .scraping-monitor-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 24px;
-    }
-
-    .monitor-header {
-      text-align: center;
-      margin-bottom: 32px;
-    }
-
-    .monitor-header h1 {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      color: #1976d2;
-      margin-bottom: 8px;
-    }
-
-    .metrics-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-      gap: 16px;
-      margin-bottom: 32px;
-    }
-
-    .metric-card {
-      transition: transform 0.2s ease-in-out;
-    }
-
-    .metric-card:hover {
-      transform: translateY(-2px);
-    }
-
-    .metric-content {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .metric-icon {
-      font-size: 32px;
-      width: 32px;
-      height: 32px;
-      border-radius: 50%;
-      padding: 12px;
-    }
-
-    .metric-icon.total {
-      background: #e3f2fd;
-      color: #1976d2;
-    }
-
-    .metric-icon.active {
-      background: #e8f5e8;
-      color: #2e7d32;
-    }
-
-    .metric-icon.tweets {
-      background: #fff3e0;
-      color: #f57c00;
-    }
-
-    .metric-icon.sentiment {
-      background: #fce4ec;
-      color: #c2185b;
-    }
-
-    .metric-data {
+    .scraping-monitor-page {
+      height: 100%;
       display: flex;
       flex-direction: column;
+      background: var(--color-gray-50);
+      overflow: hidden;
     }
 
-    .metric-value {
-      font-size: 28px;
+    .page-header {
+      background: var(--color-white-alpha-95);
+      backdrop-filter: blur(10px);
+      padding: 2rem;
+      border-bottom: 1px solid var(--color-gray-200);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 8px var(--color-black-alpha-50);
+    }
+
+    .header-content h1 {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin: 0 0 0.5rem 0;
+      color: var(--color-primary);
+      font-size: 2rem;
       font-weight: 600;
-      color: #333;
+      background: var(--color-primary-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
 
-    .metric-label {
-      font-size: 14px;
-      color: #666;
+    .header-content h1 mat-icon {
+      color: var(--color-primary);
+      font-size: 2rem;
+      width: 2rem;
+      height: 2rem;
     }
 
-    .campaigns-card {
-      margin-bottom: 24px;
+    .header-content p {
+      margin: 0;
+      color: var(--color-gray-600);
+      font-size: 1rem;
+      font-weight: 400;
     }
 
     .header-actions {
       display: flex;
-      gap: 8px;
       align-items: center;
+      gap: 1.5rem;
     }
 
-    .campaigns-list {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .campaign-item {
+    .connection-indicator {
       display: flex;
       align-items: center;
-      gap: 16px;
-      padding: 16px;
-      border: 1px solid #e0e0e0;
-      border-radius: 8px;
-      background: #fafafa;
+      gap: 0.5rem;
+      padding: 0.75rem 1.25rem;
+      border-radius: 1.5rem;
+      font-size: 0.875rem;
+      font-weight: 500;
+      border: 1px solid;
+      background: var(--color-white-alpha-90);
+      backdrop-filter: blur(8px);
+      transition: all 0.3s ease;
     }
 
-    .campaign-info {
-      flex: 1;
+    .connection-indicator.connected {
+      color: var(--color-success);
+      border-color: var(--color-success);
+      box-shadow: 0 0 20px rgba(76, 175, 80, 0.15);
     }
 
-    .campaign-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 8px;
+    .connection-indicator.disconnected {
+      color: var(--color-error);
+      border-color: var(--color-error);
+      box-shadow: 0 0 20px rgba(244, 67, 54, 0.15);
     }
 
-    .campaign-header h3 {
-      margin: 0;
-      color: #333;
-    }
-
-    .campaign-details {
-      display: flex;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
-
-    .detail-item {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      font-size: 14px;
-      color: #666;
-    }
-
-    .detail-item mat-icon {
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
-    }
-
-    .campaign-progress {
-      min-width: 200px;
-    }
-
-    .progress-info {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 8px;
-      font-size: 14px;
-    }
-
-    .campaign-actions {
-      display: flex;
-      gap: 4px;
-    }
-
-    .status-running {
-      background: #c8e6c9;
-      color: #2e7d32;
-    }
-
-    .status-paused {
-      background: #fff3e0;
-      color: #f57c00;
-    }
-
-    .status-completed {
-      background: #e1f5fe;
-      color: #0277bd;
-    }
-
-    .status-error {
-      background: #ffebee;
-      color: #d32f2f;
-    }
-
-    .empty-state {
-      text-align: center;
-      padding: 48px 24px;
-    }
-
-    .empty-state mat-icon {
-      font-size: 64px;
-      width: 64px;
-      height: 64px;
-      color: #bbb;
-      margin-bottom: 16px;
-    }
-
-    .empty-state h3 {
-      color: #666;
-      margin-bottom: 8px;
-    }
-
-    .empty-state p {
-      color: #999;
-      margin-bottom: 24px;
-    }
-
-    .updates-card {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-    }
-
-    .live-indicator {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .pulse-dot {
-      width: 12px;
-      height: 12px;
-      background: #4caf50;
+    .status-dot {
+      width: 0.5rem;
+      height: 0.5rem;
       border-radius: 50%;
+      background: currentColor;
+    }
+
+    .connection-indicator.connected .status-dot {
       animation: pulse 2s infinite;
     }
 
@@ -455,16 +260,163 @@ export interface ScrapingMetrics {
         transform: scale(0.95);
         box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
       }
-      
       70% {
         transform: scale(1);
         box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
       }
-      
       100% {
         transform: scale(0.95);
         box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
       }
+    }
+
+    .create-job-btn {
+      font-size: 1rem;
+      padding: 0.75rem 1.5rem;
+      border-radius: 1.5rem;
+      background: var(--color-primary-gradient);
+      box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+      transition: all 0.3s ease;
+    }
+
+    .create-job-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 25px rgba(102, 126, 234, 0.6);
+    }
+
+    .content-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      padding: 1rem;
+      gap: 1rem;
+    }
+
+    .main-tabs {
+      flex: 1;
+      background: var(--color-white-alpha-95);
+      backdrop-filter: blur(10px);
+      border-radius: 1rem;
+      box-shadow: 0 4px 20px var(--color-black-alpha-50);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .main-tabs ::ng-deep .mat-mdc-tab-group {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .main-tabs ::ng-deep .mat-mdc-tab-header {
+      background: var(--color-white-alpha-90);
+      border-bottom: 1px solid var(--color-gray-200);
+    }
+
+    .main-tabs ::ng-deep .mat-mdc-tab-label {
+      color: var(--color-gray-600);
+      transition: all 0.3s ease;
+      padding: 1rem 1.5rem;
+      min-width: auto;
+    }
+
+    .main-tabs ::ng-deep .mat-mdc-tab-label.mdc-tab--active {
+      color: var(--color-primary);
+    }
+
+    .main-tabs ::ng-deep .mat-mdc-tab-label mat-icon {
+      margin-right: 0.5rem;
+    }
+
+    .main-tabs ::ng-deep .mat-mdc-tab-body-wrapper {
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .main-tabs ::ng-deep .mat-mdc-tab-body {
+      height: 100%;
+    }
+
+    .main-tabs ::ng-deep .mat-mdc-tab-body-content {
+      height: 100%;
+      overflow: auto;
+    }
+
+    .tab-content {
+      height: 100%;
+      padding: 1.5rem;
+      background: var(--color-gray-50);
+    }
+
+    .quick-actions-toolbar {
+      background: var(--color-white-alpha-95);
+      backdrop-filter: blur(10px);
+      border-radius: 1rem;
+      padding: 1rem 1.5rem;
+      box-shadow: 0 4px 20px var(--color-black-alpha-50);
+      border: 1px solid var(--color-gray-200);
+    }
+
+    .toolbar-content {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .quick-stats {
+      display: flex;
+      gap: 2rem;
+    }
+
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--color-gray-700);
+      font-weight: 500;
+      font-size: 0.875rem;
+    }
+
+    .stat-item mat-icon {
+      color: var(--color-primary);
+      font-size: 1.25rem;
+      width: 1.25rem;
+      height: 1.25rem;
+    }
+
+    .quick-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .quick-actions button {
+      background: var(--color-white-alpha-80);
+      border: 1px solid var(--color-gray-300);
+      color: var(--color-gray-700);
+      transition: all 0.3s ease;
+    }
+
+    .quick-actions button:hover {
+      background: var(--color-primary);
+      color: var(--color-white);
+      border-color: var(--color-primary);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+
+    .quick-actions button[disabled] {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .quick-actions button[disabled]:hover {
+      background: var(--color-white-alpha-80);
+      color: var(--color-gray-700);
+      border-color: var(--color-gray-300);
+      transform: none;
+      box-shadow: none;
     }
 
     .spinning {
@@ -476,192 +428,157 @@ export interface ScrapingMetrics {
       to { transform: rotate(360deg); }
     }
 
+    /* Responsive Design */
     @media (max-width: 768px) {
-      .scraping-monitor-container {
-        padding: 16px;
-      }
-      
-      .metrics-grid {
-        grid-template-columns: 1fr;
-      }
-      
-      .campaign-item {
+      .page-header {
         flex-direction: column;
-        align-items: stretch;
-        gap: 12px;
+        gap: 1rem;
+        padding: 1.5rem;
       }
-      
-      .campaign-details {
+
+      .header-content h1 {
+        font-size: 1.5rem;
+      }
+
+      .quick-stats {
         flex-direction: column;
-        gap: 8px;
+        gap: 0.75rem;
+      }
+
+      .toolbar-content {
+        flex-direction: column;
+        gap: 1rem;
+      }
+    }
+
+    /* Dark Mode Support */
+    @media (prefers-color-scheme: dark) {
+      .scraping-monitor-page {
+        background: var(--color-gray-900);
+      }
+
+      .page-header {
+        background: rgba(33, 33, 33, 0.95);
+        border-bottom-color: var(--color-gray-700);
+      }
+
+      .main-tabs {
+        background: rgba(33, 33, 33, 0.95);
+      }
+
+      .quick-actions-toolbar {
+        background: rgba(33, 33, 33, 0.95);
+        border-color: var(--color-gray-700);
+      }
+
+      .tab-content {
+        background: var(--color-gray-800);
       }
     }
   `]
 })
 export class ScrapingMonitorComponent implements OnInit, OnDestroy {
-  // Reactive state
-  campaigns = signal<CampaignStatus[]>([]);
-  metrics = signal<ScrapingMetrics>({
-    totalCampaigns: 0,
-    activeCampaigns: 0,
-    totalTweets: 0,
-    averageSentiment: 0
-  });
+  private scrapingService = inject(AdvancedScrapingService);
+  private dialog = inject(MatDialog);
+  private destroyer$ = new Subject<void>();
+
+  // State signals
+  selectedTabIndex = signal(0);
+  connectionStatus = signal(false);
+  activeJobsCount = signal(0);
+  totalJobs = signal(0);
+  totalTweetsCollected = signal(0);
   isRefreshing = signal(false);
 
-  // Router for client-side navigation
-  private router = inject(Router);
-
-  // Computed properties
-  hasActiveCampaigns = computed(() => this.campaigns().some(c => c.status === 'running'));
-  activeCampaignsCount = computed(() => this.campaigns().filter(c => c.status === 'running').length);
-
-  private updateInterval?: number;
-
   ngOnInit(): void {
+    this.subscribeToUpdates();
     this.loadInitialData();
-    this.startRealTimeUpdates();
   }
 
-  ngOnDestroy(): void {
-    if (this.updateInterval) {
-      clearInterval(this.updateInterval);
-    }
+  private subscribeToUpdates(): void {
+    // Subscribe to connection status
+    this.scrapingService.connectionStatus$.subscribe(status => {
+      this.connectionStatus.set(status);
+    });
+
+    // Subscribe to metrics
+    this.scrapingService.metrics$.subscribe(metrics => {
+      this.activeJobsCount.set(metrics.runningJobs);
+      this.totalJobs.set(metrics.totalJobs);
+      this.totalTweetsCollected.set(metrics.totalTweetsCollected);
+    });
   }
 
   private loadInitialData(): void {
-    // Simulate loading campaign data
-    const mockCampaigns: CampaignStatus[] = [
-      {
-        id: '1',
-        name: 'AI Trends Campaign',
-        status: 'running',
-        progress: 65,
-        tweetsCollected: 2543,
-        sentimentScore: 0.7,
-        startTime: new Date(Date.now() - 2 * 60 * 60 * 1000),
-        estimatedCompletion: new Date(Date.now() + 1 * 60 * 60 * 1000)
-      },
-      {
-        id: '2',
-        name: 'Brand Monitoring',
-        status: 'paused',
-        progress: 30,
-        tweetsCollected: 892,
-        sentimentScore: 0.5,
-        startTime: new Date(Date.now() - 5 * 60 * 60 * 1000)
+    this.scrapingService.loadJobs().subscribe();
+    this.scrapingService.getSystemStats().subscribe();
+  }
+
+  onTabChange(index: number): void {
+    this.selectedTabIndex.set(index);
+  }
+
+  openCreateJobDialog(): void {
+    const dialogRef = this.dialog.open(CreateJobComponent, {
+      width: '800px',
+      maxWidth: '90vw',
+      disableClose: false,
+      autoFocus: true
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.onJobCreated(result);
       }
-    ];
-
-    this.campaigns.set(mockCampaigns);
-    this.updateMetrics();
-  }
-
-  private startRealTimeUpdates(): void {
-    this.updateInterval = window.setInterval(() => {
-      this.updateCampaignProgress();
-    }, 3000);
-  }
-
-  private updateCampaignProgress(): void {
-    this.campaigns.update(campaigns => 
-      campaigns.map(campaign => {
-        if (campaign.status === 'running' && campaign.progress < 100) {
-          return {
-            ...campaign,
-            progress: Math.min(campaign.progress + Math.random() * 5, 100),
-            tweetsCollected: campaign.tweetsCollected + Math.floor(Math.random() * 10)
-          };
-        }
-        return campaign;
-      })
-    );
-    this.updateMetrics();
-  }
-
-  private updateMetrics(): void {
-    const campaigns = this.campaigns();
-    this.metrics.set({
-      totalCampaigns: campaigns.length,
-      activeCampaigns: campaigns.filter(c => c.status === 'running').length,
-      totalTweets: campaigns.reduce((sum, c) => sum + c.tweetsCollected, 0),
-      averageSentiment: campaigns.length > 0 
-        ? campaigns.reduce((sum, c) => sum + c.sentimentScore, 0) / campaigns.length 
-        : 0
     });
   }
 
-  // Public methods
-  refreshData(): void {
+  onJobCreated(job: any): void {
+    // Switch to jobs tab to see the new job
+    this.selectedTabIndex.set(1);
+    // Refresh job list
+    this.scrapingService.loadJobs().subscribe();
+  }
+
+  onJobCreationCancelled(): void {
+    // Switch back to dashboard
+    this.selectedTabIndex.set(0);
+  }
+
+  refreshAllData(): void {
     this.isRefreshing.set(true);
-    setTimeout(() => {
-      this.loadInitialData();
+    
+    Promise.all([
+      this.scrapingService.loadJobs().toPromise(),
+      this.scrapingService.getSystemStats().toPromise()
+    ]).then(() => {
       this.isRefreshing.set(false);
-    }, 1000);
-  }
-
-  startNewCampaign(): void {
-    console.log('Starting new campaign...');
-  }
-
-  pauseCampaign(campaignId: string): void {
-    this.campaigns.update(campaigns =>
-      campaigns.map(c => c.id === campaignId ? { ...c, status: 'paused' as const } : c)
-    );
-    this.updateMetrics();
-  }
-
-  resumeCampaign(campaignId: string): void {
-    this.campaigns.update(campaigns =>
-      campaigns.map(c => c.id === campaignId ? { ...c, status: 'running' as const } : c)
-    );
-    this.updateMetrics();
-  }
-
-  stopCampaign(campaignId: string): void {
-    this.campaigns.update(campaigns =>
-      campaigns.map(c => c.id === campaignId ? { ...c, status: 'completed' as const, progress: 100 } : c)
-    );
-    this.updateMetrics();
-  }
-
-  viewCampaignDetails(campaignId: string): void {
-    // Navigate to campaign details inside dashboard so toolbar/sidenav remain visible
-    this.router.navigate(['/dashboard/campaigns', campaignId]).catch(() => {
-      // fallback to full navigation if client-side navigation fails
-      window.location.href = `/dashboard/campaigns/${campaignId}`;
+    }).catch(() => {
+      this.isRefreshing.set(false);
     });
   }
 
-  // Helper methods
-  formatNumber(num: number): string {
-    return num.toLocaleString();
-  }
-
-  formatSentiment(score: number): string {
-    return (score * 100).toFixed(1) + '%';
-  }
-
-  formatTime(date: Date): string {
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  }
-
-  getStatusLabel(status: string): string {
-    const labels: Record<string, string> = {
-      'running': 'Running',
-      'paused': 'Paused',
-      'completed': 'Completed',
-      'error': 'Error'
-    };
-    return labels[status] || status;
-  }
-
-  getProgressColor(status: string): 'primary' | 'accent' | 'warn' {
-    switch (status) {
-      case 'running': return 'primary';
-      case 'paused': return 'accent';
-      case 'error': return 'warn';
-      default: return 'primary';
+  toggleConnectionStatus(): void {
+    if (this.connectionStatus()) {
+      // Disconnect logic would go here
+      console.log('Disconnecting from real-time updates');
+    } else {
+      // Reconnect logic
+      this.scrapingService.reconnectWebSocket();
     }
+  }
+
+  formatNumber(num: number): string {
+    if (num >= 1000000) {
+      return (num / 1000000).toFixed(1) + 'M';
+    } else if (num >= 1000) {
+      return (num / 1000).toFixed(1) + 'K';
+    }
+    return num.toString();
+  }
+
+  ngOnDestroy(): void {
+    this.destroyer$.next();
+    this.destroyer$.complete();
   }
 }

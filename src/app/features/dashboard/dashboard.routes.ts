@@ -20,6 +20,11 @@ export const routes: Routes = [
         path: 'campaigns',
         loadChildren: () => import('../campaigns/campaign.routes').then(r => r.campaignRoutes)
       },
+      {
+        path: 'monitor',
+        loadComponent: () =>
+          import('../scraping-monitor/scraping-monitor.component').then(c => c.ScrapingMonitorComponent)
+      },
       // otras subrutas (por ejemplo: reports, settings, etc.)
       { path: '', redirectTo: 'home', pathMatch: 'full' }
     ]

@@ -63,7 +63,7 @@ export class MenuComponent implements OnInit {
       ariaLabelKey: 'menu.aria.analytics',
     },
     {
-      route: '/monitor',
+      route: '/dashboard/monitor',
       labelKey: 'menu.monitor',
       icon: 'monitoring',
       ariaLabelKey: 'menu.aria.monitor',
