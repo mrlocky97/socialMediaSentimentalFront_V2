@@ -1,0 +1,226 @@
+<div class="job-list-container">
+  <!-- Header -->
+  <div class="list-header">
+    <div class="header-info">
+      <h2>
+        <mat-icon>list_alt</mat-icon>
+        Active Jobs @if (connectionStatus()) {
+        <mat-icon class="status-icon connected" matTooltip="Connected to real-time updates">
+          wifi
+        </mat-icon>
+        } @else {
+        <mat-icon
+          class="status-icon disconnected"
+          matTooltip="Disconnected - updates may be delayed"
+        >
+          wifi_off
+        </mat-icon>
+        }
+      </h2>
+      <p>{{ jobs().length }} jobs • {{ runningJobs() }} running</p>
+    </div>
+
+    <div class="header-actions">
+      <button
+        mat-icon-button
+        (click)="refreshJobs()"
+        [disabled]="isRefreshing()"
+        matTooltip="Refresh jobs"
+      >
+        <mat-icon [class.spinning]="isRefreshing()">refresh</mat-icon>
+      </button>
+
+      <button
+        mat-button
+        [matMenuTriggerFor]="filterMenu"
+        [matBadge]="filterCount()"
+        [matBadgeHidden]="filterCount() === 0"
+      >
+        <mat-icon>filter_list</mat-icon>
+        Filter
+      </button>
+
+      <mat-menu #filterMenu="matMenu">
+        <button mat-menu-item (click)="setFilter('all')">
+          <mat-icon>list</mat-icon>
+          All Jobs
+        </button>
+        <button mat-menu-item (click)="setFilter('running')">
+          <mat-icon>play_arrow</mat-icon>
+          Running
+        </button>
+        <button mat-menu-item (click)="setFilter('completed')">
+          <mat-icon>check_circle</mat-icon>
+          Completed
+        </button>
+        <button mat-menu-item (click)="setFilter('failed')">
+          <mat-icon>error</mat-icon>
+          Failed
+        </button>
+      </mat-menu>
+    </div>
+  </div>
+
+  <!-- Jobs List -->
+  @if (filteredJobs().length === 0) {
+  <div class="empty-state">
+    <mat-icon>inbox</mat-icon>
+    <h3>No jobs found</h3>
+    <p>{{ getEmptyStateMessage() }}</p>
+  </div>
+  } @else {
+  <div class="jobs-grid">
+    @for (job of filteredJobs(); track job.id) {
+    <mat-card class="job-card" [class]="'status-' + job.status">
+      <!-- Job Header -->
+      <mat-card-header>
+        <div class="job-header">
+          <div class="job-title">
+            <mat-icon class="type-icon">{{ getTypeIcon(job.type) }}</mat-icon>
+            <div>
+              <h3>{{ getJobTitle(job) }}</h3>
+              <span class="job-id">ID: {{ job.id }}</span>
+            </div>
+          </div>
+
+          <div class="job-status">
+            <mat-chip [class]="'status-chip-' + job.status">
+              <mat-icon>{{ getStatusIcon(job.status) }}</mat-icon>
+              {{ getStatusLabel(job.status) }}
+            </mat-chip>
+          </div>
+        </div>
+      </mat-card-header>
+
+      <!-- Job Content -->
+      <mat-card-content>
+        <div class="job-details">
+          <!-- Query -->
+          <div class="detail-row">
+            <mat-icon>search</mat-icon>
+            <span class="detail-label">Query:</span>
+            <span class="detail-value">"{{ job.query }}"</span>
+          </div>
+
+          <!-- Progress -->
+          <div class="detail-row">
+            <mat-icon>target</mat-icon>
+            <span class="detail-label">Progress:</span>
+            <span class="detail-value">
+              {{ job.progress.current }}/{{ job.progress.total }} ({{
+                job.progress.percentage.toFixed(1)
+              }}%)
+            </span>
+          </div>
+
+          <!-- Priority -->
+          <div class="detail-row">
+            <mat-icon [class]="'priority-' + job.priority">{{
+              getPriorityIcon(job.priority)
+            }}</mat-icon>
+            <span class="detail-label">Priority:</span>
+            <span class="detail-value">{{ job.priority | titlecase }}</span>
+          </div>
+
+          <!-- Created At -->
+          <div class="detail-row">
+            <mat-icon>schedule</mat-icon>
+            <span class="detail-label">Created:</span>
+            <span class="detail-value">{{ formatDate(job.createdAt) }}</span>
+          </div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div class="progress-section">
+          <div class="progress-info">
+            <span class="progress-label">Progress</span>
+            <span class="progress-percentage">{{ job.progress.percentage.toFixed(1) }}%</span>
+          </div>
+          <mat-progress-bar
+            [value]="job.progress.percentage"
+            [color]="getProgressColor(job.status)"
+            mode="determinate"
+            [class]="'progress-' + job.status"
+          >
+          </mat-progress-bar>
+        </div>
+
+        <!-- Batch Info for Running Jobs -->
+        @if (job.status === 'running') {
+        <div class="batch-info">
+          <div class="batch-detail">
+            <mat-icon>layers</mat-icon>
+            <span>Batch {{ job.progress.currentBatch }}/{{ job.progress.totalBatches }}</span>
+          </div>
+
+          @if (job.progress.throughput) {
+          <div class="batch-detail">
+            <mat-icon>speed</mat-icon>
+            <span>{{ job.progress.throughput.toFixed(1) }} tweets/sec</span>
+          </div>
+          } @if (job.progress.estimatedTimeRemaining) {
+          <div class="batch-detail">
+            <mat-icon>timer</mat-icon>
+            <span>{{ formatTime(job.progress.estimatedTimeRemaining) }} remaining</span>
+          </div>
+          }
+        </div>
+        }
+
+        <!-- Error Messages -->
+        @if (job.progress.errors.length > 0) {
+        <div class="error-section">
+          <mat-icon class="error-icon">warning</mat-icon>
+          <span class="error-count">{{ job.progress.errors.length }} error(s)</span>
+          <button mat-button (click)="showErrors(job)">View Details</button>
+        </div>
+        }
+      </mat-card-content>
+
+      <!-- Job Actions -->
+      <mat-card-actions align="end">
+        @if (job.status === 'running') {
+        <button mat-icon-button color="warn" (click)="cancelJob(job.id)" matTooltip="Cancel job">
+          <mat-icon>stop</mat-icon>
+        </button>
+        } @if (job.status === 'completed') {
+        <button mat-button color="primary" (click)="viewResults(job.id)">
+          <mat-icon>visibility</mat-icon>
+          View Results
+        </button>
+        }
+
+        <button mat-icon-button [matMenuTriggerFor]="jobMenu">
+          <mat-icon>more_vert</mat-icon>
+        </button>
+
+        <mat-menu #jobMenu="matMenu">
+          <button mat-menu-item (click)="copyJobId(job.id)">
+            <mat-icon>content_copy</mat-icon>
+            Copy Job ID
+          </button>
+          <button mat-menu-item (click)="viewJobDetails(job.id)">
+            <mat-icon>info</mat-icon>
+            Job Details
+          </button>
+          @if (job.status !== 'running') {
+          <button mat-menu-item (click)="deleteJob(job.id)" class="danger-menu-item">
+            <mat-icon>delete</mat-icon>
+            Delete Job
+          </button>
+          }
+        </mat-menu>
+      </mat-card-actions>
+
+      <!-- Real-time indicator for running jobs -->
+      @if (job.status === 'running') {
+      <div class="live-indicator">
+        <div class="pulse-dot"></div>
+        <span>Live</span>
+      </div>
+      }
+    </mat-card>
+    }
+  </div>
+  }
+</div>

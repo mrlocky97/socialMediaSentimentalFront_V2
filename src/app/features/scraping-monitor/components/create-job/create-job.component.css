@@ -262,3 +262,65 @@ mat-card-actions {
     flex-direction: column;
   }
 }
+
+/* Estilos para el formulario reutilizable dentro del contexto del create-job */
+::ng-deep .job-form .form-field-container {
+  margin-bottom: 20px;
+}
+
+::ng-deep .job-form .full-width {
+  width: 100%;
+}
+
+::ng-deep .job-form .form-actions {
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid #e0e0e0;
+}
+
+::ng-deep .job-form .form-actions button {
+  min-width: 140px;
+}
+
+::ng-deep .job-form .checkbox-container {
+  margin-bottom: 16px;
+}
+
+::ng-deep .job-form .checkbox-container mat-checkbox {
+  margin-bottom: 8px;
+}
+
+::ng-deep .job-form .field-hint {
+  font-size: 12px;
+  color: #666;
+  margin-top: 4px;
+  margin-left: 32px;
+}
+
+/* Personalización de iconos en los botones del formulario */
+::ng-deep .job-form .form-actions button mat-icon {
+  margin-right: 8px;
+}
+
+/* Estilos específicos para campos de número */
+::ng-deep .job-form input[type="number"] {
+  text-align: left;
+}
+
+/* Mejoras visuales para los checkboxes */
+::ng-deep .job-form mat-checkbox .mat-checkbox-label {
+  white-space: normal;
+  line-height: 1.4;
+}
+
+/* Responsive para el formulario */
+@media (max-width: 600px) {
+  ::ng-deep .job-form .form-actions {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  ::ng-deep .job-form .form-actions button {
+    width: 100%;
+  }
+}

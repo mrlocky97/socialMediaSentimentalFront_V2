@@ -8,26 +8,24 @@ import { ThemePalette } from '@angular/material/core';
 
 @Pipe({
   name: 'sentimentColor',
-  standalone: true
+  standalone: true,
 })
 export class SentimentColorPipe implements PipeTransform {
-  
   /**
    * Transform sentiment label to appropriate Material color
    * @param sentimentLabel - The sentiment label ('positive', 'negative', 'neutral', etc.)
    * @param returnType - Whether to return 'color' (ThemePalette) or 'class' (CSS class name)
    */
   transform(
-    sentimentLabel: string | undefined, 
+    sentimentLabel: string | undefined,
     returnType: 'color' | 'class' = 'color'
   ): ThemePalette | string {
-    
     if (!sentimentLabel) {
       return returnType === 'color' ? 'accent' : 'sentiment-unknown';
     }
 
     const normalizedLabel = sentimentLabel.toLowerCase().trim();
-    
+
     if (returnType === 'color') {
       switch (normalizedLabel) {
         case 'positive':

@@ -10,7 +10,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { Subject } from 'rxjs';
 import { AdvancedScrapingService } from '../../core/services/advanced-scraping.service';
 import { CreateJobComponent } from './components/create-job/create-job.component';
-import { JobListComponent } from './components/job-list.component';
+import { JobListComponent } from './components/job-list/job-list.component';
 import { ScrapingDashboardComponent } from './components/scraping-dashboard.component';
 
 @Component({

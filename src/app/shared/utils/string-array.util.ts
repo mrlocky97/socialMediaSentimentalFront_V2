@@ -11,7 +11,10 @@ export interface ToStringArrayOptions {
  * @param options - Options for conversion
  * @returns Normalized string array
  */
-export function toStringArray(value: string | string[] | null | undefined, options: ToStringArrayOptions = {}): string[] {
+export function toStringArray(
+  value: string | string[] | null | undefined,
+  options: ToStringArrayOptions = {}
+): string[] {
   if (!value) return [];
 
   // Convert to array if it's a string
@@ -19,15 +22,17 @@ export function toStringArray(value: string | string[] | null | undefined, optio
 
   // Filter empty values and apply transformations
   return arr
-    .map(item => item?.trim())
-    .filter(item => !!item)
-    .map(item => {
+    .map((item) => item?.trim())
+    .filter((item) => !!item)
+    .map((item) => {
       let result = item as string;
-      
+
       // Strip prefix if specified (e.g., @ for mentions or # for hashtags)
       if (options.stripPrefix) {
-        const prefixes = Array.isArray(options.stripPrefix) ? options.stripPrefix : [options.stripPrefix];
-        
+        const prefixes = Array.isArray(options.stripPrefix)
+          ? options.stripPrefix
+          : [options.stripPrefix];
+
         for (const prefix of prefixes) {
           if (result.startsWith(prefix)) {
             result = result.substring(prefix.length);
@@ -35,7 +40,7 @@ export function toStringArray(value: string | string[] | null | undefined, optio
           }
         }
       }
-      
+
       return result;
     });
 }
@@ -48,11 +53,11 @@ export function toStringArray(value: string | string[] | null | undefined, optio
  */
 export function chunk<T>(arr: T[], size = 5): T[][] {
   if (!Array.isArray(arr)) return [];
-  
+
   const result: T[][] = [];
   for (let i = 0; i < arr.length; i += size) {
     result.push(arr.slice(i, i + size));
   }
-  
+
   return result;
 }

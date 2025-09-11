@@ -2,11 +2,13 @@ import { AbstractControl, FormGroup, ValidationErrors, ValidatorFn } from '@angu
 
 export class ProfileUtils {
   // Validador personalizado para contraseñas - optimizado con tipos correctos
-  static passwordMatchValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
+  static passwordMatchValidator: ValidatorFn = (
+    control: AbstractControl
+  ): ValidationErrors | null => {
     if (!(control instanceof FormGroup)) {
       return null;
     }
-    
+
     const newPassword = control.get('newPassword');
     const confirmPassword = control.get('confirmPassword');
 
@@ -32,29 +34,29 @@ export class ProfileUtils {
 
   // Opciones para selects con iconos de banderas
   static languageOptions = [
-    { 
-      value: 'es', 
-      label: 'Español', 
+    {
+      value: 'es',
+      label: 'Español',
       flag: '🇪🇸',
-      flagIcon: '/icons/lang/ES.png'
+      flagIcon: '/icons/lang/ES.png',
     },
-    { 
-      value: 'en', 
-      label: 'English', 
+    {
+      value: 'en',
+      label: 'English',
       flag: '🇺🇸',
-      flagIcon: '/icons/lang/UK.png'
+      flagIcon: '/icons/lang/UK.png',
     },
-    { 
-      value: 'fr', 
-      label: 'Français', 
+    {
+      value: 'fr',
+      label: 'Français',
       flag: '🇫🇷',
-      flagIcon: '/icons/lang/FR.png'
+      flagIcon: '/icons/lang/FR.png',
     },
-    { 
-      value: 'de', 
-      label: 'Deutsch', 
+    {
+      value: 'de',
+      label: 'Deutsch',
       flag: '🇩🇪',
-      flagIcon: '/icons/lang/DE.png'
+      flagIcon: '/icons/lang/DE.png',
     },
   ];
 

@@ -15,7 +15,7 @@ import {
   Tweet,
   TweetAuthor,
   TweetsByDay,
-  TypeDistribution
+  TypeDistribution,
 } from '../../core/interfaces/tweet.interface';
 
 /**
@@ -31,28 +31,32 @@ export function safeDivide(numerator: number, denominator: number, decimals: num
  */
 function calculateEngagement(tweet: Tweet): number {
   const { metrics } = tweet;
-  
+
   // If engagement is already provided, use it
   if (metrics.engagement !== undefined && metrics.engagement !== null) {
     return metrics.engagement;
   }
-  
+
   // Calculate from individual metrics
-  return (metrics.likes || 0) + 
-         (metrics.retweets || 0) + 
-         (metrics.replies || 0) + 
-         (metrics.quotes || 0) + 
-         (metrics.bookmarks || 0);
+  return (
+    (metrics.likes || 0) +
+    (metrics.retweets || 0) +
+    (metrics.replies || 0) +
+    (metrics.quotes || 0) +
+    (metrics.bookmarks || 0)
+  );
 }
 
 /**
  * Normalize sentiment label to known categories
  */
-function normalizeSentimentLabel(label: string | undefined): 'positive' | 'negative' | 'neutral' | 'unknown' {
+function normalizeSentimentLabel(
+  label: string | undefined
+): 'positive' | 'negative' | 'neutral' | 'unknown' {
   if (!label) return 'unknown';
-  
+
   const normalizedLabel = label.toLowerCase().trim();
-  
+
   switch (normalizedLabel) {
     case 'positive':
       return 'positive';
@@ -81,25 +85,25 @@ function formatDateToDay(isoString: string): string {
  * Count occurrences and calculate percentages for arrays
  */
 function countAndPercentage<T>(
-  items: T[], 
+  items: T[],
   total: number,
   keyExtractor: (item: T) => string = (item) => String(item)
 ): { [key: string]: { count: number; percentage: number } } {
   const counts: { [key: string]: number } = {};
-  
-  items.forEach(item => {
+
+  items.forEach((item) => {
     const key = keyExtractor(item);
     counts[key] = (counts[key] || 0) + 1;
   });
-  
+
   const result: { [key: string]: { count: number; percentage: number } } = {};
   Object.entries(counts).forEach(([key, count]) => {
     result[key] = {
       count,
-      percentage: safeDivide(count * 100, total, 2)
+      percentage: safeDivide(count * 100, total, 2),
     };
   });
-  
+
   return result;
 }
 
@@ -113,7 +117,7 @@ export function computeCampaignStats(tweets: Tweet[]): CampaignStats {
   }
 
   const totalTweets = tweets.length;
-  
+
   // Initialize accumulators
   let totalEngagement = 0;
   let totalLikes = 0;
@@ -129,18 +133,20 @@ export function computeCampaignStats(tweets: Tweet[]): CampaignStats {
 
   const sentimentCounts: SentimentCounts = { positive: 0, negative: 0, neutral: 0, unknown: 0 };
   const tweetsByDay: TweetsByDay = {};
-  const authorEngagementMap: { [authorId: string]: { author: TweetAuthor; engagement: number; tweets: number } } = {};
+  const authorEngagementMap: {
+    [authorId: string]: { author: TweetAuthor; engagement: number; tweets: number };
+  } = {};
   const hashtagCounts: { [hashtag: string]: number } = {};
   const mentionCounts: { [mention: string]: number } = {};
   const keywordCounts: { [keyword: string]: number } = {};
   const languageCounts: { [language: string]: number } = {};
-  
+
   let retweetCount = 0;
   let replyCount = 0;
   let quoteCount = 0;
 
   // Single pass through tweets for efficiency
-  tweets.forEach(tweet => {
+  tweets.forEach((tweet) => {
     // Calculate engagement
     const engagement = calculateEngagement(tweet);
     totalEngagement += engagement;
@@ -181,14 +187,14 @@ export function computeCampaignStats(tweets: Tweet[]): CampaignStats {
       authorEngagementMap[authorId] = {
         author: tweet.author,
         engagement: 0,
-        tweets: 0
+        tweets: 0,
       };
     }
     authorEngagementMap[authorId].engagement += engagement;
     authorEngagementMap[authorId].tweets++;
 
     // Process hashtags (normalize to lowercase)
-    tweet.hashtags?.forEach(hashtag => {
+    tweet.hashtags?.forEach((hashtag) => {
       const normalizedHashtag = hashtag.toLowerCase().trim();
       if (normalizedHashtag) {
         hashtagCounts[normalizedHashtag] = (hashtagCounts[normalizedHashtag] || 0) + 1;
@@ -196,7 +202,7 @@ export function computeCampaignStats(tweets: Tweet[]): CampaignStats {
     });
 
     // Process mentions (normalize to lowercase)
-    tweet.mentions?.forEach(mention => {
+    tweet.mentions?.forEach((mention) => {
       const normalizedMention = mention.toLowerCase().trim();
       if (normalizedMention) {
         mentionCounts[normalizedMention] = (mentionCounts[normalizedMention] || 0) + 1;
@@ -204,7 +210,7 @@ export function computeCampaignStats(tweets: Tweet[]): CampaignStats {
     });
 
     // Process keywords (normalize to lowercase, filter empty)
-    tweet.sentiment?.keywords?.forEach(keyword => {
+    tweet.sentiment?.keywords?.forEach((keyword) => {
       const normalizedKeyword = keyword.toLowerCase().trim();
       if (normalizedKeyword && normalizedKeyword.length > 1) {
         keywordCounts[normalizedKeyword] = (keywordCounts[normalizedKeyword] || 0) + 1;
@@ -224,13 +230,17 @@ export function computeCampaignStats(tweets: Tweet[]): CampaignStats {
   // Calculate averages and percentages
   const avgEngagementPerTweet = safeDivide(totalEngagement, totalTweets, 2);
   const globalEngagementRate = safeDivide(totalEngagement * 100, Math.max(1, totalViews), 2);
-  const avgEngagementPerTweetRate = safeDivide(totalEngagementRates, Math.max(1, validEngagementRateCount), 2);
+  const avgEngagementPerTweetRate = safeDivide(
+    totalEngagementRates,
+    Math.max(1, validEngagementRateCount),
+    2
+  );
 
   const sentimentPercents: SentimentPercents = {
     positive: safeDivide(sentimentCounts.positive * 100, totalTweets, 2),
     negative: safeDivide(sentimentCounts.negative * 100, totalTweets, 2),
     neutral: safeDivide(sentimentCounts.neutral * 100, totalTweets, 2),
-    unknown: safeDivide(sentimentCounts.unknown * 100, totalTweets, 2)
+    unknown: safeDivide(sentimentCounts.unknown * 100, totalTweets, 2),
   };
 
   // Create top lists
@@ -245,37 +255,37 @@ export function computeCampaignStats(tweets: Tweet[]): CampaignStats {
   const topAuthorsByEngagement: TopAuthor[] = Object.values(authorEngagementMap)
     .sort((a, b) => b.engagement - a.engagement)
     .slice(0, 5)
-    .map(item => ({
+    .map((item) => ({
       author: item.author,
       totalEngagement: item.engagement,
-      tweets: item.tweets
+      tweets: item.tweets,
     }));
 
   const topHashtags: TopHashtag[] = Object.entries(hashtagCounts)
-    .sort(([,a], [,b]) => b - a)
+    .sort(([, a], [, b]) => b - a)
     .slice(0, 10)
     .map(([hashtag, count]) => ({
       hashtag,
       count,
-      percentage: safeDivide(count * 100, totalTweets, 2)
+      percentage: safeDivide(count * 100, totalTweets, 2),
     }));
 
   const topMentions: TopMention[] = Object.entries(mentionCounts)
-    .sort(([,a], [,b]) => b - a)
+    .sort(([, a], [, b]) => b - a)
     .slice(0, 10)
     .map(([mention, count]) => ({
       mention,
       count,
-      percentage: safeDivide(count * 100, totalTweets, 2)
+      percentage: safeDivide(count * 100, totalTweets, 2),
     }));
 
   const topKeywords: TopKeyword[] = Object.entries(keywordCounts)
-    .sort(([,a], [,b]) => b - a)
+    .sort(([, a], [, b]) => b - a)
     .slice(0, 10)
     .map(([keyword, count]) => ({
       keyword,
       count,
-      percentage: safeDivide(count * 100, totalTweets, 2)
+      percentage: safeDivide(count * 100, totalTweets, 2),
     }));
 
   // Language distribution
@@ -283,7 +293,7 @@ export function computeCampaignStats(tweets: Tweet[]): CampaignStats {
   Object.entries(languageCounts).forEach(([language, count]) => {
     languageDistribution[language] = {
       count,
-      percentage: safeDivide(count * 100, totalTweets, 2)
+      percentage: safeDivide(count * 100, totalTweets, 2),
     };
   });
 
@@ -293,7 +303,7 @@ export function computeCampaignStats(tweets: Tweet[]): CampaignStats {
     retweetsPercent: safeDivide(retweetCount * 100, totalTweets, 2),
     repliesPercent: safeDivide(replyCount * 100, totalTweets, 2),
     quotesPercent: safeDivide(quoteCount * 100, totalTweets, 2),
-    originalPercent: safeDivide(originalCount * 100, totalTweets, 2)
+    originalPercent: safeDivide(originalCount * 100, totalTweets, 2),
   };
 
   return {
@@ -343,7 +353,7 @@ export function computeCampaignStats(tweets: Tweet[]): CampaignStats {
     languageDistribution,
 
     // Type distribution
-    typeDistribution
+    typeDistribution,
   };
 }
 
@@ -385,7 +395,7 @@ function createEmptyStats(): CampaignStats {
       retweetsPercent: 0,
       repliesPercent: 0,
       quotesPercent: 0,
-      originalPercent: 0
-    }
+      originalPercent: 0,
+    },
   };
 }
