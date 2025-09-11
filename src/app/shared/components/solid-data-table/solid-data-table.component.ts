@@ -51,7 +51,6 @@ import {
   selector: 'app-solid-data-table',
   standalone: true,
   imports: [
-    CommonModule,
     MatTableModule,
     MatSortModule,
     MatPaginatorModule,
@@ -62,8 +61,8 @@ import {
     MatCheckboxModule,
     MatProgressSpinnerModule,
     MatChipsModule,
-    TranslocoModule,
-  ],
+    TranslocoModule
+],
   providers: [TableDataService, TableSelectionService],
   templateUrl: './solid-data-table.component.html',
   styleUrls: ['./solid-data-table.component.css'],

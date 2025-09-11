@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { ChangeDetectionStrategy, Component, HostListener, inject } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -21,12 +21,11 @@ export interface Tile {
   selector: 'app-dashboard.container',
   standalone: true,
   imports: [
-    CommonModule, 
-    RouterOutlet, 
+    RouterOutlet,
     MenuComponent,
     LanguageSelectorComponent,
     ...MATERIAL_IMPORTS
-  ],
+],
   templateUrl: './dashboard.container.component.html',
   styleUrl: './dashboard.container.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush // Use OnPush change detection strategy for better performance

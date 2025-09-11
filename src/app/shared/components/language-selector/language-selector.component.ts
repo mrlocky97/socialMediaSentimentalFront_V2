@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -11,13 +11,12 @@ import { LanguageService } from '../../../core/services/language.service';
   selector: 'app-language-selector',
   standalone: true,
   imports: [
-    CommonModule,
     MatButtonModule,
     MatIconModule,
     MatMenuModule,
     MatTooltipModule,
     TranslocoModule
-  ],
+],
   templateUrl: './language-selector.component.html',
   styleUrls: ['./language-selector.component.css'],
 })

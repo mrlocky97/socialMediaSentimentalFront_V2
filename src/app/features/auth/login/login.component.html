@@ -19,105 +19,109 @@
                 fill="none"
                 opacity="0.9"
                 stroke-linecap="round"
-              />
-
-              <!-- Data Points -->
-              <circle cx="21" cy="82" r="3" fill="currentColor" />
-              <circle cx="41" cy="62" r="3" fill="currentColor" />
-              <circle cx="61" cy="72" r="3" fill="currentColor" />
-              <circle cx="81" cy="47" r="3" fill="currentColor" />
-
-              <!-- Analytics Symbol -->
-              <g transform="translate(50, 20)">
-                <circle cx="0" cy="0" r="8" fill="none" stroke="currentColor" stroke-width="2" opacity="0.6" />
-                <path
-                  d="M -4,-2 L 0,2 L 4,-2"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  fill="none"
-                  stroke-linecap="round"
-                  opacity="0.8"
                 />
-              </g>
-            </svg>
-          </div>
-          <h1>{{ 'login.app_name' | transloco }}</h1>
-          <p class="subtitle">{{ 'login.subtitle' | transloco }}</p>
-        </div>
-      </mat-card-header>
 
-  <mat-card-content class="login-content">
-        <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
-          <!-- Email Field -->
-          <div class="form-field-wrapper">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ 'login.email' | transloco }}</mat-label>
-              <input
-                matInput
-                type="email"
-                formControlName="email"
-                [placeholder]="'login.email_placeholder' | transloco"
-                autocomplete="email"
-              />
-              <mat-icon matSuffix>email</mat-icon>
-              <mat-error *ngIf="emailError">{{ emailError }}</mat-error>
-            </mat-form-field>
-          </div>
+                <!-- Data Points -->
+                <circle cx="21" cy="82" r="3" fill="currentColor" />
+                <circle cx="41" cy="62" r="3" fill="currentColor" />
+                <circle cx="61" cy="72" r="3" fill="currentColor" />
+                <circle cx="81" cy="47" r="3" fill="currentColor" />
 
-          <!-- Password Field -->
-          <div class="form-field-wrapper">
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ 'login.password' | transloco }}</mat-label>
-              <input
-                matInput
-                [type]="showPassword() ? 'text' : 'password'"
-                formControlName="password"
-                [placeholder]="'login.password_placeholder' | transloco"
-                autocomplete="current-password"
-              />
-              <button
-                mat-icon-button
-                matSuffix
-                type="button"
-                (click)="togglePasswordVisibility()"
+                <!-- Analytics Symbol -->
+                <g transform="translate(50, 20)">
+                  <circle cx="0" cy="0" r="8" fill="none" stroke="currentColor" stroke-width="2" opacity="0.6" />
+                  <path
+                    d="M -4,-2 L 0,2 L 4,-2"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    fill="none"
+                    stroke-linecap="round"
+                    opacity="0.8"
+                    />
+                  </g>
+                </svg>
+              </div>
+              <h1>{{ 'login.app_name' | transloco }}</h1>
+              <p class="subtitle">{{ 'login.subtitle' | transloco }}</p>
+            </div>
+          </mat-card-header>
+
+          <mat-card-content class="login-content">
+            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form">
+              <!-- Email Field -->
+              <div class="form-field-wrapper">
+                <mat-form-field appearance="outline" class="full-width">
+                  <mat-label>{{ 'login.email' | transloco }}</mat-label>
+                  <input
+                    matInput
+                    type="email"
+                    formControlName="email"
+                    [placeholder]="'login.email_placeholder' | transloco"
+                    autocomplete="email"
+                    />
+                    <mat-icon matSuffix>email</mat-icon>
+                    @if (emailError) {
+                      <mat-error>{{ emailError }}</mat-error>
+                    }
+                  </mat-form-field>
+                </div>
+
+                <!-- Password Field -->
+                <div class="form-field-wrapper">
+                  <mat-form-field appearance="outline" class="full-width">
+                    <mat-label>{{ 'login.password' | transloco }}</mat-label>
+                    <input
+                      matInput
+                      [type]="showPassword() ? 'text' : 'password'"
+                      formControlName="password"
+                      [placeholder]="'login.password_placeholder' | transloco"
+                      autocomplete="current-password"
+                      />
+                      <button
+                        mat-icon-button
+                        matSuffix
+                        type="button"
+                        (click)="togglePasswordVisibility()"
                 [attr.aria-label]="
                   showPassword() ? ('login.hide_password' | transloco) : ('login.show_password' | transloco)
                 "
-                [attr.aria-pressed]="showPassword()"
-              >
-                <mat-icon>{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
-              </button>
-              <mat-error *ngIf="passwordError">{{ passwordError }}</mat-error>
-            </mat-form-field>
+                        [attr.aria-pressed]="showPassword()"
+                        >
+                        <mat-icon>{{ showPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+                      </button>
+                      @if (passwordError) {
+                        <mat-error>{{ passwordError }}</mat-error>
+                      }
+                    </mat-form-field>
+                  </div>
+
+                  <!-- Submit Button -->
+                  <button
+                    mat-raised-button
+                    type="submit"
+                    class="login-button full-width"
+                    [disabled]="!loginForm.valid || isLoading()"
+                    >
+                    <!-- Keep a single label element to avoid layout shifts when text changes -->
+                    <span class="button-label">{{ isLoading() ? ('login.submitting' | transloco) : ('login.submit' | transloco) }}</span>
+                  </button>
+                </form>
+              </mat-card-content>
+
+              <mat-card-actions class="login-actions">
+                <div class="action-links">
+                  <button mat-button color="accent" (click)="navigateToRegister()" class="register-link">
+                    {{ 'login.register_link' | transloco }}
+                  </button>
+                </div>
+              </mat-card-actions>
+            </mat-card>
           </div>
 
-          <!-- Submit Button -->
-          <button
-            mat-raised-button
-            type="submit"
-            class="login-button full-width"
-            [disabled]="!loginForm.valid || isLoading()"
-          >
-            <!-- Keep a single label element to avoid layout shifts when text changes -->
-            <span class="button-label">{{ isLoading() ? ('login.submitting' | transloco) : ('login.submit' | transloco) }}</span>
-          </button>
-        </form>
-      </mat-card-content>
-
-      <mat-card-actions class="login-actions">
-        <div class="action-links">
-          <button mat-button color="accent" (click)="navigateToRegister()" class="register-link">
-            {{ 'login.register_link' | transloco }}
-          </button>
+          <!-- Background decoration -->
+          <div class="background-decoration">
+            <div class="decoration-circle circle-1"></div>
+            <div class="decoration-circle circle-2"></div>
+            <div class="decoration-circle circle-3"></div>
+          </div>
         </div>
-      </mat-card-actions>
-    </mat-card>
-  </div>
-
-  <!-- Background decoration -->
-  <div class="background-decoration">
-    <div class="decoration-circle circle-1"></div>
-    <div class="decoration-circle circle-2"></div>
-    <div class="decoration-circle circle-3"></div>
-  </div>
-</div>

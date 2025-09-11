@@ -28,14 +28,13 @@ interface MetricCard {
   selector: 'app-scraping-dashboard',
   standalone: true,
   imports: [
-    CommonModule,
     MatCardModule,
     MatButtonModule,
     MatIconModule,
     MatProgressBarModule,
     MatTooltipModule,
     MatDividerModule
-  ],
+],
   template: `
     <div class="dashboard-container">
       <!-- Header -->

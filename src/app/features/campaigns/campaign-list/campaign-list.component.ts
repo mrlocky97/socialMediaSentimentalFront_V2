@@ -3,7 +3,7 @@
    Modern campaign list with improved UX/UI and performance optimizations
    ===================================== */
 
-import { CommonModule } from '@angular/common';
+
 import {
   ChangeDetectionStrategy,
   Component,
@@ -58,7 +58,6 @@ import { BulkActionConfig, CampaignStats, StatConfig } from './interfaces/campai
   standalone: true,
   changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     RouterModule,
     MatTableModule,
@@ -79,8 +78,8 @@ import { BulkActionConfig, CampaignStats, StatConfig } from './interfaces/campai
     MatDividerModule,
     TranslocoModule,
     SolidDataTableRxjsComponent,
-    MatDialogModule,
-  ],
+    MatDialogModule
+],
   templateUrl: './campaign-list.component.html',
   styleUrls: ['./campaign-list.component.css'],
 })

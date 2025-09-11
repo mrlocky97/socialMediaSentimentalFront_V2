@@ -35,7 +35,6 @@ interface ScrapingType {
   selector: 'app-create-job',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     MatCardModule,
     MatButtonModule,
@@ -49,7 +48,7 @@ interface ScrapingType {
     MatDialogModule,
     MatTooltipModule,
     MatChipsModule
-  ],
+],
   template: `
     <div class="create-job-container">
       <mat-card class="job-form-card">

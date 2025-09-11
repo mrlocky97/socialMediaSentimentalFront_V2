@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, EventEmitter, inject, OnInit, Output } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDividerModule } from '@angular/material/divider';
@@ -19,14 +19,13 @@ export interface NavItem {
 @Component({
   selector: 'app-menu',
   imports: [
-    CommonModule,
     MatListModule,
     MatIconModule,
     MatButtonModule,
     RouterModule,
     MatDividerModule,
-    TranslocoModule,
-  ],
+    TranslocoModule
+],
   templateUrl: './menu.component.html',
   styleUrl: './menu.component.css',
 })

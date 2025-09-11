@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -18,7 +18,6 @@ import { LoginNotificationService } from './services/login.services';
   selector: 'app-login',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     MatCardModule,
     MatFormFieldModule,
@@ -28,7 +27,7 @@ import { LoginNotificationService } from './services/login.services';
     MatProgressSpinnerModule,
     MatSnackBarModule,
     TranslocoModule
-  ],
+],
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css']
 })

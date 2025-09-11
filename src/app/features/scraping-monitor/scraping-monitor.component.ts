@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, inject, signal, computed, OnInit, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
@@ -19,7 +19,6 @@ import { ScrapingDashboardComponent } from './components/scraping-dashboard.comp
   selector: 'app-scraping-monitor',
   standalone: true,
   imports: [
-    CommonModule,
     MatCardModule,
     MatButtonModule,
     MatIconModule,
@@ -31,7 +30,7 @@ import { ScrapingDashboardComponent } from './components/scraping-dashboard.comp
     CreateJobComponent,
     JobListComponent,
     ScrapingDashboardComponent
-  ],
+],
   template: `
     <div class="scraping-monitor-page">
       <!-- Page Header -->
@@ -510,7 +509,7 @@ export class ScrapingMonitorComponent implements OnInit, OnDestroy {
   }
 
   private loadInitialData(): void {
-    this.scrapingService.loadJobs().subscribe();
+    // Only load system stats, jobs are already loaded by the service constructor
     this.scrapingService.getSystemStats().subscribe();
   }
 

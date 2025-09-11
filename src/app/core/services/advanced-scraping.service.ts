@@ -71,10 +71,25 @@ export class AdvancedScrapingService implements OnDestroy {
     private http: HttpClient,
     private snackBar: MatSnackBar
   ) {
+    // Initialize with demo data immediately
+    this.initializeDemoData();
+    
     // Try to initialize WebSocket after a delay to allow app to load
     setTimeout(() => {
       this.tryEnableWebSocket();
     }, 2000);
+  }
+
+  /**
+   * Initialize demo data immediately for offline usage
+   */
+  private initializeDemoData(): void {
+    const demoJobs = this.getDemoJobs();
+    this.jobsSubject.next(demoJobs);
+    this.updateMetrics(demoJobs);
+    
+    // Set initial connection status to false
+    this.connectionStatusSubject.next(false);
   }
 
   ngOnDestroy(): void {
@@ -194,13 +209,16 @@ export class AdvancedScrapingService implements OnDestroy {
       )
       .subscribe(response => {
         if (response && response.status === 200) {
-          console.log('✅ Backend available - enabling WebSocket');
+          console.log('✅ Backend available - enabling WebSocket and loading real data');
           this.websocketEnabled = true;
           this.initializeWebSocket();
+          // Load real jobs from backend
+          this.loadJobs().subscribe();
         } else {
           console.log('⚠️ Backend not available - running in offline mode');
           this.websocketEnabled = false;
           this.connectionStatusSubject.next(false);
+          // Keep demo data that was loaded in constructor
         }
       });
   }

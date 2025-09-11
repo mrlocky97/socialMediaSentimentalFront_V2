@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+
 import { Component, computed, inject } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -20,13 +20,12 @@ import { CampaignsStore } from '../../../core/state/campaigns.store';
   selector: 'app-campaign-summary-signals',
   standalone: true,
   imports: [
-    CommonModule,
     MatCardModule,
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
     MatChipsModule
-  ],
+],
   templateUrl: './campaign-summary-signals.component.html',
   styleUrls: ['./campaign-summary-signals.component.css'],
 })
