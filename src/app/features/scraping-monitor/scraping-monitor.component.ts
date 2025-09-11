@@ -11,7 +11,7 @@ import { Subject } from 'rxjs';
 import { AdvancedScrapingService } from '../../core/services/advanced-scraping.service';
 import { CreateJobComponent } from './components/create-job/create-job.component';
 import { JobListComponent } from './components/job-list/job-list.component';
-import { ScrapingDashboardComponent } from './components/scraping-dashboard.component';
+import { ScrapingDashboardComponent } from './components/scraping-dashboard/scraping-dashboard.component';
 
 @Component({
   selector: 'app-scraping-monitor',

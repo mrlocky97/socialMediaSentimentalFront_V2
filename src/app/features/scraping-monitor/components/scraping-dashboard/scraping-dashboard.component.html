@@ -1,0 +1,227 @@
+<div class="dashboard-container">
+  <!-- Header -->
+  <div class="dashboard-header">
+    <div class="header-content">
+      <h1>
+        <mat-icon>dashboard</mat-icon>
+        Scraping Dashboard
+      </h1>
+      <p>Real-time monitoring of social media data collection</p>
+    </div>
+
+    <div class="header-actions">
+      <div class="connection-status" [class]="connectionStatus() ? 'connected' : 'disconnected'">
+        <div class="status-indicator"></div>
+        <span>{{ connectionStatus() ? 'Connected' : 'Disconnected' }}</span>
+      </div>
+
+      <button
+        mat-icon-button
+        (click)="refreshData()"
+        [disabled]="isRefreshing()"
+        matTooltip="Refresh data"
+      >
+        <mat-icon [class.spinning]="isRefreshing()">refresh</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <!-- Metrics Grid -->
+  <div class="metrics-grid">
+    @for (metric of metricsCards(); track metric.title) {
+    <mat-card class="metric-card" [style.border-left-color]="metric.color">
+      <mat-card-content>
+        <div class="metric-content">
+          <div class="metric-icon" [style.color]="metric.color">
+            <mat-icon>{{ metric.icon }}</mat-icon>
+          </div>
+
+          <div class="metric-data">
+            <h2>{{ metric.value }}</h2>
+            <h3>{{ metric.title }}</h3>
+
+            @if (metric.subtitle) {
+            <p class="metric-subtitle">{{ metric.subtitle }}</p>
+            } @if (metric.trend) {
+            <div class="metric-trend" [class]="'trend-' + metric.trend">
+              <mat-icon>{{ getTrendIcon(metric.trend) }}</mat-icon>
+              <span>{{ getTrendLabel(metric.trend) }}</span>
+            </div>
+            }
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+    }
+  </div>
+
+  <!-- System Stats -->
+  <div class="stats-section">
+    <mat-card class="system-stats-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>settings</mat-icon>
+          System Performance
+        </mat-card-title>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="stats-grid">
+          <!-- System Load -->
+          <div class="stat-item">
+            <div class="stat-header">
+              <span class="stat-label">System Load</span>
+              <span class="stat-value">{{ formatPercentage(systemStats().systemLoad) }}</span>
+            </div>
+            <mat-progress-bar
+              [value]="systemStats().systemLoad * 100"
+              [color]="getLoadColor(systemStats().systemLoad)"
+              mode="determinate"
+            >
+            </mat-progress-bar>
+          </div>
+
+          <!-- Average Processing Time -->
+          <div class="stat-item">
+            <div class="stat-header">
+              <span class="stat-label">Avg Processing Time</span>
+              <span class="stat-value">{{ formatTime(systemStats().averageProcessingTime) }}</span>
+            </div>
+            <div class="stat-info">
+              <mat-icon>schedule</mat-icon>
+              <span>Per batch completion</span>
+            </div>
+          </div>
+
+          <!-- Total Tweets Collected -->
+          <div class="stat-item">
+            <div class="stat-header">
+              <span class="stat-label">Total Tweets</span>
+              <span class="stat-value">{{ formatNumber(systemStats().totalTweetsCollected) }}</span>
+            </div>
+            <div class="stat-info">
+              <mat-icon>trending_up</mat-icon>
+              <span>All time collection</span>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Job Distribution -->
+    <mat-card class="job-distribution-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>pie_chart</mat-icon>
+          Job Distribution
+        </mat-card-title>
+      </mat-card-header>
+
+      <mat-card-content>
+        <div class="distribution-chart">
+          @for (item of jobDistribution(); track item.label) {
+          <div class="distribution-item">
+            <div class="distribution-bar">
+              <div
+                class="distribution-fill"
+                [style.width.%]="item.percentage"
+                [style.background-color]="item.color"
+              ></div>
+            </div>
+            <div class="distribution-info">
+              <span class="distribution-label">{{ item.label }}</span>
+              <span class="distribution-value"
+                >{{ item.count }} ({{ item.percentage.toFixed(1) }}%)</span
+              >
+            </div>
+          </div>
+          }
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Active Jobs Overview -->
+  <mat-card class="active-jobs-card">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>play_arrow</mat-icon>
+        Active Jobs Overview
+      </mat-card-title>
+      <div class="header-badge">{{ jobMetrics().runningJobs }} running</div>
+    </mat-card-header>
+
+    <mat-card-content>
+      @if (jobMetrics().runningJobs === 0) {
+      <div class="no-active-jobs">
+        <mat-icon>inbox</mat-icon>
+        <h3>No Active Jobs</h3>
+        <p>All jobs are completed or there are no jobs running.</p>
+      </div>
+      } @else {
+      <div class="active-jobs-summary">
+        <!-- Overall Progress -->
+        <div class="overall-progress">
+          <div class="progress-header">
+            <span>Overall Progress</span>
+            <span>{{ jobMetrics().averageProgress.toFixed(1) }}%</span>
+          </div>
+          <mat-progress-bar
+            [value]="jobMetrics().averageProgress"
+            color="primary"
+            mode="determinate"
+          >
+          </mat-progress-bar>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="quick-stats">
+          <div class="quick-stat">
+            <mat-icon>trending_up</mat-icon>
+            <div>
+              <strong>{{ formatNumber(jobMetrics().totalTweetsCollected) }}</strong>
+              <span>Tweets Collected</span>
+            </div>
+          </div>
+
+          <div class="quick-stat">
+            <mat-icon>timer</mat-icon>
+            <div>
+              <strong>{{ formatTime(jobMetrics().estimatedTimeRemaining) }}</strong>
+              <span>Est. Remaining</span>
+            </div>
+          </div>
+
+          <div class="quick-stat">
+            <mat-icon>speed</mat-icon>
+            <div>
+              <strong>{{ getCurrentThroughput() }}</strong>
+              <span>Current Rate</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      }
+    </mat-card-content>
+  </mat-card>
+
+  <!-- Real-time Updates -->
+  @if (connectionStatus()) {
+  <mat-card class="realtime-card">
+    <mat-card-content>
+      <div class="realtime-indicator">
+        <div class="pulse-animation">
+          <div class="pulse-dot"></div>
+        </div>
+        <div class="realtime-content">
+          <h3>Real-time Updates Active</h3>
+          <p>Dashboard is receiving live updates from the scraping system</p>
+        </div>
+        <div class="realtime-status">
+          <span class="last-update">Last update: {{ formatLastUpdate() }}</span>
+        </div>
+      </div>
+    </mat-card-content>
+  </mat-card>
+  }
+</div>

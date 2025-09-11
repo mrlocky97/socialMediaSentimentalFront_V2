@@ -1,0 +1,426 @@
+.dashboard-container {
+  padding: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.header-content h1 {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 8px 0;
+  color: #1976d2;
+}
+
+.header-content p {
+  margin: 0;
+  color: #666;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.connection-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.connection-status.connected {
+  background: rgba(76, 175, 80, 0.1);
+  color: #4caf50;
+}
+
+.connection-status.disconnected {
+  background: rgba(244, 67, 54, 0.1);
+  color: #f44336;
+}
+
+.status-indicator {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.metrics-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.metric-card {
+  border-left: 4px solid transparent;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.metric-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.metric-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.metric-icon {
+  padding: 16px;
+  border-radius: 50%;
+  background: rgba(25, 118, 210, 0.1);
+}
+
+.metric-icon mat-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+}
+
+.metric-data h2 {
+  margin: 0 0 4px 0;
+  font-size: 32px;
+  font-weight: 600;
+  color: #333;
+}
+
+.metric-data h3 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  color: #666;
+  font-weight: 500;
+}
+
+.metric-subtitle {
+  margin: 0;
+  font-size: 14px;
+  color: #999;
+}
+
+.metric-trend {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.metric-trend mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.trend-up {
+  color: #4caf50;
+}
+
+.trend-down {
+  color: #f44336;
+}
+
+.trend-stable {
+  color: #ff9800;
+}
+
+.stats-section {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.stats-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.stat-item {
+  padding: 16px 0;
+}
+
+.stat-item:not(:last-child) {
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.stat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.stat-label {
+  font-weight: 500;
+  color: #666;
+}
+
+.stat-value {
+  font-weight: 600;
+  color: #333;
+}
+
+.stat-info {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 8px;
+  font-size: 14px;
+  color: #999;
+}
+
+.stat-info mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+.distribution-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.distribution-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.distribution-bar {
+  flex: 1;
+  height: 8px;
+  background: #f0f0f0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.distribution-fill {
+  height: 100%;
+  transition: width 0.3s ease;
+}
+
+.distribution-info {
+  min-width: 120px;
+  text-align: right;
+}
+
+.distribution-label {
+  display: block;
+  font-size: 14px;
+  color: #666;
+}
+
+.distribution-value {
+  display: block;
+  font-size: 12px;
+  color: #999;
+}
+
+.active-jobs-card .mat-mdc-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-badge {
+  background: #1976d2;
+  color: white;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.no-active-jobs {
+  text-align: center;
+  padding: 32px;
+  color: #666;
+}
+
+.no-active-jobs mat-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  color: #ccc;
+  margin-bottom: 16px;
+}
+
+.overall-progress {
+  margin-bottom: 24px;
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.quick-stats {
+  display: flex;
+  justify-content: space-around;
+  gap: 16px;
+}
+
+.quick-stat {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  flex: 1;
+}
+
+.quick-stat mat-icon {
+  color: #1976d2;
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+}
+
+.quick-stat div {
+  display: flex;
+  flex-direction: column;
+}
+
+.quick-stat strong {
+  font-size: 18px;
+  color: #333;
+}
+
+.quick-stat span {
+  font-size: 12px;
+  color: #666;
+}
+
+.realtime-card {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+.realtime-indicator {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.pulse-animation {
+  position: relative;
+}
+
+.pulse-dot {
+  width: 16px;
+  height: 16px;
+  background: #4caf50;
+  border-radius: 50%;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
+  }
+
+  70% {
+    transform: scale(1);
+    box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
+  }
+
+  100% {
+    transform: scale(0.95);
+    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
+  }
+}
+
+.realtime-content {
+  flex: 1;
+}
+
+.realtime-content h3 {
+  margin: 0 0 4px 0;
+  font-size: 18px;
+}
+
+.realtime-content p {
+  margin: 0;
+  font-size: 14px;
+  opacity: 0.9;
+}
+
+.realtime-status {
+  text-align: right;
+}
+
+.last-update {
+  font-size: 12px;
+  opacity: 0.8;
+}
+
+@media (max-width: 1024px) {
+  .stats-section {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 16px;
+  }
+
+  .dashboard-header {
+    flex-direction: column;
+    gap: 16px;
+    align-items: stretch;
+  }
+
+  .header-actions {
+    justify-content: space-between;
+  }
+
+  .metrics-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .quick-stats {
+    flex-direction: column;
+  }
+
+  .realtime-indicator {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+}
