@@ -758,7 +758,7 @@ body {
 .header-content {
   background: rgba(255, 255, 255, 0.95);
   /* border-radius: var(--radius-xl); */
-  box-shadow: var(--shadow-md);
+  /* box-shadow: var(--shadow-md); */
   padding: var(--spacing-2xl);
   display: flex;
   flex-direction: column;

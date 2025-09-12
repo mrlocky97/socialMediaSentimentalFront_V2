@@ -1,4 +1,4 @@
-import { Component, computed, DestroyRef, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, Validators } from '@angular/forms';
 import { MatBadgeModule } from '@angular/material/badge';
@@ -9,7 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { catchError, of, Subscription } from 'rxjs';
+import { catchError, of } from 'rxjs';
 import { CreateJobResponse } from '../../core/interfaces/advanced-scraping.interface';
 import { AdvancedScrapingService } from '../../core/services/advanced-scraping.service';
 import { DialogConfig, DialogService } from '../../shared/components/dialog';
@@ -41,13 +41,12 @@ import { ScrapingDashboardComponent } from './components/scraping-dashboard/scra
   templateUrl: './scraping-monitor.component.html',
   styleUrls: ['./scraping-monitor.component.css'],
 })
-export class ScrapingMonitorComponent implements OnInit, OnDestroy {
+export class ScrapingMonitorComponent implements OnInit {
   private scrapingService = inject(AdvancedScrapingService);
   private dialog = inject(MatDialog);
   private dialogService = inject(DialogService);
   private fb = inject(FormBuilder);
   private destroyRef = inject(DestroyRef);
-  private sub = new Subscription();
 
   // State signals
   selectedTabIndex = signal(0);
@@ -363,9 +362,5 @@ export class ScrapingMonitorComponent implements OnInit, OnDestroy {
       // Reconnect logic
       this.scrapingService.reconnectWebSocket();
     }
-  }
-
-  ngOnDestroy(): void {
-     this.destroyRef.onDestroy(() => { this.sub.unsubscribe(); });  
   }
 }
