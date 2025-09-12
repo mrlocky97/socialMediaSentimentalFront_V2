@@ -1,5 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, Inject, Injector, OnInit, signal } from '@angular/core';
+import {
+  Component,
+  computed,
+  EventEmitter,
+  Inject,
+  Injector,
+  OnInit,
+  Output,
+  signal,
+} from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
@@ -15,12 +24,12 @@ import {
   DialogConfig,
   DialogData,
   DialogResult,
-  DialogType
+  DialogType,
 } from './interfaces/dialog-config.interface';
 
 /**
  * ReusableDialogComponent - Componente de diálogo reutilizable
- * 
+ *
  * Características:
  * - Configuración completa mediante DialogConfig
  * - Múltiples tipos (info, success, warning, error, confirm, custom)
@@ -41,12 +50,22 @@ import {
     MatProgressSpinnerModule,
     MatProgressBarModule,
     MatDividerModule,
-    ReactiveFormComponent
+    ReactiveFormComponent,
   ],
   templateUrl: './reusable-dialog.component.html',
-  styleUrl: './reusable-dialog.component.css'
+  styleUrl: './reusable-dialog.component.css',
 })
 export class ReusableDialogComponent implements OnInit {
+  // Outputs para comunicación con el componente padre
+  @Output() buttonClicked = new EventEmitter<{
+    action: string;
+    button: DialogButton;
+    data?: any;
+  }>();
+  @Output() formSubmitted = new EventEmitter<FormSubmitEvent>();
+  @Output() dialogClosed = new EventEmitter<DialogResult>();
+  @Output() dialogOpened = new EventEmitter<void>();
+
   // Signals para estado reactivo
   config = signal<DialogConfig>({});
   loadingButtons = signal<Set<string>>(new Set());
@@ -61,7 +80,7 @@ export class ReusableDialogComponent implements OnInit {
     private injector: Injector
   ) {
     this.config.set(data?.config || {});
-    
+
     // Configurar opciones del diálogo
     this.setupDialogOptions();
   }
@@ -69,6 +88,9 @@ export class ReusableDialogComponent implements OnInit {
   ngOnInit(): void {
     // Aplicar configuración automática según el tipo
     this.applyTypeDefaults();
+
+    // Emitir evento de apertura
+    this.dialogOpened.emit();
   }
 
   /**
@@ -76,11 +98,11 @@ export class ReusableDialogComponent implements OnInit {
    */
   private setupDialogOptions(): void {
     const config = this.config();
-    
+
     if (config.disableClose !== undefined) {
       this.dialogRef.disableClose = config.disableClose;
     }
-    
+
     if (config.backdrop === 'static') {
       this.dialogRef.disableClose = true;
     }
@@ -118,15 +140,15 @@ export class ReusableDialogComponent implements OnInit {
             type: 'stroked',
             color: 'default',
             action: 'cancel',
-            autoClose: true
+            autoClose: true,
           },
           {
             text: 'Confirmar',
             type: 'raised',
             color: 'primary',
             action: 'confirm',
-            autoClose: true
-          }
+            autoClose: true,
+          },
         ];
       case 'error':
         return [
@@ -135,8 +157,8 @@ export class ReusableDialogComponent implements OnInit {
             type: 'raised',
             color: 'warn',
             action: 'close',
-            autoClose: true
-          }
+            autoClose: true,
+          },
         ];
       case 'success':
         return [
@@ -145,8 +167,8 @@ export class ReusableDialogComponent implements OnInit {
             type: 'raised',
             color: 'success',
             action: 'ok',
-            autoClose: true
-          }
+            autoClose: true,
+          },
         ];
       case 'warning':
         return [
@@ -155,8 +177,8 @@ export class ReusableDialogComponent implements OnInit {
             type: 'raised',
             color: 'warn',
             action: 'ok',
-            autoClose: true
-          }
+            autoClose: true,
+          },
         ];
       case 'info':
       default:
@@ -166,8 +188,8 @@ export class ReusableDialogComponent implements OnInit {
             type: 'raised',
             color: 'primary',
             action: 'ok',
-            autoClose: true
-          }
+            autoClose: true,
+          },
         ];
     }
   }
@@ -203,10 +225,7 @@ export class ReusableDialogComponent implements OnInit {
    * Obtiene las clases CSS para el diálogo
    */
   getDialogClasses(): string {
-    const classes = [
-      this.dialogTypeClass(),
-      this.dialogSizeClass()
-    ];
+    const classes = [this.dialogTypeClass(), this.dialogSizeClass()];
 
     const panelClass = this.config().panelClass;
     if (panelClass) {
@@ -240,7 +259,7 @@ export class ReusableDialogComponent implements OnInit {
    */
   getButtonClasses(button: DialogButton): string {
     const classes = ['dialog-button'];
-    
+
     // Tipo de botón Material
     switch (button.type) {
       case 'raised':
@@ -274,7 +293,7 @@ export class ReusableDialogComponent implements OnInit {
     if (button.disabled) {
       classes.push('button-disabled');
     }
-    
+
     if (button.loading) {
       classes.push('button-loading');
     }
@@ -286,10 +305,17 @@ export class ReusableDialogComponent implements OnInit {
    * Maneja el clic en un botón
    */
   async handleButtonClick(button: DialogButton): Promise<void> {
+    // Emitir evento de clic de botón
+    this.buttonClicked.emit({
+      action: button.action || button.text,
+      button: button,
+      data: this.data?.customContent?.data,
+    });
+
     // Marcar botón como loading si tiene handler asíncrono
     if (button.handler) {
       this.setButtonLoading(button.action || button.text, true);
-      
+
       try {
         await button.handler();
       } catch (error) {
@@ -310,18 +336,18 @@ export class ReusableDialogComponent implements OnInit {
    */
   private setButtonLoading(buttonId: string, loading: boolean): void {
     const loadingSet = new Set(this.loadingButtons());
-    
+
     if (loading) {
       loadingSet.add(buttonId);
     } else {
       loadingSet.delete(buttonId);
     }
-    
+
     this.loadingButtons.set(loadingSet);
 
     // Actualizar el estado del botón en la configuración
     const currentConfig = this.config();
-    const updatedButtons = currentConfig.buttons?.map(btn => {
+    const updatedButtons = currentConfig.buttons?.map((btn) => {
       if ((btn.action || btn.text) === buttonId) {
         return { ...btn, loading };
       }
@@ -330,7 +356,7 @@ export class ReusableDialogComponent implements OnInit {
 
     this.config.set({
       ...currentConfig,
-      buttons: updatedButtons
+      buttons: updatedButtons,
     });
   }
 
@@ -340,9 +366,12 @@ export class ReusableDialogComponent implements OnInit {
   closeDialog(action: string, button?: DialogButton): void {
     const result: DialogResult = {
       action,
-      data: this.data?.customContent,
-      button
+      data: this.data?.customContent?.data,
+      button,
     };
+
+    // Emitir evento de cierre
+    this.dialogClosed.emit(result);
 
     this.dialogRef.close(result);
   }
@@ -357,20 +386,20 @@ export class ReusableDialogComponent implements OnInit {
 
     // Crear tokens para cada propiedad de data
     const providers: any[] = [];
-    
+
     // Inyectar los datos del componente personalizado
     if (this.data.customContent.data) {
-      Object.keys(this.data.customContent.data).forEach(key => {
+      Object.keys(this.data.customContent.data).forEach((key) => {
         providers.push({
           provide: key,
-          useValue: this.data.customContent.data[key]
+          useValue: this.data.customContent.data[key],
         });
       });
     }
 
     return Injector.create({
       parent: this.injector,
-      providers
+      providers,
     });
   }
 
@@ -385,6 +414,9 @@ export class ReusableDialogComponent implements OnInit {
    * Maneja el submit del formulario personalizado
    */
   handleCustomFormSubmit(event: FormSubmitEvent): void {
+    // Emitir evento de submit del formulario
+    this.formSubmitted.emit(event);
+
     // Llamar al handler si existe
     if (this.data.customContent?.data?.onSubmit) {
       this.data.customContent.data.onSubmit(event);

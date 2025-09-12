@@ -6,7 +6,7 @@ import {
   DialogConfig,
   DialogData,
   DialogPresets,
-  DialogResult
+  DialogResult,
 } from '../interfaces/dialog-config.interface';
 import { ReusableDialogComponent } from '../reusable-dialog.component';
 
