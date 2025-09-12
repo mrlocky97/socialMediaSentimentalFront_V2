@@ -9,8 +9,10 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 24px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid #e0e0e0;
+  padding: 16px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(10px);
 }
 
 .header-info h2 {
@@ -81,6 +83,7 @@
 
 .job-card {
   position: relative;
+  border-radius: 12px;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
@@ -140,21 +143,25 @@
 .status-chip-running {
   background: #e3f2fd;
   color: #1976d2;
+  border-radius: 12px;
 }
 
 .status-chip-completed {
   background: #e8f5e8;
   color: #2e7d32;
+  border-radius: 12px;
 }
 
 .status-chip-failed {
   background: #ffebee;
   color: #d32f2f;
+  border-radius: 12px;
 }
 
 .status-chip-pending {
   background: #fff3e0;
   color: #f57c00;
+  border-radius: 12px;
 }
 
 .job-details {
@@ -221,6 +228,13 @@
   font-weight: 600;
 }
 
+.progress-running,
+.progress-completed,
+.progress-failed,
+.progress-pending {
+  border-radius: 12px;
+}
+
 .batch-info {
   display: flex;
   flex-wrap: wrap;
@@ -228,7 +242,7 @@
   margin-bottom: 16px;
   padding: 12px;
   background: #f8f9fa;
-  border-radius: 6px;
+  border-radius: 12px;
 }
 
 .batch-detail {
@@ -251,7 +265,7 @@
   gap: 8px;
   padding: 8px 12px;
   background: #fff3e0;
-  border-radius: 6px;
+  border-radius: 12px;
   margin-bottom: 16px;
 }
 
@@ -310,6 +324,21 @@
 
 .danger-menu-item {
   color: #f44336 !important;
+}
+
+/* Custom button styles for job cards */
+.job-card .mat-mdc-button,
+.job-card .mat-mdc-icon-button {
+  border-radius: 12px;
+}
+
+.job-card .mat-mdc-raised-button {
+  border-radius: 12px;
+}
+
+/* Filter button styling */
+.header-actions .mat-mdc-button {
+  border-radius: 12px;
 }
 
 @media (max-width: 768px) {
