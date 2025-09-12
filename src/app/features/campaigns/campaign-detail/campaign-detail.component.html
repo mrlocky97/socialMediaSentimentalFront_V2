@@ -69,20 +69,6 @@
 
       <div class="campaign-actions" role="group" aria-label="Campaign actions">
         <button
-          mat-raised-button
-          color="primary"
-          [disabled]="isScrapingRunning()"
-          (click)="runScraping()"
-          class="run-scraping-button"
-          type="button"
-          [attr.aria-label]="
-            isScrapingRunning() ? 'Scraping in progress' : 'Start scraping process'
-          "
-        >
-          <mat-icon aria-hidden="true">cloud_download</mat-icon>
-          {{ 'campaign_detail.run_scraping' | transloco : { default: 'Run Scraping Now' } }}
-        </button>
-        <button
           mat-stroked-button
           [routerLink]="['/dashboard/campaigns']"
           type="button"
@@ -863,23 +849,6 @@
                   }}
                 </p>
                 <p>
-                  <button
-                    mat-raised-button
-                    color="primary"
-                    (click)="runScraping()"
-                    [disabled]="isScrapingRunning()"
-                    type="button"
-                    [attr.aria-label]="
-                      isScrapingRunning()
-                        ? 'Scraping in progress'
-                        : 'Start scraping to collect tweets'
-                    "
-                  >
-                    <mat-icon aria-hidden="true">play_arrow</mat-icon>
-                    {{
-                      'campaign_detail.start_scraping' | transloco : { default: 'Start Scraping' }
-                    }}
-                  </button>
                 </p>
               </div>
               } }

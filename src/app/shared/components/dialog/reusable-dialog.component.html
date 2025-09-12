@@ -1,65 +1,73 @@
 <h2 mat-dialog-title>
   <!-- Type Icon -->
-  <mat-icon aria-hidden="true" *ngIf="getTypeIcon()">{{ getTypeIcon() }}</mat-icon>
+  @if (getTypeIcon()) {
+  <mat-icon aria-hidden="true">{{ getTypeIcon() }}</mat-icon>
+  }
+
   <!-- Custom Icon for custom dialogs -->
-  <mat-icon aria-hidden="true" *ngIf="config().type === 'custom'">rocket_launch</mat-icon>
+  @if (config().type === 'custom') {
+  <mat-icon aria-hidden="true">rocket_launch</mat-icon>
+  }
 
   <!-- Title -->
   <span>{{ config().title || 'Dialog' }}</span>
 
   <!-- Close Button -->
+  @if (config().showCloseButton && !config().disableClose) {
   <button
     mat-icon-button
     class="close-button"
-    *ngIf="config().showCloseButton && !config().disableClose"
     (click)="closeDialog('close')"
     aria-label="Cerrar diálogo"
   >
     <mat-icon>close</mat-icon>
   </button>
+  }
 </h2>
 
 <mat-dialog-content class="dialog-content">
   <!-- Loading Progress Bar -->
-  <mat-progress-bar
-    *ngIf="config().type === 'info' || hasLoadingButtons()"
-    mode="indeterminate"
-    color="primary"
-  >
-  </mat-progress-bar>
+  @if (config().type === 'info' || hasLoadingButtons()) {
+  <mat-progress-bar mode="indeterminate" color="primary"> </mat-progress-bar>
+  }
 
   <!-- Message Content -->
-  <div class="message-content" *ngIf="config().message">
+  @if (config().message) {
+  <div class="message-content">
     <p [innerHTML]="config().message"></p>
   </div>
+  }
 
   <!-- Custom Content -->
-  <div class="custom-content" *ngIf="config().content">
+  @if (config().content) {
+  <div class="custom-content">
     <div [innerHTML]="config().content"></div>
   </div>
+  }
 
   <!-- Custom Component Content -->
-  <div class="component-content" *ngIf="data.customContent && data.customContent.component">
+  @if (data.customContent && data.customContent.component) {
+  <div class="component-content">
     <!-- For ReactiveFormComponent specifically -->
+    @if (isReactiveFormComponent()) {
     <app-reactive-form
-      *ngIf="isReactiveFormComponent()"
       [config]="data.customContent.data.config"
       (formSubmit)="handleCustomFormSubmit($event)"
     >
     </app-reactive-form>
+    }
 
     <!-- For other custom components -->
-    <ng-container
-      *ngIf="!isReactiveFormComponent()"
-      [ngComponentOutlet]="data.customContent.component"
-    >
-    </ng-container>
+    @if (!isReactiveFormComponent()) {
+    <ng-container [ngComponentOutlet]="data.customContent.component"> </ng-container>
+    }
   </div>
+  }
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
+  @for (button of config().buttons; track button.text || $index) {
   <button
-    *ngFor="let button of config().buttons; trackBy: trackByButton"
     mat-button
     [attr.type]="getButtonType(button)"
     [class]="getButtonClasses(button)"
@@ -69,14 +77,17 @@
     [attr.aria-label]="button.text"
   >
     <!-- Loading Spinner for Button -->
-    <mat-spinner *ngIf="button.loading" diameter="16" class="button-spinner"> </mat-spinner>
+    @if (button.loading) {
+    <mat-spinner diameter="16" class="button-spinner"></mat-spinner>
+    }
 
     <!-- Button Icon -->
-    <mat-icon *ngIf="button.icon && !button.loading" class="button-icon">
-      {{ button.icon }}
-    </mat-icon>
+    @if (button.icon && !button.loading) {
+    <mat-icon class="button-icon">{{ button.icon }}</mat-icon>
+    }
 
     <!-- Button Text -->
     <span class="button-text">{{ button.text }}</span>
   </button>
+  }
 </mat-dialog-actions>

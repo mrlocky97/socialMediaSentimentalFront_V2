@@ -32,7 +32,7 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import { TranslocoModule } from '@ngneat/transloco';
 import { Chart, registerables } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
-import { Subject, catchError, combineLatest, of, take, takeUntil, tap } from 'rxjs';
+import { Subject, catchError, combineLatest, of, takeUntil, tap } from 'rxjs';
 
 // Core interfaces and services
 import {
@@ -153,7 +153,6 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
   });
 
   // UI computed properties
-  readonly isScrapingRunning = computed(() => this.scrapingProgress()?.status === 'running');
   readonly hasScrapingMetrics = computed(() => {
     const progress = this.scrapingProgress();
     if (!progress) return false;
@@ -203,26 +202,6 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
-  }
-
-  // Public methods for template
-  runScraping(): void {
-    const campaign = this.campaign();
-    if (!campaign || this.isScrapingRunning()) return;
-
-    this.snackBar.open('Starting scraping process...', 'Close', { duration: 2000 });
-
-    this.scrapingDispatchService
-      .dispatchScraping(campaign)
-      .pipe(takeUntil(this.destroy$))
-      .subscribe({
-        error: (err) => {
-          this.snackBar.open(`Error running scraping: ${err.message || 'Unknown error'}`, 'Close', {
-            duration: 5000,
-            panelClass: 'error-snackbar',
-          });
-        },
-      });
   }
 
   onTweetRowClick(tweet: Tweet): void {
@@ -379,11 +358,6 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
         tweetsLoading,
         tweetsError,
       });
-
-      // Auto-start scraping if needed
-      if (autoStartScraping || this.uiService.isRecentlyCreated(campaign)) {
-        setTimeout(() => this.runScraping(), 1000);
-      }
 
       // Update analytics
       this.updateAnalytics(tweets);
