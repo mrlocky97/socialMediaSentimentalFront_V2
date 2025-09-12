@@ -164,6 +164,44 @@ export class ReactiveFormComponent implements OnInit, OnDestroy {
     });
   }
 
+  /**
+   * Obtiene los campos de una sección específica
+   */
+  getFieldsBySection(section: string): FormFieldConfig[] {
+    // Mapeamos las secciones basadas en los campos conocidos de scraping
+    const sectionMapping: { [key: string]: string[] } = {
+      basic: ['name', 'description', 'url', 'platform'],
+      config: ['frequency', 'status', 'tags', 'includeImages'],
+      advanced: ['maxPages', 'delay', 'selector', 'excludePatterns']
+    };
+
+    const sectionFields = sectionMapping[section] || [];
+    
+    // Si no hay mapeo específico, devolver todos los campos
+    if (sectionFields.length === 0) {
+      return this.config.fields;
+    }
+
+    // Filtrar campos por sección y mantener el orden
+    const fieldsInSection = this.config.fields.filter(field => 
+      sectionFields.includes(field.key)
+    );
+
+    // Si una sección no tiene campos, mover campos restantes allí
+    if (fieldsInSection.length === 0 && section === 'advanced') {
+      // Para la sección avanzada, incluir cualquier campo que no esté en basic o config
+      const basicFields = sectionMapping['basic'];
+      const configFields = sectionMapping['config'];
+      const usedFields = [...basicFields, ...configFields];
+      
+      return this.config.fields.filter(field => 
+        !usedFields.includes(field.key)
+      );
+    }
+
+    return fieldsInSection;
+  }
+
   // Public methods for external control
   resetForm(): void {
     this.onReset();

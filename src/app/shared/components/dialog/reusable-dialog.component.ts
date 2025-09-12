@@ -1,10 +1,14 @@
 import { CommonModule } from '@angular/common';
-import { Component, computed, Inject, OnInit, signal } from '@angular/core';
+import { Component, computed, Inject, Injector, OnInit, signal } from '@angular/core';
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatIconModule } from '@angular/material/icon';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
+import { FormSubmitEvent } from '../reactive-form/interfaces/form-field.interface';
+import { ReactiveFormComponent } from '../reactive-form/reactive-form.component';
 
 import {
   DialogButton,
@@ -35,7 +39,9 @@ import {
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
-    MatDividerModule
+    MatProgressBarModule,
+    MatDividerModule,
+    ReactiveFormComponent
   ],
   templateUrl: './reusable-dialog.component.html',
   styleUrl: './reusable-dialog.component.css'
@@ -51,7 +57,8 @@ export class ReusableDialogComponent implements OnInit {
 
   constructor(
     public dialogRef: MatDialogRef<ReusableDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: DialogData
+    @Inject(MAT_DIALOG_DATA) public data: DialogData,
+    private injector: Injector
   ) {
     this.config.set(data?.config || {});
     
@@ -163,6 +170,13 @@ export class ReusableDialogComponent implements OnInit {
           }
         ];
     }
+  }
+
+  /**
+   * Verifica si hay botones en estado de loading
+   */
+  hasLoadingButtons(): boolean {
+    return this.loadingButtons().size > 0;
   }
 
   /**
@@ -331,6 +345,50 @@ export class ReusableDialogComponent implements OnInit {
     };
 
     this.dialogRef.close(result);
+  }
+
+  /**
+   * Crea un injector personalizado para el componente dinámico
+   */
+  getCustomInjector(): Injector {
+    if (!this.data.customContent?.data) {
+      return this.injector;
+    }
+
+    // Crear tokens para cada propiedad de data
+    const providers: any[] = [];
+    
+    // Inyectar los datos del componente personalizado
+    if (this.data.customContent.data) {
+      Object.keys(this.data.customContent.data).forEach(key => {
+        providers.push({
+          provide: key,
+          useValue: this.data.customContent.data[key]
+        });
+      });
+    }
+
+    return Injector.create({
+      parent: this.injector,
+      providers
+    });
+  }
+
+  /**
+   * Verifica si el componente personalizado es ReactiveFormComponent
+   */
+  isReactiveFormComponent(): boolean {
+    return this.data.customContent?.component === ReactiveFormComponent;
+  }
+
+  /**
+   * Maneja el submit del formulario personalizado
+   */
+  handleCustomFormSubmit(event: FormSubmitEvent): void {
+    // Llamar al handler si existe
+    if (this.data.customContent?.data?.onSubmit) {
+      this.data.customContent.data.onSubmit(event);
+    }
   }
 
   /**

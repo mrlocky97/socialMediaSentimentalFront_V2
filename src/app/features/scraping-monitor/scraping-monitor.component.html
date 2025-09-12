@@ -1,268 +1,136 @@
-<div class="scraping-monitor-container">
-  <!-- Modern Header -->
-  <header class="monitor-header">
-    <div class="header-main">
-      <div class="header-title">
-        <mat-icon class="title-icon">monitoring</mat-icon>
-        <div class="title-content">
-          <h1>{{ 'scraping_monitor.title' | transloco }}</h1>
-          <p>{{ 'scraping_monitor.subtitle' | transloco }}</p>
-        </div>
-      </div>
-
-      <!-- Header Stats - Responsive Grid -->
-      <section class="header-stats">
-        @for (stat of statsConfig; track stat.key) {
-        <div class="stat-card modern-card">
-          <div class="stat-icon-wrapper" [class]="getStatClass(stat.key)">
-            <mat-icon>{{ stat.icon }}</mat-icon>
-          </div>
-          <div class="stat-content">
-            <span class="stat-number"
-              >{{ getStatValue(stat.key) | number : '1.0-0' }}{{ stat.suffix || '' }}</span
-            >
-            <span class="stat-label">{{ stat.labelKey | transloco }}</span>
-          </div>
-        </div>
-        }
-      </section>
+<div class="scraping-monitor-page">
+  <!-- Page Header -->
+  <div class="page-header">
+    <div class="header-content">
+      <h1>
+        <mat-icon>rocket_launch</mat-icon>
+        Advanced Scraping Monitor
+      </h1>
+      <p>Real-time monitoring and management of high-volume social media data collection</p>
     </div>
 
-    <!-- Status Overview - Responsive Pills -->
-    <section class="status-overview">
-      @for (status of statusConfig; track status.key) { @if (getStatusCount(status.key) > 0) {
-      <div class="status-pill" [class]="'status-' + status.key">
-        <mat-icon>{{ status.icon }}</mat-icon>
-        <span class="status-count">{{ getStatusCount(status.key) }}</span>
-        <span class="status-label">{{ status.labelKey | transloco }}</span>
+    <div class="header-actions">
+      <!-- Connection Status -->
+      <div class="connection-indicator" [class]="connectionStatus() ? 'connected' : 'disconnected'">
+        <div class="status-dot"></div>
+        <span>{{ connectionStatus() ? 'Connected' : 'Disconnected' }}</span>
       </div>
-      } }
-    </section>
-  </header>
 
-  <!-- Loading State -->
-  @if (isLoading()) {
-  <div class="loading-container modern-card">
-    <div class="loading-content">
-      <mat-progress-bar mode="indeterminate" class="modern-progress"></mat-progress-bar>
-      <div class="loading-text">
-        <mat-icon class="loading-icon">hourglass_empty</mat-icon>
-        <p>{{ 'scraping_monitor.loading' | transloco }}</p>
+      <!-- Create Job Button -->
+      <button
+        mat-raised-button
+        color="primary"
+        (click)="openCreateJobDialog()"
+        class="create-job-btn"
+      >
+        <mat-icon>add</mat-icon>
+        Create Job
+      </button>
+    </div>
+  </div>
+
+  <!-- Content Container -->
+  <div class="content-container">
+    <!-- Navigation Tabs -->
+    <mat-tab-group
+      [selectedIndex]="selectedTabIndex()"
+      (selectedIndexChange)="onTabChange($event)"
+      animationDuration="300ms"
+      class="main-tabs"
+    >
+      <!-- Dashboard Tab -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon>dashboard</mat-icon>
+          Dashboard
+        </ng-template>
+
+        <div class="tab-content">
+          <app-scraping-dashboard></app-scraping-dashboard>
+        </div>
+      </mat-tab>
+
+      <!-- Active Jobs Tab -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon>list_alt</mat-icon>
+          Jobs @if (activeJobsCount() > 0) {
+          <span
+            matBadge="{{ activeJobsCount() }}"
+            matBadgePosition="after"
+            matBadgeColor="accent"
+            matBadgeSize="small"
+            class="tab-badge"
+          >
+          </span>
+          }
+        </ng-template>
+
+        <div class="tab-content">
+          <app-job-list></app-job-list>
+        </div>
+      </mat-tab>
+
+      <!-- Create Job Tab -->
+      <mat-tab>
+        <ng-template mat-tab-label>
+          <mat-icon>rocket_launch</mat-icon>
+          Create Job
+        </ng-template>
+
+        <div class="tab-content">
+          <app-create-job
+            (jobCreated)="onJobCreated($event)"
+            (cancelled)="onJobCreationCancelled()"
+          >
+          </app-create-job>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+
+    <!-- Quick Actions Toolbar -->
+    <div class="quick-actions-toolbar">
+      <div class="toolbar-content">
+        <div class="quick-stats">
+          <div class="stat-item">
+            <mat-icon>work</mat-icon>
+            <span>{{ totalJobs() }} Total Jobs</span>
+          </div>
+
+          <div class="stat-item">
+            <mat-icon>play_arrow</mat-icon>
+            <span>{{ activeJobsCount() }} Running</span>
+          </div>
+
+          <div class="stat-item">
+            <mat-icon>trending_up</mat-icon>
+            <span>{{ formatNumber(totalTweetsCollected()) }} Tweets</span>
+          </div>
+        </div>
+
+        <div class="quick-actions">
+          <button
+            mat-icon-button
+            (click)="refreshAllData()"
+            [disabled]="isRefreshing()"
+            matTooltip="Refresh all data"
+          >
+            <mat-icon [class.spinning]="isRefreshing()">refresh</mat-icon>
+          </button>
+
+          <button
+            mat-icon-button
+            (click)="toggleConnectionStatus()"
+            [matTooltip]="
+              connectionStatus()
+                ? 'Disconnect from real-time updates'
+                : 'Connect to real-time updates'
+            "
+          >
+            <mat-icon>{{ connectionStatus() ? 'wifi_off' : 'wifi' }}</mat-icon>
+          </button>
+        </div>
       </div>
     </div>
   </div>
-  }
-
-  <!-- Error State -->
-  @if (error()) {
-  <section class="error-state modern-card">
-    <div class="error-content">
-      <mat-icon class="error-icon">error_outline</mat-icon>
-      <h3>{{ 'scraping_monitor.error_loading' | transloco }}</h3>
-      <p>{{ error() }}</p>
-      <button mat-raised-button color="primary" (click)="initializeMonitoring()" class="modern-btn">
-        <mat-icon>refresh</mat-icon>
-        {{ 'scraping_monitor.retry' | transloco }}
-      </button>
-    </div>
-  </section>
-  }
-
-  <!-- Main Content Grid -->
-  @if (!isLoading() && !error()) {
-  <main class="content-grid">
-    <!-- Campaign Cards - Responsive Grid -->
-    @if (activeCampaigns().length > 0) {
-    <section class="campaigns-section">
-      <div class="section-header">
-        <h2>
-          <mat-icon>campaign</mat-icon>
-          {{ 'scraping_monitor.active_campaigns' | transloco }}
-        </h2>
-        <span class="campaign-count">{{ activeCampaigns().length }}</span>
-      </div>
-
-      <div class="campaigns-grid">
-        @for (campaign of activeCampaigns(); track campaign.campaignId) {
-        <mat-card class="campaign-card modern-card" [class]="'status-' + campaign.status">
-          <!-- Card Header -->
-          <mat-card-header class="campaign-header">
-            <div mat-card-avatar class="campaign-avatar">
-              <mat-icon [style.color]="getStatusColor(campaign.status)">
-                {{ getStatusIcon(campaign.status) }}
-              </mat-icon>
-            </div>
-            <mat-card-title>{{ campaign.campaignName }}</mat-card-title>
-            <mat-card-subtitle>
-              <mat-chip
-                class="status-chip"
-                [class]="'chip-' + campaign.status"
-                [style.background-color]="getStatusColor(campaign.status)"
-              >
-                {{ campaign.status | titlecase }}
-              </mat-chip>
-            </mat-card-subtitle>
-          </mat-card-header>
-
-          <!-- Progress Section -->
-          <mat-card-content class="campaign-content">
-            <div class="progress-section">
-              <div class="progress-header">
-                <span class="progress-text">
-                  {{ campaign.progress.completed | number }} /
-                  {{ campaign.progress.total | number }}
-                </span>
-                <span class="progress-percentage">
-                  {{ campaign.progress.percentage | number : '1.0-0' }}%
-                </span>
-              </div>
-
-              <div class="progress-bar-container">
-                <mat-progress-bar
-                  mode="determinate"
-                  [value]="campaign.progress.percentage"
-                  class="campaign-progress"
-                  [class]="getProgressClass(campaign.progress.percentage)"
-                >
-                </mat-progress-bar>
-              </div>
-
-              <div class="progress-details">
-                <div class="activity-info">
-                  <mat-icon>info</mat-icon>
-                  <span>{{ campaign.currentActivity }}</span>
-                </div>
-
-                @if (campaign.estimatedEndTime && campaign.status === 'running') {
-                <div class="time-remaining">
-                  <mat-icon>schedule</mat-icon>
-                  <span>{{ formatTimeRemaining(campaign) }}</span>
-                </div>
-                }
-              </div>
-            </div>
-
-            <!-- Metrics Grid - Responsive -->
-            <div class="metrics-grid">
-              @for (metric of getMetricsConfig(campaign); track metric.key) {
-              <div class="metric-item" [class]="metric.cssClass || ''">
-                <div class="metric-icon-wrapper">
-                  <mat-icon>{{ metric.icon }}</mat-icon>
-                </div>
-                <div class="metric-content">
-                  <span class="metric-value">{{ metric.value | number : '1.0-0' }}</span>
-                  <span class="metric-label">{{ metric.labelKey | transloco }}</span>
-                </div>
-              </div>
-              }
-            </div>
-
-            <!-- Sentiment Analysis - Responsive -->
-            @if (campaign.metrics.tweetsCollected > 0 && hasSentimentData(campaign)) {
-            <div class="sentiment-section">
-              <h4>
-                <mat-icon>analytics</mat-icon>
-                {{ 'scraping_monitor.sentiment_distribution' | transloco }}
-              </h4>
-              <div class="sentiment-bars">
-                @for (sentiment of sentimentConfig; track sentiment.type) {
-                <div class="sentiment-bar" [class]="sentiment.type">
-                  <div class="sentiment-label">
-                    <mat-icon>{{ sentiment.icon }}</mat-icon>
-                    <span>{{ sentiment.labelKey | transloco }}</span>
-                  </div>
-                  <div class="sentiment-progress">
-                    <div class="progress-track">
-                      <div
-                        class="progress-fill"
-                        [class]="sentiment.type"
-                        [style.width.%]="getSentimentValue(campaign, sentiment.type)"
-                      ></div>
-                    </div>
-                    <span class="sentiment-percentage">
-                      {{ getSentimentValue(campaign, sentiment.type) | number : '1.0-0' }}%
-                    </span>
-                  </div>
-                </div>
-                }
-              </div>
-            </div>
-            }
-
-            <!-- Duration Info -->
-            <div class="duration-info">
-              @for (duration of getDurationConfig(campaign); track duration.key) {
-              <div class="duration-item">
-                <mat-icon>{{ duration.icon }}</mat-icon>
-                <span>{{ duration.labelKey | transloco }}: {{ duration.value }}</span>
-              </div>
-              }
-            </div>
-          </mat-card-content>
-
-          <!-- Card Actions -->
-          <mat-card-actions class="campaign-actions">
-            @for (action of getAvailableActions(campaign); track action.key) {
-            <button
-              mat-icon-button
-              [style.color]="action.color"
-              (click)="executeAction(action.key, campaign.campaignId)"
-              [matTooltip]="action.tooltipKey | transloco"
-              class="action-btn"
-            >
-              <mat-icon>{{ action.icon }}</mat-icon>
-            </button>
-            }
-          </mat-card-actions>
-        </mat-card>
-        }
-      </div>
-    </section>
-    }
-
-    <!-- Empty State -->
-    @if (activeCampaigns().length === 0) {
-    <section class="empty-state modern-card">
-      <div class="empty-content">
-        <mat-icon class="empty-icon">inbox</mat-icon>
-        <h2>{{ 'scraping_monitor.no_active_campaigns' | transloco }}</h2>
-        <p>{{ 'scraping_monitor.no_campaigns_description' | transloco }}</p>
-        <button
-          mat-raised-button
-          color="primary"
-          routerLink="/dashboard/campaigns/create"
-          class="modern-btn"
-        >
-          <mat-icon>add</mat-icon>
-          {{ 'scraping_monitor.create_campaign' | transloco }}
-        </button>
-      </div>
-    </section>
-    }
-  </main>
-  }
-
-  <!-- Footer -->
-  <footer class="monitor-footer modern-card">
-    <div class="footer-content">
-      <div class="update-info">
-        <mat-icon>update</mat-icon>
-        <span>
-          {{ 'scraping_monitor.last_updated' | transloco }}
-          {{ lastUpdateTime() | date : 'medium' }}
-        </span>
-      </div>
-
-      <div class="footer-actions">
-        <button
-          mat-icon-button
-          (click)="initializeMonitoring()"
-          [matTooltip]="'scraping_monitor.refresh' | transloco"
-          class="refresh-btn"
-        >
-          <mat-icon>refresh</mat-icon>
-        </button>
-      </div>
-    </div>
-  </footer>
 </div>

@@ -40,8 +40,12 @@ export const errorHandlingInterceptor: HttpInterceptorFn = (req, next) => {
           break;
           
         case 0:
-          // Error de red o CORS
-          console.error('Network error. Check your connection.');
+          // Error de red o CORS - less verbose logging for offline mode
+          if (!window.navigator.onLine) {
+            console.warn('Application is offline - using cached/demo data');
+          } else {
+            console.warn('Network connection issue - check backend availability');
+          }
           break;
           
         default:

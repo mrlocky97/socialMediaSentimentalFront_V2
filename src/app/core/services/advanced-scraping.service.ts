@@ -3,22 +3,21 @@
  * Handles the new advanced scraping system with WebSocket support
  */
 
-import { Injectable, OnDestroy } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { BehaviorSubject, Observable, Subject, fromEvent, map, takeUntil, tap, catchError, of } from 'rxjs';
-import socketIo from 'socket.io-client';
+import { Injectable, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { BehaviorSubject, Observable, Subject, catchError, map, of, takeUntil, tap } from 'rxjs';
+import socketIo from 'socket.io-client';
 import { environment } from '../../../enviroments/environment';
 import {
-  JobProgress,
   CreateJobRequest,
   CreateJobResponse,
-  ScrapingJob,
-  ScrapingStats,
-  JobListResponse,
-  WebSocketEvents,
   JobFormData,
-  JobMetrics
+  JobListResponse,
+  JobMetrics,
+  JobProgress,
+  ScrapingJob,
+  ScrapingStats
 } from '../interfaces/advanced-scraping.interface';
 
 @Injectable({
@@ -27,14 +26,15 @@ import {
 export class AdvancedScrapingService implements OnDestroy {
   private readonly API_BASE_URL = environment.production 
     ? 'https://your-backend-domain.com/api/v1/scraping/advanced'
-    : 'http://localhost:3000/api/v1/scraping/advanced';
+    : `${environment.apiUrl}/api/${environment.apiVersion}/scraping/advanced`;
   private readonly WEBSOCKET_URL = environment.production 
     ? 'https://your-backend-domain.com'
-    : 'http://localhost:3000';
+    : environment.apiUrl;
   
   private socket: any | null = null;
   private websocketEnabled = false;
   private destroy$ = new Subject<void>();
+  private demoNotificationShown = false;
   
   // State management
   private jobsSubject = new BehaviorSubject<ScrapingJob[]>([]);
@@ -74,10 +74,17 @@ export class AdvancedScrapingService implements OnDestroy {
     // Initialize with demo data immediately
     this.initializeDemoData();
     
-    // Try to initialize WebSocket after a delay to allow app to load
-    setTimeout(() => {
-      this.tryEnableWebSocket();
-    }, 2000);
+    // Check if we should try backend connection based on environment
+    if (!environment.features.offlineMode && environment.features.realTimeUpdates) {
+      // Try to initialize WebSocket after a delay to allow app to load
+      setTimeout(() => {
+        this.tryEnableWebSocket();
+      }, 2000);
+    } else {
+      console.log('🔄 Running in offline mode by configuration');
+      this.connectionStatusSubject.next(false);
+      this.websocketEnabled = false;
+    }
   }
 
   /**
@@ -201,10 +208,26 @@ export class AdvancedScrapingService implements OnDestroy {
    * Try to enable WebSocket connection (check if backend is available)
    */
   public tryEnableWebSocket(): void {
+    // Skip if offline mode is enabled
+    if (environment.features.offlineMode || !environment.features.realTimeUpdates) {
+      console.log('⚠️ Offline mode enabled or real-time updates disabled - skipping backend connection');
+      this.connectionStatusSubject.next(false);
+      this.websocketEnabled = false;
+      return;
+    }
+
     // First, try a simple HTTP request to check if backend is available
-    this.http.get(`${this.API_BASE_URL}/health`, { observe: 'response' })
+    this.http.get(`${this.API_BASE_URL}/health`, { 
+      observe: 'response',
+      headers: { 'Content-Type': 'application/json' }
+    })
       .pipe(
-        catchError(() => of(null)),
+        catchError((error) => {
+          console.warn('Backend connection failed:', error.message);
+          this.websocketEnabled = false;
+          this.connectionStatusSubject.next(false);
+          return of(null);
+        }),
         takeUntil(this.destroy$)
       )
       .subscribe(response => {
@@ -215,7 +238,7 @@ export class AdvancedScrapingService implements OnDestroy {
           // Load real jobs from backend
           this.loadJobs().subscribe();
         } else {
-          console.log('⚠️ Backend not available - running in offline mode');
+          console.log('⚠️ Backend not available - continuing in offline mode');
           this.websocketEnabled = false;
           this.connectionStatusSubject.next(false);
           // Keep demo data that was loaded in constructor
@@ -259,6 +282,11 @@ export class AdvancedScrapingService implements OnDestroy {
    * Create a new scraping job
    */
   public createJob(formData: JobFormData): Observable<CreateJobResponse> {
+    // If offline mode or backend not available, create demo job immediately
+    if (environment.features.offlineMode || !this.websocketEnabled) {
+      return this.createDemoJob(formData);
+    }
+
     const request: CreateJobRequest = {
       type: formData.type,
       query: formData.query,
@@ -284,23 +312,101 @@ export class AdvancedScrapingService implements OnDestroy {
         this.loadJobs();
       }),
       catchError(error => {
-        console.error('❌ Failed to create job:', error);
-        this.snackBar.open(`Failed to create job: ${error.error?.message || error.message}`, 'Close', {
-          duration: 7000,
-          panelClass: ['error-snackbar']
-        });
-        throw error;
+        console.warn('Backend not available for job creation, creating demo job:', error.message);
+        return this.createDemoJob(formData);
       })
     );
+  }
+
+  /**
+   * Create a demo job for offline mode
+   */
+  private createDemoJob(formData: JobFormData): Observable<CreateJobResponse> {
+    // Generate a mock job ID
+    const mockJobId = `demo-job-${Date.now()}`;
+    
+    // Create mock response
+    const mockResponse: CreateJobResponse = {
+      jobId: mockJobId,
+      estimatedTime: Math.floor(Math.random() * 60) + 10, // 10-70 minutes
+      websocketUrl: this.WEBSOCKET_URL
+    };
+    
+    // Add job to local state
+    const newJob: ScrapingJob = {
+      id: mockJobId,
+      type: formData.type,
+      query: formData.query,
+      targetCount: formData.targetCount,
+      campaignId: formData.campaignId || '',
+      priority: formData.priority,
+      status: 'pending',
+      createdAt: new Date(),
+      progress: {
+        jobId: mockJobId,
+        current: 0,
+        total: formData.targetCount,
+        percentage: 0,
+        currentBatch: 0,
+        totalBatches: Math.ceil(formData.targetCount / 100),
+        status: 'pending',
+        tweetsCollected: 0,
+        estimatedTimeRemaining: mockResponse.estimatedTime * 60,
+        errors: [],
+        throughput: 0
+      },
+      options: {
+        includeReplies: formData.includeReplies,
+        includeRetweets: formData.includeRetweets
+      }
+    };
+    
+    // Update jobs list
+    const currentJobs = this.jobsSubject.value;
+    this.jobsSubject.next([newJob, ...currentJobs]);
+    this.updateMetrics([newJob, ...currentJobs]);
+    
+    this.snackBar.open(`Demo job created: ${mockJobId}`, 'View Jobs', { 
+      duration: 5000,
+      panelClass: ['info-snackbar']
+    });
+    
+    return of(mockResponse);
   }
 
   /**
    * Get job progress
    */
   public getJobProgress(jobId: string): Observable<JobProgress> {
+    // If offline mode or backend not available, return demo progress
+    if (environment.features.offlineMode || !this.websocketEnabled) {
+      const jobs = this.jobsSubject.value;
+      const job = jobs.find(j => j.id === jobId);
+      
+      if (job) {
+        return of(job.progress);
+      }
+      
+      // Return default progress for unknown jobs in offline mode
+      return of({
+        jobId,
+        current: 0,
+        total: 0,
+        percentage: 0,
+        currentBatch: 0,
+        totalBatches: 0,
+        status: 'failed',
+        tweetsCollected: 0,
+        errors: ['Job not found in offline mode']
+      } as JobProgress);
+    }
+
     return this.http.get<JobProgress>(`${this.API_BASE_URL}/job/${jobId}`).pipe(
       catchError(error => {
         console.error(`Failed to get progress for job ${jobId}:`, error);
+        this.websocketEnabled = false;
+        this.connectionStatusSubject.next(false);
+        
         return of({
           jobId,
           current: 0,
@@ -320,6 +426,11 @@ export class AdvancedScrapingService implements OnDestroy {
    * Get list of jobs with offline mode support
    */
   public loadJobs(status?: 'running' | 'pending' | 'completed' | 'failed'): Observable<JobListResponse> {
+    // If offline mode or backend not available, return demo data immediately
+    if (environment.features.offlineMode || !this.websocketEnabled) {
+      return this.getDemoJobsResponse(status);
+    }
+
     let params = new HttpParams();
     if (status) {
       params = params.set('status', status);
@@ -339,28 +450,46 @@ export class AdvancedScrapingService implements OnDestroy {
       }),
       catchError(error => {
         console.warn('Backend not available, using demo data:', error.message);
+        this.websocketEnabled = false;
+        this.connectionStatusSubject.next(false);
         
-        // Return demo data when backend is not available
-        const demoResponse: JobListResponse = {
-          jobs: this.getDemoJobs(),
-          totalCount: 3,
-          hasMore: false
-        };
-        
-        this.jobsSubject.next(demoResponse.jobs);
-        this.updateMetrics(demoResponse.jobs);
-        
-        // Show a less intrusive notification
-        this.snackBar.open('Running in demo mode - backend not available', 'Enable Backend', { 
-          duration: 8000,
-          panelClass: ['info-snackbar']
-        }).onAction().subscribe(() => {
-          this.tryEnableWebSocket();
-        });
-        
-        return of(demoResponse);
+        return this.getDemoJobsResponse(status);
       })
     );
+  }
+
+  /**
+   * Get demo jobs response for offline mode
+   */
+  private getDemoJobsResponse(status?: 'running' | 'pending' | 'completed' | 'failed'): Observable<JobListResponse> {
+    let demoJobs = this.getDemoJobs();
+    
+    // Filter by status if provided
+    if (status) {
+      demoJobs = demoJobs.filter(job => job.status === status);
+    }
+    
+    const demoResponse: JobListResponse = {
+      jobs: demoJobs,
+      totalCount: demoJobs.length,
+      hasMore: false
+    };
+    
+    this.jobsSubject.next(demoResponse.jobs);
+    this.updateMetrics(demoResponse.jobs);
+    
+    // Only show the demo notification once per session
+    if (!this.demoNotificationShown) {
+      this.demoNotificationShown = true;
+      this.snackBar.open('Running in demo mode - backend not available', 'Enable Backend', { 
+        duration: 8000,
+        panelClass: ['info-snackbar']
+      }).onAction().subscribe(() => {
+        this.tryEnableWebSocket();
+      });
+    }
+    
+    return of(demoResponse);
   }
 
   /**
@@ -461,6 +590,36 @@ export class AdvancedScrapingService implements OnDestroy {
    * Cancel a job
    */
   public cancelJob(jobId: string): Observable<boolean> {
+    // If offline mode or backend not available, handle cancellation locally
+    if (environment.features.offlineMode || !this.websocketEnabled) {
+      const jobs = this.jobsSubject.value;
+      const jobIndex = jobs.findIndex(j => j.id === jobId);
+      
+      if (jobIndex >= 0) {
+        const updatedJobs = [...jobs];
+        updatedJobs[jobIndex] = { 
+          ...updatedJobs[jobIndex], 
+          status: 'cancelled' as any,
+          progress: {
+            ...updatedJobs[jobIndex].progress,
+            status: 'failed'
+          }
+        };
+        
+        this.jobsSubject.next(updatedJobs);
+        this.updateMetrics(updatedJobs);
+        
+        this.snackBar.open(`Demo job ${jobId} cancelled`, 'Close', { duration: 3000 });
+        return of(true);
+      } else {
+        this.snackBar.open(`Job ${jobId} not found`, 'Close', { 
+          duration: 3000,
+          panelClass: ['error-snackbar']
+        });
+        return of(false);
+      }
+    }
+
     return this.http.post<{ success: boolean }>(`${this.API_BASE_URL}/job/${jobId}/cancel`, {}).pipe(
       map(response => response.success),
       tap(success => {
@@ -471,6 +630,9 @@ export class AdvancedScrapingService implements OnDestroy {
       }),
       catchError(error => {
         console.error(`Failed to cancel job ${jobId}:`, error);
+        this.websocketEnabled = false;
+        this.connectionStatusSubject.next(false);
+        
         this.snackBar.open(`Failed to cancel job: ${error.error?.message || error.message}`, 'Close', {
           duration: 5000,
           panelClass: ['error-snackbar']
@@ -484,11 +646,42 @@ export class AdvancedScrapingService implements OnDestroy {
    * Get system statistics
    */
   public getSystemStats(): Observable<ScrapingStats> {
+    // If offline mode or backend not available, return demo stats immediately
+    if (environment.features.offlineMode || !this.websocketEnabled) {
+      const demoStats: ScrapingStats = {
+        totalJobs: 3,
+        runningJobs: 1,
+        completedJobs: 1,
+        failedJobs: 1,
+        totalTweetsCollected: 1250,
+        averageProcessingTime: 45.5,
+        systemLoad: 35.2
+      };
+      
+      this.statsSubject.next(demoStats);
+      return of(demoStats);
+    }
+
     return this.http.get<ScrapingStats>(`${this.API_BASE_URL}/stats`).pipe(
       tap(stats => this.statsSubject.next(stats)),
       catchError(error => {
-        console.error('Failed to get system stats:', error);
-        return of(this.statsSubject.value);
+        console.warn('Backend not available for stats, using demo data:', error.message);
+        this.websocketEnabled = false;
+        this.connectionStatusSubject.next(false);
+        
+        // Return demo stats when backend is not available
+        const demoStats: ScrapingStats = {
+          totalJobs: 3,
+          runningJobs: 1,
+          completedJobs: 1,
+          failedJobs: 1,
+          totalTweetsCollected: 1250,
+          averageProcessingTime: 45.5,
+          systemLoad: 35.2
+        };
+        
+        this.statsSubject.next(demoStats);
+        return of(demoStats);
       })
     );
   }
