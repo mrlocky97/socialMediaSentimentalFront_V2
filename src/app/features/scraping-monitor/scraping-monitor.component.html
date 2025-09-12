@@ -58,18 +58,20 @@
       <!-- Active Jobs Tab -->
       <mat-tab>
         <ng-template mat-tab-label>
-          <mat-icon aria-hidden="true">list_alt</mat-icon>
-          Jobs @if (activeJobsCount() > 0) {
-          <span
-            matBadge="{{ activeJobsCount() }}"
-            matBadgePosition="after"
-            matBadgeColor="accent"
-            matBadgeSize="small"
-            class="tab-badge"
-            aria-label="{{ activeJobsCount() }} active jobs"
-          >
-          </span>
-          }
+          <div class="tab-label-container">
+            <mat-icon aria-hidden="true">list_alt</mat-icon>
+            <span class="tab-label-text">Jobs</span>
+            @if (activeJobsCount() > 0) {
+            <span
+              class="tab-badge-indicator"
+              matBadge="{{ activeJobsCount() }}"
+              matBadgePosition="above after"
+              matBadgeColor="accent"
+              matBadgeSize="small"
+              aria-label="{{ activeJobsCount() }} active jobs"
+            ></span>
+            }
+          </div>
         </ng-template>
 
         <div class="tab-content">

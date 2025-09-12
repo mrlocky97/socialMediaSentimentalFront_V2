@@ -192,6 +192,24 @@
   margin-right: 0.5rem;
 }
 
+.tab-label-container {
+  display: flex;
+  align-items: center;
+  position: relative;
+  gap: 0.5rem;
+}
+
+.tab-label-text {
+  margin-right: 0.25rem;
+}
+
+.tab-badge-indicator {
+  position: relative;
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+}
+
 .main-tabs .mat-mdc-tab-body-wrapper {
   flex: 1;
   overflow: hidden;
