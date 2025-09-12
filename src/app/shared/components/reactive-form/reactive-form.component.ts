@@ -172,20 +172,18 @@ export class ReactiveFormComponent implements OnInit, OnDestroy {
     const sectionMapping: { [key: string]: string[] } = {
       basic: ['name', 'description', 'url', 'platform'],
       config: ['frequency', 'status', 'tags', 'includeImages'],
-      advanced: ['maxPages', 'delay', 'selector', 'excludePatterns']
+      advanced: ['maxPages', 'delay', 'selector', 'excludePatterns'],
     };
 
     const sectionFields = sectionMapping[section] || [];
-    
+
     // Si no hay mapeo específico, devolver todos los campos
     if (sectionFields.length === 0) {
       return this.config.fields;
     }
 
     // Filtrar campos por sección y mantener el orden
-    const fieldsInSection = this.config.fields.filter(field => 
-      sectionFields.includes(field.key)
-    );
+    const fieldsInSection = this.config.fields.filter((field) => sectionFields.includes(field.key));
 
     // Si una sección no tiene campos, mover campos restantes allí
     if (fieldsInSection.length === 0 && section === 'advanced') {
@@ -193,10 +191,8 @@ export class ReactiveFormComponent implements OnInit, OnDestroy {
       const basicFields = sectionMapping['basic'];
       const configFields = sectionMapping['config'];
       const usedFields = [...basicFields, ...configFields];
-      
-      return this.config.fields.filter(field => 
-        !usedFields.includes(field.key)
-      );
+
+      return this.config.fields.filter((field) => !usedFields.includes(field.key));
     }
 
     return fieldsInSection;
@@ -226,5 +222,9 @@ export class ReactiveFormComponent implements OnInit, OnDestroy {
 
   isFormValid(): boolean {
     return this.form.valid;
+  }
+
+  submitForm() {
+    this.onSubmit();
   }
 }

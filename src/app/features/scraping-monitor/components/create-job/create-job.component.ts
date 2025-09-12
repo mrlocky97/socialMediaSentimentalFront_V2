@@ -1,9 +1,13 @@
-/**
- * Create Job Component
- * Form component for creating new advanced scraping jobs
- */
-
-import { Component, EventEmitter, OnInit, Output, inject, signal } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Output,
+  computed,
+  inject,
+  signal,
+  viewChild,
+} from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
@@ -49,7 +53,7 @@ interface ScrapingType {
   templateUrl: './create-job.component.html',
   styleUrls: ['./create-job.component.css'],
 })
-export class CreateJobComponent implements OnInit {
+export class CreateJobComponent {
   @Output() jobCreated = new EventEmitter<CreateJobResponse>();
   @Output() cancelled = new EventEmitter<void>();
 
@@ -57,10 +61,124 @@ export class CreateJobComponent implements OnInit {
   private snackBar = inject(MatSnackBar);
   private dialogRef = inject(MatDialogRef<CreateJobComponent>, { optional: true });
 
+  // Use viewChild to get reference to the reactive form
+  reactiveForm = viewChild<ReactiveFormComponent>('reactiveForm');
+
   // Form and state
-  formConfig!: FormConfig;
   selectedType = signal<'hashtag' | 'user' | 'search'>('hashtag');
   isCreating = signal(false);
+
+  // Computed values
+  selectedTypeConfig = computed(() =>
+    this.scrapingTypes.find((t) => t.value === this.selectedType())
+  );
+
+  queryHint = computed(() => {
+    const config = this.selectedTypeConfig();
+    if (!config) return '';
+
+    switch (config.value) {
+      case 'hashtag':
+        return 'Enter hashtags separated by commas (without # symbol)';
+      case 'user':
+        return 'Enter usernames separated by commas (without @ symbol)';
+      case 'search':
+        return 'Use AND, OR, quotes for exact phrases, - to exclude';
+      default:
+        return '';
+    }
+  });
+
+  formConfig = computed<FormConfig>(() => {
+    const fields: any[] = [
+      {
+        key: 'query',
+        type: 'text',
+        label: this.selectedTypeConfig()?.label || 'Query',
+        placeholder: this.selectedTypeConfig()?.placeholder || 'Enter your query',
+        required: true,
+        validators: [Validators.required, Validators.minLength(2)],
+        hint: this.queryHint(),
+        errorMessages: {
+          required: 'Query is required',
+          minlength: 'Query must be at least 2 characters',
+        },
+      },
+      {
+        key: 'targetCount',
+        type: 'number',
+        label: 'Target Tweet Count',
+        required: true,
+        value: 1000,
+        min: 1,
+        max: 10000,
+        validators: [Validators.required, Validators.min(1), Validators.max(10000)],
+        hint: '1 - 10,000 tweets',
+        errorMessages: {
+          required: 'Target count is required',
+          min: 'Minimum 1 tweet',
+          max: 'Maximum 10,000 tweets',
+        },
+      },
+      {
+        key: 'priority',
+        type: 'select',
+        label: 'Priority',
+        required: true,
+        value: 'medium',
+        validators: [Validators.required],
+        options: [
+          { value: 'urgent', label: 'Urgent Priority - Immediate Processing' },
+          { value: 'high', label: 'High Priority - Fast Processing' },
+          { value: 'medium', label: 'Normal Priority - Regular Analysis (< 2 hours)' },
+          { value: 'low', label: 'Low Priority - Background Processing' },
+        ],
+        hint: 'Higher priority jobs consume more system resources',
+        errorMessages: {
+          required: 'Priority selection is required',
+        },
+      },
+      {
+        key: 'campaignId',
+        type: 'text',
+        label: 'Campaign ID (Optional)',
+        placeholder: 'my-campaign-2024',
+        required: false,
+        hint: 'Link to existing campaign',
+      },
+      {
+        key: 'includeReplies',
+        type: 'checkbox',
+        label: 'Include Replies',
+        required: true,
+        value: false,
+        hint: 'Include reply tweets in results',
+      },
+      {
+        key: 'includeRetweets',
+        type: 'checkbox',
+        label: 'Include Retweets',
+        required: true,
+        value: true,
+        hint: 'Include retweeted content',
+      },
+      {
+        key: 'analyzeSentiment',
+        type: 'checkbox',
+        label: 'Analyze Sentiment',
+        required: true,
+        value: true,
+        hint: 'Enable AI-powered sentiment analysis on collected data',
+      },
+    ];
+
+    return {
+      fields: fields,
+      submitButtonText: 'Create Job',
+      showResetButton: false,
+      cssClass: 'job-form',
+    };
+  });
 
   scrapingTypes: ScrapingType[] = [
     {
@@ -89,115 +207,15 @@ export class CreateJobComponent implements OnInit {
     },
   ];
 
-  ngOnInit(): void {
-    this.buildFormConfig();
-  }
-
-  private buildFormConfig(): void {
-    this.formConfig = {
-      fields: [
-        {
-          key: 'query',
-          type: 'text',
-          label: this.getSelectedTypeConfig()?.label || 'Query',
-          placeholder: this.getSelectedTypeConfig()?.placeholder || 'Enter your query',
-          required: true,
-          validators: [Validators.minLength(2)],
-          hint: this.getQueryHint(),
-          errorMessages: {
-            required: 'Query is required',
-            minlength: 'Query must be at least 2 characters',
-          },
-        },
-        {
-          key: 'targetCount',
-          type: 'number',
-          label: 'Target Tweet Count',
-          required: true,
-          value: 1000,
-          min: 1,
-          max: 10000,
-          validators: [Validators.min(1), Validators.max(10000)],
-          hint: '1 - 10,000 tweets',
-          errorMessages: {
-            required: 'Target count is required',
-            min: 'Minimum 1 tweet',
-            max: 'Maximum 10,000 tweets',
-          },
-        },
-        {
-          key: 'priority',
-          type: 'select',
-          label: 'Priority',
-          required: true,
-          value: 'medium',
-          options: [
-            { value: 'high', label: 'High Priority' },
-            { value: 'medium', label: 'Medium Priority' },
-            { value: 'low', label: 'Low Priority' },
-          ],
-        },
-        {
-          key: 'campaignId',
-          type: 'text',
-          label: 'Campaign ID (Optional)',
-          placeholder: 'my-campaign-2024',
-          hint: 'Link to existing campaign',
-        },
-        {
-          key: 'includeReplies',
-          type: 'checkbox',
-          label: 'Include Replies',
-          value: false,
-          hint: 'Include reply tweets in results',
-        },
-        {
-          key: 'includeRetweets',
-          type: 'checkbox',
-          label: 'Include Retweets',
-          value: true,
-          hint: 'Include retweeted content',
-        },
-      ],
-      submitButtonText: 'Create Job',
-      showResetButton: false,
-      cssClass: 'job-form',
-    };
-  }
-
   selectType(type: 'hashtag' | 'user' | 'search'): void {
     this.selectedType.set(type);
-    this.buildFormConfig(); // Rebuild form config when type changes
-  }
-
-  getSelectedTypeConfig(): ScrapingType | undefined {
-    return this.scrapingTypes.find((t) => t.value === this.selectedType());
-  }
-
-  getQueryHint(): string {
-    const config = this.getSelectedTypeConfig();
-    if (!config) return '';
-
-    switch (config.value) {
-      case 'hashtag':
-        return 'Enter hashtags separated by commas (without # symbol)';
-      case 'user':
-        return 'Enter usernames separated by commas (without @ symbol)';
-      case 'search':
-        return 'Use AND, OR, quotes for exact phrases, - to exclude';
-      default:
-        return '';
-    }
   }
 
   useExample(example: string): void {
-    // We'll handle this through form data update
-    this.formConfig = {
-      ...this.formConfig,
-      fields: this.formConfig.fields.map((field) =>
-        field.key === 'query' ? { ...field, value: example } : field
-      ),
-    };
+    const form = this.reactiveForm()?.form;
+    if (form) {
+      form.patchValue({ query: example });
+    }
   }
 
   onFormSubmit(event: FormSubmitEvent): void {
@@ -212,36 +230,38 @@ export class CreateJobComponent implements OnInit {
         priority: event.value.priority,
         includeReplies: event.value.includeReplies,
         includeRetweets: event.value.includeRetweets,
+        analyzeSentiment: event.value.analyzeSentiment,
       };
 
-      this.scrapingService.createJob(formData).subscribe({
-        next: (response: any) => {
-          this.isCreating.set(false);
-          this.jobCreated.emit(response);
+      this.scrapingService
+        .createJob(formData)
+        .pipe(takeUntilDestroyed())
+        .subscribe({
+          next: (response: any) => {
+            this.isCreating.set(false);
+            this.jobCreated.emit(response);
 
-          if (this.dialogRef) {
-            this.dialogRef.close(response);
-          }
+            if (this.dialogRef) {
+              this.dialogRef.close(response);
+            }
 
-          this.snackBar.open(
-            `Job created successfully! Estimated completion: ${this.getEstimatedTime(
-              event.value.targetCount
-            )}`,
-            'View Job',
-            { duration: 7000 }
-          );
-        },
-        error: (error: any) => {
-          this.isCreating.set(false);
-          console.error('Failed to create job:', error);
-        },
-      });
+            this.snackBar.open(
+              `Job created successfully! Estimated completion: ${this.getEstimatedTime(
+                event.value.targetCount
+              )}`,
+              'View Job',
+              { duration: 7000 }
+            );
+          },
+          error: (error: any) => {
+            this.isCreating.set(false);
+            console.error('Failed to create job:', error);
+            this.snackBar.open('Failed to create job. Please try again.', 'Dismiss', {
+              duration: 5000,
+            });
+          },
+        });
     }
-  }
-
-  onFormChange(formValue: any): void {
-    // Handle form value changes if needed
-    // This can be used for real-time updates like estimated time
   }
 
   getVolumeClass(count?: number): string {
@@ -272,11 +292,6 @@ export class CreateJobComponent implements OnInit {
       const minutes = estimatedMinutes % 60;
       return minutes > 0 ? `${hours}h ${minutes}m` : `${hours} hours`;
     }
-  }
-
-  onSubmit(): void {
-    // This method is kept for template compatibility but delegates to onFormSubmit
-    // The actual form submission is handled by onFormSubmit
   }
 
   onCancel(): void {

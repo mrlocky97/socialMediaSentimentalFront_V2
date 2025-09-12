@@ -309,6 +309,7 @@ export class ScrapingMonitorComponent implements OnInit {
         priority: formData.priority,
         includeReplies: formData.collectReplies || false,
         includeRetweets: formData.includeRetweets !== false,
+        analyzeSentiment: formData.enableSentimentAnalysis || false,
       };
 
       // Show loading

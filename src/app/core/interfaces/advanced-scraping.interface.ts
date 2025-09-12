@@ -5,16 +5,16 @@
 
 export interface JobProgress {
   jobId: string;
-  current: number;          // Tweets actuales
-  total: number;           // Tweets objetivo
-  percentage: number;      // Porcentaje completado
-  currentBatch: number;    // Batch actual
-  totalBatches: number;    // Total de batches
+  current: number; // Tweets actuales
+  total: number; // Tweets objetivo
+  percentage: number; // Porcentaje completado
+  currentBatch: number; // Batch actual
+  totalBatches: number; // Total de batches
   status: 'pending' | 'running' | 'completed' | 'failed';
   tweetsCollected: number;
   estimatedTimeRemaining?: number; // En segundos
   errors: string[];
-  throughput?: number;     // Tweets por segundo
+  throughput?: number; // Tweets por segundo
 }
 
 export interface CreateJobRequest {
@@ -87,6 +87,7 @@ export interface JobFormData {
   priority: 'urgent' | 'high' | 'medium' | 'low';
   includeReplies: boolean;
   includeRetweets: boolean;
+  analyzeSentiment: boolean;
 }
 
 // UI State Interfaces
