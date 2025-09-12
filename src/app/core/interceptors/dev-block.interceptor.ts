@@ -1,6 +1,5 @@
-import { HttpHandlerFn, HttpRequest, HttpResponse, HttpEvent } from '@angular/common/http';
-import { HttpInterceptorFn } from '@angular/common/http';
-import { of, Observable } from 'rxjs';
+import { HttpEvent, HttpHandlerFn, HttpInterceptorFn, HttpRequest, HttpResponse } from '@angular/common/http';
+import { Observable, of } from 'rxjs';
 
 /**
  * Development-only interceptor to short-circuit requests that contain 'dashboard'
@@ -11,9 +10,6 @@ export const devBlockInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, ne
     const url = req.url || '';
     if (url.toLowerCase().includes('dashboard')) {
       const body = { ok: true, mocked: true };
-      // Debug log
-      // eslint-disable-next-line no-console
-      console.debug('[devBlockInterceptor] short-circuiting request to', url);
       const httpResp = new HttpResponse({ status: 200, body });
       return of(httpResp) as Observable<HttpEvent<any>>;
     }

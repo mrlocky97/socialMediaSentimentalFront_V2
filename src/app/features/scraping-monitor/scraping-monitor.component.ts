@@ -9,7 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { catchError, of } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, of } from 'rxjs';
 import { CreateJobResponse } from '../../core/interfaces/advanced-scraping.interface';
 import { AdvancedScrapingService } from '../../core/services/advanced-scraping.service';
 import { DialogConfig, DialogService } from '../../shared/components/dialog';
@@ -57,12 +57,7 @@ export class ScrapingMonitorComponent implements OnInit {
   // Computed signals
   formattedTweets = computed(() => {
     const num = this.totalTweetsCollected();
-    if (num >= 1000000) {
-      return (num / 1000000).toFixed(1) + 'M Tweets';
-    } else if (num >= 1000) {
-      return (num / 1000).toFixed(1) + 'K Tweets';
-    }
-    return num.toString() + ' Tweets';
+    return this.formatTweetCount(num);
   });
 
   ngOnInit(): void {
@@ -70,10 +65,24 @@ export class ScrapingMonitorComponent implements OnInit {
     this.loadInitialData();
   }
 
+  /**
+   * Optimized number formatting to prevent performance issues
+   */
+  private formatTweetCount(num: number): string {
+    if (num >= 1000000) {
+      return (num / 1000000).toFixed(1) + 'M Tweets';
+    } else if (num >= 1000) {
+      return (num / 1000).toFixed(1) + 'K Tweets';
+    }
+    return num.toString() + ' Tweets';
+  }
+
   private subscribeToUpdates(): void {
     // Subscribe to connection status with error handling
     this.scrapingService.connectionStatus$
       .pipe(
+        debounceTime(100), // Reduce frequency of updates
+        distinctUntilChanged(),
         takeUntilDestroyed(this.destroyRef),
         catchError((error) => {
           console.error('Error in connection status subscription:', error);
@@ -87,6 +96,8 @@ export class ScrapingMonitorComponent implements OnInit {
     // Subscribe to metrics with error handling
     this.scrapingService.metrics$
       .pipe(
+        debounceTime(300), // Longer debounce for metrics to prevent UI lag
+        distinctUntilChanged(),
         takeUntilDestroyed(this.destroyRef),
         catchError((error) => {
           console.error('Error in metrics subscription:', error);
