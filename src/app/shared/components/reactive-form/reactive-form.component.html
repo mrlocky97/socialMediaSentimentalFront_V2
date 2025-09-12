@@ -1,6 +1,5 @@
 <div class="reactive-form-container">
   <form [formGroup]="form" (ngSubmit)="onSubmit()" [class]="config.cssClass || ''">
-    
     <!-- Job Information Section -->
     <div class="form-section">
       <h3>
@@ -9,69 +8,69 @@
       </h3>
       <div class="form-fields-grid">
         @for (field of getFieldsBySection('basic'); track field.key) {
-          <div class="form-field-container" [class]="field.cssClass || ''">
-            <!-- Text, Email, Password, Number, Tel, URL -->
-            @if (['text', 'email', 'password', 'number', 'tel', 'url'].includes(field.type)) {
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ field.label }}</mat-label>
-              <input
-                matInput
-                [type]="field.type"
-                [formControlName]="field.key"
-                [placeholder]="field.placeholder || ''"
-                [readonly]="field.readonly || false"
-                [min]="field.min"
-                [max]="field.max"
-                [step]="field.step"
-              />
-              @if (field.hint) {
-              <mat-hint>{{ field.hint }}</mat-hint>
-              } @if (getFieldError(field.key)) {
-              <mat-error>{{ getFieldError(field.key) }}</mat-error>
-              }
-            </mat-form-field>
+        <div class="form-field-container" [class]="field.cssClass || ''">
+          <!-- Text, Email, Password, Number, Tel, URL -->
+          @if (['text', 'email', 'password', 'number', 'tel', 'url'].includes(field.type)) {
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ field.label }}</mat-label>
+            <input
+              matInput
+              [type]="field.type"
+              [formControlName]="field.key"
+              [placeholder]="field.placeholder || ''"
+              [readonly]="field.readonly || false"
+              [min]="field.min"
+              [max]="field.max"
+              [step]="field.step"
+            />
+            @if (field.hint) {
+            <mat-hint>{{ field.hint }}</mat-hint>
+            } @if (getFieldError(field.key)) {
+            <mat-error>{{ getFieldError(field.key) }}</mat-error>
             }
+          </mat-form-field>
+          }
 
-            <!-- Textarea -->
-            @if (field.type === 'textarea') {
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ field.label }}</mat-label>
-              <textarea
-                matInput
-                [formControlName]="field.key"
-                [placeholder]="field.placeholder || ''"
-                [readonly]="field.readonly || false"
-                [rows]="field.rows || 4"
-                [cols]="field.cols"
-              >
-              </textarea>
-              @if (field.hint) {
-              <mat-hint>{{ field.hint }}</mat-hint>
-              } @if (getFieldError(field.key)) {
-              <mat-error>{{ getFieldError(field.key) }}</mat-error>
-              }
-            </mat-form-field>
+          <!-- Textarea -->
+          @if (field.type === 'textarea') {
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ field.label }}</mat-label>
+            <textarea
+              matInput
+              [formControlName]="field.key"
+              [placeholder]="field.placeholder || ''"
+              [readonly]="field.readonly || false"
+              [rows]="field.rows || 4"
+              [cols]="field.cols"
+            >
+            </textarea>
+            @if (field.hint) {
+            <mat-hint>{{ field.hint }}</mat-hint>
+            } @if (getFieldError(field.key)) {
+            <mat-error>{{ getFieldError(field.key) }}</mat-error>
             }
+          </mat-form-field>
+          }
 
-            <!-- Select -->
-            @if (field.type === 'select') {
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ field.label }}</mat-label>
-              <mat-select [formControlName]="field.key" [multiple]="field.multiple || false">
-                @for (option of field.options; track option.value) {
-                <mat-option [value]="option.value" [disabled]="option.disabled || false">
-                  {{ option.label }}
-                </mat-option>
-                }
-              </mat-select>
-              @if (field.hint) {
-              <mat-hint>{{ field.hint }}</mat-hint>
-              } @if (getFieldError(field.key)) {
-              <mat-error>{{ getFieldError(field.key) }}</mat-error>
+          <!-- Select -->
+          @if (field.type === 'select') {
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ field.label }}</mat-label>
+            <mat-select [formControlName]="field.key" [multiple]="field.multiple || false">
+              @for (option of field.options; track option.value) {
+              <mat-option [value]="option.value" [disabled]="option.disabled || false">
+                {{ option.label }}
+              </mat-option>
               }
-            </mat-form-field>
+            </mat-select>
+            @if (field.hint) {
+            <mat-hint>{{ field.hint }}</mat-hint>
+            } @if (getFieldError(field.key)) {
+            <mat-error>{{ getFieldError(field.key) }}</mat-error>
             }
-          </div>
+          </mat-form-field>
+          }
+        </div>
         }
       </div>
     </div>
@@ -84,118 +83,116 @@
       </h3>
       <div class="form-fields-grid">
         @for (field of getFieldsBySection('config'); track field.key) {
-          <div class="form-field-container" [class]="field.cssClass || ''">
-            <!-- Checkbox -->
-            @if (field.type === 'checkbox') {
-            <div class="checkbox-container">
-              <mat-checkbox [formControlName]="field.key">
-                {{ field.label }}
-              </mat-checkbox>
-              @if (field.hint) {
-              <div class="field-hint">{{ field.hint }}</div>
-              } @if (getFieldError(field.key)) {
-              <div class="field-error">{{ getFieldError(field.key) }}</div>
-              }
-            </div>
-            }
-
-            <!-- Radio -->
-            @if (field.type === 'radio') {
-            <div class="radio-container">
-              <label class="radio-group-label">{{ field.label }}</label>
-              <mat-radio-group [formControlName]="field.key" class="radio-group">
-                @for (option of field.options; track option.value) {
-                <mat-radio-button [value]="option.value" [disabled]="option.disabled || false">
-                  {{ option.label }}
-                </mat-radio-button>
-                }
-              </mat-radio-group>
-              @if (field.hint) {
-              <div class="field-hint">{{ field.hint }}</div>
-              } @if (getFieldError(field.key)) {
-              <div class="field-error">{{ getFieldError(field.key) }}</div>
-              }
-            </div>
-            }
-
-            <!-- Date -->
-            @if (field.type === 'date') {
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ field.label }}</mat-label>
-              <input
-                matInput
-                [matDatepicker]="picker"
-                [formControlName]="field.key"
-                [readonly]="field.readonly || false"
-              />
-              <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-              <mat-datepicker #picker></mat-datepicker>
-              @if (field.hint) {
-              <mat-hint>{{ field.hint }}</mat-hint>
-              } @if (getFieldError(field.key)) {
-              <mat-error>{{ getFieldError(field.key) }}</mat-error>
-              }
-            </mat-form-field>
-            }
-
-            <!-- DateTime Local -->
-            @if (field.type === 'datetime-local') {
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ field.label }}</mat-label>
-              <input
-                matInput
-                type="datetime-local"
-                [formControlName]="field.key"
-                [readonly]="field.readonly || false"
-              />
-              @if (field.hint) {
-              <mat-hint>{{ field.hint }}</mat-hint>
-              } @if (getFieldError(field.key)) {
-              <mat-error>{{ getFieldError(field.key) }}</mat-error>
-              }
-            </mat-form-field>
-            }
-
-            <!-- Other field types for config section -->
-            @if (['text', 'email', 'password', 'number', 'tel', 'url'].includes(field.type)) {
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ field.label }}</mat-label>
-              <input
-                matInput
-                [type]="field.type"
-                [formControlName]="field.key"
-                [placeholder]="field.placeholder || ''"
-                [readonly]="field.readonly || false"
-                [min]="field.min"
-                [max]="field.max"
-                [step]="field.step"
-              />
-              @if (field.hint) {
-              <mat-hint>{{ field.hint }}</mat-hint>
-              } @if (getFieldError(field.key)) {
-              <mat-error>{{ getFieldError(field.key) }}</mat-error>
-              }
-            </mat-form-field>
-            }
-
-            @if (field.type === 'select') {
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ field.label }}</mat-label>
-              <mat-select [formControlName]="field.key" [multiple]="field.multiple || false">
-                @for (option of field.options; track option.value) {
-                <mat-option [value]="option.value" [disabled]="option.disabled || false">
-                  {{ option.label }}
-                </mat-option>
-                }
-              </mat-select>
-              @if (field.hint) {
-              <mat-hint>{{ field.hint }}</mat-hint>
-              } @if (getFieldError(field.key)) {
-              <mat-error>{{ getFieldError(field.key) }}</mat-error>
-              }
-            </mat-form-field>
+        <div class="form-field-container" [class]="field.cssClass || ''">
+          <!-- Checkbox -->
+          @if (field.type === 'checkbox') {
+          <div class="checkbox-container">
+            <mat-checkbox [formControlName]="field.key">
+              {{ field.label }}
+            </mat-checkbox>
+            @if (field.hint) {
+            <div class="field-hint">{{ field.hint }}</div>
+            } @if (getFieldError(field.key)) {
+            <div class="field-error">{{ getFieldError(field.key) }}</div>
             }
           </div>
+          }
+
+          <!-- Radio -->
+          @if (field.type === 'radio') {
+          <div class="radio-container">
+            <label class="radio-group-label">{{ field.label }}</label>
+            <mat-radio-group [formControlName]="field.key" class="radio-group">
+              @for (option of field.options; track option.value) {
+              <mat-radio-button [value]="option.value" [disabled]="option.disabled || false">
+                {{ option.label }}
+              </mat-radio-button>
+              }
+            </mat-radio-group>
+            @if (field.hint) {
+            <div class="field-hint">{{ field.hint }}</div>
+            } @if (getFieldError(field.key)) {
+            <div class="field-error">{{ getFieldError(field.key) }}</div>
+            }
+          </div>
+          }
+
+          <!-- Date -->
+          @if (field.type === 'date') {
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ field.label }}</mat-label>
+            <input
+              matInput
+              [matDatepicker]="picker"
+              [formControlName]="field.key"
+              [readonly]="field.readonly || false"
+            />
+            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+            @if (field.hint) {
+            <mat-hint>{{ field.hint }}</mat-hint>
+            } @if (getFieldError(field.key)) {
+            <mat-error>{{ getFieldError(field.key) }}</mat-error>
+            }
+          </mat-form-field>
+          }
+
+          <!-- DateTime Local -->
+          @if (field.type === 'datetime-local') {
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ field.label }}</mat-label>
+            <input
+              matInput
+              type="datetime-local"
+              [formControlName]="field.key"
+              [readonly]="field.readonly || false"
+            />
+            @if (field.hint) {
+            <mat-hint>{{ field.hint }}</mat-hint>
+            } @if (getFieldError(field.key)) {
+            <mat-error>{{ getFieldError(field.key) }}</mat-error>
+            }
+          </mat-form-field>
+          }
+
+          <!-- Other field types for config section -->
+          @if (['text', 'email', 'password', 'number', 'tel', 'url'].includes(field.type)) {
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ field.label }}</mat-label>
+            <input
+              matInput
+              [type]="field.type"
+              [formControlName]="field.key"
+              [placeholder]="field.placeholder || ''"
+              [readonly]="field.readonly || false"
+              [min]="field.min"
+              [max]="field.max"
+              [step]="field.step"
+            />
+            @if (field.hint) {
+            <mat-hint>{{ field.hint }}</mat-hint>
+            } @if (getFieldError(field.key)) {
+            <mat-error>{{ getFieldError(field.key) }}</mat-error>
+            }
+          </mat-form-field>
+          } @if (field.type === 'select') {
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ field.label }}</mat-label>
+            <mat-select [formControlName]="field.key" [multiple]="field.multiple || false">
+              @for (option of field.options; track option.value) {
+              <mat-option [value]="option.value" [disabled]="option.disabled || false">
+                {{ option.label }}
+              </mat-option>
+              }
+            </mat-select>
+            @if (field.hint) {
+            <mat-hint>{{ field.hint }}</mat-hint>
+            } @if (getFieldError(field.key)) {
+            <mat-error>{{ getFieldError(field.key) }}</mat-error>
+            }
+          </mat-form-field>
+          }
+        </div>
         }
       </div>
     </div>
@@ -208,138 +205,118 @@
       </h3>
       <div class="form-fields-grid">
         @for (field of getFieldsBySection('advanced'); track field.key) {
-          <div class="form-field-container" [class]="field.cssClass || ''">
-            <!-- File -->
-            @if (field.type === 'file') {
-            <div class="file-input-container">
-              <label class="file-input-label">{{ field.label }}</label>
-              <input
-                type="file"
-                [accept]="field.accept || ''"
-                [multiple]="field.multiple || false"
-                (change)="onFileChange($event, field.key)"
-                class="file-input"
-              />
-              @if (field.hint) {
-              <div class="field-hint">{{ field.hint }}</div>
-              } @if (getFieldError(field.key)) {
-              <div class="field-error">{{ getFieldError(field.key) }}</div>
-              }
-            </div>
-            }
-
-            <!-- Range -->
-            @if (field.type === 'range') {
-            <div class="range-container">
-              <label class="range-label">{{ field.label }}</label>
-              <mat-slider [min]="field.min || 0" [max]="field.max || 100" [step]="field.step || 1">
-                <input matSliderThumb [formControlName]="field.key" />
-              </mat-slider>
-              <div class="range-value">{{ form.get(field.key)?.value || 0 }}</div>
-              @if (field.hint) {
-              <div class="field-hint">{{ field.hint }}</div>
-              } @if (getFieldError(field.key)) {
-              <div class="field-error">{{ getFieldError(field.key) }}</div>
-              }
-            </div>
-            }
-
-            <!-- Color -->
-            @if (field.type === 'color') {
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ field.label }}</mat-label>
-              <input
-                matInput
-                type="color"
-                [formControlName]="field.key"
-                [readonly]="field.readonly || false"
-              />
-              @if (field.hint) {
-              <mat-hint>{{ field.hint }}</mat-hint>
-              } @if (getFieldError(field.key)) {
-              <mat-error>{{ getFieldError(field.key) }}</mat-error>
-              }
-            </mat-form-field>
-            }
-
-            <!-- Other types for advanced section -->
-            @if (['text', 'email', 'password', 'number', 'tel', 'url'].includes(field.type)) {
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ field.label }}</mat-label>
-              <input
-                matInput
-                [type]="field.type"
-                [formControlName]="field.key"
-                [placeholder]="field.placeholder || ''"
-                [readonly]="field.readonly || false"
-                [min]="field.min"
-                [max]="field.max"
-                [step]="field.step"
-              />
-              @if (field.hint) {
-              <mat-hint>{{ field.hint }}</mat-hint>
-              } @if (getFieldError(field.key)) {
-              <mat-error>{{ getFieldError(field.key) }}</mat-error>
-              }
-            </mat-form-field>
-            }
-
-            @if (field.type === 'textarea') {
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ field.label }}</mat-label>
-              <textarea
-                matInput
-                [formControlName]="field.key"
-                [placeholder]="field.placeholder || ''"
-                [readonly]="field.readonly || false"
-                [rows]="field.rows || 4"
-                [cols]="field.cols"
-              >
-              </textarea>
-              @if (field.hint) {
-              <mat-hint>{{ field.hint }}</mat-hint>
-              } @if (getFieldError(field.key)) {
-              <mat-error>{{ getFieldError(field.key) }}</mat-error>
-              }
-            </mat-form-field>
-            }
-
-            @if (field.type === 'select') {
-            <mat-form-field appearance="outline" class="full-width">
-              <mat-label>{{ field.label }}</mat-label>
-              <mat-select [formControlName]="field.key" [multiple]="field.multiple || false">
-                @for (option of field.options; track option.value) {
-                <mat-option [value]="option.value" [disabled]="option.disabled || false">
-                  {{ option.label }}
-                </mat-option>
-                }
-              </mat-select>
-              @if (field.hint) {
-              <mat-hint>{{ field.hint }}</mat-hint>
-              } @if (getFieldError(field.key)) {
-              <mat-error>{{ getFieldError(field.key) }}</mat-error>
-              }
-            </mat-form-field>
+        <div class="form-field-container" [class]="field.cssClass || ''">
+          <!-- File -->
+          @if (field.type === 'file') {
+          <div class="file-input-container">
+            <label class="file-input-label">{{ field.label }}</label>
+            <input
+              type="file"
+              [accept]="field.accept || ''"
+              [multiple]="field.multiple || false"
+              (change)="onFileChange($event, field.key)"
+              class="file-input"
+            />
+            @if (field.hint) {
+            <div class="field-hint">{{ field.hint }}</div>
+            } @if (getFieldError(field.key)) {
+            <div class="field-error">{{ getFieldError(field.key) }}</div>
             }
           </div>
+          }
+
+          <!-- Range -->
+          @if (field.type === 'range') {
+          <div class="range-container">
+            <label class="range-label">{{ field.label }}</label>
+            <mat-slider [min]="field.min || 0" [max]="field.max || 100" [step]="field.step || 1">
+              <input matSliderThumb [formControlName]="field.key" />
+            </mat-slider>
+            <div class="range-value">{{ form.get(field.key)?.value || 0 }}</div>
+            @if (field.hint) {
+            <div class="field-hint">{{ field.hint }}</div>
+            } @if (getFieldError(field.key)) {
+            <div class="field-error">{{ getFieldError(field.key) }}</div>
+            }
+          </div>
+          }
+
+          <!-- Color -->
+          @if (field.type === 'color') {
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ field.label }}</mat-label>
+            <input
+              matInput
+              type="color"
+              [formControlName]="field.key"
+              [readonly]="field.readonly || false"
+            />
+            @if (field.hint) {
+            <mat-hint>{{ field.hint }}</mat-hint>
+            } @if (getFieldError(field.key)) {
+            <mat-error>{{ getFieldError(field.key) }}</mat-error>
+            }
+          </mat-form-field>
+          }
+
+          <!-- Other types for advanced section -->
+          @if (['text', 'email', 'password', 'number', 'tel', 'url'].includes(field.type)) {
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ field.label }}</mat-label>
+            <input
+              matInput
+              [type]="field.type"
+              [formControlName]="field.key"
+              [placeholder]="field.placeholder || ''"
+              [readonly]="field.readonly || false"
+              [min]="field.min"
+              [max]="field.max"
+              [step]="field.step"
+            />
+            @if (field.hint) {
+            <mat-hint>{{ field.hint }}</mat-hint>
+            } @if (getFieldError(field.key)) {
+            <mat-error>{{ getFieldError(field.key) }}</mat-error>
+            }
+          </mat-form-field>
+          } @if (field.type === 'textarea') {
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ field.label }}</mat-label>
+            <textarea
+              matInput
+              [formControlName]="field.key"
+              [placeholder]="field.placeholder || ''"
+              [readonly]="field.readonly || false"
+              [rows]="field.rows || 4"
+              [cols]="field.cols"
+            >
+            </textarea>
+            @if (field.hint) {
+            <mat-hint>{{ field.hint }}</mat-hint>
+            } @if (getFieldError(field.key)) {
+            <mat-error>{{ getFieldError(field.key) }}</mat-error>
+            }
+          </mat-form-field>
+          } @if (field.type === 'select') {
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ field.label }}</mat-label>
+            <mat-select [formControlName]="field.key" [multiple]="field.multiple || false">
+              @for (option of field.options; track option.value) {
+              <mat-option [value]="option.value" [disabled]="option.disabled || false">
+                {{ option.label }}
+              </mat-option>
+              }
+            </mat-select>
+            @if (field.hint) {
+            <mat-hint>{{ field.hint }}</mat-hint>
+            } @if (getFieldError(field.key)) {
+            <mat-error>{{ getFieldError(field.key) }}</mat-error>
+            }
+          </mat-form-field>
+          }
+        </div>
         }
       </div>
-    </div>
-
-    <!-- Form Actions -->
-    <div class="form-actions">
-      <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid || loading">
-        @if (loading) {
-        <mat-icon>refresh</mat-icon>
-        }
-        {{ config.submitButtonText || 'Crear Trabajo' }}
-      </button>
-
-      @if (config.showResetButton) {
-      <button mat-button type="button" (click)="onReset()" [disabled]="loading">
-        {{ config.resetButtonText || 'Limpiar' }}
-      </button>
-      }
     </div>
   </form>
 </div>
