@@ -1,4 +1,5 @@
-import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, computed, DestroyRef, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, Validators } from '@angular/forms';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
@@ -8,14 +9,33 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { Subject } from 'rxjs';
+import { catchError, of, Subscription } from 'rxjs';
 import { AdvancedScrapingService } from '../../core/services/advanced-scraping.service';
 import { DialogConfig, DialogService } from '../../shared/components/dialog';
-import { FormConfig, FormSubmitEvent } from '../../shared/components/reactive-form/interfaces/form-field.interface';
+import {
+  FormConfig,
+  FormSubmitEvent,
+} from '../../shared/components/reactive-form/interfaces/form-field.interface';
 import { ReactiveFormComponent } from '../../shared/components/reactive-form/reactive-form.component';
 import { CreateJobComponent } from './components/create-job/create-job.component';
 import { JobListComponent } from './components/job-list/job-list.component';
 import { ScrapingDashboardComponent } from './components/scraping-dashboard/scraping-dashboard.component';
+
+// Interface for job data
+interface Job {
+  id: string;
+  name: string;
+  type: string;
+  query: string;
+  targetCount: number;
+  priority: string;
+  status: string;
+  createdAt: Date;
+  options: {
+    includeReplies: boolean;
+    includeRetweets: boolean;
+  };
+}
 
 @Component({
   selector: 'app-scraping-monitor',
@@ -41,7 +61,8 @@ export class ScrapingMonitorComponent implements OnInit, OnDestroy {
   private dialog = inject(MatDialog);
   private dialogService = inject(DialogService);
   private fb = inject(FormBuilder);
-  private destroyer$ = new Subject<void>();
+  private destroyRef = inject(DestroyRef);
+  private sub = new Subscription();
 
   // State signals
   selectedTabIndex = signal(0);
@@ -51,28 +72,64 @@ export class ScrapingMonitorComponent implements OnInit, OnDestroy {
   totalTweetsCollected = signal(0);
   isRefreshing = signal(false);
 
+  // Computed signals
+  formattedTweets = computed(() => {
+    const num = this.totalTweetsCollected();
+    if (num >= 1000000) {
+      return (num / 1000000).toFixed(1) + 'M Tweets';
+    } else if (num >= 1000) {
+      return (num / 1000).toFixed(1) + 'K Tweets';
+    }
+    return num.toString() + ' Tweets';
+  });
+
   ngOnInit(): void {
     this.subscribeToUpdates();
     this.loadInitialData();
   }
 
   private subscribeToUpdates(): void {
-    // Subscribe to connection status
-    this.scrapingService.connectionStatus$.subscribe((status) => {
-      this.connectionStatus.set(status);
-    });
+    // Subscribe to connection status with error handling
+    this.scrapingService.connectionStatus$
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        catchError((error) => {
+          console.error('Error in connection status subscription:', error);
+          return of(false);
+        })
+      )
+      .subscribe((status) => {
+        this.connectionStatus.set(status);
+      });
 
-    // Subscribe to metrics
-    this.scrapingService.metrics$.subscribe((metrics) => {
-      this.activeJobsCount.set(metrics.runningJobs);
-      this.totalJobs.set(metrics.totalJobs);
-      this.totalTweetsCollected.set(metrics.totalTweetsCollected);
-    });
+    // Subscribe to metrics with error handling
+    this.scrapingService.metrics$
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        catchError((error) => {
+          console.error('Error in metrics subscription:', error);
+          return of({ runningJobs: 0, totalJobs: 0, totalTweetsCollected: 0 });
+        })
+      )
+      .subscribe((metrics) => {
+        this.activeJobsCount.set(metrics.runningJobs);
+        this.totalJobs.set(metrics.totalJobs);
+        this.totalTweetsCollected.set(metrics.totalTweetsCollected);
+      });
   }
 
   private loadInitialData(): void {
     // Only load system stats, jobs are already loaded by the service constructor
-    this.scrapingService.getSystemStats().subscribe();
+    this.scrapingService
+      .getSystemStats()
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        catchError((error) => {
+          console.error('Error loading initial data:', error);
+          return of(null);
+        })
+      )
+      .subscribe();
   }
 
   onTabChange(index: number): void {
@@ -93,7 +150,7 @@ export class ScrapingMonitorComponent implements OnInit, OnDestroy {
           type: 'stroked',
           color: 'default',
           action: 'cancel',
-          autoClose: true
+          autoClose: true,
         },
         {
           text: 'Create Job',
@@ -101,26 +158,28 @@ export class ScrapingMonitorComponent implements OnInit, OnDestroy {
           color: 'primary',
           action: 'submit',
           autoClose: false,
-          icon: 'rocket_launch'
-        }
-      ]
+          icon: 'rocket_launch',
+        },
+      ],
     };
 
-    // Usar el contenido personalizado con el ReactiveFormComponent
+    // Use custom content with ReactiveFormComponent
     const customContent = {
       component: ReactiveFormComponent,
       data: {
         config: formConfig,
-        onSubmit: (event: FormSubmitEvent) => this.handleJobFormSubmit(event)
-      }
+        onSubmit: (event: FormSubmitEvent) => this.handleJobFormSubmit(event),
+      },
     };
 
-    this.dialogService.custom(dialogConfig, customContent).subscribe(result => {
-      if (result?.action === 'cancel') {
-        console.log('Job creation cancelled');
-      }
-      // El submit se maneja en handleJobFormSubmit
-    });
+    this.dialogService
+      .custom(dialogConfig, customContent)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((result) => {
+        if (result?.action === 'cancel') {
+          console.log('Job creation cancelled');
+        }
+      });
   }
 
   private buildCreateJobFormConfig(): FormConfig {
@@ -234,8 +293,8 @@ export class ScrapingMonitorComponent implements OnInit, OnDestroy {
     try {
       const formData = event.value;
 
-      // Transformar los datos al formato esperado por el servicio
-      const jobData: any = {
+      // Transform data to service format
+      const jobData = {
         type: formData.type,
         query: formData.target,
         targetCount: formData.maxResults,
@@ -244,17 +303,17 @@ export class ScrapingMonitorComponent implements OnInit, OnDestroy {
         includeRetweets: formData.includeRetweets !== false,
       };
 
-      // Mostrar loading
+      // Show loading
       this.dialogService.info('Creating Job', 'Please wait while we create your scraping job...');
 
-      // Crear el job
+      // Create the job
       const response = await this.scrapingService.createJob(jobData).toPromise();
 
       if (response?.jobId) {
-        // Cerrar todos los diálogos primero
+        // Close all dialogs first
         this.dialogService.closeAll();
 
-        // Mostrar éxito
+        // Show success
         this.dialogService
           .success(
             'Job Created Successfully',
@@ -262,16 +321,17 @@ export class ScrapingMonitorComponent implements OnInit, OnDestroy {
               formData.autoStart ? ' and started automatically' : ''
             }.`
           )
+          .pipe(takeUntilDestroyed(this.destroyRef))
           .subscribe(() => {
-            // Simular el evento de job creado
-            const mockJob = {
+            // Simulate job created event
+            const mockJob: Job = {
               id: response.jobId,
               name: formData.name,
               type: jobData.type,
               query: jobData.query,
               targetCount: jobData.targetCount,
               priority: jobData.priority,
-              status: 'pending' as const,
+              status: 'pending',
               createdAt: new Date(),
               options: {
                 includeReplies: jobData.includeReplies,
@@ -286,7 +346,7 @@ export class ScrapingMonitorComponent implements OnInit, OnDestroy {
     } catch (error: any) {
       console.error('Error creating job:', error);
 
-      // Cerrar diálogos de loading
+      // Close loading dialogs
       this.dialogService.closeAll();
 
       this.dialogService.error(
@@ -296,11 +356,11 @@ export class ScrapingMonitorComponent implements OnInit, OnDestroy {
     }
   }
 
-  onJobCreated(job: any): void {
+  onJobCreated(job: Job): void {
     // Switch to jobs tab to see the new job
     this.selectedTabIndex.set(1);
     // Refresh job list
-    this.scrapingService.loadJobs().subscribe();
+    this.scrapingService.loadJobs().pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
   }
 
   onJobCreationCancelled(): void {
@@ -318,7 +378,8 @@ export class ScrapingMonitorComponent implements OnInit, OnDestroy {
       .then(() => {
         this.isRefreshing.set(false);
       })
-      .catch(() => {
+      .catch((error) => {
+        console.error('Error refreshing data:', error);
         this.isRefreshing.set(false);
       });
   }
@@ -333,17 +394,7 @@ export class ScrapingMonitorComponent implements OnInit, OnDestroy {
     }
   }
 
-  formatNumber(num: number): string {
-    if (num >= 1000000) {
-      return (num / 1000000).toFixed(1) + 'M';
-    } else if (num >= 1000) {
-      return (num / 1000).toFixed(1) + 'K';
-    }
-    return num.toString();
-  }
-
   ngOnDestroy(): void {
-    this.destroyer$.next();
-    this.destroyer$.complete();
+     this.destroyRef.onDestroy(() => { this.sub.unsubscribe(); });  
   }
 }

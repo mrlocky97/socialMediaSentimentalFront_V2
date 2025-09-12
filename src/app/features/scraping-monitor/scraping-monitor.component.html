@@ -3,7 +3,7 @@
   <div class="page-header">
     <div class="header-content">
       <h1>
-        <mat-icon>rocket_launch</mat-icon>
+        <mat-icon aria-hidden="true">rocket_launch</mat-icon>
         Advanced Scraping Monitor
       </h1>
       <p>Real-time monitoring and management of high-volume social media data collection</p>
@@ -11,7 +11,11 @@
 
     <div class="header-actions">
       <!-- Connection Status -->
-      <div class="connection-indicator" [class]="connectionStatus() ? 'connected' : 'disconnected'">
+      <div
+        class="connection-indicator"
+        [class]="connectionStatus() ? 'connected' : 'disconnected'"
+        [attr.aria-label]="connectionStatus() ? 'Connected to server' : 'Disconnected from server'"
+      >
         <div class="status-dot"></div>
         <span>{{ connectionStatus() ? 'Connected' : 'Disconnected' }}</span>
       </div>
@@ -22,8 +26,9 @@
         color="primary"
         (click)="openCreateJobDialog()"
         class="create-job-btn"
+        aria-label="Create new scraping job"
       >
-        <mat-icon>add</mat-icon>
+        <mat-icon aria-hidden="true">add</mat-icon>
         Create Job
       </button>
     </div>
@@ -41,7 +46,7 @@
       <!-- Dashboard Tab -->
       <mat-tab>
         <ng-template mat-tab-label>
-          <mat-icon>dashboard</mat-icon>
+          <mat-icon aria-hidden="true">dashboard</mat-icon>
           Dashboard
         </ng-template>
 
@@ -53,7 +58,7 @@
       <!-- Active Jobs Tab -->
       <mat-tab>
         <ng-template mat-tab-label>
-          <mat-icon>list_alt</mat-icon>
+          <mat-icon aria-hidden="true">list_alt</mat-icon>
           Jobs @if (activeJobsCount() > 0) {
           <span
             matBadge="{{ activeJobsCount() }}"
@@ -61,6 +66,7 @@
             matBadgeColor="accent"
             matBadgeSize="small"
             class="tab-badge"
+            aria-label="{{ activeJobsCount() }} active jobs"
           >
           </span>
           }
@@ -74,7 +80,7 @@
       <!-- Create Job Tab -->
       <mat-tab>
         <ng-template mat-tab-label>
-          <mat-icon>rocket_launch</mat-icon>
+          <mat-icon aria-hidden="true">rocket_launch</mat-icon>
           Create Job
         </ng-template>
 
@@ -93,18 +99,18 @@
       <div class="toolbar-content">
         <div class="quick-stats">
           <div class="stat-item">
-            <mat-icon>work</mat-icon>
+            <mat-icon aria-hidden="true">work</mat-icon>
             <span>{{ totalJobs() }} Total Jobs</span>
           </div>
 
           <div class="stat-item">
-            <mat-icon>play_arrow</mat-icon>
+            <mat-icon aria-hidden="true">play_arrow</mat-icon>
             <span>{{ activeJobsCount() }} Running</span>
           </div>
 
           <div class="stat-item">
-            <mat-icon>trending_up</mat-icon>
-            <span>{{ formatNumber(totalTweetsCollected()) }} Tweets</span>
+            <mat-icon aria-hidden="true">trending_up</mat-icon>
+            <span>{{ formattedTweets() }}</span>
           </div>
         </div>
 
@@ -114,8 +120,9 @@
             (click)="refreshAllData()"
             [disabled]="isRefreshing()"
             matTooltip="Refresh all data"
+            aria-label="Refresh data"
           >
-            <mat-icon [class.spinning]="isRefreshing()">refresh</mat-icon>
+            <mat-icon [class.spinning]="isRefreshing()" aria-hidden="true">refresh</mat-icon>
           </button>
 
           <button
@@ -126,8 +133,9 @@
                 ? 'Disconnect from real-time updates'
                 : 'Connect to real-time updates'
             "
+            aria-label="Toggle connection status"
           >
-            <mat-icon>{{ connectionStatus() ? 'wifi_off' : 'wifi' }}</mat-icon>
+            <mat-icon aria-hidden="true">{{ connectionStatus() ? 'wifi_off' : 'wifi' }}</mat-icon>
           </button>
         </div>
       </div>

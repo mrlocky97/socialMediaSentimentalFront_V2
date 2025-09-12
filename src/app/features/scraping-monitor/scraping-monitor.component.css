@@ -1,3 +1,22 @@
+/* Add these variables to your global styles or component CSS */
+:host {
+  --color-gray-50: #f9fafb;
+  --color-gray-200: #e5e7eb;
+  --color-gray-300: #d1d5db;
+  --color-gray-600: #4b5563;
+  --color-gray-700: #374151;
+  --color-gray-800: #1f2937;
+  --color-gray-900: #111827;
+  --color-white: #ffffff;
+  --color-white-alpha-90: rgba(255, 255, 255, 0.9);
+  --color-white-alpha-95: rgba(255, 255, 255, 0.95);
+  --color-black-alpha-50: rgba(0, 0, 0, 0.05);
+  --color-primary: #667eea;
+  --color-primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  --color-success: #10b981;
+  --color-error: #ef4444;
+}
+
 .scraping-monitor-page {
   height: 100%;
   display: flex;
@@ -9,21 +28,23 @@
 .page-header {
   background: var(--color-white-alpha-95);
   backdrop-filter: blur(10px);
-  padding: 2rem;
+  padding: 1.5rem;
   border-bottom: 1px solid var(--color-gray-200);
   display: flex;
   justify-content: space-between;
   align-items: center;
   box-shadow: 0 2px 8px var(--color-black-alpha-50);
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
 .header-content h1 {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.75rem;
   margin: 0 0 0.5rem 0;
   color: var(--color-primary);
-  font-size: 2rem;
+  font-size: 1.75rem;
   font-weight: 600;
   background: var(--color-primary-gradient);
   -webkit-background-clip: text;
@@ -33,29 +54,30 @@
 
 .header-content h1 mat-icon {
   color: var(--color-primary);
-  font-size: 2rem;
-  width: 2rem;
-  height: 2rem;
+  font-size: 1.75rem;
+  width: 1.75rem;
+  height: 1.75rem;
 }
 
 .header-content p {
   margin: 0;
   color: var(--color-gray-600);
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 400;
 }
 
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 1.5rem;
+  gap: 1rem;
+  flex-wrap: wrap;
 }
 
 .connection-indicator {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.75rem 1.25rem;
+  padding: 0.5rem 1rem;
   border-radius: 1.5rem;
   font-size: 0.875rem;
   font-weight: 500;
@@ -68,13 +90,13 @@
 .connection-indicator.connected {
   color: var(--color-success);
   border-color: var(--color-success);
-  box-shadow: 0 0 20px rgba(76, 175, 80, 0.15);
+  box-shadow: 0 0 20px rgba(16, 185, 129, 0.15);
 }
 
 .connection-indicator.disconnected {
   color: var(--color-error);
   border-color: var(--color-error);
-  box-shadow: 0 0 20px rgba(244, 67, 54, 0.15);
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.15);
 }
 
 .status-dot {
@@ -91,25 +113,26 @@
 @keyframes pulse {
   0% {
     transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
   }
   70% {
     transform: scale(1);
-    box-shadow: 0 0 0 10px rgba(76, 175, 80, 0);
+    box-shadow: 0 0 0 10px rgba(16, 185, 129, 0);
   }
   100% {
     transform: scale(0.95);
-    box-shadow: 0 0 0 0 rgba(76, 175, 80, 0);
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
   }
 }
 
 .create-job-btn {
-  font-size: 1rem;
-  padding: 0.75rem 1.5rem;
+  font-size: 0.95rem;
+  padding: 0.625rem 1.25rem;
   border-radius: 1.5rem;
   background: var(--color-primary-gradient);
   box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
   transition: all 0.3s ease;
+  white-space: nowrap;
 }
 
 .create-job-btn:hover {
@@ -137,49 +160,50 @@
   flex-direction: column;
 }
 
-.main-tabs ::ng-deep .mat-mdc-tab-group {
+/* Remove ::ng-deep and use more specific selectors */
+.main-tabs .mat-mdc-tab-group {
   height: 100%;
   display: flex;
   flex-direction: column;
 }
 
-.main-tabs ::ng-deep .mat-mdc-tab-header {
+.main-tabs .mat-mdc-tab-header {
   background: var(--color-white-alpha-90);
   border-bottom: 1px solid var(--color-gray-200);
 }
 
-.main-tabs ::ng-deep .mat-mdc-tab-label {
+.main-tabs .mat-mdc-tab-label {
   color: var(--color-gray-600);
   transition: all 0.3s ease;
-  padding: 1rem 1.5rem;
+  padding: 1rem 1.25rem;
   min-width: auto;
 }
 
-.main-tabs ::ng-deep .mat-mdc-tab-label.mdc-tab--active {
+.main-tabs .mat-mdc-tab-label.mdc-tab--active {
   color: var(--color-primary);
 }
 
-.main-tabs ::ng-deep .mat-mdc-tab-label mat-icon {
+.main-tabs .mat-mdc-tab-label mat-icon {
   margin-right: 0.5rem;
 }
 
-.main-tabs ::ng-deep .mat-mdc-tab-body-wrapper {
+.main-tabs .mat-mdc-tab-body-wrapper {
   flex: 1;
   overflow: hidden;
 }
 
-.main-tabs ::ng-deep .mat-mdc-tab-body {
+.main-tabs .mat-mdc-tab-body {
   height: 100%;
 }
 
-.main-tabs ::ng-deep .mat-mdc-tab-body-content {
+.main-tabs .mat-mdc-tab-body-content {
   height: 100%;
   overflow: auto;
 }
 
 .tab-content {
   height: 100%;
-  padding: 1.5rem;
+  padding: 1.25rem;
   background: var(--color-gray-50);
 }
 
@@ -187,7 +211,7 @@
   background: var(--color-white-alpha-95);
   backdrop-filter: blur(10px);
   border-radius: 1rem;
-  padding: 1rem 1.5rem;
+  padding: 1rem 1.25rem;
   box-shadow: 0 4px 20px var(--color-black-alpha-50);
   border: 1px solid var(--color-gray-200);
 }
@@ -196,11 +220,14 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
 .quick-stats {
   display: flex;
-  gap: 2rem;
+  gap: 1.5rem;
+  flex-wrap: wrap;
 }
 
 .stat-item {
@@ -210,6 +237,7 @@
   color: var(--color-gray-700);
   font-weight: 500;
   font-size: 0.875rem;
+  white-space: nowrap;
 }
 
 .stat-item mat-icon {
@@ -231,7 +259,7 @@
   transition: all 0.3s ease;
 }
 
-.quick-actions button:hover {
+.quick-actions button:hover:not([disabled]) {
   background: var(--color-primary);
   color: var(--color-white);
   border-color: var(--color-primary);
@@ -269,22 +297,34 @@
 @media (max-width: 768px) {
   .page-header {
     flex-direction: column;
+    align-items: flex-start;
     gap: 1rem;
-    padding: 1.5rem;
+    padding: 1rem;
   }
 
   .header-content h1 {
     font-size: 1.5rem;
   }
 
+  .header-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
   .quick-stats {
     flex-direction: column;
     gap: 0.75rem;
+    width: 100%;
   }
 
   .toolbar-content {
     flex-direction: column;
+    align-items: flex-start;
     gap: 1rem;
+  }
+
+  .quick-actions {
+    align-self: flex-end;
   }
 }
 
