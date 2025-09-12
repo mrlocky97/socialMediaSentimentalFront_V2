@@ -113,6 +113,8 @@
   justify-content: space-between;
   align-items: flex-start;
   width: 100%;
+  padding-right: 60px;
+  position: relative;
 }
 
 .job-title {
@@ -284,17 +286,20 @@
 
 .live-indicator {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 12px;
+  right: 12px;
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 8px;
-  background: rgba(76, 175, 80, 0.1);
+  padding: 6px 10px;
+  background: rgba(76, 175, 80, 0.15);
+  border: 1px solid rgba(76, 175, 80, 0.3);
   border-radius: 12px;
-  font-size: 12px;
+  font-size: 11px;
   color: #4caf50;
-  font-weight: 500;
+  font-weight: 600;
+  z-index: 10;
+  box-shadow: 0 2px 4px rgba(76, 175, 80, 0.2);
 }
 
 .pulse-dot {
