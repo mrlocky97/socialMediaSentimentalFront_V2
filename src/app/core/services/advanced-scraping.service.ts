@@ -6,7 +6,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, OnDestroy } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { BehaviorSubject, Observable, Subject, catchError, map, of, takeUntil, tap } from 'rxjs';
+import { BehaviorSubject, Observable, Subject, catchError, map, of, takeUntil, tap, timer } from 'rxjs';
 import socketIo from 'socket.io-client';
 import { environment } from '../../../enviroments/environment';
 import {
@@ -73,6 +73,9 @@ export class AdvancedScrapingService implements OnDestroy {
   ) {
     // Initialize with demo data immediately
     this.initializeDemoData();
+    
+    // Start progress simulation for running jobs
+    this.startProgressSimulation();
     
     // Check if we should try backend connection based on environment
     if (!environment.features.offlineMode && environment.features.realTimeUpdates) {
@@ -498,89 +501,218 @@ export class AdvancedScrapingService implements OnDestroy {
   private getDemoJobs(): ScrapingJob[] {
     const now = new Date();
     const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    const lastWeek = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+    const twoHoursAgo = new Date(now.getTime() - 2 * 60 * 60 * 1000);
+    const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
+    const thirtyMinAgo = new Date(now.getTime() - 30 * 60 * 1000);
     
     return [
+      // Completed job - US Election Campaign monitoring
       {
-        id: 'demo-job-1',
+        id: 'job-us-election-2024',
         type: 'hashtag',
-        query: '#Angular',
-        targetCount: 1000,
-        campaignId: 'demo-campaign-1',
-        priority: 'medium',
+        query: '#Election2024',
+        targetCount: 5000,
+        campaignId: 'campaign-politics-usa',
+        priority: 'high',
         status: 'completed',
-        createdAt: yesterday,
-        completedAt: now,
+        createdAt: lastWeek,
+        startedAt: new Date(lastWeek.getTime() + 5 * 60 * 1000),
+        completedAt: yesterday,
         progress: {
-          jobId: 'demo-job-1',
-          current: 1000,
-          total: 1000,
+          jobId: 'job-us-election-2024',
+          current: 5000,
+          total: 5000,
           percentage: 100,
-          currentBatch: 10,
-          totalBatches: 10,
+          currentBatch: 50,
+          totalBatches: 50,
           status: 'completed',
-          tweetsCollected: 1000,
+          tweetsCollected: 5000,
           estimatedTimeRemaining: 0,
           errors: [],
-          throughput: 5.2
+          throughput: 8.3
+        },
+        options: {
+          includeReplies: true,
+          includeRetweets: true
+        }
+      },
+      // Running job - Cryptocurrency trend analysis
+      {
+        id: 'job-crypto-sentiment',
+        type: 'search',
+        query: 'Bitcoin OR Ethereum OR crypto sentiment analysis',
+        targetCount: 3000,
+        campaignId: 'campaign-fintech-trends',
+        priority: 'high',
+        status: 'running',
+        createdAt: twoHoursAgo,
+        startedAt: oneHourAgo,
+        progress: {
+          jobId: 'job-crypto-sentiment',
+          current: 1847,
+          total: 3000,
+          percentage: 61.6,
+          currentBatch: 19,
+          totalBatches: 30,
+          status: 'running',
+          tweetsCollected: 1847,
+          estimatedTimeRemaining: 22 * 60, // 22 minutes
+          errors: ['Rate limit hit at 14:23 - resumed at 14:28', 'API timeout on batch 12'],
+          throughput: 4.2
         },
         options: {
           includeReplies: false,
           includeRetweets: true
         }
       },
+      // Running job - Brand monitoring for tech company
       {
-        id: 'demo-job-2',
+        id: 'job-apple-brand-monitor',
         type: 'user',
-        query: '@angular',
-        targetCount: 500,
-        campaignId: 'demo-campaign-2',
-        priority: 'high',
+        query: '@Apple',
+        targetCount: 2000,
+        campaignId: 'campaign-brand-monitoring',
+        priority: 'medium',
         status: 'running',
-        createdAt: new Date(now.getTime() - 2 * 60 * 60 * 1000), // 2 hours ago
-        startedAt: new Date(now.getTime() - 90 * 60 * 1000), // 90 minutes ago
+        createdAt: oneHourAgo,
+        startedAt: new Date(oneHourAgo.getTime() + 10 * 60 * 1000),
         progress: {
-          jobId: 'demo-job-2',
-          current: 275,
-          total: 500,
-          percentage: 55,
-          currentBatch: 6,
-          totalBatches: 10,
+          jobId: 'job-apple-brand-monitor',
+          current: 734,
+          total: 2000,
+          percentage: 36.7,
+          currentBatch: 8,
+          totalBatches: 20,
           status: 'running',
-          tweetsCollected: 275,
-          estimatedTimeRemaining: 15 * 60, // 15 minutes
+          tweetsCollected: 734,
+          estimatedTimeRemaining: 45 * 60, // 45 minutes
           errors: [],
-          throughput: 2.5
+          throughput: 2.8
         },
         options: {
           includeReplies: true,
           includeRetweets: false
         }
       },
+      // Pending job - Climate change research
       {
-        id: 'demo-job-3',
-        type: 'search',
-        query: 'machine learning',
-        targetCount: 2000,
-        campaignId: 'demo-campaign-3',
+        id: 'job-climate-research',
+        type: 'hashtag',
+        query: '#ClimateChange',
+        targetCount: 10000,
+        campaignId: 'campaign-research-climate',
         priority: 'low',
         status: 'pending',
-        createdAt: new Date(now.getTime() - 10 * 60 * 1000), // 10 minutes ago
+        createdAt: thirtyMinAgo,
         progress: {
-          jobId: 'demo-job-3',
+          jobId: 'job-climate-research',
           current: 0,
-          total: 2000,
+          total: 10000,
           percentage: 0,
           currentBatch: 0,
-          totalBatches: 20,
+          totalBatches: 100,
           status: 'pending',
           tweetsCollected: 0,
-          estimatedTimeRemaining: 60 * 60, // 1 hour
+          estimatedTimeRemaining: 180 * 60, // 3 hours
           errors: [],
           throughput: 0
         },
         options: {
           includeReplies: false,
           includeRetweets: true
+        }
+      },
+      // Failed job - Suspended account monitoring
+      {
+        id: 'job-viral-content-tracker',
+        type: 'search',
+        query: 'viral content trends 2024',
+        targetCount: 1500,
+        campaignId: 'campaign-viral-analysis',
+        priority: 'medium',
+        status: 'failed',
+        createdAt: new Date(now.getTime() - 4 * 60 * 60 * 1000),
+        startedAt: new Date(now.getTime() - 3.5 * 60 * 60 * 1000),
+        progress: {
+          jobId: 'job-viral-content-tracker',
+          current: 423,
+          total: 1500,
+          percentage: 28.2,
+          currentBatch: 5,
+          totalBatches: 15,
+          status: 'failed',
+          tweetsCollected: 423,
+          estimatedTimeRemaining: 0,
+          errors: [
+            'API quota exceeded at 12:45 PM',
+            'Target account @viral_tracker suspended',
+            'Rate limiting: 429 Too Many Requests',
+            'Network timeout after 30 seconds'
+          ],
+          throughput: 0
+        },
+        options: {
+          includeReplies: true,
+          includeRetweets: true
+        }
+      },
+      // Completed job - Sports event analysis
+      {
+        id: 'job-superbowl-analysis',
+        type: 'hashtag',
+        query: '#SuperBowl2024',
+        targetCount: 8000,
+        campaignId: 'campaign-sports-events',
+        priority: 'high',
+        status: 'completed',
+        createdAt: new Date(now.getTime() - 10 * 24 * 60 * 60 * 1000),
+        startedAt: new Date(now.getTime() - 10 * 24 * 60 * 60 * 1000 + 2 * 60 * 1000),
+        completedAt: new Date(now.getTime() - 9 * 24 * 60 * 60 * 1000),
+        progress: {
+          jobId: 'job-superbowl-analysis',
+          current: 8000,
+          total: 8000,
+          percentage: 100,
+          currentBatch: 80,
+          totalBatches: 80,
+          status: 'completed',
+          tweetsCollected: 8000,
+          estimatedTimeRemaining: 0,
+          errors: ['Minor rate limit warning at batch 35'],
+          throughput: 12.7
+        },
+        options: {
+          includeReplies: false,
+          includeRetweets: true
+        }
+      },
+      // Pending high-priority job - Breaking news monitoring
+      {
+        id: 'job-breaking-news-monitor',
+        type: 'search',
+        query: 'breaking news OR urgent OR alert',
+        targetCount: 500,
+        campaignId: 'campaign-news-monitoring',
+        priority: 'urgent',
+        status: 'pending',
+        createdAt: new Date(now.getTime() - 5 * 60 * 1000),
+        progress: {
+          jobId: 'job-breaking-news-monitor',
+          current: 0,
+          total: 500,
+          percentage: 0,
+          currentBatch: 0,
+          totalBatches: 5,
+          status: 'pending',
+          tweetsCollected: 0,
+          estimatedTimeRemaining: 15 * 60, // 15 minutes
+          errors: [],
+          throughput: 0
+        },
+        options: {
+          includeReplies: true,
+          includeRetweets: false
         }
       }
     ];
@@ -648,14 +780,15 @@ export class AdvancedScrapingService implements OnDestroy {
   public getSystemStats(): Observable<ScrapingStats> {
     // If offline mode or backend not available, return demo stats immediately
     if (environment.features.offlineMode || !this.websocketEnabled) {
+      const jobs = this.getDemoJobs();
       const demoStats: ScrapingStats = {
-        totalJobs: 3,
-        runningJobs: 1,
-        completedJobs: 1,
-        failedJobs: 1,
-        totalTweetsCollected: 1250,
-        averageProcessingTime: 45.5,
-        systemLoad: 35.2
+        totalJobs: jobs.length,
+        runningJobs: jobs.filter(j => j.status === 'running').length,
+        completedJobs: jobs.filter(j => j.status === 'completed').length,
+        failedJobs: jobs.filter(j => j.status === 'failed').length,
+        totalTweetsCollected: jobs.reduce((sum, job) => sum + job.progress.tweetsCollected, 0),
+        averageProcessingTime: 127.3, // minutes - more realistic for large datasets
+        systemLoad: 0.642 // 64.2% system load - typical for active scraping
       };
       
       this.statsSubject.next(demoStats);
@@ -670,14 +803,15 @@ export class AdvancedScrapingService implements OnDestroy {
         this.connectionStatusSubject.next(false);
         
         // Return demo stats when backend is not available
+        const jobs = this.getDemoJobs();
         const demoStats: ScrapingStats = {
-          totalJobs: 3,
-          runningJobs: 1,
-          completedJobs: 1,
-          failedJobs: 1,
-          totalTweetsCollected: 1250,
-          averageProcessingTime: 45.5,
-          systemLoad: 35.2
+          totalJobs: jobs.length,
+          runningJobs: jobs.filter(j => j.status === 'running').length,
+          completedJobs: jobs.filter(j => j.status === 'completed').length,
+          failedJobs: jobs.filter(j => j.status === 'failed').length,
+          totalTweetsCollected: jobs.reduce((sum, job) => sum + job.progress.tweetsCollected, 0),
+          averageProcessingTime: 127.3, // minutes - more realistic for large datasets
+          systemLoad: 0.642 // 64.2% system load - typical for active scraping
         };
         
         this.statsSubject.next(demoStats);
@@ -801,6 +935,168 @@ export class AdvancedScrapingService implements OnDestroy {
       this.disconnectWebSocket();
       this.initializeWebSocket();
     }
+  }
+
+  /**
+   * Start progress simulation for running jobs in demo mode
+   */
+  private startProgressSimulation(): void {
+    // Only run simulation in offline mode
+    if (!environment.features.offlineMode) {
+      return;
+    }
+
+    // Update progress every 15 seconds for running jobs
+    timer(5000, 15000)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(() => {
+        if (!this.websocketEnabled) {
+          this.simulateJobProgress();
+        }
+      });
+  }
+
+  /**
+   * Simulate realistic progress for running jobs
+   */
+  private simulateJobProgress(): void {
+    const currentJobs = this.jobsSubject.value;
+    let hasUpdates = false;
+
+    const updatedJobs = currentJobs.map(job => {
+      if (job.status === 'running' && job.progress.percentage < 100) {
+        // Calculate realistic progress increment based on job priority and type
+        let progressIncrement = this.calculateProgressIncrement(job);
+        
+        // Add some randomness to make it more realistic
+        progressIncrement *= (0.8 + Math.random() * 0.4); // ±20% variation
+        
+        const newCurrent = Math.min(
+          job.progress.total,
+          job.progress.current + Math.floor(progressIncrement)
+        );
+        
+        const newPercentage = Math.min(100, (newCurrent / job.progress.total) * 100);
+        const newBatch = Math.floor(newCurrent / (job.progress.total / job.progress.totalBatches));
+        
+        // Calculate new estimated time remaining
+        const remainingItems = job.progress.total - newCurrent;
+        const averageRate = newCurrent / ((Date.now() - new Date(job.startedAt || job.createdAt).getTime()) / 1000);
+        const estimatedTimeRemaining = remainingItems > 0 ? Math.floor(remainingItems / Math.max(averageRate, 0.1)) : 0;
+        
+        // Occasionally add minor errors for realism
+        const errors = [...job.progress.errors];
+        if (Math.random() < 0.05) { // 5% chance per update
+          const errorMessages = [
+            'Rate limit warning - reducing speed',
+            'Temporary network latency detected',
+            'API response delay on batch processing',
+            'Minor timeout on data validation'
+          ];
+          errors.push(`${errorMessages[Math.floor(Math.random() * errorMessages.length)]} (${new Date().toLocaleTimeString()})`);
+          
+          // Keep only last 5 errors
+          if (errors.length > 5) {
+            errors.splice(0, errors.length - 5);
+          }
+        }
+
+        const updatedProgress: JobProgress = {
+          ...job.progress,
+          current: newCurrent,
+          percentage: newPercentage,
+          currentBatch: newBatch,
+          tweetsCollected: newCurrent,
+          estimatedTimeRemaining,
+          errors,
+          throughput: averageRate
+        };
+
+        // Check if job completed
+        if (newPercentage >= 100) {
+          hasUpdates = true;
+          return {
+            ...job,
+            status: 'completed' as const,
+            completedAt: new Date(),
+            progress: {
+              ...updatedProgress,
+              status: 'completed' as const,
+              percentage: 100,
+              current: job.progress.total,
+              tweetsCollected: job.progress.total,
+              estimatedTimeRemaining: 0
+            }
+          };
+        }
+
+        hasUpdates = true;
+        return {
+          ...job,
+          progress: updatedProgress
+        };
+      }
+      
+      return job;
+    });
+
+    if (hasUpdates) {
+      this.jobsSubject.next(updatedJobs);
+      this.updateMetrics(updatedJobs);
+    }
+  }
+
+  /**
+   * Calculate realistic progress increment based on job characteristics
+   */
+  private calculateProgressIncrement(job: ScrapingJob): number {
+    let baseRate = 25; // Base tweets per update cycle
+
+    // Adjust by priority
+    switch (job.priority) {
+      case 'urgent':
+        baseRate *= 2.5;
+        break;
+      case 'high':
+        baseRate *= 1.8;
+        break;
+      case 'medium':
+        baseRate *= 1.0;
+        break;
+      case 'low':
+        baseRate *= 0.6;
+        break;
+    }
+
+    // Adjust by job type
+    switch (job.type) {
+      case 'hashtag':
+        baseRate *= 1.2; // Hashtags are typically faster
+        break;
+      case 'user':
+        baseRate *= 0.8; // User timelines slower due to rate limits
+        break;
+      case 'search':
+        baseRate *= 1.0; // Standard rate
+        break;
+    }
+
+    // Adjust by target count (larger jobs may be slower per item)
+    if (job.targetCount > 5000) {
+      baseRate *= 0.9;
+    } else if (job.targetCount < 1000) {
+      baseRate *= 1.1;
+    }
+
+    // Slow down as job progresses (realistic behavior)
+    const progressRatio = job.progress.percentage / 100;
+    if (progressRatio > 0.8) {
+      baseRate *= 0.7; // Significantly slower in final 20%
+    } else if (progressRatio > 0.6) {
+      baseRate *= 0.85; // Moderately slower after 60%
+    }
+
+    return Math.max(1, baseRate); // Ensure minimum progress
   }
 
   /**

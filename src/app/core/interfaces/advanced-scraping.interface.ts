@@ -22,7 +22,7 @@ export interface CreateJobRequest {
   query: string;
   targetCount: number;
   campaignId: string;
-  priority: 'high' | 'medium' | 'low';
+  priority: 'urgent' | 'high' | 'medium' | 'low';
   options: {
     includeReplies: boolean;
     includeRetweets: boolean;
@@ -41,7 +41,7 @@ export interface ScrapingJob {
   query: string;
   targetCount: number;
   campaignId: string;
-  priority: 'high' | 'medium' | 'low';
+  priority: 'urgent' | 'high' | 'medium' | 'low';
   status: 'pending' | 'running' | 'completed' | 'failed' | 'cancelled';
   progress: JobProgress;
   createdAt: Date;
@@ -84,7 +84,7 @@ export interface JobFormData {
   query: string;
   targetCount: number;
   campaignId?: string;
-  priority: 'high' | 'medium' | 'low';
+  priority: 'urgent' | 'high' | 'medium' | 'low';
   includeReplies: boolean;
   includeRetweets: boolean;
 }

@@ -18,7 +18,6 @@ import {
   FormSubmitEvent,
 } from '../../shared/components/reactive-form/interfaces/form-field.interface';
 import { ReactiveFormComponent } from '../../shared/components/reactive-form/reactive-form.component';
-import { CreateJobComponent } from './components/create-job/create-job.component';
 import { JobListComponent } from './components/job-list/job-list.component';
 import { ScrapingDashboardComponent } from './components/scraping-dashboard/scraping-dashboard.component';
 
@@ -34,10 +33,9 @@ import { ScrapingDashboardComponent } from './components/scraping-dashboard/scra
     MatToolbarModule,
     MatBadgeModule,
     MatTooltipModule,
-    CreateJobComponent,
     JobListComponent,
-    ScrapingDashboardComponent,
-  ],
+    ScrapingDashboardComponent
+],
   templateUrl: './scraping-monitor.component.html',
   styleUrls: ['./scraping-monitor.component.css'],
 })
@@ -186,20 +184,25 @@ export class ScrapingMonitorComponent implements OnInit {
           required: true,
           validators: [Validators.required],
           options: [
-            { value: 'hashtag', label: 'Hashtag Analysis' },
-            { value: 'user', label: 'User Profile' },
-            { value: 'search', label: 'Keyword Search' },
+            { value: 'hashtag', label: 'Hashtag Analysis - Track trending topics' },
+            { value: 'user', label: 'User Profile - Monitor specific accounts' },
+            { value: 'search', label: 'Keyword Search - Custom query terms' },
+            { value: 'sentiment', label: 'Sentiment Analysis - Brand monitoring' },
+            { value: 'crisis', label: 'Crisis Monitoring - Real-time alerts' },
+            { value: 'competitor', label: 'Competitor Analysis - Market intelligence' },
+            { value: 'influencer', label: 'Influencer Tracking - Engagement analysis' },
+            { value: 'campaign', label: 'Campaign Performance - Marketing ROI' }
           ],
-          hint: 'Different types collect different data points',
+          hint: 'Each type has specialized data collection patterns',
         },
         {
           key: 'target',
           type: 'text',
           label: 'Target',
-          placeholder: 'Enter hashtag, username, or search terms',
+          placeholder: 'e.g., #Election2024, @Apple, cryptocurrency trends, etc.',
           required: true,
           validators: [Validators.required, Validators.minLength(2)],
-          hint: 'The main target for data collection',
+          hint: 'Hashtags (#), usernames (@), or search terms for data collection',
         },
         {
           key: 'maxResults',
@@ -221,34 +224,55 @@ export class ScrapingMonitorComponent implements OnInit {
           required: true,
           validators: [Validators.required],
           options: [
-            { value: 'low', label: 'Low Priority' },
-            { value: 'normal', label: 'Normal Priority' },
-            { value: 'high', label: 'High Priority' },
-            { value: 'urgent', label: 'Urgent' },
+            { value: 'urgent', label: 'Urgent - Crisis/Breaking News (< 5 min)' },
+            { value: 'high', label: 'High Priority - Campaign Monitoring (< 30 min)' },
+            { value: 'normal', label: 'Normal Priority - Regular Analysis (< 2 hours)' },
+            { value: 'low', label: 'Low Priority - Research/Background (< 24 hours)' }
           ],
           value: 'normal',
-          hint: 'Higher priority jobs are processed first',
+          hint: 'Higher priority jobs consume more system resources',
         },
         {
           key: 'collectReplies',
           type: 'checkbox',
           label: 'Collect Replies',
           value: false,
-          hint: 'Include reply tweets in the collection',
+          hint: 'Include reply tweets (increases processing time)',
         },
         {
           key: 'includeRetweets',
           type: 'checkbox',
           label: 'Include Retweets',
           value: true,
-          hint: 'Include retweets in the data collection',
+          hint: 'Include retweets for reach analysis',
         },
         {
           key: 'enableSentimentAnalysis',
           type: 'checkbox',
-          label: 'Sentiment Analysis',
+          label: 'Real-time Sentiment Analysis',
           value: true,
-          hint: 'Perform real-time sentiment analysis',
+          hint: 'AI-powered sentiment scoring (positive/negative/neutral)',
+        },
+        {
+          key: 'enableLanguageDetection',
+          type: 'checkbox',
+          label: 'Language Detection',
+          value: false,
+          hint: 'Detect and filter by tweet language',
+        },
+        {
+          key: 'enableInfluencerScoring',
+          type: 'checkbox',
+          label: 'Influencer Impact Scoring',
+          value: false,
+          hint: 'Calculate user influence metrics (followers, engagement)',
+        },
+        {
+          key: 'enableGeoTagging',
+          type: 'checkbox',
+          label: 'Geographic Data Collection',
+          value: false,
+          hint: 'Collect location data when available',
         },
         {
           key: 'autoStart',

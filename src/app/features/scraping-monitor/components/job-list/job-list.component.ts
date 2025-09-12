@@ -166,13 +166,23 @@ export class JobListComponent implements OnInit, OnDestroy {
   getTypeLabel(type: string): string {
     switch (type) {
       case 'hashtag':
-        return 'Hashtag';
+        return 'Hashtag Analysis';
       case 'user':
-        return 'User';
+        return 'User Profile';
       case 'search':
-        return 'Search';
+        return 'Keyword Search';
+      case 'sentiment':
+        return 'Sentiment Analysis';
+      case 'crisis':
+        return 'Crisis Monitoring';
+      case 'competitor':
+        return 'Competitor Analysis';
+      case 'influencer':
+        return 'Influencer Tracking';
+      case 'campaign':
+        return 'Campaign Performance';
       default:
-        return type;
+        return type.charAt(0).toUpperCase() + type.slice(1);
     }
   }
 
@@ -184,8 +194,18 @@ export class JobListComponent implements OnInit, OnDestroy {
         return 'person';
       case 'search':
         return 'search';
+      case 'sentiment':
+        return 'psychology';
+      case 'crisis':
+        return 'warning';
+      case 'competitor':
+        return 'compare_arrows';
+      case 'influencer':
+        return 'star';
+      case 'campaign':
+        return 'campaign';
       default:
-        return 'help';
+        return 'data_usage';
     }
   }
 
@@ -221,9 +241,12 @@ export class JobListComponent implements OnInit, OnDestroy {
 
   getPriorityIcon(priority: string): string {
     switch (priority) {
+      case 'urgent':
+        return 'emergency';
       case 'high':
         return 'priority_high';
       case 'medium':
+      case 'normal':
         return 'remove';
       case 'low':
         return 'keyboard_arrow_down';

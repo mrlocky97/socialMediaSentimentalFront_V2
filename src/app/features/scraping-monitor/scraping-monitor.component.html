@@ -76,22 +76,6 @@
           <app-job-list></app-job-list>
         </div>
       </mat-tab>
-
-      <!-- Create Job Tab -->
-      <mat-tab>
-        <ng-template mat-tab-label>
-          <mat-icon aria-hidden="true">rocket_launch</mat-icon>
-          Create Job
-        </ng-template>
-
-        <div class="tab-content">
-          <app-create-job
-            (jobCreated)="onJobCreatedResponse($event)"
-            (cancelled)="onJobCreationCancelled()"
-          >
-          </app-create-job>
-        </div>
-      </mat-tab>
     </mat-tab-group>
 
     <!-- Quick Actions Toolbar -->
