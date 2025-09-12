@@ -10,6 +10,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { catchError, of, Subscription } from 'rxjs';
+import { CreateJobResponse } from '../../core/interfaces/advanced-scraping.interface';
 import { AdvancedScrapingService } from '../../core/services/advanced-scraping.service';
 import { DialogConfig, DialogService } from '../../shared/components/dialog';
 import {
@@ -20,22 +21,6 @@ import { ReactiveFormComponent } from '../../shared/components/reactive-form/rea
 import { CreateJobComponent } from './components/create-job/create-job.component';
 import { JobListComponent } from './components/job-list/job-list.component';
 import { ScrapingDashboardComponent } from './components/scraping-dashboard/scraping-dashboard.component';
-
-// Interface for job data
-interface Job {
-  id: string;
-  name: string;
-  type: string;
-  query: string;
-  targetCount: number;
-  priority: string;
-  status: string;
-  createdAt: Date;
-  options: {
-    includeReplies: boolean;
-    includeRetweets: boolean;
-  };
-}
 
 @Component({
   selector: 'app-scraping-monitor',
@@ -323,22 +308,8 @@ export class ScrapingMonitorComponent implements OnInit, OnDestroy {
           )
           .pipe(takeUntilDestroyed(this.destroyRef))
           .subscribe(() => {
-            // Simulate job created event
-            const mockJob: Job = {
-              id: response.jobId,
-              name: formData.name,
-              type: jobData.type,
-              query: jobData.query,
-              targetCount: jobData.targetCount,
-              priority: jobData.priority,
-              status: 'pending',
-              createdAt: new Date(),
-              options: {
-                includeReplies: jobData.includeReplies,
-                includeRetweets: jobData.includeRetweets,
-              },
-            };
-            this.onJobCreated(mockJob);
+            // Handle job creation response
+            this.onJobCreatedResponse(response);
           });
       } else {
         throw new Error('Invalid response from server');
@@ -356,10 +327,10 @@ export class ScrapingMonitorComponent implements OnInit, OnDestroy {
     }
   }
 
-  onJobCreated(job: Job): void {
+  onJobCreatedResponse(response: CreateJobResponse): void {
     // Switch to jobs tab to see the new job
     this.selectedTabIndex.set(1);
-    // Refresh job list
+    // Refresh job list to show the newly created job
     this.scrapingService.loadJobs().pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
   }
 
