@@ -17,18 +17,6 @@ export interface JobProgress {
   throughput?: number; // Tweets por segundo
 }
 
-export interface CreateJobRequest {
-  type: 'hashtag' | 'user' | 'search';
-  query: string;
-  targetCount: number;
-  campaignId: string;
-  priority: 'urgent' | 'high' | 'medium' | 'low';
-  options: {
-    includeReplies: boolean;
-    includeRetweets: boolean;
-  };
-}
-
 export interface CreateJobResponse {
   jobId: string;
   estimatedTime: number;
@@ -78,16 +66,15 @@ export interface WebSocketEvents {
   'system-stats': (data: ScrapingStats) => void;
 }
 
-// Job Creation Form Data
-export interface JobFormData {
-  type: 'hashtag' | 'user' | 'search';
-  query: string;
-  targetCount: number;
-  campaignId?: string;
-  priority: 'urgent' | 'high' | 'medium' | 'low';
-  includeReplies: boolean;
-  includeRetweets: boolean;
-  analyzeSentiment: boolean;
+// Job Creation Form Data - Extends CreateJobRequest with additional form fields
+export interface JobFormData extends CreateJobRequest {
+  name: string;
+  description?: string;
+  autoStart?: boolean;
+  enableSentimentAnalysis?: boolean;
+  enableLanguageDetection?: boolean;
+  enableInfluencerScoring?: boolean;
+  enableGeoTagging?: boolean;
 }
 
 // UI State Interfaces
@@ -108,4 +95,23 @@ export interface JobMetrics {
   averageProgress: number;
   totalTweetsCollected: number;
   estimatedTimeRemaining: number;
+}
+
+export interface JobOptions {
+  includeReplies?: boolean;
+  includeRetweets?: boolean;
+  maxAgeHours?: number;
+  language?: string;
+}
+
+export interface CreateJobRequest {
+  type: 'hashtag' | 'user' | 'search';
+  query: string;
+  targetCount: number;
+  campaignId: string;
+  priority: 'urgent' | 'high' | 'medium' | 'low';
+  options: {
+    includeReplies: boolean;
+    includeRetweets: boolean;
+  };
 }

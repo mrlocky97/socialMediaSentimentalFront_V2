@@ -21,21 +21,21 @@ import {
 } from '../interfaces/advanced-scraping.interface';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AdvancedScrapingService implements OnDestroy {
-  private readonly API_BASE_URL = environment.production 
+  private readonly API_BASE_URL = environment.production
     ? 'https://your-backend-domain.com/api/v1/scraping/advanced'
     : `${environment.apiUrl}/api/${environment.apiVersion}/scraping/advanced`;
-  private readonly WEBSOCKET_URL = environment.production 
+  private readonly WEBSOCKET_URL = environment.production
     ? 'https://your-backend-domain.com'
     : environment.apiUrl;
-  
+
   private socket: any | null = null;
   private websocketEnabled = false;
   private destroy$ = new Subject<void>();
   private demoNotificationShown = false;
-  
+
   // State management
   private jobsSubject = new BehaviorSubject<ScrapingJob[]>([]);
   private progressSubject = new BehaviorSubject<Map<string, JobProgress>>(new Map());
@@ -46,9 +46,9 @@ export class AdvancedScrapingService implements OnDestroy {
     failedJobs: 0,
     totalTweetsCollected: 0,
     averageProcessingTime: 0,
-    systemLoad: 0
+    systemLoad: 0,
   });
-  
+
   private connectionStatusSubject = new BehaviorSubject<boolean>(false);
   private metricsSubject = new BehaviorSubject<JobMetrics>({
     totalJobs: 0,
@@ -57,7 +57,7 @@ export class AdvancedScrapingService implements OnDestroy {
     failedJobs: 0,
     averageProgress: 0,
     totalTweetsCollected: 0,
-    estimatedTimeRemaining: 0
+    estimatedTimeRemaining: 0,
   });
 
   // Public observables
@@ -67,16 +67,13 @@ export class AdvancedScrapingService implements OnDestroy {
   public connectionStatus$ = this.connectionStatusSubject.asObservable();
   public metrics$ = this.metricsSubject.asObservable();
 
-  constructor(
-    private http: HttpClient,
-    private snackBar: MatSnackBar
-  ) {
+  constructor(private http: HttpClient, private snackBar: MatSnackBar) {
     // Initialize with demo data immediately
     this.initializeDemoData();
-    
+
     // Start progress simulation for running jobs
     this.startProgressSimulation();
-    
+
     // Check if we should try backend connection based on environment
     if (!environment.features.offlineMode && environment.features.realTimeUpdates) {
       // Try to initialize WebSocket after a delay to allow app to load
@@ -97,7 +94,7 @@ export class AdvancedScrapingService implements OnDestroy {
     const demoJobs = this.getDemoJobs();
     this.jobsSubject.next(demoJobs);
     this.updateMetrics(demoJobs);
-    
+
     // Set initial connection status to false
     this.connectionStatusSubject.next(false);
   }
@@ -124,7 +121,7 @@ export class AdvancedScrapingService implements OnDestroy {
         transports: ['websocket', 'polling'],
         timeout: 5000, // Reduced timeout
         forceNew: true,
-        autoConnect: false // Don't auto-connect
+        autoConnect: false, // Don't auto-connect
       });
 
       this.socket.on('connect', () => {
@@ -155,21 +152,27 @@ export class AdvancedScrapingService implements OnDestroy {
       // Listen for job completion
       this.socket.on('job-completed', (data: { jobId: string; finalStats: JobProgress }) => {
         this.handleJobCompleted(data.jobId, data.finalStats);
-        this.snackBar.open(`Job ${data.jobId} completed successfully!`, 'View', { 
-          duration: 5000 
-        }).onAction().subscribe(() => {
-          // Navigate to job details or results
-        });
+        this.snackBar
+          .open(`Job ${data.jobId} completed successfully!`, 'View', {
+            duration: 5000,
+          })
+          .onAction()
+          .subscribe(() => {
+            // Navigate to job details or results
+          });
       });
 
       // Listen for job failures
-      this.socket.on('job-failed', (data: { jobId: string; error: string; progress: JobProgress }) => {
-        this.handleJobFailed(data.jobId, data.error, data.progress);
-        this.snackBar.open(`Job ${data.jobId} failed: ${data.error}`, 'Close', { 
-          duration: 7000,
-          panelClass: ['error-snackbar']
-        });
-      });
+      this.socket.on(
+        'job-failed',
+        (data: { jobId: string; error: string; progress: JobProgress }) => {
+          this.handleJobFailed(data.jobId, data.error, data.progress);
+          this.snackBar.open(`Job ${data.jobId} failed: ${data.error}`, 'Close', {
+            duration: 7000,
+            panelClass: ['error-snackbar'],
+          });
+        }
+      );
 
       // Listen for job cancellations
       this.socket.on('job-cancelled', (data: { jobId: string }) => {
@@ -188,7 +191,6 @@ export class AdvancedScrapingService implements OnDestroy {
           this.socket.connect();
         }
       }, 1000);
-
     } catch (error) {
       console.error('Failed to initialize WebSocket:', error);
       this.connectionStatusSubject.next(false);
@@ -213,17 +215,20 @@ export class AdvancedScrapingService implements OnDestroy {
   public tryEnableWebSocket(): void {
     // Skip if offline mode is enabled
     if (environment.features.offlineMode || !environment.features.realTimeUpdates) {
-      console.log('⚠️ Offline mode enabled or real-time updates disabled - skipping backend connection');
+      console.log(
+        '⚠️ Offline mode enabled or real-time updates disabled - skipping backend connection'
+      );
       this.connectionStatusSubject.next(false);
       this.websocketEnabled = false;
       return;
     }
 
     // First, try a simple HTTP request to check if backend is available
-    this.http.get(`${this.API_BASE_URL}/health`, { 
-      observe: 'response',
-      headers: { 'Content-Type': 'application/json' }
-    })
+    this.http
+      .get(`${this.API_BASE_URL}/health`, {
+        observe: 'response',
+        headers: { 'Content-Type': 'application/json' },
+      })
       .pipe(
         catchError((error) => {
           console.warn('Backend connection failed:', error.message);
@@ -233,7 +238,7 @@ export class AdvancedScrapingService implements OnDestroy {
         }),
         takeUntil(this.destroy$)
       )
-      .subscribe(response => {
+      .subscribe((response) => {
         if (response && response.status === 200) {
           console.log('✅ Backend available - enabling WebSocket and loading real data');
           this.websocketEnabled = true;
@@ -294,27 +299,30 @@ export class AdvancedScrapingService implements OnDestroy {
       type: formData.type,
       query: formData.query,
       targetCount: formData.targetCount,
-      campaignId: formData.campaignId || '',
+      campaignId: formData.campaignId,
       priority: formData.priority,
       options: {
-        includeReplies: formData.includeReplies,
-        includeRetweets: formData.includeRetweets
-      }
+        includeReplies: formData.options?.includeReplies || false,
+        includeRetweets: formData.options?.includeRetweets || true,
+      },
     };
 
     return this.http.post<CreateJobResponse>(`${this.API_BASE_URL}/job`, request).pipe(
-      tap(response => {
+      tap((response) => {
         console.log('✅ Job created:', response);
-        this.snackBar.open(`Job created: ${response.jobId}`, 'Subscribe', { 
-          duration: 5000 
-        }).onAction().subscribe(() => {
-          this.subscribeToJob(response.jobId);
-        });
-        
+        this.snackBar
+          .open(`Job created: ${response.jobId}`, 'Subscribe', {
+            duration: 5000,
+          })
+          .onAction()
+          .subscribe(() => {
+            this.subscribeToJob(response.jobId);
+          });
+
         // Refresh jobs list
         this.loadJobs();
       }),
-      catchError(error => {
+      catchError((error) => {
         console.warn('Backend not available for job creation, creating demo job:', error.message);
         return this.createDemoJob(formData);
       })
@@ -327,21 +335,21 @@ export class AdvancedScrapingService implements OnDestroy {
   private createDemoJob(formData: JobFormData): Observable<CreateJobResponse> {
     // Generate a mock job ID
     const mockJobId = `demo-job-${Date.now()}`;
-    
+
     // Create mock response
     const mockResponse: CreateJobResponse = {
       jobId: mockJobId,
       estimatedTime: Math.floor(Math.random() * 60) + 10, // 10-70 minutes
-      websocketUrl: this.WEBSOCKET_URL
+      websocketUrl: this.WEBSOCKET_URL,
     };
-    
+
     // Add job to local state
     const newJob: ScrapingJob = {
       id: mockJobId,
       type: formData.type,
       query: formData.query,
       targetCount: formData.targetCount,
-      campaignId: formData.campaignId || '',
+      campaignId: formData.campaignId,
       priority: formData.priority,
       status: 'pending',
       createdAt: new Date(),
@@ -356,24 +364,24 @@ export class AdvancedScrapingService implements OnDestroy {
         tweetsCollected: 0,
         estimatedTimeRemaining: mockResponse.estimatedTime * 60,
         errors: [],
-        throughput: 0
+        throughput: 0,
       },
       options: {
-        includeReplies: formData.includeReplies,
-        includeRetweets: formData.includeRetweets
-      }
+        includeReplies: formData.options?.includeReplies || false,
+        includeRetweets: formData.options?.includeRetweets || true,
+      },
     };
-    
+
     // Update jobs list
     const currentJobs = this.jobsSubject.value;
     this.jobsSubject.next([newJob, ...currentJobs]);
     this.updateMetrics([newJob, ...currentJobs]);
-    
-    this.snackBar.open(`Demo job created: ${mockJobId}`, 'View Jobs', { 
+
+    this.snackBar.open(`Demo job created: ${mockJobId}`, 'View Jobs', {
       duration: 5000,
-      panelClass: ['info-snackbar']
+      panelClass: ['info-snackbar'],
     });
-    
+
     return of(mockResponse);
   }
 
@@ -384,12 +392,12 @@ export class AdvancedScrapingService implements OnDestroy {
     // If offline mode or backend not available, return demo progress
     if (environment.features.offlineMode || !this.websocketEnabled) {
       const jobs = this.jobsSubject.value;
-      const job = jobs.find(j => j.id === jobId);
-      
+      const job = jobs.find((j) => j.id === jobId);
+
       if (job) {
         return of(job.progress);
       }
-      
+
       // Return default progress for unknown jobs in offline mode
       return of({
         jobId,
@@ -400,16 +408,16 @@ export class AdvancedScrapingService implements OnDestroy {
         totalBatches: 0,
         status: 'failed',
         tweetsCollected: 0,
-        errors: ['Job not found in offline mode']
+        errors: ['Job not found in offline mode'],
       } as JobProgress);
     }
 
     return this.http.get<JobProgress>(`${this.API_BASE_URL}/job/${jobId}`).pipe(
-      catchError(error => {
+      catchError((error) => {
         console.error(`Failed to get progress for job ${jobId}:`, error);
         this.websocketEnabled = false;
         this.connectionStatusSubject.next(false);
-        
+
         return of({
           jobId,
           current: 0,
@@ -419,7 +427,7 @@ export class AdvancedScrapingService implements OnDestroy {
           totalBatches: 0,
           status: 'failed',
           tweetsCollected: 0,
-          errors: [error.message]
+          errors: [error.message],
         } as JobProgress);
       })
     );
@@ -428,7 +436,9 @@ export class AdvancedScrapingService implements OnDestroy {
   /**
    * Get list of jobs with offline mode support
    */
-  public loadJobs(status?: 'running' | 'pending' | 'completed' | 'failed'): Observable<JobListResponse> {
+  public loadJobs(
+    status?: 'running' | 'pending' | 'completed' | 'failed'
+  ): Observable<JobListResponse> {
     // If offline mode or backend not available, return demo data immediately
     if (environment.features.offlineMode || !this.websocketEnabled) {
       return this.getDemoJobsResponse(status);
@@ -440,22 +450,22 @@ export class AdvancedScrapingService implements OnDestroy {
     }
 
     return this.http.get<JobListResponse>(`${this.API_BASE_URL}/jobs`, { params }).pipe(
-      tap(response => {
+      tap((response) => {
         this.jobsSubject.next(response.jobs);
         this.updateMetrics(response.jobs);
-        
+
         // Subscribe to all running jobs if WebSocket is available
         if (this.websocketEnabled && this.socket?.connected) {
           response.jobs
-            .filter(job => job.status === 'running')
-            .forEach(job => this.subscribeToJob(job.id));
+            .filter((job) => job.status === 'running')
+            .forEach((job) => this.subscribeToJob(job.id));
         }
       }),
-      catchError(error => {
+      catchError((error) => {
         console.warn('Backend not available, using demo data:', error.message);
         this.websocketEnabled = false;
         this.connectionStatusSubject.next(false);
-        
+
         return this.getDemoJobsResponse(status);
       })
     );
@@ -464,34 +474,39 @@ export class AdvancedScrapingService implements OnDestroy {
   /**
    * Get demo jobs response for offline mode
    */
-  private getDemoJobsResponse(status?: 'running' | 'pending' | 'completed' | 'failed'): Observable<JobListResponse> {
+  private getDemoJobsResponse(
+    status?: 'running' | 'pending' | 'completed' | 'failed'
+  ): Observable<JobListResponse> {
     let demoJobs = this.getDemoJobs();
-    
+
     // Filter by status if provided
     if (status) {
-      demoJobs = demoJobs.filter(job => job.status === status);
+      demoJobs = demoJobs.filter((job) => job.status === status);
     }
-    
+
     const demoResponse: JobListResponse = {
       jobs: demoJobs,
       totalCount: demoJobs.length,
-      hasMore: false
+      hasMore: false,
     };
-    
+
     this.jobsSubject.next(demoResponse.jobs);
     this.updateMetrics(demoResponse.jobs);
-    
+
     // Only show the demo notification once per session
     if (!this.demoNotificationShown) {
       this.demoNotificationShown = true;
-      this.snackBar.open('Running in demo mode - backend not available', 'Enable Backend', { 
-        duration: 8000,
-        panelClass: ['info-snackbar']
-      }).onAction().subscribe(() => {
-        this.tryEnableWebSocket();
-      });
+      this.snackBar
+        .open('Running in demo mode - backend not available', 'Enable Backend', {
+          duration: 8000,
+          panelClass: ['info-snackbar'],
+        })
+        .onAction()
+        .subscribe(() => {
+          this.tryEnableWebSocket();
+        });
     }
-    
+
     return of(demoResponse);
   }
 
@@ -505,7 +520,7 @@ export class AdvancedScrapingService implements OnDestroy {
     const twoHoursAgo = new Date(now.getTime() - 2 * 60 * 60 * 1000);
     const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
     const thirtyMinAgo = new Date(now.getTime() - 30 * 60 * 1000);
-    
+
     return [
       // Completed job - US Election Campaign monitoring
       {
@@ -530,12 +545,12 @@ export class AdvancedScrapingService implements OnDestroy {
           tweetsCollected: 5000,
           estimatedTimeRemaining: 0,
           errors: [],
-          throughput: 8.3
+          throughput: 8.3,
         },
         options: {
           includeReplies: true,
-          includeRetweets: true
-        }
+          includeRetweets: true,
+        },
       },
       // Running job - Cryptocurrency trend analysis
       {
@@ -559,12 +574,12 @@ export class AdvancedScrapingService implements OnDestroy {
           tweetsCollected: 1847,
           estimatedTimeRemaining: 22 * 60, // 22 minutes
           errors: ['Rate limit hit at 14:23 - resumed at 14:28', 'API timeout on batch 12'],
-          throughput: 4.2
+          throughput: 4.2,
         },
         options: {
           includeReplies: false,
-          includeRetweets: true
-        }
+          includeRetweets: true,
+        },
       },
       // Running job - Brand monitoring for tech company
       {
@@ -588,12 +603,12 @@ export class AdvancedScrapingService implements OnDestroy {
           tweetsCollected: 734,
           estimatedTimeRemaining: 45 * 60, // 45 minutes
           errors: [],
-          throughput: 2.8
+          throughput: 2.8,
         },
         options: {
           includeReplies: true,
-          includeRetweets: false
-        }
+          includeRetweets: false,
+        },
       },
       // Pending job - Climate change research
       {
@@ -616,12 +631,12 @@ export class AdvancedScrapingService implements OnDestroy {
           tweetsCollected: 0,
           estimatedTimeRemaining: 180 * 60, // 3 hours
           errors: [],
-          throughput: 0
+          throughput: 0,
         },
         options: {
           includeReplies: false,
-          includeRetweets: true
-        }
+          includeRetweets: true,
+        },
       },
       // Failed job - Suspended account monitoring
       {
@@ -648,14 +663,14 @@ export class AdvancedScrapingService implements OnDestroy {
             'API quota exceeded at 12:45 PM',
             'Target account @viral_tracker suspended',
             'Rate limiting: 429 Too Many Requests',
-            'Network timeout after 30 seconds'
+            'Network timeout after 30 seconds',
           ],
-          throughput: 0
+          throughput: 0,
         },
         options: {
           includeReplies: true,
-          includeRetweets: true
-        }
+          includeRetweets: true,
+        },
       },
       // Completed job - Sports event analysis
       {
@@ -680,12 +695,12 @@ export class AdvancedScrapingService implements OnDestroy {
           tweetsCollected: 8000,
           estimatedTimeRemaining: 0,
           errors: ['Minor rate limit warning at batch 35'],
-          throughput: 12.7
+          throughput: 12.7,
         },
         options: {
           includeReplies: false,
-          includeRetweets: true
-        }
+          includeRetweets: true,
+        },
       },
       // Pending high-priority job - Breaking news monitoring
       {
@@ -708,13 +723,13 @@ export class AdvancedScrapingService implements OnDestroy {
           tweetsCollected: 0,
           estimatedTimeRemaining: 15 * 60, // 15 minutes
           errors: [],
-          throughput: 0
+          throughput: 0,
         },
         options: {
           includeReplies: true,
-          includeRetweets: false
-        }
-      }
+          includeRetweets: false,
+        },
+      },
     ];
   }
 
@@ -725,53 +740,59 @@ export class AdvancedScrapingService implements OnDestroy {
     // If offline mode or backend not available, handle cancellation locally
     if (environment.features.offlineMode || !this.websocketEnabled) {
       const jobs = this.jobsSubject.value;
-      const jobIndex = jobs.findIndex(j => j.id === jobId);
-      
+      const jobIndex = jobs.findIndex((j) => j.id === jobId);
+
       if (jobIndex >= 0) {
         const updatedJobs = [...jobs];
-        updatedJobs[jobIndex] = { 
-          ...updatedJobs[jobIndex], 
+        updatedJobs[jobIndex] = {
+          ...updatedJobs[jobIndex],
           status: 'cancelled' as any,
           progress: {
             ...updatedJobs[jobIndex].progress,
-            status: 'failed'
-          }
+            status: 'failed',
+          },
         };
-        
+
         this.jobsSubject.next(updatedJobs);
         this.updateMetrics(updatedJobs);
-        
+
         this.snackBar.open(`Demo job ${jobId} cancelled`, 'Close', { duration: 3000 });
         return of(true);
       } else {
-        this.snackBar.open(`Job ${jobId} not found`, 'Close', { 
+        this.snackBar.open(`Job ${jobId} not found`, 'Close', {
           duration: 3000,
-          panelClass: ['error-snackbar']
+          panelClass: ['error-snackbar'],
         });
         return of(false);
       }
     }
 
-    return this.http.post<{ success: boolean }>(`${this.API_BASE_URL}/job/${jobId}/cancel`, {}).pipe(
-      map(response => response.success),
-      tap(success => {
-        if (success) {
-          this.snackBar.open(`Job ${jobId} cancelled`, 'Close', { duration: 3000 });
-          this.loadJobs(); // Refresh jobs list
-        }
-      }),
-      catchError(error => {
-        console.error(`Failed to cancel job ${jobId}:`, error);
-        this.websocketEnabled = false;
-        this.connectionStatusSubject.next(false);
-        
-        this.snackBar.open(`Failed to cancel job: ${error.error?.message || error.message}`, 'Close', {
-          duration: 5000,
-          panelClass: ['error-snackbar']
-        });
-        return of(false);
-      })
-    );
+    return this.http
+      .post<{ success: boolean }>(`${this.API_BASE_URL}/job/${jobId}/cancel`, {})
+      .pipe(
+        map((response) => response.success),
+        tap((success) => {
+          if (success) {
+            this.snackBar.open(`Job ${jobId} cancelled`, 'Close', { duration: 3000 });
+            this.loadJobs(); // Refresh jobs list
+          }
+        }),
+        catchError((error) => {
+          console.error(`Failed to cancel job ${jobId}:`, error);
+          this.websocketEnabled = false;
+          this.connectionStatusSubject.next(false);
+
+          this.snackBar.open(
+            `Failed to cancel job: ${error.error?.message || error.message}`,
+            'Close',
+            {
+              duration: 5000,
+              panelClass: ['error-snackbar'],
+            }
+          );
+          return of(false);
+        })
+      );
   }
 
   /**
@@ -783,37 +804,37 @@ export class AdvancedScrapingService implements OnDestroy {
       const jobs = this.getDemoJobs();
       const demoStats: ScrapingStats = {
         totalJobs: jobs.length,
-        runningJobs: jobs.filter(j => j.status === 'running').length,
-        completedJobs: jobs.filter(j => j.status === 'completed').length,
-        failedJobs: jobs.filter(j => j.status === 'failed').length,
+        runningJobs: jobs.filter((j) => j.status === 'running').length,
+        completedJobs: jobs.filter((j) => j.status === 'completed').length,
+        failedJobs: jobs.filter((j) => j.status === 'failed').length,
         totalTweetsCollected: jobs.reduce((sum, job) => sum + job.progress.tweetsCollected, 0),
         averageProcessingTime: 127.3, // minutes - more realistic for large datasets
-        systemLoad: 0.642 // 64.2% system load - typical for active scraping
+        systemLoad: 0.642, // 64.2% system load - typical for active scraping
       };
-      
+
       this.statsSubject.next(demoStats);
       return of(demoStats);
     }
 
     return this.http.get<ScrapingStats>(`${this.API_BASE_URL}/stats`).pipe(
-      tap(stats => this.statsSubject.next(stats)),
-      catchError(error => {
+      tap((stats) => this.statsSubject.next(stats)),
+      catchError((error) => {
         console.warn('Backend not available for stats, using demo data:', error.message);
         this.websocketEnabled = false;
         this.connectionStatusSubject.next(false);
-        
+
         // Return demo stats when backend is not available
         const jobs = this.getDemoJobs();
         const demoStats: ScrapingStats = {
           totalJobs: jobs.length,
-          runningJobs: jobs.filter(j => j.status === 'running').length,
-          completedJobs: jobs.filter(j => j.status === 'completed').length,
-          failedJobs: jobs.filter(j => j.status === 'failed').length,
+          runningJobs: jobs.filter((j) => j.status === 'running').length,
+          completedJobs: jobs.filter((j) => j.status === 'completed').length,
+          failedJobs: jobs.filter((j) => j.status === 'failed').length,
           totalTweetsCollected: jobs.reduce((sum, job) => sum + job.progress.tweetsCollected, 0),
           averageProcessingTime: 127.3, // minutes - more realistic for large datasets
-          systemLoad: 0.642 // 64.2% system load - typical for active scraping
+          systemLoad: 0.642, // 64.2% system load - typical for active scraping
         };
-        
+
         this.statsSubject.next(demoStats);
         return of(demoStats);
       })
@@ -825,15 +846,15 @@ export class AdvancedScrapingService implements OnDestroy {
    */
   public getJob(jobId: string): Observable<ScrapingJob | null> {
     const jobs = this.jobsSubject.value;
-    const job = jobs.find(j => j.id === jobId);
-    
+    const job = jobs.find((j) => j.id === jobId);
+
     if (job) {
       return of(job);
     }
 
     // If not in cache, try to fetch from API
     return this.getJobProgress(jobId).pipe(
-      map(progress => {
+      map((progress) => {
         // Create a basic job object from progress data
         // In a real scenario, you'd have a dedicated endpoint for this
         return {
@@ -848,8 +869,8 @@ export class AdvancedScrapingService implements OnDestroy {
           createdAt: new Date(),
           options: {
             includeReplies: false,
-            includeRetweets: true
-          }
+            includeRetweets: true,
+          },
         } as ScrapingJob;
       }),
       catchError(() => of(null))
@@ -866,10 +887,8 @@ export class AdvancedScrapingService implements OnDestroy {
 
     // Update the job in the jobs list
     const jobs = this.jobsSubject.value;
-    const updatedJobs = jobs.map(job => 
-      job.id === progress.jobId 
-        ? { ...job, progress, status: progress.status }
-        : job
+    const updatedJobs = jobs.map((job) =>
+      job.id === progress.jobId ? { ...job, progress, status: progress.status } : job
     );
     this.jobsSubject.next(updatedJobs);
     this.updateMetrics(updatedJobs);
@@ -896,10 +915,8 @@ export class AdvancedScrapingService implements OnDestroy {
    */
   private handleJobCancelled(jobId: string): void {
     const jobs = this.jobsSubject.value;
-    const updatedJobs = jobs.map(job => 
-      job.id === jobId 
-        ? { ...job, status: 'cancelled' as any }
-        : job
+    const updatedJobs = jobs.map((job) =>
+      job.id === jobId ? { ...job, status: 'cancelled' as any } : job
     );
     this.jobsSubject.next(updatedJobs);
     this.updateMetrics(updatedJobs);
@@ -912,16 +929,17 @@ export class AdvancedScrapingService implements OnDestroy {
   private updateMetrics(jobs: ScrapingJob[]): void {
     const metrics: JobMetrics = {
       totalJobs: jobs.length,
-      runningJobs: jobs.filter(j => j.status === 'running').length,
-      completedJobs: jobs.filter(j => j.status === 'completed').length,
-      failedJobs: jobs.filter(j => j.status === 'failed').length,
-      averageProgress: jobs.length > 0 
-        ? jobs.reduce((sum, job) => sum + job.progress.percentage, 0) / jobs.length 
-        : 0,
+      runningJobs: jobs.filter((j) => j.status === 'running').length,
+      completedJobs: jobs.filter((j) => j.status === 'completed').length,
+      failedJobs: jobs.filter((j) => j.status === 'failed').length,
+      averageProgress:
+        jobs.length > 0
+          ? jobs.reduce((sum, job) => sum + job.progress.percentage, 0) / jobs.length
+          : 0,
       totalTweetsCollected: jobs.reduce((sum, job) => sum + job.progress.tweetsCollected, 0),
       estimatedTimeRemaining: jobs
-        .filter(j => j.status === 'running' && j.progress.estimatedTimeRemaining)
-        .reduce((sum, job) => sum + (job.progress.estimatedTimeRemaining || 0), 0)
+        .filter((j) => j.status === 'running' && j.progress.estimatedTimeRemaining)
+        .reduce((sum, job) => sum + (job.progress.estimatedTimeRemaining || 0), 0),
     };
 
     this.metricsSubject.next(metrics);
@@ -963,38 +981,45 @@ export class AdvancedScrapingService implements OnDestroy {
     const currentJobs = this.jobsSubject.value;
     let hasUpdates = false;
 
-    const updatedJobs = currentJobs.map(job => {
+    const updatedJobs = currentJobs.map((job) => {
       if (job.status === 'running' && job.progress.percentage < 100) {
         // Calculate realistic progress increment based on job priority and type
         let progressIncrement = this.calculateProgressIncrement(job);
-        
+
         // Add some randomness to make it more realistic
-        progressIncrement *= (0.8 + Math.random() * 0.4); // ±20% variation
-        
+        progressIncrement *= 0.8 + Math.random() * 0.4; // ±20% variation
+
         const newCurrent = Math.min(
           job.progress.total,
           job.progress.current + Math.floor(progressIncrement)
         );
-        
+
         const newPercentage = Math.min(100, (newCurrent / job.progress.total) * 100);
         const newBatch = Math.floor(newCurrent / (job.progress.total / job.progress.totalBatches));
-        
+
         // Calculate new estimated time remaining
         const remainingItems = job.progress.total - newCurrent;
-        const averageRate = newCurrent / ((Date.now() - new Date(job.startedAt || job.createdAt).getTime()) / 1000);
-        const estimatedTimeRemaining = remainingItems > 0 ? Math.floor(remainingItems / Math.max(averageRate, 0.1)) : 0;
-        
+        const averageRate =
+          newCurrent / ((Date.now() - new Date(job.startedAt || job.createdAt).getTime()) / 1000);
+        const estimatedTimeRemaining =
+          remainingItems > 0 ? Math.floor(remainingItems / Math.max(averageRate, 0.1)) : 0;
+
         // Occasionally add minor errors for realism
         const errors = [...job.progress.errors];
-        if (Math.random() < 0.05) { // 5% chance per update
+        if (Math.random() < 0.05) {
+          // 5% chance per update
           const errorMessages = [
             'Rate limit warning - reducing speed',
             'Temporary network latency detected',
             'API response delay on batch processing',
-            'Minor timeout on data validation'
+            'Minor timeout on data validation',
           ];
-          errors.push(`${errorMessages[Math.floor(Math.random() * errorMessages.length)]} (${new Date().toLocaleTimeString()})`);
-          
+          errors.push(
+            `${
+              errorMessages[Math.floor(Math.random() * errorMessages.length)]
+            } (${new Date().toLocaleTimeString()})`
+          );
+
           // Keep only last 5 errors
           if (errors.length > 5) {
             errors.splice(0, errors.length - 5);
@@ -1009,7 +1034,7 @@ export class AdvancedScrapingService implements OnDestroy {
           tweetsCollected: newCurrent,
           estimatedTimeRemaining,
           errors,
-          throughput: averageRate
+          throughput: averageRate,
         };
 
         // Check if job completed
@@ -1025,18 +1050,18 @@ export class AdvancedScrapingService implements OnDestroy {
               percentage: 100,
               current: job.progress.total,
               tweetsCollected: job.progress.total,
-              estimatedTimeRemaining: 0
-            }
+              estimatedTimeRemaining: 0,
+            },
           };
         }
 
         hasUpdates = true;
         return {
           ...job,
-          progress: updatedProgress
+          progress: updatedProgress,
         };
       }
-      
+
       return job;
     });
 

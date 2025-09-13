@@ -10,7 +10,7 @@ import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { catchError, debounceTime, distinctUntilChanged, of } from 'rxjs';
-import { CreateJobResponse } from '../../core/interfaces/advanced-scraping.interface';
+import { CreateJobResponse, JobFormData } from '../../core/interfaces/advanced-scraping.interface';
 import { AdvancedScrapingService } from '../../core/services/advanced-scraping.service';
 import { DialogConfig, DialogService } from '../../shared/components/dialog';
 import {
@@ -21,6 +21,14 @@ import { ReactiveFormComponent } from '../../shared/components/reactive-form/rea
 import { JobListComponent } from './components/job-list/job-list.component';
 import { ScrapingDashboardComponent } from './components/scraping-dashboard/scraping-dashboard.component';
 
+interface ScrapingType {
+  value: 'hashtag' | 'user' | 'search';
+  label: string;
+  icon: string;
+  description: string;
+  placeholder: string;
+  examples: string[];
+}
 @Component({
   selector: 'app-scraping-monitor',
   standalone: true,
@@ -34,8 +42,8 @@ import { ScrapingDashboardComponent } from './components/scraping-dashboard/scra
     MatBadgeModule,
     MatTooltipModule,
     JobListComponent,
-    ScrapingDashboardComponent
-],
+    ScrapingDashboardComponent,
+  ],
   templateUrl: './scraping-monitor.component.html',
   styleUrls: ['./scraping-monitor.component.css'],
 })
@@ -53,12 +61,60 @@ export class ScrapingMonitorComponent implements OnInit {
   totalJobs = signal(0);
   totalTweetsCollected = signal(0);
   isRefreshing = signal(false);
+  selectedType = signal<'hashtag' | 'user' | 'search'>('hashtag');
 
   // Computed signals
   formattedTweets = computed(() => {
     const num = this.totalTweetsCollected();
     return this.formatTweetCount(num);
   });
+
+  selectedTypeConfig = computed(() =>
+    this.scrapingTypes.find((t) => t.value === this.selectedType())
+  );
+
+  queryHint = computed(() => {
+    const config = this.selectedTypeConfig();
+    if (!config) return '';
+
+    switch (config.value) {
+      case 'hashtag':
+        return 'Enter hashtags separated by commas (without # symbol)';
+      case 'user':
+        return 'Enter usernames separated by commas (without @ symbol)';
+      case 'search':
+        return 'Use AND, OR, quotes for exact phrases, - to exclude';
+      default:
+        return '';
+    }
+  });
+
+  scrapingTypes: ScrapingType[] = [
+    {
+      value: 'hashtag',
+      label: 'Hashtag Scraping',
+      icon: 'tag',
+      description: 'Collect tweets containing specific hashtags',
+      placeholder: 'javascript, ai, technology',
+      examples: ['javascript', 'artificialintelligence', 'webdevelopment', 'reactjs'],
+    },
+    {
+      value: 'user',
+      label: 'User Scraping',
+      icon: 'person',
+      description: 'Collect tweets from specific users',
+      placeholder: 'elonmusk, sundarpichai',
+      examples: ['elonmusk', 'sundarpichai', 'satyanadella', 'tim_cook'],
+    },
+    {
+      value: 'search',
+      label: 'Free Search',
+      icon: 'search',
+      description: 'Custom search queries with advanced operators',
+      placeholder: 'AI AND (machine learning OR deep learning)',
+      examples: ['machine learning', 'climate change', 'cryptocurrency bitcoin', 'remote work'],
+    },
+  ];
 
   ngOnInit(): void {
     this.subscribeToUpdates();
@@ -188,44 +244,64 @@ export class ScrapingMonitorComponent implements OnInit {
           hint: 'Choose a unique, descriptive name for easy identification',
         },
         {
-          key: 'type',
+          key: 'description',
+          type: 'textarea',
+          label: 'Description',
+          placeholder: 'Optional description of this job...',
+          required: false,
+          rows: 3,
+          hint: 'Provide additional context or notes about this job',
+        },
+        {
+          key: 'campaignId',
           type: 'select',
-          label: 'Scraping Type',
-          placeholder: 'Select the type of data to scrape',
+          label: 'Campaign',
+          placeholder: 'Select a campaign',
           required: true,
           validators: [Validators.required],
           options: [
-            { value: 'hashtag', label: 'Hashtag Analysis - Track trending topics' },
-            { value: 'user', label: 'User Profile - Monitor specific accounts' },
-            { value: 'search', label: 'Keyword Search - Custom query terms' },
-            { value: 'sentiment', label: 'Sentiment Analysis - Brand monitoring' },
-            { value: 'crisis', label: 'Crisis Monitoring - Real-time alerts' },
-            { value: 'competitor', label: 'Competitor Analysis - Market intelligence' },
-            { value: 'influencer', label: 'Influencer Tracking - Engagement analysis' },
-            { value: 'campaign', label: 'Campaign Performance - Marketing ROI' }
+            { value: 'campaign_tesla_q4_2025', label: 'Tesla Brand Monitoring Q4 2025' },
+            { value: 'campaign_ai_trends_2025', label: 'AI Trends Analysis 2025' },
           ],
-          hint: 'Each type has specialized data collection patterns',
+          hint: 'Link this job to an existing campaign',
         },
         {
-          key: 'target',
+          key: 'type',
+          type: 'select',
+          label: 'Scraping Type',
+          placeholder: 'Select the type of scraping',
+          required: true,
+          validators: [Validators.required],
+          options: this.scrapingTypes.map((type) => ({
+            value: type.value,
+            label: `${type.label} - ${type.description}`,
+          })),
+          hint: 'Choose the type of data to collect',
+        },
+        {
+          key: 'query',
           type: 'text',
-          label: 'Target',
-          placeholder: 'e.g., #Election2024, @Apple, cryptocurrency trends, etc.',
+          label: 'Query',
+          placeholder: this.selectedTypeConfig()?.placeholder || 'Enter your search query',
           required: true,
           validators: [Validators.required, Validators.minLength(2)],
-          hint: 'Hashtags (#), usernames (@), or search terms for data collection',
+          hint: this.queryHint(),
+          errorMessages: {
+            required: 'Query is required',
+            minlength: 'Query must be at least 2 characters',
+          },
         },
         {
           key: 'maxResults',
           type: 'number',
-          label: 'Maximum Results',
+          label: 'Target Count',
           placeholder: '1000',
           required: true,
           validators: [Validators.required, Validators.min(1), Validators.max(10000)],
           value: 1000,
           min: 1,
           max: 10000,
-          hint: 'Maximum number of items to collect (1-10,000)',
+          hint: 'Number of tweets to collect (1-10,000)',
         },
         {
           key: 'priority',
@@ -238,7 +314,7 @@ export class ScrapingMonitorComponent implements OnInit {
             { value: 'urgent', label: 'Urgent - Crisis/Breaking News (< 5 min)' },
             { value: 'high', label: 'High Priority - Campaign Monitoring (< 30 min)' },
             { value: 'normal', label: 'Normal Priority - Regular Analysis (< 2 hours)' },
-            { value: 'low', label: 'Low Priority - Research/Background (< 24 hours)' }
+            { value: 'low', label: 'Low Priority - Research/Background (< 24 hours)' },
           ],
           value: 'normal',
           hint: 'Higher priority jobs consume more system resources',
@@ -312,15 +388,24 @@ export class ScrapingMonitorComponent implements OnInit {
     try {
       const formData = event.value;
 
-      // Transform data to service format
-      const jobData = {
+      // Transform data to service format - All required fields
+      const jobData: JobFormData = {
         type: formData.type,
-        query: formData.target,
+        query: formData.query,
         targetCount: formData.maxResults,
-        priority: formData.priority,
-        includeReplies: formData.collectReplies || false,
-        includeRetweets: formData.includeRetweets !== false,
-        analyzeSentiment: formData.enableSentimentAnalysis || false,
+        campaignId: formData.campaignId,
+        priority: formData.priority || 'medium',
+        name: formData.name,
+        description: formData.description,
+        options: {
+          includeReplies: formData.collectReplies || false,
+          includeRetweets: formData.includeRetweets !== false,
+        },
+        autoStart: formData.autoStart,
+        enableSentimentAnalysis: formData.enableSentimentAnalysis,
+        enableLanguageDetection: formData.enableLanguageDetection,
+        enableInfluencerScoring: formData.enableInfluencerScoring,
+        enableGeoTagging: formData.enableGeoTagging,
       };
 
       // Show loading
