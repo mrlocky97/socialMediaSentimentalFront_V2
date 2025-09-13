@@ -1125,6 +1125,43 @@ export class AdvancedScrapingService implements OnDestroy {
   }
 
   /**
+   * Get system health information
+   */
+  public getSystemHealth(): Observable<any> {
+    return this.http.get(`${this.API_BASE_URL}/health`).pipe(
+      catchError(error => {
+        console.error('Failed to get system health:', error);
+        return of({
+          status: 'unknown',
+          uptime: 0,
+          memoryUsage: {},
+          activeJobs: 0,
+          queueLength: 0
+        });
+      })
+    );
+  }
+
+  /**
+   * Get queue statistics
+   */
+  public getQueueStats(): Observable<any> {
+    return this.http.get(`${this.API_BASE_URL}/queue/stats`).pipe(
+      catchError(error => {
+        console.error('Failed to get queue stats:', error);
+        return of({
+          totalJobs: 0,
+          pendingJobs: 0,
+          activeJobs: 0,
+          completedJobs: 0,
+          failedJobs: 0,
+          averageProcessingTime: 0
+        });
+      })
+    );
+  }
+
+  /**
    * Get current connection status
    */
   public isConnected(): boolean {

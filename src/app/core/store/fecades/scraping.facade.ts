@@ -6,6 +6,7 @@ import { Injectable } from '@angular/core';
 import { Actions, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
 import { Observable, take } from 'rxjs';
+import { JobFormData, ScrapingJob } from '../../interfaces/advanced-scraping.interface';
 import { ScrapingProgress } from '../../services/scraping.service';
 import { Campaign } from '../../state/app.state';
 import * as ScrapingActions from '../actions/scraping.actions';
@@ -15,18 +16,85 @@ import * as ScrapingSelectors from '../selectors/scraping.selectors';
   providedIn: 'root',
 })
 export class ScrapingFacade {
-  // Selectors as observables
+  // Advanced Job Selectors
+  readonly jobs$: Observable<ScrapingJob[]>;
+  readonly currentJob$: Observable<ScrapingJob | null>;
+  readonly isCreatingJob$: Observable<boolean>;
+  readonly isLoadingJobs$: Observable<boolean>;
+  readonly runningJobs$: Observable<ScrapingJob[]>;
+  readonly jobsCount$: Observable<number>;
+  readonly runningJobsCount$: Observable<number>;
+
+  // Legacy Selectors
   readonly error$: Observable<string | null>;
   readonly loading$: Observable<boolean>;
   readonly hasActiveScrapings$: Observable<boolean>;
   readonly activeScrapingIds$: Observable<string[]>;
 
   constructor(private store: Store, private actions$: Actions) {
-    // Initialize selectors
+    // Initialize advanced job selectors
+    this.jobs$ = this.store.select(ScrapingSelectors.selectJobs);
+    this.currentJob$ = this.store.select(ScrapingSelectors.selectCurrentJob);
+    this.isCreatingJob$ = this.store.select(ScrapingSelectors.selectIsCreatingJob);
+    this.isLoadingJobs$ = this.store.select(ScrapingSelectors.selectIsLoadingJobs);
+    this.runningJobs$ = this.store.select(ScrapingSelectors.selectRunningJobs);
+    this.jobsCount$ = this.store.select(ScrapingSelectors.selectJobsCount);
+    this.runningJobsCount$ = this.store.select(ScrapingSelectors.selectRunningJobsCount);
+
+    // Initialize legacy selectors
     this.error$ = this.store.select(ScrapingSelectors.selectScrapingError);
     this.loading$ = this.store.select(ScrapingSelectors.selectScrapingLoading);
     this.hasActiveScrapings$ = this.store.select(ScrapingSelectors.selectHasActiveScrapings);
     this.activeScrapingIds$ = this.store.select(ScrapingSelectors.selectActiveScrapingIds);
+  }
+
+  /**
+   * Create a new advanced scraping job
+   * @param jobData - Job data to create the job with
+   * @returns Observable that completes when the action is processed
+   */
+  createAdvancedJob(jobData: JobFormData): Observable<any> {
+    console.log('ScrapingFacade.createAdvancedJob called with:', jobData);
+    
+    this.store.dispatch(ScrapingActions.createAdvancedJob({ jobData }));
+
+    return this.actions$.pipe(
+      ofType(ScrapingActions.createAdvancedJobSuccess, ScrapingActions.createAdvancedJobFailure),
+      take(1)
+    );
+  }
+
+  /**
+   * Load all jobs
+   * @returns Observable that completes when the action is processed
+   */
+  loadJobs(): Observable<any> {
+    console.log('ScrapingFacade.loadJobs called');
+    
+    this.store.dispatch(ScrapingActions.loadJobs());
+
+    return this.actions$.pipe(
+      ofType(ScrapingActions.loadJobsSuccess, ScrapingActions.loadJobsFailure),
+      take(1)
+    );
+  }
+
+  /**
+   * Get a specific job by ID
+   * @param jobId - ID of the job to get
+   * @returns Observable of the job
+   */
+  getJobById(jobId: string): Observable<ScrapingJob | undefined> {
+    return this.store.select(ScrapingSelectors.selectJobById(jobId));
+  }
+
+  /**
+   * Get jobs by status
+   * @param status - Status to filter jobs by
+   * @returns Observable of filtered jobs
+   */
+  getJobsByStatus(status: string): Observable<ScrapingJob[]> {
+    return this.store.select(ScrapingSelectors.selectJobsByStatus(status));
   }
 
   /**

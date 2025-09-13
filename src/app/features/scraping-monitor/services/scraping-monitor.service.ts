@@ -1,6 +1,5 @@
-import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { CampaignStatus } from '../scraping-monitor.component';
+import { Injectable, inject } from '@angular/core';
 import { environment } from '../../../../enviroments/environment';
 
 // Define ScrapingStatus interface for the service

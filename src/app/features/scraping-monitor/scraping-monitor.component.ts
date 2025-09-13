@@ -13,6 +13,7 @@ import { catchError, debounceTime, distinctUntilChanged, map, of } from 'rxjs';
 import { CreateJobResponse, JobFormData } from '../../core/interfaces/advanced-scraping.interface';
 import { AdvancedScrapingService } from '../../core/services/advanced-scraping.service';
 import { CampaignFacade } from '../../core/store/fecades/campaign.facade';
+import { ScrapingFacade } from '../../core/store/fecades/scraping.facade';
 import { DialogConfig, DialogService } from '../../shared/components/dialog';
 import {
   FormConfig,
@@ -51,6 +52,7 @@ interface ScrapingType {
 export class ScrapingMonitorComponent implements OnInit {
   private scrapingService = inject(AdvancedScrapingService);
   private campaignFacade = inject(CampaignFacade);
+  private scrapingFacade = inject(ScrapingFacade);
   private dialog = inject(MatDialog);
   private dialogService = inject(DialogService);
   private fb = inject(FormBuilder);
@@ -250,6 +252,7 @@ export class ScrapingMonitorComponent implements OnInit {
             }
           });
       });
+      
   }
 
   private buildCreateJobFormConfig(): FormConfig {
@@ -417,34 +420,55 @@ export class ScrapingMonitorComponent implements OnInit {
         enableGeoTagging: formData.enableGeoTagging,
       };
 
+      console.log('🚀 Creating job through Redux with data:', jobData);
+
       // Show loading
       this.dialogService.info('Creating Job', 'Please wait while we create your scraping job...');
 
-      // Create the job
-      const response = await this.scrapingService.createJob(jobData).toPromise();
+      // Use Redux facade instead of direct service call
+      this.scrapingFacade.createAdvancedJob(jobData)
+        .pipe(takeUntilDestroyed(this.destroyRef))
+        .subscribe({
+          next: (result) => {
+            console.log('🎉 Redux job creation result:', result);
+            
+            // Close loading dialog
+            this.dialogService.closeAll();
 
-      if (response?.jobId) {
-        // Close all dialogs first
-        this.dialogService.closeAll();
+            if (result.type.includes('Success')) {
+              // Show success dialog
+              this.dialogService
+                .success(
+                  'Job Created Successfully',
+                  `Job "${formData.name || 'Unnamed Job'}" has been created with ID: ${result.response?.jobId}${
+                    formData.autoStart ? ' and started automatically' : ''
+                  }.`
+                )
+                .pipe(takeUntilDestroyed(this.destroyRef))
+                .subscribe(() => {
+                  // Handle success response
+                  this.onJobCreatedResponse(result.response);
+                });
+            } else {
+              // Handle failure
+              throw new Error(result.error?.message || 'Failed to create job');
+            }
+          },
+          error: (error) => {
+            console.error('💥 Redux job creation error:', error);
+            
+            // Close loading dialogs
+            this.dialogService.closeAll();
 
-        // Show success
-        this.dialogService
-          .success(
-            'Job Created Successfully',
-            `Job "${formData.name || 'Unnamed Job'}" has been created with ID: ${response.jobId}${
-              formData.autoStart ? ' and started automatically' : ''
-            }.`
-          )
-          .pipe(takeUntilDestroyed(this.destroyRef))
-          .subscribe(() => {
-            // Handle job creation response
-            this.onJobCreatedResponse(response);
-          });
-      } else {
-        throw new Error('Invalid response from server');
-      }
+            this.dialogService.error(
+              'Failed to Create Job',
+              error.message || 'An unexpected error occurred while creating the job.'
+            );
+          }
+        });
+
     } catch (error: any) {
-      console.error('Error creating job:', error);
+      console.error('💥 Error in handleJobFormSubmit:', error);
 
       // Close loading dialogs
       this.dialogService.closeAll();
@@ -459,8 +483,8 @@ export class ScrapingMonitorComponent implements OnInit {
   onJobCreatedResponse(response: CreateJobResponse): void {
     // Switch to jobs tab to see the new job
     this.selectedTabIndex.set(1);
-    // Refresh job list to show the newly created job
-    this.scrapingService.loadJobs().pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
+    // Refresh job list through Redux to show the newly created job
+    this.scrapingFacade.loadJobs().pipe(takeUntilDestroyed(this.destroyRef)).subscribe();
   }
 
   onJobCreationCancelled(): void {
@@ -472,7 +496,7 @@ export class ScrapingMonitorComponent implements OnInit {
     this.isRefreshing.set(true);
 
     Promise.all([
-      this.scrapingService.loadJobs().toPromise(),
+      this.scrapingFacade.loadJobs().toPromise(),
       this.scrapingService.getSystemStats().toPromise(),
     ])
       .then(() => {

@@ -66,6 +66,22 @@ export interface WebSocketEvents {
   'system-stats': (data: ScrapingStats) => void;
 }
 
+export interface JobOptions {
+  includeReplies?: boolean;
+  includeRetweets?: boolean;
+  maxAgeHours?: number;
+  language?: string;
+}
+
+export interface CreateJobRequest {
+  type: 'hashtag' | 'user' | 'search';
+  query: string;
+  targetCount: number;
+  campaignId: string;
+  priority: 'urgent' | 'high' | 'medium' | 'low';
+  options: JobOptions;
+}
+
 // Job Creation Form Data - Extends CreateJobRequest with additional form fields
 export interface JobFormData extends CreateJobRequest {
   name: string;
@@ -95,23 +111,4 @@ export interface JobMetrics {
   averageProgress: number;
   totalTweetsCollected: number;
   estimatedTimeRemaining: number;
-}
-
-export interface JobOptions {
-  includeReplies?: boolean;
-  includeRetweets?: boolean;
-  maxAgeHours?: number;
-  language?: string;
-}
-
-export interface CreateJobRequest {
-  type: 'hashtag' | 'user' | 'search';
-  query: string;
-  targetCount: number;
-  campaignId: string;
-  priority: 'urgent' | 'high' | 'medium' | 'low';
-  options: {
-    includeReplies: boolean;
-    includeRetweets: boolean;
-  };
 }
