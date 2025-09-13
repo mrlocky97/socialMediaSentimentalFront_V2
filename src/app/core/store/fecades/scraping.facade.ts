@@ -5,7 +5,7 @@
 import { Injectable } from '@angular/core';
 import { Actions, ofType } from '@ngrx/effects';
 import { Store } from '@ngrx/store';
-import { Observable, take, map, debounceTime, filter, switchMap, of } from 'rxjs';
+import { debounceTime, map, Observable, of, take } from 'rxjs';
 import { JobFormData, ScrapingJob } from '../../interfaces/advanced-scraping.interface';
 import { ScrapingProgress } from '../../services/scraping.service';
 import { Campaign } from '../../state/app.state';
