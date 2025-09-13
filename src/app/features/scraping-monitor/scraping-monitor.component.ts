@@ -9,9 +9,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { catchError, debounceTime, distinctUntilChanged, of } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, map, of } from 'rxjs';
 import { CreateJobResponse, JobFormData } from '../../core/interfaces/advanced-scraping.interface';
 import { AdvancedScrapingService } from '../../core/services/advanced-scraping.service';
+import { CampaignFacade } from '../../core/store/fecades/campaign.facade';
 import { DialogConfig, DialogService } from '../../shared/components/dialog';
 import {
   FormConfig,
@@ -49,6 +50,7 @@ interface ScrapingType {
 })
 export class ScrapingMonitorComponent implements OnInit {
   private scrapingService = inject(AdvancedScrapingService);
+  private campaignFacade = inject(CampaignFacade);
   private dialog = inject(MatDialog);
   private dialogService = inject(DialogService);
   private fb = inject(FormBuilder);
@@ -119,6 +121,8 @@ export class ScrapingMonitorComponent implements OnInit {
   ngOnInit(): void {
     this.subscribeToUpdates();
     this.loadInitialData();
+    // Load campaigns for the campaign selector
+    this.campaignFacade.loadCampaigns();
   }
 
   /**
@@ -186,48 +190,65 @@ export class ScrapingMonitorComponent implements OnInit {
   }
 
   openCreateJobDialog(): void {
-    const formConfig = this.buildCreateJobFormConfig();
-
-    const dialogConfig: DialogConfig = {
-      title: 'Create New Scraping Job',
-      size: 'lg',
-      showCloseButton: true,
-      disableClose: false,
-      buttons: [
-        {
-          text: 'Cancel',
-          type: 'stroked',
-          color: 'default',
-          action: 'cancel',
-          autoClose: true,
-        },
-        {
-          text: 'Create Job',
-          type: 'raised',
-          color: 'primary',
-          action: 'submit',
-          autoClose: false,
-          icon: 'rocket_launch',
-        },
-      ],
-    };
-
-    // Use custom content with ReactiveFormComponent
-    const customContent = {
-      component: ReactiveFormComponent,
-      data: {
-        config: formConfig,
-        onSubmit: (event: FormSubmitEvent) => this.handleJobFormSubmit(event),
-      },
-    };
-
-    this.dialogService
-      .custom(dialogConfig, customContent)
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((result) => {
-        if (result?.action === 'cancel') {
-          console.log('Job creation cancelled');
+    // Get campaigns from Redux and build form config with dynamic options
+    this.campaignFacade.campaigns$
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        map(campaigns => campaigns.map(campaign => ({
+          value: campaign.id,
+          label: `${campaign.name} (${campaign.status})`
+        })))
+      )
+      .subscribe(campaignOptions => {
+        const formConfig = this.buildCreateJobFormConfig();
+        
+        // Update campaign options dynamically
+        const campaignField = formConfig.fields.find(field => field.key === 'campaignId');
+        if (campaignField) {
+          campaignField.options = campaignOptions;
         }
+
+        const dialogConfig: DialogConfig = {
+          title: 'Create New Scraping Job',
+          size: 'lg',
+          showCloseButton: true,
+          disableClose: false,
+          buttons: [
+            {
+              text: 'Cancel',
+              type: 'stroked',
+              color: 'default',
+              action: 'cancel',
+              autoClose: true,
+            },
+            {
+              text: 'Create Job',
+              type: 'raised',
+              color: 'primary',
+              action: 'submit',
+              autoClose: false,
+              icon: 'rocket_launch',
+            },
+          ],
+        };
+
+        // Use custom content with ReactiveFormComponent
+        const customContent = {
+          component: ReactiveFormComponent,
+          data: {
+            config: formConfig,
+            onSubmit: (event: FormSubmitEvent) => this.handleJobFormSubmit(event),
+          },
+        };
+
+        this.dialogService
+          .custom(dialogConfig, customContent)
+          .pipe(takeUntilDestroyed(this.destroyRef))
+          .subscribe((result) => {
+            if (result?.action === 'cancel') {
+              console.log('Job creation cancelled');
+            }
+          });
       });
   }
 
@@ -259,10 +280,7 @@ export class ScrapingMonitorComponent implements OnInit {
           placeholder: 'Select a campaign',
           required: true,
           validators: [Validators.required],
-          options: [
-            { value: 'campaign_tesla_q4_2025', label: 'Tesla Brand Monitoring Q4 2025' },
-            { value: 'campaign_ai_trends_2025', label: 'AI Trends Analysis 2025' },
-          ],
+          options: [], // Will be set dynamically from Redux
           hint: 'Link this job to an existing campaign',
         },
         {
@@ -367,15 +385,6 @@ export class ScrapingMonitorComponent implements OnInit {
           label: 'Auto Start',
           value: true,
           hint: 'Start the job immediately after creation',
-        },
-        {
-          key: 'description',
-          type: 'textarea',
-          label: 'Description',
-          placeholder: 'Optional description of this job...',
-          required: false,
-          rows: 3,
-          hint: 'Provide additional context or notes about this job',
         },
       ],
       submitButtonText: 'Create Job',
