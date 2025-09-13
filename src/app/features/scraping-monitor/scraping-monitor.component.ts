@@ -9,7 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { catchError, debounceTime, distinctUntilChanged, map, of } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, map, of, timeout, TimeoutError } from 'rxjs';
 import { CreateJobResponse, JobFormData } from '../../core/interfaces/advanced-scraping.interface';
 import { AdvancedScrapingService } from '../../core/services/advanced-scraping.service';
 import { CampaignFacade } from '../../core/store/fecades/campaign.facade';
@@ -428,12 +428,16 @@ export class ScrapingMonitorComponent implements OnInit {
 
       // Use Redux facade instead of direct service call
       this.scrapingFacade.createAdvancedJob(jobData)
-        .pipe(takeUntilDestroyed(this.destroyRef))
+        .pipe(
+          takeUntilDestroyed(this.destroyRef),
+          // Add timeout as fallback
+          timeout(10000) // 10 seconds timeout
+        )
         .subscribe({
-          next: (result) => {
+          next: (result: any) => {
             console.log('🎉 Redux job creation result:', result);
             
-            if (result.type.includes('Success')) {
+            if (result?.type?.includes('Success')) {
               // Close the create job dialog first
               this.dialogService.closeAll();
               
@@ -452,7 +456,7 @@ export class ScrapingMonitorComponent implements OnInit {
                 });
             } else {
               // Handle failure
-              throw new Error(result.error?.message || 'Failed to create job');
+              throw new Error(result?.error?.message || 'Failed to create job');
             }
           },
           error: (error) => {
@@ -461,10 +465,18 @@ export class ScrapingMonitorComponent implements OnInit {
             // Close loading dialogs
             this.dialogService.closeAll();
 
-            this.dialogService.error(
-              'Failed to Create Job',
-              error.message || 'An unexpected error occurred while creating the job.'
-            );
+            // Check if it's a timeout error - then show different message
+            if (error instanceof TimeoutError || error.name === 'TimeoutError') {
+              this.dialogService.warning(
+                'Job Creation Timeout',
+                'The job creation is taking longer than expected. Please check the Jobs tab to see if it was created successfully.'
+              );
+            } else {
+              this.dialogService.error(
+                'Failed to Create Job',
+                error.message || 'An unexpected error occurred while creating the job.'
+              );
+            }
           }
         });
 

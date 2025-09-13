@@ -23,16 +23,21 @@ export class ScrapingEffects {
     this.actions$.pipe(
       ofType(ScrapingActions.createAdvancedJob),
       switchMap(({ jobData }) => {
-        console.log('ScrapingEffects: Creating advanced job with data:', jobData);
+        console.log('🔥 ScrapingEffects: Creating advanced job with data:', jobData);
+        console.log('🔧 About to call advancedScrapingService.createJob()');
 
         return this.advancedScrapingService.createJob(jobData).pipe(
           map((response) => {
-            console.log('Advanced job creation success response:', response);
-            return ScrapingActions.createAdvancedJobSuccess({ response, jobData });
+            console.log('✅ Advanced job creation success response:', response);
+            const successAction = ScrapingActions.createAdvancedJobSuccess({ response, jobData });
+            console.log('📨 Dispatching success action:', successAction.type, successAction);
+            return successAction;
           }),
           catchError((error) => {
-            console.error('Advanced job creation error:', error);
-            return of(ScrapingActions.createAdvancedJobFailure({ error }));
+            console.error('💥 Advanced job creation error:', error);
+            const failureAction = ScrapingActions.createAdvancedJobFailure({ error });
+            console.log('📨 Dispatching failure action:', failureAction.type, failureAction);
+            return of(failureAction);
           })
         );
       })

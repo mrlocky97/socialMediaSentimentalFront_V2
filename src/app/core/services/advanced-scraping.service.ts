@@ -290,11 +290,19 @@ export class AdvancedScrapingService implements OnDestroy {
    * Create a new scraping job
    */
   public createJob(formData: JobFormData): Observable<CreateJobResponse> {
-    // If offline mode or backend not available, create demo job immediately
-    if (environment.features.offlineMode || !this.websocketEnabled) {
+    console.log('🚀 AdvancedScrapingService.createJob called with:', formData);
+    console.log('🔧 Environment check - offlineMode:', environment.features.offlineMode);
+    console.log('🔧 WebSocket enabled:', this.websocketEnabled);
+    
+    // If offline mode is explicitly enabled, create demo job immediately
+    if (environment.features.offlineMode) {
+      console.log('⚠️ Using demo job mode (offline mode enabled)');
       return this.createDemoJob(formData);
     }
 
+    // If offline mode is disabled, try real API call regardless of WebSocket status
+    console.log('📡 Making real API call to:', `${this.API_BASE_URL}/job`);
+    
     const request: CreateJobRequest = {
       type: formData.type,
       query: formData.query,
@@ -306,6 +314,8 @@ export class AdvancedScrapingService implements OnDestroy {
         includeRetweets: formData.options?.includeRetweets || true,
       },
     };
+
+    console.log('📤 Sending request:', request);
 
     return this.http.post<CreateJobResponse>(`${this.API_BASE_URL}/job`, request).pipe(
       tap((response) => {
@@ -323,7 +333,7 @@ export class AdvancedScrapingService implements OnDestroy {
         this.loadJobs();
       }),
       catchError((error) => {
-        console.warn('Backend not available for job creation, creating demo job:', error.message);
+        console.warn('💥 Backend not available for job creation, creating demo job:', error.message);
         return this.createDemoJob(formData);
       })
     );
