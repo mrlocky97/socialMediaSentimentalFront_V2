@@ -305,6 +305,8 @@ export class ReusableDialogComponent implements OnInit {
    * Maneja el clic en un botón
    */
   async handleButtonClick(button: DialogButton): Promise<void> {
+    console.log('🔥 Dialog handleButtonClick called with button:', button);
+    
     // Emitir evento de clic de botón
     this.buttonClicked.emit({
       action: button.action || button.text,
@@ -312,8 +314,26 @@ export class ReusableDialogComponent implements OnInit {
       data: this.data?.customContent?.data,
     });
 
+    // Si es un botón de submit y hay un formulario personalizado, ejecutar submit
+    if (button.action === 'submit' && this.data.customContent?.component) {
+      console.log('🎯 Submit button clicked, looking for form...');
+      // Buscar el componente de formulario reactivo en el DOM
+      const formElement = document.querySelector('app-reactive-form form');
+      if (formElement) {
+        console.log('✅ Form found, dispatching submit event');
+        // Disparar evento de submit del formulario
+        const submitEvent = new Event('submit', { bubbles: true, cancelable: true });
+        formElement.dispatchEvent(submitEvent);
+      } else {
+        console.log('❌ Form not found in DOM');
+      }
+      // No ejecutar lógica de cierre automático para botones submit
+      return;
+    }
+
     // Marcar botón como loading si tiene handler asíncrono
     if (button.handler) {
+      console.log('🎯 Button has handler, executing...');
       this.setButtonLoading(button.action || button.text, true);
 
       try {
@@ -327,6 +347,7 @@ export class ReusableDialogComponent implements OnInit {
 
     // Cerrar diálogo si está configurado para auto-cerrar
     if (button.autoClose !== false) {
+      console.log('🚪 Auto-closing dialog');
       this.closeDialog(button.action || button.text, button);
     }
   }
@@ -414,12 +435,22 @@ export class ReusableDialogComponent implements OnInit {
    * Maneja el submit del formulario personalizado
    */
   handleCustomFormSubmit(event: FormSubmitEvent): void {
+    console.log('🔥 Dialog handleCustomFormSubmit called with event:', event);
+    
     // Emitir evento de submit del formulario
     this.formSubmitted.emit(event);
 
     // Llamar al handler si existe
     if (this.data.customContent?.data?.onSubmit) {
-      this.data.customContent.data.onSubmit(event);
+      console.log('🎯 Calling onSubmit handler');
+      try {
+        this.data.customContent.data.onSubmit(event);
+        // El handler se encargará de cerrar el diálogo si es necesario
+      } catch (error) {
+        console.error('Error in onSubmit handler:', error);
+      }
+    } else {
+      console.log('⚠️ No onSubmit handler found');
     }
   }
 

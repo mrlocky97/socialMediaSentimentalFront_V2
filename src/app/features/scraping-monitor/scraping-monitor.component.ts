@@ -398,6 +398,7 @@ export class ScrapingMonitorComponent implements OnInit {
 
   private async handleJobFormSubmit(event: FormSubmitEvent): Promise<void> {
     try {
+      console.log('🔥 handleJobFormSubmit called with event:', event);
       const formData = event.value;
 
       // Transform data to service format - All required fields
@@ -432,10 +433,10 @@ export class ScrapingMonitorComponent implements OnInit {
           next: (result) => {
             console.log('🎉 Redux job creation result:', result);
             
-            // Close loading dialog
-            this.dialogService.closeAll();
-
             if (result.type.includes('Success')) {
+              // Close the create job dialog first
+              this.dialogService.closeAll();
+              
               // Show success dialog
               this.dialogService
                 .success(
