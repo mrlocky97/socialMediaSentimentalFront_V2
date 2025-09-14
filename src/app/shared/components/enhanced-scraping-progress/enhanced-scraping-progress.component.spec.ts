@@ -1,10 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
+import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import { of } from 'rxjs';
 
-import { EnhancedScrapingProgressComponent } from './enhanced-scraping-progress.component';
 import { ScrapingService } from '../../../core/services/scraping.service';
+import { EnhancedScrapingProgressComponent } from './enhanced-scraping-progress.component';
 
 describe('EnhancedScrapingProgressComponent', () => {
   let component: EnhancedScrapingProgressComponent;
