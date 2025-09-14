@@ -1,0 +1,232 @@
+/* Enhanced Scraping Progress Component Styles */
+
+.enhanced-progress-container {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e0e0e0;
+}
+
+/* Progress Header */
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.status-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.status-text {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.progress-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Status Icons */
+.status-running { color: #4caf50; }
+.status-completed { color: #2196f3; }
+.status-error { color: #f44336; }
+.status-retrying { color: #ff9800; }
+
+/* Chips */
+.retry-chip {
+  background-color: #fff3e0 !important;
+  color: #f57c00 !important;
+}
+
+.large-request-chip {
+  background-color: #e3f2fd !important;
+  color: #1976d2 !important;
+}
+
+.background-chip {
+  background-color: #f3e5f5 !important;
+  color: #7b1fa2 !important;
+}
+
+/* Current Message */
+.current-message {
+  background: #f5f5f5;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  font-style: italic;
+  color: #666;
+  border-left: 4px solid #2196f3;
+}
+
+/* Overall Progress */
+.overall-progress {
+  margin-bottom: 24px;
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.progress-label {
+  font-weight: 600;
+  color: #333;
+}
+
+.progress-percentage {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #2196f3;
+}
+
+.eta {
+  font-size: 0.9rem;
+  color: #666;
+  font-style: italic;
+}
+
+/* Progress Bar Classes */
+.progress-error ::ng-deep .mat-progress-bar-fill::after {
+  background-color: #f44336 !important;
+}
+
+.progress-retrying ::ng-deep .mat-progress-bar-fill::after {
+  background-color: #ff9800 !important;
+}
+
+.progress-completed ::ng-deep .mat-progress-bar-fill::after {
+  background-color: #4caf50 !important;
+}
+
+/* Detailed Progress */
+.detailed-progress {
+  margin-bottom: 24px;
+}
+
+.section-progress {
+  margin-bottom: 16px;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.section-header mat-icon {
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.section-status {
+  margin-left: auto;
+  font-weight: 600;
+  color: #666;
+}
+
+.chunk-info {
+  font-size: 0.85rem;
+  color: #999;
+  margin-left: 28px;
+  margin-bottom: 4px;
+  font-style: italic;
+}
+
+/* Metrics Section */
+.metrics-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #e0e0e0;
+}
+
+.metric-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.metric-item mat-icon {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+  margin-bottom: 4px;
+  color: #666;
+}
+
+.metric-label {
+  font-size: 0.8rem;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.metric-value {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #333;
+}
+
+/* Animations */
+.spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .enhanced-progress-container {
+    padding: 16px;
+  }
+  
+  .progress-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  
+  .progress-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  
+  .metrics-section {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .section-header {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .status-info {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .metrics-section {
+    grid-template-columns: 1fr;
+  }
+}

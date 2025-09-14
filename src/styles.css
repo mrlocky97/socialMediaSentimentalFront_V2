@@ -189,3 +189,44 @@ body {
   margin: 0;
   font-family: Roboto, 'Helvetica Neue', sans-serif;
 }
+
+/* ===== SCRAPING SERVICE STYLES ===== */
+
+/* Large request snackbar styling */
+.large-request-snackbar {
+  background-color: var(--color-primary) !important;
+  color: white !important;
+  font-weight: 500;
+}
+
+.large-request-snackbar .mat-mdc-snack-bar-action {
+  background-color: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 4px;
+  padding: 4px 12px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.large-request-snackbar .mat-mdc-snack-bar-action:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+/* Retry snackbar styling */
+.retry-snackbar {
+  background-color: var(--color-warning) !important;
+  color: white !important;
+}
+
+/* Success snackbar styling */
+.success-snackbar {
+  background-color: var(--color-success) !important;
+  color: white !important;
+}
+
+/* Error snackbar styling */
+.error-snackbar {
+  background-color: var(--color-error) !important;
+  color: white !important;
+}
