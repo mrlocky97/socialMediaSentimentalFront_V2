@@ -3,6 +3,7 @@ import { Actions, createEffect, ofType } from '@ngrx/effects';
 import { of } from 'rxjs';
 import { catchError, map, switchMap } from 'rxjs/operators';
 import { CampaignAdapter } from '../../../features/campaign-dialog/adapters/campaign.adapter';
+import { AuthService } from '../../auth/services/auth.service';
 import { BackendApiService } from '../../services/backend-api.service';
 import * as CampaignActions from '../actions/campaign.actions';
 
@@ -11,6 +12,7 @@ export class CampaignEffects {
   // Usar inject() para la inyección de dependencias
   private actions$ = inject(Actions);
   private apiService = inject(BackendApiService);
+  private authService = inject(AuthService);
 
   constructor() {}
 
@@ -19,9 +21,12 @@ export class CampaignEffects {
     this.actions$.pipe(
       ofType(CampaignActions.createCampaign),
       switchMap(({ campaign }) => {
+        // Obtener el userId del usuario autenticado (USUARIO LOGUEADO)
+        const currentUser = this.authService.currentUser();
+        const userId = currentUser?.id;
+        
         // Añadir logging para depurar
-        const campaignToCreate = CampaignAdapter.fromRequestToApi(campaign);
-        console.log('Sending campaign to API:', campaignToCreate);
+        const campaignToCreate = CampaignAdapter.fromRequestToApi(campaign, userId);
 
         return this.apiService.createCampaign(campaignToCreate).pipe(
           map((newCampaign) => {

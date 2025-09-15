@@ -125,8 +125,9 @@ export class CampaignAdapter {
    * Convierte una campaña del request al formato usado por la API
    */
   static fromRequestToApi(
-    request: CampaignRequest
-  ): Partial<ApiCampaignExtended> & { type: string; organizationId: string } {
+    request: CampaignRequest,
+    userId?: string
+  ): Partial<ApiCampaignExtended> & { type: string; organizationId: string; userId?: string } {
     // Extendemos el tipo para permitir cualquier string en type
     return {
       name: request.name,
@@ -140,6 +141,7 @@ export class CampaignAdapter {
       dataSources: request.dataSources || ['twitter'], // Asegurarnos de enviar el campo dataSources que es obligatorio
       organizationId: request.organizationId || 'default-org-id', // Asegurarnos de enviar siempre un organizationId
       maxTweets: request.maxTweets,
+      ...(userId && { userId }), // Incluir userId si se proporciona
     };
   }
   private static mapApiStatus(status: string): AppStateCampaign['status'] {

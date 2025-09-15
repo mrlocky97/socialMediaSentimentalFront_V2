@@ -469,15 +469,11 @@ export class ScrapingService {
 
   /**
    * Get dynamic timeout based on tweet count
+   * Formula: 5min mínimo + 3s por tweet
    */
   private getDynamicTimeout(maxTweets: number): number {
-    if (maxTweets <= this.TIMEOUT_CONFIG.small.maxTweets) {
-      return this.TIMEOUT_CONFIG.small.timeout;
-    } else if (maxTweets <= this.TIMEOUT_CONFIG.medium.maxTweets) {
-      return this.TIMEOUT_CONFIG.medium.timeout;
-    } else {
-      return this.TIMEOUT_CONFIG.large.timeout;
-    }
+    const timeoutMs = Math.max(300000, maxTweets * 3000); // 5min mínimo + 3s por tweet
+    return timeoutMs;
   }
 
   /**
