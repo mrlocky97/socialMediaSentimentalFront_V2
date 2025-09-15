@@ -159,7 +159,6 @@ export class CampaignDialogComponent implements OnInit, AfterViewInit {
     {
       validators: [
         this.dateRangeValidator(),
-        this.futureDateValidator(),
         this.atLeastOneTargetingValidator(['hashtags', 'keywords', 'mentions']),
       ],
     }
@@ -307,6 +306,9 @@ export class CampaignDialogComponent implements OnInit, AfterViewInit {
     };
   }
 
+  /**
+   * @returns Validador que verifica que el rango de fechas es correcto (start < end)
+   */
   private dateRangeValidator() {
     return (group: AbstractControl) => {
       const g = group as FormGroup;
@@ -322,36 +324,6 @@ export class CampaignDialogComponent implements OnInit, AfterViewInit {
     };
   }
 
-  /**
-   * Validador que verifica que la fecha de inicio no esté en el pasado
-   */
-  private futureDateValidator() {
-    return (group: AbstractControl) => {
-      const g = group as FormGroup;
-      const startDate = g.get('startDate')?.value;
-
-      if (!startDate) return null;
-
-      // Convertir el valor del formulario a Date
-      const dateToCheck = new Date(startDate);
-      const now = new Date();
-
-      // Comparar solo las fechas (sin horas) para evitar problemas de zona horaria
-      const startDateOnly = new Date(
-        dateToCheck.getFullYear(),
-        dateToCheck.getMonth(),
-        dateToCheck.getDate()
-      );
-      const nowDateOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-      // Si la fecha está en el pasado, retornar error
-      if (startDateOnly < nowDateOnly) {
-        return { pastStartDate: true };
-      }
-
-      return null;
-    };
-  }
 
   /** Al menos uno entre hashtags/keywords/mentions con contenido */
   private atLeastOneTargetingValidator(keys: string[]) {
@@ -371,25 +343,6 @@ export class CampaignDialogComponent implements OnInit, AfterViewInit {
   }
 
   async submit() {
-    // Verificar nuevamente si la fecha de inicio está en el pasado justo antes de enviar
-    const startDate = this.form.get('startDate')?.value;
-
-    if (startDate) {
-      const dateToCheck = new Date(startDate);
-      const now = new Date();
-
-      // Comparar solo las fechas (sin horas) para evitar problemas de zona horaria
-      const startDateOnly = new Date(
-        dateToCheck.getFullYear(),
-        dateToCheck.getMonth(),
-        dateToCheck.getDate()
-      );
-      const nowDateOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-      if (startDateOnly < nowDateOnly) {
-        this.form.setErrors({ pastStartDate: true });
-      }
-    }
 
     if (this.form.invalid) {
       this.form.markAllAsTouched();

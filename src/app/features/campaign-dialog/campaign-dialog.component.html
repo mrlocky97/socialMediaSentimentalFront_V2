@@ -346,15 +346,7 @@
     <div class="error-box" style="margin-top: 8px">
       {{ 'campaign_dialog.date_range_error' | transloco }}
     </div>
-    } @if (form.errors?.['pastStartDate']) {
-    <div class="error-box" style="margin-top: 8px">
-      <mat-icon class="error-icon">schedule</mat-icon>
-      {{
-        ('campaign_dialog.past_start_date_error' | transloco) ||
-          'Campaign start date cannot be in the past'
-      }}
-    </div>
-    }
+    } 
   </section>
 
   @if (submitError()) {
