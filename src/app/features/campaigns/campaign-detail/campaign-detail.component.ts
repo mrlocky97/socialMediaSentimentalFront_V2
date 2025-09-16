@@ -11,6 +11,7 @@ import {
   OnDestroy,
   OnInit,
   computed,
+  effect,
   inject,
   signal,
 } from '@angular/core';
@@ -32,7 +33,7 @@ import { ActivatedRoute, RouterModule } from '@angular/router';
 import { TranslocoModule } from '@ngneat/transloco';
 import { Chart, registerables } from 'chart.js';
 import { BaseChartDirective } from 'ng2-charts';
-import { Subject, catchError, combineLatest, of, take, takeUntil, tap } from 'rxjs';
+import { Subject, catchError, combineLatest, of, takeUntil, tap } from 'rxjs';
 
 // Core interfaces and services
 import {
@@ -41,7 +42,7 @@ import {
   TweetWithCalculatedFields,
 } from '../../../core/interfaces/tweet.interface';
 import { ScrapingDispatchService } from '../../../core/services/scraping-dispatch.service';
-import { ScrapingProgress, ScrapingService } from '../../../core/services/scraping.service';
+import { ScrapingService } from '../../../core/services/scraping.service';
 import { Campaign } from '../../../core/state/app.state';
 import { CampaignFacade } from '../../../core/store/fecades/campaign.facade';
 import { TweetFacade } from '../../../core/store/fecades/tweet.facade';
@@ -63,7 +64,7 @@ interface ComponentState {
   readonly campaign: Campaign | null;
   readonly loading: boolean;
   readonly error: string | null;
-  readonly scrapingProgress: ScrapingProgress | null;
+  readonly scrapingProgress: any;
   readonly tweets: readonly Tweet[];
   readonly tweetsLoading: boolean;
   readonly tweetsError: string | null;
@@ -71,6 +72,7 @@ interface ComponentState {
   readonly tweetsWithCalculatedFields: readonly TweetWithCalculatedFields[];
   readonly aiAnalyzing: boolean;
   readonly aiError: string | null;
+  readonly scrapingInitiated: boolean; // Flag to prevent multiple scraping
 }
 
 @Component({
@@ -128,13 +130,14 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
     tweetsWithCalculatedFields: [],
     aiAnalyzing: false,
     aiError: null,
+    scrapingInitiated: false, // Initialize scraping flag
   });
 
   // Computed properties for template access
   readonly campaign = computed(() => this.state().campaign);
   readonly loading = computed(() => this.state().loading);
   readonly error = computed(() => this.state().error);
-  readonly scrapingProgress = computed(() => this.state().scrapingProgress);
+  readonly scrapingProgress = computed(() => this.state().scrapingProgress as any);
   readonly tweets = computed(() => this.state().tweets);
   readonly tweetsLoading = computed(() => this.state().tweetsLoading);
   readonly tweetsError = computed(() => this.state().tweetsError);
@@ -208,15 +211,23 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
   // Public methods for template
   runScraping(): void {
     const campaign = this.campaign();
-    if (!campaign || this.isScrapingRunning()) return;
+    if (!campaign || this.isScrapingRunning()) {
+      console.log('Scraping not started: No campaign or scraping already running');
+      return;
+    }
 
+    console.log('Starting scraping process for campaign:', campaign.id);
     this.snackBar.open('Starting scraping process...', 'Close', { duration: 2000 });
 
     this.scrapingDispatchService
       .dispatchScraping(campaign)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
+        next: () => {
+          console.log('Scraping dispatch completed successfully');
+        },
         error: (err) => {
+          console.error('Error during scraping dispatch:', err);
           this.snackBar.open(`Error running scraping: ${err.message || 'Unknown error'}`, 'Close', {
             duration: 5000,
             panelClass: 'error-snackbar',
@@ -380,8 +391,13 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
         tweetsError,
       });
 
-      // Auto-start scraping if needed
-      if (autoStartScraping || this.uiService.isRecentlyCreated(campaign)) {
+      // Auto-start scraping if needed (only once per session)
+      if (!this.state().scrapingInitiated && (autoStartScraping || this.uiService.isRecentlyCreated(campaign))) {
+        console.log('Auto-starting scraping for newly created campaign:', campaign.id);
+        
+        // Mark scraping as initiated to prevent future auto-starts
+        this.updateState({ scrapingInitiated: true });
+        
         setTimeout(() => this.runScraping(), 1000);
       }
 
@@ -407,7 +423,10 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
   }
 
   private setupScrapingProgressSubscription(): void {
-    this.scrapingService.scrapingProgress$.pipe(takeUntil(this.destroy$)).subscribe((progress) => {
+    // For Angular Signals, we use effect() instead of subscribe()
+    // This will automatically track changes to the scrapingProgress signal
+    effect(() => {
+      const progress = this.scrapingService.scrapingProgress$();
       this.updateState({ scrapingProgress: progress });
       this.cdr.markForCheck();
     });

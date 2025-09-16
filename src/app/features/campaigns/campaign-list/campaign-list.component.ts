@@ -404,10 +404,12 @@ export class CampaignListComponent implements OnInit, OnDestroy {
 
           const campaignId: string = action.campaign?.id;
           if (campaignId) {
-            this.startScraping({
-              id: campaignId,
-              payload: { ...result.payload, id: campaignId },
-            });
+            // Mark campaign as recently created for auto-start scraping in detail view
+            // Instead of starting scraping here, let the detail component handle it
+            console.log('Campaign created successfully. Scraping will auto-start in detail view.');
+            
+            // Navigate to campaign detail which will handle auto-start scraping
+            this.router.navigate(['/dashboard/campaigns/campaign-detail', campaignId]);
           } else {
             console.error('No campaign ID found after creation!');
           }

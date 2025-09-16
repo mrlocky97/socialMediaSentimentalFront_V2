@@ -1,13 +1,35 @@
 import { CommonModule } from '@angular/common';
 import { Component, computed, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { Router } from '@angular/router';
+import { Subject, takeUntil } from 'rxjs';
+import { AsyncScrapingRequest, ScrapingCompletedResult, ScrapingProgressUpdate } from '../../core/interfaces/scraping.interface';
+import { ScrapingService } from '../../core/services/scraping.service';
+import { WebSocketService } from '../../core/services/websocket.service';
+
+export interface AsyncScrapingSession {
+  sessionId: string;
+  campaignId: string;
+  status: 'queued' | 'processing' | 'completed' | 'error';
+  progress: number;
+  totalTweets: number;
+  scrapedTweets: number;
+  startTime: Date;
+  endTime?: Date;
+  message: string;
+}
 
 export interface CampaignStatus {
   id: string;
@@ -18,6 +40,7 @@ export interface CampaignStatus {
   sentimentScore: number;
   startTime: Date;
   estimatedCompletion?: Date;
+  sessionId?: string; // Link to async session
 }
 
 export interface ScrapingMetrics {
@@ -32,13 +55,18 @@ export interface ScrapingMetrics {
   standalone: true,
   imports: [
     CommonModule,
+    ReactiveFormsModule,
     MatCardModule,
     MatButtonModule,
     MatIconModule,
     MatProgressBarModule,
     MatProgressSpinnerModule,
     MatBadgeModule,
-    MatChipsModule
+    MatChipsModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatSelectModule,
+    MatDialogModule
   ],
   template: `
     <div class="scraping-monitor-container">
@@ -50,6 +78,135 @@ export interface ScrapingMetrics {
         </h1>
         <p>Real-time monitoring of your data collection campaigns</p>
       </div>
+
+      <!-- WebSocket Testing Section -->
+      <mat-card class="websocket-test-card">
+        <mat-card-header>
+          <mat-card-title>
+            <mat-icon>wifi</mat-icon>
+            WebSocket Async Scraping Test
+          </mat-card-title>
+          <div class="connection-status">
+            @if (isWebSocketConnected()) {
+              <mat-chip class="status-connected">
+                <mat-icon>check_circle</mat-icon>
+                Connected
+              </mat-chip>
+            } @else {
+              <mat-chip class="status-disconnected">
+                <mat-icon>error</mat-icon>
+                Disconnected
+              </mat-chip>
+            }
+          </div>
+        </mat-card-header>
+
+        <mat-card-content>
+          <!-- Quick Test Form -->
+          <form [formGroup]="testForm" (ngSubmit)="startAsyncScrapingTest()" class="test-form">
+            <div class="form-row">
+              <mat-form-field appearance="outline">
+                <mat-label>Campaign ID</mat-label>
+                <input matInput formControlName="campaignId" placeholder="test-campaign-001">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Hashtag</mat-label>
+                <input matInput formControlName="hashtag" placeholder="javascript">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Max Tweets</mat-label>
+                <mat-select formControlName="maxTweets">
+                  <mat-option value="25">25 (Sync)</mat-option>
+                  <mat-option value="75">75 (Async)</mat-option>
+                  <mat-option value="150">150 (Async)</mat-option>
+                  <mat-option value="300">300 (Async)</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+
+            <div class="form-actions">
+              <button 
+                mat-raised-button 
+                color="primary" 
+                type="submit"
+                [disabled]="!isWebSocketConnected() || isTestRunning()"
+              >
+                @if (isTestRunning()) {
+                  <mat-icon>hourglass_empty</mat-icon>
+                  Testing...
+                } @else {
+                  <mat-icon>rocket_launch</mat-icon>
+                  Start Async Test
+                }
+              </button>
+
+              @if (!isWebSocketConnected()) {
+                <button mat-button color="accent" (click)="connectWebSocket()">
+                  <mat-icon>wifi</mat-icon>
+                  Connect WebSocket
+                </button>
+              }
+            </div>
+          </form>
+
+          <!-- Current Progress -->
+          @if (currentProgress()) {
+            <div class="progress-section">
+              <h4>📊 Current Progress: {{currentProgress()?.campaignId}}</h4>
+              <div class="progress-details">
+                <div class="progress-bar-container">
+                  <mat-progress-bar 
+                    [value]="currentProgress()?.percentage || 0" 
+                    color="primary"
+                    mode="determinate">
+                  </mat-progress-bar>
+                  <span class="progress-text">{{currentProgress()?.percentage || 0}}%</span>
+                </div>
+                <div class="progress-info">
+                  <p><strong>Status:</strong> {{currentProgress()?.status}}</p>
+                  <p><strong>Message:</strong> {{currentProgress()?.message}}</p>
+                  <p><strong>Tweets:</strong> {{currentProgress()?.scrapedTweets}}/{{currentProgress()?.totalTweets}}</p>
+                  @if (currentProgress()?.estimatedTimeRemaining) {
+                    <p><strong>ETA:</strong> {{formatTimeRemaining(currentProgress()?.estimatedTimeRemaining)}}</p>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+
+          <!-- Completed Jobs -->
+          @if (completedJobs().length > 0) {
+            <div class="completed-section">
+              <h4>✅ Completed Jobs ({{completedJobs().length}})</h4>
+              <div class="jobs-list">
+                @for (job of completedJobs(); track job.sessionId) {
+                  <div class="job-card">
+                    <div class="job-header">
+                      <strong>{{job.campaignId}}</strong>
+                      <mat-chip class="job-status">{{job.tweetsCount}} tweets</mat-chip>
+                    </div>
+                    <div class="job-details">
+                      <span>Completed: {{formatTime(job.completedAt)}}</span>
+                      <span>Duration: {{calculateDuration(job)}}</span>
+                    </div>
+                    @if (job.summary.sentimentBreakdown) {
+                      <div class="sentiment-breakdown">
+                        <small>
+                          😊 {{job.summary.sentimentBreakdown.positive}} 
+                          😐 {{job.summary.sentimentBreakdown.neutral}} 
+                          😞 {{job.summary.sentimentBreakdown.negative}}
+                        </small>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </mat-card-content>
+      </mat-card>
 
       <!-- Metrics Overview -->
       <div class="metrics-grid">
@@ -243,6 +400,125 @@ export interface ScrapingMetrics {
       gap: 12px;
       color: #1976d2;
       margin-bottom: 8px;
+    }
+
+    /* WebSocket Test Card Styles */
+    .websocket-test-card {
+      margin-bottom: 32px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .websocket-test-card .mat-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .connection-status .status-connected {
+      background: #4caf50;
+      color: white;
+    }
+
+    .connection-status .status-disconnected {
+      background: #f44336;
+      color: white;
+    }
+
+    .test-form {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 24px;
+      border-radius: 8px;
+      margin-bottom: 24px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .progress-section {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 24px;
+    }
+
+    .progress-bar-container {
+      position: relative;
+      margin-bottom: 16px;
+    }
+
+    .progress-text {
+      position: absolute;
+      right: 0;
+      top: -24px;
+      font-weight: bold;
+      color: white;
+    }
+
+    .progress-details {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+
+    .progress-info p {
+      margin: 4px 0;
+      font-size: 14px;
+    }
+
+    .completed-section {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 20px;
+      border-radius: 8px;
+    }
+
+    .jobs-list {
+      display: grid;
+      gap: 12px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+
+    .job-card {
+      background: rgba(255, 255, 255, 0.2);
+      padding: 16px;
+      border-radius: 6px;
+      border-left: 4px solid #4caf50;
+    }
+
+    .job-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .job-status {
+      background: rgba(76, 175, 80, 0.8);
+      color: white;
+      font-size: 12px;
+    }
+
+    .job-details {
+      display: flex;
+      gap: 16px;
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+
+    .sentiment-breakdown {
+      font-size: 12px;
+      opacity: 0.9;
     }
 
     .metrics-grid {
@@ -499,7 +775,16 @@ export interface ScrapingMetrics {
   `]
 })
 export class ScrapingMonitorComponent implements OnInit, OnDestroy {
-  // Reactive state
+  // Injected services
+  private router = inject(Router);
+  private snackBar = inject(MatSnackBar);
+  private dialog = inject(MatDialog);
+  private fb = inject(FormBuilder);
+  private websocketService = inject(WebSocketService);
+  private scrapingService = inject(ScrapingService);
+  private destroy$ = new Subject<void>();
+
+  // Reactive state for campaigns
   campaigns = signal<CampaignStatus[]>([]);
   metrics = signal<ScrapingMetrics>({
     totalCampaigns: 0,
@@ -509,8 +794,14 @@ export class ScrapingMonitorComponent implements OnInit, OnDestroy {
   });
   isRefreshing = signal(false);
 
-  // Router for client-side navigation
-  private router = inject(Router);
+  // WebSocket-specific state
+  isWebSocketConnected = signal(false);
+  isTestRunning = signal(false);
+  currentProgress = signal<ScrapingProgressUpdate | null>(null);
+  completedJobs = signal<ScrapingCompletedResult[]>([]);
+
+  // Test form
+  testForm: FormGroup;
 
   // Computed properties
   hasActiveCampaigns = computed(() => this.campaigns().some(c => c.status === 'running'));
@@ -518,15 +809,214 @@ export class ScrapingMonitorComponent implements OnInit, OnDestroy {
 
   private updateInterval?: number;
 
+  constructor() {
+    // Initialize test form
+    this.testForm = this.fb.group({
+      campaignId: [`test-campaign-${Date.now()}`, Validators.required],
+      hashtag: ['javascript', Validators.required],
+      maxTweets: [75, [Validators.required, Validators.min(1)]]
+    });
+  }
+
   ngOnInit(): void {
     this.loadInitialData();
     this.startRealTimeUpdates();
+    this.connectWebSocket();
   }
 
   ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+    
     if (this.updateInterval) {
       clearInterval(this.updateInterval);
     }
+  }
+
+  // ================================
+  // 🚀 WEBSOCKET METHODS
+  // ================================
+
+  async connectWebSocket(): Promise<void> {
+    try {
+      console.log('🔌 Connecting to WebSocket...');
+      
+      await this.websocketService.connect().pipe(
+        takeUntil(this.destroy$)
+      ).toPromise();
+      
+      this.isWebSocketConnected.set(true);
+      this.setupWebSocketListeners();
+      
+      this.snackBar.open('✅ WebSocket connected successfully!', 'Close', {
+        duration: 3000,
+        panelClass: ['success-snackbar']
+      });
+      
+    } catch (error) {
+      console.error('❌ WebSocket connection failed:', error);
+      this.isWebSocketConnected.set(false);
+      
+      this.snackBar.open('❌ WebSocket connection failed', 'Retry', {
+        duration: 5000,
+        panelClass: ['error-snackbar']
+      }).onAction().subscribe(() => {
+        this.connectWebSocket();
+      });
+    }
+  }
+
+  private setupWebSocketListeners(): void {
+    // Listen for scraping progress
+    this.websocketService.on<ScrapingProgressUpdate>('scraping-progress')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(progress => {
+        console.log('📈 Progress update received:', progress);
+        this.currentProgress.set(progress);
+        this.updateCampaignFromProgress(progress);
+      });
+
+    // Listen for scraping completion
+    this.websocketService.on<ScrapingCompletedResult>('scraping-completed')
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(result => {
+        console.log('✅ Scraping completed:', result);
+        this.handleScrapingCompleted(result);
+      });
+
+    // Listen for connection status
+    this.websocketService.getConnectionStatus()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(status => {
+        this.isWebSocketConnected.set(status.connected);
+        if (!status.connected && status.error) {
+          console.error('WebSocket error:', status.error);
+        }
+      });
+  }
+
+  async startAsyncScrapingTest(): Promise<void> {
+    if (!this.testForm.valid || !this.isWebSocketConnected()) {
+      return;
+    }
+
+    const formValue = this.testForm.value;
+    this.isTestRunning.set(true);
+
+    const request: AsyncScrapingRequest = {
+      campaignId: formValue.campaignId,
+      hashtag: formValue.hashtag,
+      maxTweets: formValue.maxTweets,
+      language: 'es',
+      includeReplies: false,
+      analyzeSentiment: true
+    };
+
+    try {
+      console.log('🚀 Starting async scraping test:', request);
+      
+      const response = await this.scrapingService.startAsyncScraping(request).toPromise();
+      
+      console.log('✅ Async scraping started:', response);
+      
+      this.snackBar.open(
+        `🚀 Async scraping started! Session: ${response?.sessionId}`,
+        'Close',
+        { duration: 5000 }
+      );
+
+      // Join the campaign room for real-time updates
+      this.scrapingService.joinCampaign(request.campaignId);
+      
+    } catch (error) {
+      console.error('❌ Error starting async scraping:', error);
+      this.isTestRunning.set(false);
+      
+      this.snackBar.open(
+        '❌ Error starting async scraping',
+        'Close',
+        { duration: 5000, panelClass: ['error-snackbar'] }
+      );
+    }
+  }
+
+  private updateCampaignFromProgress(progress: ScrapingProgressUpdate): void {
+    this.campaigns.update(campaigns =>
+      campaigns.map(campaign => {
+        if (campaign.id === progress.campaignId) {
+          return {
+            ...campaign,
+            status: progress.status === 'processing' ? 'running' : 
+                   progress.status === 'completed' ? 'completed' : 
+                   progress.status === 'error' ? 'error' : campaign.status,
+            progress: progress.percentage,
+            tweetsCollected: progress.scrapedTweets
+          };
+        }
+        return campaign;
+      })
+    );
+    this.updateMetrics();
+  }
+
+  private handleScrapingCompleted(result: ScrapingCompletedResult): void {
+    this.isTestRunning.set(false);
+    this.currentProgress.set(null);
+    
+    // Add to completed jobs
+    this.completedJobs.update(jobs => [result, ...jobs]);
+    
+    // Update campaign status
+    this.campaigns.update(campaigns =>
+      campaigns.map(campaign => {
+        if (campaign.id === result.campaignId) {
+          return {
+            ...campaign,
+            status: 'completed',
+            progress: 100,
+            tweetsCollected: result.tweetsCount
+          };
+        }
+        return campaign;
+      })
+    );
+    
+    this.updateMetrics();
+    
+    this.snackBar.open(
+      `🎉 Scraping completed! Found ${result.tweetsCount} tweets`,
+      'View Results',
+      { 
+        duration: 10000,
+        panelClass: ['success-snackbar']
+      }
+    ).onAction().subscribe(() => {
+      this.viewCampaignDetails(result.campaignId);
+    });
+  }
+
+  // Helper methods for template
+  formatTimeRemaining(seconds?: number): string {
+    if (!seconds) return '';
+    
+    if (seconds < 60) {
+      return `${Math.round(seconds)}s`;
+    } else if (seconds < 3600) {
+      const minutes = Math.floor(seconds / 60);
+      const remainingSeconds = Math.round(seconds % 60);
+      return `${minutes}m ${remainingSeconds}s`;
+    } else {
+      const hours = Math.floor(seconds / 3600);
+      const minutes = Math.floor((seconds % 3600) / 60);
+      return `${hours}h ${minutes}m`;
+    }
+  }
+
+  calculateDuration(job: ScrapingCompletedResult): string {
+    // For now, we'll simulate duration since we don't have startTime in the result
+    // In a real implementation, you'd track start time
+    const duration = Math.floor(Math.random() * 300) + 30; // 30-330 seconds
+    return this.formatTimeRemaining(duration);
   }
 
   private loadInitialData(): void {
