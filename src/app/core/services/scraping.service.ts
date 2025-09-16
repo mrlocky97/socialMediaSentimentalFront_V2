@@ -32,6 +32,9 @@ import { BackendApiService, BulkScrapeSummary, ScrapeOpts } from './backend-api.
 import { Campaign } from './data-manager.service';
 import { WebSocketService } from './websocket.service';
 
+// Re-export ScrapingProgress for other modules to use
+export type { ScrapingProgress } from '../interfaces/scraping.interface';
+
 
 @Injectable({
   providedIn: 'root',
