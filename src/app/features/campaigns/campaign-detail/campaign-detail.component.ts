@@ -42,6 +42,7 @@ import {
   TweetWithCalculatedFields,
 } from '../../../core/interfaces/tweet.interface';
 import { ScrapingDispatchService } from '../../../core/services/scraping-dispatch.service';
+import { ScrapingStateService } from '../../../core/services/scraping-state.service';
 import { ScrapingService } from '../../../core/services/scraping.service';
 import { Campaign } from '../../../core/state/app.state';
 import { CampaignFacade } from '../../../core/store/fecades/campaign.facade';
@@ -109,6 +110,7 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
   private readonly tweetFacade = inject(TweetFacade);
   private readonly scrapingService = inject(ScrapingService);
   private readonly scrapingDispatchService = inject(ScrapingDispatchService);
+  private readonly scrapingStateService = inject(ScrapingStateService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly cdr = inject(ChangeDetectorRef);
 
@@ -194,6 +196,9 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
 
   ngOnInit(): void {
+    // Clean up old scraping states on component initialization
+    this.scrapingStateService.cleanupOldStates();
+    
     const campaignId = this.extractCampaignId();
     if (!campaignId) {
       this.updateState({ error: 'Campaign ID not found in URL', loading: false });
@@ -391,14 +396,22 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
         tweetsError,
       });
 
-      // Auto-start scraping if needed (only once per session)
-      if (!this.state().scrapingInitiated && (autoStartScraping || this.uiService.isRecentlyCreated(campaign))) {
+      // Auto-start scraping if needed (only once per session with persistent state)
+      const hasScrapingBeenInitiated = this.scrapingStateService.hasScrapingBeenInitiated(campaign.id);
+      const shouldAutoStart = autoStartScraping || this.uiService.isRecentlyCreated(campaign);
+      
+      if (!this.state().scrapingInitiated && !hasScrapingBeenInitiated && shouldAutoStart) {
         console.log('Auto-starting scraping for newly created campaign:', campaign.id);
         
-        // Mark scraping as initiated to prevent future auto-starts
+        // Mark scraping as initiated both locally and persistently
         this.updateState({ scrapingInitiated: true });
+        this.scrapingStateService.markScrapingInitiated(campaign.id);
         
         setTimeout(() => this.runScraping(), 1000);
+      } else if (hasScrapingBeenInitiated) {
+        console.log('Scraping already initiated for campaign in this session or recently:', campaign.id);
+        // Mark as initiated locally to keep UI state consistent
+        this.updateState({ scrapingInitiated: true });
       }
 
       // Update analytics
