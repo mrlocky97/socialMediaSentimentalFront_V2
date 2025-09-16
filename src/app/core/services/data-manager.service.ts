@@ -17,7 +17,7 @@ export interface Campaign {
   id: string;
   name: string;
   description: string;
-  type: 'brand-monitoring' | 'competitor-analysis' | 'market-research';
+  type: 'hashtag' | 'keyword' | 'mention' | string;
   status: 'draft' | 'active' | 'paused' | 'completed';
   hashtags: string[];
   keywords: string[];
@@ -334,26 +334,6 @@ export class DataManagerService {
           lastUpdated: new Date()
         },
         createdAt: new Date('2025-01-01')
-      },
-      {
-        id: 'demo-002',
-        name: '🔍 Competitor Analysis',
-        description: 'Análisis de competencia',
-        type: 'competitor-analysis',
-        status: 'paused',
-        hashtags: ['#tech', '#startup'],
-        keywords: ['tech', 'startup'],
-        startDate: new Date('2024-12-15'),
-        endDate: new Date('2025-01-15'),
-        stats: {
-          totalTweets: 654,
-          averageSentiment: -0.12,
-          sentimentDistribution: { positive: 0.30, negative: 0.25, neutral: 0.45 },
-          engagementRate: 2.1,
-          reachEstimate: 8900,
-          lastUpdated: new Date()
-        },
-        createdAt: new Date('2024-12-15')
       }
     ];
 

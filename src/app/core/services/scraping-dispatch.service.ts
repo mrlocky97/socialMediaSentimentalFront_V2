@@ -54,22 +54,19 @@ export class ScrapingDispatchService {
   }
   
   /**
-   * Map AppState campaign type to DataManager campaign type
+   * Map AppState campaign type to backend campaign type
    */
-  private mapCampaignType(type: string): 'brand-monitoring' | 'competitor-analysis' | 'market-research' {
+  private mapCampaignType(type: string): 'hashtag' | 'keyword' | 'mention' {
     switch (type) {
       case 'hashtag':
-      case 'brand-monitoring':
-        return 'brand-monitoring';
+        return 'hashtag';
       case 'keyword':
-      case 'competitor-analysis':
-        return 'competitor-analysis';
+        return 'keyword';
       case 'user':
       case 'mention':
-      case 'market-research':
-        return 'market-research';
+        return 'mention';
       default:
-        return 'brand-monitoring';
+        return 'hashtag';
     }
   }
   
@@ -122,16 +119,6 @@ export class ScrapingDispatchService {
       
       case 'keyword':
         return this.dispatchKeywordScraping(convertedCampaign);
-      
-      // For types defined in data-manager.service.ts
-      case 'brand-monitoring':
-        return this.dispatchBrandMonitoringScraping(convertedCampaign);
-        
-      case 'competitor-analysis':
-        return this.dispatchCompetitorAnalysisScraping(convertedCampaign);
-        
-      case 'market-research':
-        return this.dispatchMarketResearchScraping(convertedCampaign);
         
       default:
         // Default to standard scraping for unknown types
@@ -139,7 +126,7 @@ export class ScrapingDispatchService {
         return this.scrapingService.startScraping(convertedCampaign);
     }
   }
-  
+
   /**
    * Specialized scraping for user/mention based campaigns
    * Prioritizes user/mention data over other fields
@@ -167,48 +154,6 @@ export class ScrapingDispatchService {
     
     // Here we would prioritize the search/keyword scraping
     // Could be extended to directly call the search endpoint with optimized parameters
-    
-    return this.scrapingService.startScraping(campaign);
-  }
-  
-  /**
-   * Specialized scraping for brand monitoring campaigns
-   * Uses a combination of hashtag and search endpoints for comprehensive brand coverage
-   */
-  private dispatchBrandMonitoringScraping(campaign: DataManagerCampaign): Observable<boolean> {
-    console.log('Dispatching brand monitoring scraping');
-    console.log('Using endpoints: /api/v1/scraping/hashtag and /api/v1/scraping/search');
-    
-    // Brand monitoring would use a combination of search and hashtag endpoints
-    // to get a comprehensive view of the brand's social presence
-    
-    return this.scrapingService.startScraping(campaign);
-  }
-  
-  /**
-   * Specialized scraping for competitor analysis campaigns
-   * Focuses on /api/v1/scraping/user to track competitor accounts and /api/v1/scraping/search
-   */
-  private dispatchCompetitorAnalysisScraping(campaign: DataManagerCampaign): Observable<boolean> {
-    console.log('Dispatching competitor analysis scraping');
-    console.log('Using endpoints: /api/v1/scraping/user and /api/v1/scraping/search');
-    
-    // Competitor analysis would primarily focus on specific user accounts
-    // and search queries related to competitor brand names
-    
-    return this.scrapingService.startScraping(campaign);
-  }
-  
-  /**
-   * Specialized scraping for market research campaigns
-   * Uses all available endpoints with emphasis on /api/v1/scraping/search for broad coverage
-   */
-  private dispatchMarketResearchScraping(campaign: DataManagerCampaign): Observable<boolean> {
-    console.log('Dispatching market research scraping');
-    console.log('Using endpoints: /api/v1/scraping/search (primary), /api/v1/scraping/hashtag, /api/v1/scraping/user');
-    
-    // Market research would use all available endpoints but focus on search
-    // to gather broad market insights across various topics and trends
     
     return this.scrapingService.startScraping(campaign);
   }

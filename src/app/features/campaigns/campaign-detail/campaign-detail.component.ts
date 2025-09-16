@@ -147,6 +147,13 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
   readonly tweetsWithCalculatedFields = computed(() => this.state().tweetsWithCalculatedFields);
   readonly mutableTweetsForTable = computed(() => [...this.state().tweetsWithCalculatedFields]);
 
+  // Setup effect for scraping progress in injection context
+  private scrapingProgressEffect = effect(() => {
+    const progress = this.scrapingService.scrapingProgress$();
+    this.updateState({ scrapingProgress: progress });
+    this.cdr.markForCheck();
+  });
+
   // AI Insights computed properties
   readonly intelligence = computed(() => this.aiService.intelligence());
   readonly aiAnalyzing = computed(() => this.aiService.analyzing());
@@ -312,7 +319,7 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
     
     // Setup subscriptions
     this.setupDataSubscriptions(campaignId, autoStartScraping);
-    this.setupScrapingProgressSubscription();
+    // Note: scrapingProgressEffect is automatically set up as a class property
   }
 
   private setupDataSubscriptions(campaignId: string, autoStartScraping: boolean): void {
@@ -433,16 +440,6 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
     } else {
       this.updateState({ campaignStats: null, tweetsWithCalculatedFields: [] });
     }
-  }
-
-  private setupScrapingProgressSubscription(): void {
-    // For Angular Signals, we use effect() instead of subscribe()
-    // This will automatically track changes to the scrapingProgress signal
-    effect(() => {
-      const progress = this.scrapingService.scrapingProgress$();
-      this.updateState({ scrapingProgress: progress });
-      this.cdr.markForCheck();
-    });
   }
 
   private showTweetDetails(tweet: Tweet): void {

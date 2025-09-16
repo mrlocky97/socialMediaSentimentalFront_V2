@@ -312,49 +312,6 @@ export class CampaignsStore {
           ]
         }
       },
-      {
-        id: 'campaign-3',
-        name: 'Competitor Analysis',
-        description: 'Monitoring competitor mentions and sentiment',
-        hashtags: ['#competitor'],
-        keywords: ['competition', 'market analysis'],
-        mentions: ['@competitor1', '@competitor2'],
-        languages: ['es'],
-        dataSources: ['twitter'],
-        status: 'paused',
-        createdAt: new Date(2024, 7, 1),
-        updatedAt: new Date(),
-        type: 'mention',
-        startDate: new Date(2024, 7, 1),
-        endDate: new Date(2024, 9, 30),
-        sentimentAnalysis: true,
-        organizationId: 'org-1',
-        maxTweets: 750,
-        stats: {
-          totalTweets: 623,
-          totalEngagement: 1456,
-          avgSentiment: 0.45,
-          sentimentDistribution: {
-            positive: 187,
-            negative: 234,
-            neutral: 202
-          },
-          topHashtags: [
-            { tag: '#competitor', count: 298 }
-          ],
-          topMentions: [
-            { mention: '@competitor1', count: 234 },
-            { mention: '@competitor2', count: 189 }
-          ],
-          topKeywords: [
-            { keyword: 'competition', count: 345 },
-            { keyword: 'market analysis', count: 278 }
-          ],
-          influencers: [
-            { username: '@analyst', followers: 12000, engagement: 670 }
-          ]
-        }
-      },
     ];
   }
 

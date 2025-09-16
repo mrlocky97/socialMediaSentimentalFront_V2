@@ -154,7 +154,7 @@ export class CampaignDialogComponent implements OnInit, AfterViewInit {
       influencerAnalysis: this.fb.control(false),
 
       // Org
-      organizationId: ['', Validators.required],
+      organizationId: ['org-default-id', Validators.required],
     },
     {
       validators: [
@@ -251,7 +251,7 @@ export class CampaignDialogComponent implements OnInit, AfterViewInit {
         influencerAnalysis: p.influencerAnalysis ?? false,
 
         // Organización
-        organizationId: p.organizationId ?? '',
+        organizationId: p.organizationId ?? 'org-default-id',
 
         // Fechas (configurar directamente)
         startDate: p.startDate ? new Date(p.startDate) : null,
