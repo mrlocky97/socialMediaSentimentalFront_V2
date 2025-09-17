@@ -307,15 +307,13 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
   }
 
   private initializeComponent(campaignId: string): void {
-    console.log('Campaign Detail Component: Loading campaign with ID:', campaignId);
-
     const autoStartScraping = this.shouldAutoStartScraping();
 
     // Cargar todas las campañas para asegurar que tenemos los datos
     this.campaignFacade.loadCampaigns();
     
     // Cargar tweets para esta campaña
-    this.tweetFacade.loadTweets(campaignId, { page: 1, limit: 20 });
+    this.tweetFacade.loadTweets(campaignId, { page: 1, limit: 100 });
     
     // Setup subscriptions
     this.setupDataSubscriptions(campaignId, autoStartScraping);
