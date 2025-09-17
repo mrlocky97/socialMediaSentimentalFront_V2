@@ -1,160 +1,74 @@
 /**
  * Scraping Dispatch Service
- * Handles dispatching scraping operations based on campaign type
+ * Handles dispatching scraping operations based on campaign type using NgRx
  */
 
 import { Injectable, inject } from '@angular/core';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { Observable } from 'rxjs';
+import { Observable, of } from 'rxjs';
 import { Campaign as AppStateCampaign } from '../state/app.state';
-import { Campaign as DataManagerCampaign } from './data-manager.service';
-import { ScrapingService } from './scraping.service';
+import { ScrapingFacade } from '../store/fecades/scraping.facade';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ScrapingDispatchService {
-  private readonly scrapingService = inject(ScrapingService);
+  private readonly scrapingFacade = inject(ScrapingFacade);
   private readonly snackBar = inject(MatSnackBar);
 
   /**
-   * Convert AppStateCampaign to DataManagerCampaign format
-   * This is needed because the scraping service expects the DataManager format
-   */
-  private convertToDataManagerCampaign(campaign: AppStateCampaign): DataManagerCampaign {
-    // Create a compatible campaign object for scraping service
-    return {
-      id: campaign.id,
-      name: campaign.name,
-      description: campaign.description || '', // Ensure description is not undefined
-      type: this.mapCampaignType(campaign.type),
-      status: this.mapCampaignStatus(campaign.status),
-      hashtags: campaign.hashtags,
-      keywords: campaign.keywords,
-      mentions: campaign.mentions || [],
-      startDate: new Date(campaign.startDate),
-      endDate: new Date(campaign.endDate),
-      organizationId: campaign.organizationId,
-      dataSources: campaign.dataSources || ['twitter'],
-      languages: campaign.languages || ['es'],
-      stats: {
-        totalTweets: campaign.stats?.totalTweets || 0,
-        averageSentiment: campaign.stats?.avgSentiment || 0,
-        sentimentDistribution: {
-          positive: campaign.stats?.sentimentDistribution?.positive || 0,
-          negative: campaign.stats?.sentimentDistribution?.negative || 0,
-          neutral: campaign.stats?.sentimentDistribution?.neutral || 0
-        },
-        engagementRate: 0,
-        reachEstimate: 0,
-        lastUpdated: new Date()
-      },
-      createdAt: new Date(campaign.createdAt)
-    };
-  }
-  
-  /**
-   * Map AppState campaign type to backend campaign type
-   */
-  private mapCampaignType(type: string): 'hashtag' | 'keyword' | 'mention' {
-    switch (type) {
-      case 'hashtag':
-        return 'hashtag';
-      case 'keyword':
-        return 'keyword';
-      case 'user':
-      case 'mention':
-        return 'mention';
-      default:
-        return 'hashtag';
-    }
-  }
-  
-  /**
-   * Map AppState campaign status to DataManager campaign status
-   */
-  private mapCampaignStatus(status: string): 'draft' | 'active' | 'paused' | 'completed' {
-    switch (status) {
-      case 'active':
-        return 'active';
-      case 'inactive':
-        return 'draft';
-      case 'paused':
-        return 'paused';
-      case 'completed':
-        return 'completed';
-      default:
-        return 'draft';
-    }
-  }
-
-  /**
-   * Dispatch scraping based on campaign type
+   * Dispatch scraping based on campaign type using NgRx
    * @param campaign - Campaign to scrape data for
    * @returns Observable that completes when scraping is done
    */
   public dispatchScraping(campaign: AppStateCampaign): Observable<boolean> {
-    // Log the scraping dispatch
-    console.log(`Dispatching scraping for campaign type: ${campaign.type}`);
-    
     // Show notification to user
     this.snackBar.open(`Starting scraping for ${campaign.name}...`, 'Close', { duration: 3000 });
-    
-    // Check API status first using /api/v1/scraping/status endpoint
-    // For now this is just a log, but could be implemented to actually check status
-    console.log('Checking API status: /api/v1/scraping/status');
-    
-    // Convert campaign to the format expected by ScrapingService
-    const convertedCampaign = this.convertToDataManagerCampaign(campaign);
-    
-    // Dispatch based on campaign type
+
+    // Dispatch based on campaign type using NgRx facade
     switch (campaign.type) {
       case 'hashtag':
-        console.log('Using primary endpoint: /api/v1/scraping/hashtag');
-        return this.scrapingService.startScraping(convertedCampaign);
-      
+        if (campaign.hashtags && campaign.hashtags.length > 0) {
+          // Crear objeto compatible con la validación del facade
+          const campaignResult = {
+            id: campaign.id,
+            payload: campaign,
+          };
+          this.scrapingFacade.startHashtagScraping(campaignResult);
+        }
+        break;
+
       case 'user':
       case 'mention':
-        return this.dispatchUserScraping(convertedCampaign);
-      
-      case 'keyword':
-        return this.dispatchKeywordScraping(convertedCampaign);
-        
-      default:
-        // Default to standard scraping for unknown types
-        console.warn(`Unknown campaign type: ${campaign.type}, using default scraping method`);
-        return this.scrapingService.startScraping(convertedCampaign);
-    }
-  }
+        if (campaign.mentions && campaign.mentions.length > 0) {
+          // Crear objeto compatible con la validación del facade
+          const campaignResult = {
+            id: campaign.id,
+            payload: campaign,
+          };
+          this.scrapingFacade.startUserScraping(campaignResult);
+        }
+        break;
 
-  /**
-   * Specialized scraping for user/mention based campaigns
-   * Prioritizes user/mention data over other fields
-   * Uses the /api/v1/scraping/user endpoint directly
-   */
-  private dispatchUserScraping(campaign: DataManagerCampaign): Observable<boolean> {
-    console.log('Dispatching user/mention focused scraping');
-    console.log('Using endpoint: /api/v1/scraping/user');
-    
-    // Here we would prioritize the user/mention scraping and then fallback to hashtags
-    // We could directly call a backend API method that targets the user endpoint
-    // For now, using the existing service but could be extended to call API directly
-    
-    return this.scrapingService.startScraping(campaign);
-  }
-  
-  /**
-   * Specialized scraping for keyword based campaigns
-   * Prioritizes keyword searches over hashtags
-   * Uses the /api/v1/scraping/search endpoint directly
-   */
-  private dispatchKeywordScraping(campaign: DataManagerCampaign): Observable<boolean> {
-    console.log('Dispatching keyword focused scraping');
-    console.log('Using endpoint: /api/v1/scraping/search');
-    
-    // Here we would prioritize the search/keyword scraping
-    // Could be extended to directly call the search endpoint with optimized parameters
-    
-    return this.scrapingService.startScraping(campaign);
+      case 'keyword':
+        if (campaign.keywords && campaign.keywords.length > 0) {
+          // Crear objeto compatible con la validación del facade
+          const campaignResult = {
+            id: campaign.id,
+            payload: campaign,
+          };
+          this.scrapingFacade.startKeywordScraping(campaignResult);
+        }
+        break;
+
+      default:
+        if (campaign.hashtags && campaign.hashtags.length > 0) {
+          this.scrapingFacade.startHashtagScraping(campaign.hashtags);
+        }
+        break;
+    }
+
+    // Return success observable since NgRx handles the async operations
+    return of(true);
   }
 }

@@ -200,10 +200,10 @@ export class CampaignListComponent implements OnInit, OnDestroy {
 
   // Computed values con NgRx observables
   readonly hasSelectedCampaigns = computed(() => this.selectedCampaigns().size > 0);
-  
+
   // For template compatibility - using signals for sync computed values
   readonly filteredCampaigns = computed(() => {
-    // For now, return empty array. 
+    // For now, return empty array.
     // This should be connected to actual filter logic and campaigns observable later
     // We'll use the async pipe in template for campaigns$ directly
     return [];
@@ -644,8 +644,9 @@ export class CampaignListComponent implements OnInit, OnDestroy {
       keyword: (r) =>
         this.handleScrapingAction(this.scrapingFacade.startKeywordScraping(r), 'keyword'),
       user: (r) => this.handleScrapingAction(this.scrapingFacade.startUserScraping(r), 'user'),
-      mention: (r) =>
-        this.handleScrapingAction(this.scrapingFacade.startMentionScraping(r), 'mention'),
+      mention: (r) => {
+        return this.handleScrapingAction(this.scrapingFacade.startUserScraping(r), 'user'); // Las campañas mention usan el scraper de usuarios
+      },
     };
 
     const handler = scrapingHandlers[normalizedResult.payload.type];

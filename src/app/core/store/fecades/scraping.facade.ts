@@ -44,8 +44,11 @@ export class ScrapingFacade {
    * @returns Observable that completes when the action is processed
    */
   startHashtagScraping(result: any): Observable<any> {
-    console.log('ScrapingFacade.startHashtagScraping called with:', JSON.stringify(result, null, 2));
-    
+    console.log(
+      'ScrapingFacade.startHashtagScraping called with:',
+      JSON.stringify(result, null, 2)
+    );
+
     if (!result || !result.id || !result.payload) {
       console.error('Invalid result for hashtag scraping', result);
       return this.handleInvalidResult();
@@ -55,8 +58,11 @@ export class ScrapingFacade {
       id: result.id,
       ...result.payload,
     };
-    
-    console.log('Dispatching hashtagScraping action with campaign:', JSON.stringify(campaign, null, 2));
+
+    console.log(
+      'Dispatching hashtagScraping action with campaign:',
+      JSON.stringify(campaign, null, 2)
+    );
     this.store.dispatch(ScrapingActions.hashtagScraping({ campaign }));
 
     console.log('Waiting for hashtagScrapingSuccess or hashtagScrapingFailure action');
@@ -94,7 +100,7 @@ export class ScrapingFacade {
    */
   startUserScraping(result: any): Observable<any> {
     if (!result || !result.id || !result.payload) {
-      console.error('Invalid result for user scraping', result);
+      console.error('❌ Invalid result for user scraping', result);
       return this.handleInvalidResult();
     }
 
@@ -142,17 +148,17 @@ export class ScrapingFacade {
    */
   private handleInvalidResult(): Observable<any> {
     const error = new Error('Invalid campaign result object');
-    
+
     // Dispatch the error action
     this.store.dispatch(ScrapingActions.scrapingFailure({ error }));
-    
+
     // Return an observable with the error action
-    return new Observable(subscriber => {
+    return new Observable((subscriber) => {
       subscriber.next({ type: '[Scraping] Generic Scraping Failure', error });
       subscriber.complete();
     });
   }
-  
+
   /**
    * Check if scraping is active for a campaign
    * @param campaignId - ID of the campaign to check
@@ -163,7 +169,7 @@ export class ScrapingFacade {
       return state?.scraping?.activeScraping?.[campaignId] || false;
     });
   }
-  
+
   /**
    * Get current scraping progress for a campaign
    * @param campaignId - ID of the campaign to get progress for
@@ -174,7 +180,7 @@ export class ScrapingFacade {
       return state?.scraping?.progress?.[campaignId] || null;
     });
   }
-  
+
   /**
    * Get the latest scraped tweets for a campaign
    * @param campaignId - ID of the campaign to get tweets for
