@@ -1,16 +1,16 @@
-/* ===== UNIFIED REGISTER COMPONENT STYLES ===== */
-/* Two-column layout with image on left and form on right */
+/* ===== MOBILE-FIRST REGISTER COMPONENT STYLES ===== */
 
 .register-container {
-  /* Unified background gradient */
+  /* Mobile-first: single column layout */
   background: var(--color-primary-gradient);
   min-height: 100vh;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: 0;
+  justify-content: flex-start;
+  padding: var(--spacing-md);
   position: relative;
-  overflow: hidden;
+  overflow-x: hidden;
 }
 
 .register-container::before {
@@ -26,18 +26,61 @@
   z-index: 0;
 }
 
+/* Mobile logo at top */
+.register-logo-mobile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: var(--spacing-xl);
+  z-index: 1;
+  position: relative;
+}
+
+.logo-icon {
+  background: var(--color-white-alpha-95);
+  backdrop-filter: blur(20px);
+  border-radius: var(--radius-full);
+  width: 80px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--spacing-md);
+  box-shadow: var(--shadow-glassmorphism);
+}
+
+.logo-icon mat-icon {
+  font-size: 2.5rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  background: var(--color-primary-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.app-title {
+  color: var(--color-white);
+  font-size: 1.5rem;
+  font-weight: var(--font-bold);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin: 0;
+}
+
+/* Hide desktop elements on mobile */
+.desktop-only {
+  display: none;
+}
+
 .register-card {
-  /* Unified glassmorphism card */
   background: var(--color-white-alpha-95);
   backdrop-filter: blur(20px);
   border-radius: var(--radius-3xl);
   box-shadow: var(--shadow-glassmorphism);
   border: 1px solid var(--color-white-alpha-20);
-
-  /* Structure */
   width: 100%;
-  max-width: 500px;
-  padding: var(--spacing-2xl);
+  max-width: 400px;
+  padding: var(--spacing-xl);
   position: relative;
   z-index: 1;
 }
@@ -49,64 +92,69 @@
 /* Header styling */
 .register-header {
   text-align: center;
-  margin-bottom: var(--spacing-2xl);
+  margin-bottom: var(--spacing-xl);
 }
 
 .register-title {
-  /* Unified gradient text */
   background: var(--color-primary-gradient);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
-
-  font-size: clamp(2rem, 4vw, 2.5rem);
+  font-size: 1.75rem;
   font-weight: var(--font-bold);
-  margin-bottom: var(--spacing-md);
+  margin-bottom: var(--spacing-sm);
 }
 
 .register-subtitle {
   color: var(--color-gray-600);
-  font-size: var(--text-base);
+  font-size: var(--text-sm);
   line-height: var(--leading-relaxed);
-  margin-bottom: var(--spacing-lg);
+  margin-bottom: 0;
 }
 
-/* Form styling */
+/* Form styling - Mobile optimized */
 .register-form {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-lg);
+  gap: var(--spacing-md);
 }
 
-/* Row container for username and display name */
+/* Stack fields vertically on mobile */
 .form-row {
   display: flex;
+  flex-direction: column;
   gap: var(--spacing-md);
-  align-items: flex-start;
 }
 
 .form-row mat-form-field {
-  flex: 1;
+  width: 100%;
 }
 
-/* Ensure proper spacing on mobile */
-@media (max-width: 640px) {
-  .form-row {
-    flex-direction: column;
-    gap: var(--spacing-sm);
-  }
+/* Material form field optimizations for mobile */
+.register-form mat-form-field {
+  width: 100%;
 }
 
-/* Password strength indicator */
+.register-form mat-form-field .mat-mdc-text-field-wrapper {
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: var(--radius-lg);
+}
+
+.register-form mat-form-field .mat-mdc-form-field-input-control input {
+  font-size: 16px; /* Prevents zoom on iOS */
+  padding: var(--spacing-sm);
+}
+
+/* Password strength indicator - Mobile optimized */
 .password-strength-container {
   display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
+  flex-direction: column;
+  gap: var(--spacing-xs);
   margin-top: var(--spacing-xs);
 }
 
 .password-strength-bar {
-  flex: 1;
+  width: 100%;
   height: 4px;
   background-color: var(--color-gray-200);
   border-radius: var(--radius-full);
@@ -116,32 +164,31 @@
 .password-strength-fill {
   height: 100%;
   border-radius: var(--radius-full);
+  transition: width 0.3s ease, background-color 0.3s ease;
 }
 
 .password-strength-label {
   font-size: var(--text-xs);
   font-weight: var(--font-medium);
-  white-space: nowrap;
+  text-align: center;
 }
 
-/* Submit button unified styling */
+/* Submit button - Mobile optimized */
 .register-submit {
-  /* Same styling as login button */
   background: var(--color-primary-gradient);
   border: none;
   border-radius: var(--radius-2xl);
   color: var(--color-white);
   font-weight: var(--font-semibold);
-  font-size: var(--text-base);
-  padding: var(--spacing-lg) var(--spacing-2xl);
-  margin-top: var(--spacing-md);
+  font-size: 16px; /* Prevents zoom on iOS */
+  padding: var(--spacing-lg);
+  margin-top: var(--spacing-lg);
   width: 100%;
-  height: 100%;
-
-  /* Effects */
+  min-height: 48px; /* Accessible touch target */
   box-shadow: var(--shadow-glassmorphism);
   position: relative;
   overflow: hidden;
+  cursor: pointer;
 }
 
 .register-submit::before {
@@ -152,10 +199,7 @@
   width: 100%;
   height: 100%;
   background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-}
-
-.register-submit:hover {
-  box-shadow: var(--shadow-glassmorphism-hover);
+  transition: left 0.5s ease;
 }
 
 .register-submit:hover::before {
@@ -164,23 +208,14 @@
 
 .register-submit:disabled {
   opacity: 0.6;
+  cursor: not-allowed;
 }
 
-/* Loading spinner - kept for functionality */
-.spinning {
-  animation: spin 1s linear infinite;
+.register-submit:disabled::before {
+  display: none;
 }
 
-@keyframes spin {
-  0% {
-    transform: rotate(0deg);
-  }
-  100% {
-    transform: rotate(360deg);
-  }
-}
-
-/* Login link unified styling */
+/* Footer styling - Mobile optimized */
 .register-footer {
   text-align: center;
   margin-top: var(--spacing-xl);
@@ -198,6 +233,7 @@
   color: var(--color-primary);
   text-decoration: none;
   font-weight: var(--font-semibold);
+  font-size: 16px; /* Prevents zoom on iOS */
 }
 
 .register-footer a:hover {
@@ -205,119 +241,150 @@
   text-decoration: underline;
 }
 
-/* Responsive design */
-@media (max-width: 1024px) {
-  .register-container {
-    flex-direction: column;
-    padding: var(--spacing-md);
-  }
-
-  .left,
-  .right {
-    width: 100%;
-    height: auto;
-    min-height: 50vh;
-  }
-
-  .left {
-    order: -1; /* Move image to top on mobile */
-    padding: var(--spacing-lg);
-  }
-
-  .right {
-    padding: var(--spacing-lg);
-  }
-
-  .register-image-bg {
-    max-width: 350px;
-    max-height: 350px;
-  }
+/* Loading spinner */
+.spinning {
+  animation: spin 1s linear infinite;
 }
 
-@media (max-width: 640px) {
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Password strength helper */
+.pws {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* ===== RESPONSIVE DESIGN - MOBILE FIRST ===== */
+
+/* Small phones (320px and up) */
+@media (min-width: 320px) {
   .register-container {
     padding: var(--spacing-sm);
   }
-
-  .left,
-  .right {
-    padding: var(--spacing-md);
-  }
-
+  
   .register-card {
-    padding: var(--spacing-xl);
-    max-width: none;
+    padding: var(--spacing-lg);
   }
+}
 
+/* Large phones (480px and up) */
+@media (min-width: 480px) {
+  .register-card {
+    max-width: 420px;
+    padding: var(--spacing-xl);
+  }
+  
   .register-title {
     font-size: 2rem;
   }
+}
 
+/* Tablets (768px and up) */
+@media (min-width: 768px) {
+  .register-container {
+    padding: var(--spacing-lg);
+    justify-content: center;
+  }
+  
+  .register-logo-mobile {
+    margin-bottom: var(--spacing-2xl);
+  }
+  
+  .register-card {
+    max-width: 500px;
+    padding: var(--spacing-2xl);
+  }
+  
   .form-row {
-    flex-direction: column;
-    gap: var(--spacing-sm);
+    flex-direction: row;
+    gap: var(--spacing-lg);
   }
+  
+  .form-row mat-form-field {
+    flex: 1;
+  }
+}
 
+/* Desktop (1024px and up) - Show two-column layout */
+@media (min-width: 1024px) {
+  .register-container {
+    flex-direction: row;
+    padding: 0;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .register-logo-mobile {
+    display: none;
+  }
+  
+  .desktop-only {
+    display: flex;
+  }
+  
+  .left {
+    width: 50%;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-xl);
+    box-sizing: border-box;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(14, 165, 233, 0.1));
+  }
+  
+  .right {
+    width: 50%;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-xl);
+    box-sizing: border-box;
+  }
+  
   .register-image-bg {
-    max-width: 280px;
-    max-height: 280px;
+    width: 100%;
+    height: 60%;
+    max-width: 500px;
+    background-image: url('/img/sentimentalSocial.webp');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-radius: var(--radius-3xl);
+    box-shadow: var(--shadow-glassmorphism);
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .register-image-bg::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, 
+      rgba(0, 0, 0, 0.1) 0%, 
+      transparent 50%,
+      rgba(99, 102, 241, 0.05) 100%
+    );
+    border-radius: var(--radius-3xl);
+  }
+  
+  .register-card {
+    max-width: 500px;
   }
 }
 
-.left {
-  width: 50%;
-  height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--spacing-xl);
-  box-sizing: border-box;
-  background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(14, 165, 233, 0.1));
-}
-
-.right {
-  width: 50%;
-  height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: var(--spacing-xl);
-  box-sizing: border-box;
-}
-
-.register-image-bg {
-  width: 100%;
-  height: 60%;
-  max-width: 500px;
-  background-image: url('/img/sentimentalSocial.webp');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  border-radius: var(--radius-3xl);
-  box-shadow: var(--shadow-glassmorphism);
-  position: relative;
-  overflow: hidden;
-}
-
-/* Add overlay for better visual effect */
-.register-image-bg::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(135deg, 
-    rgba(0, 0, 0, 0.1) 0%, 
-    transparent 50%,
-    rgba(99, 102, 241, 0.05) 100%
-  );
-  border-radius: var(--radius-3xl);
-}
-
-.pws{
-  display: flex;
-  align-items: center;
-  width: 100%;
-  justify-content: center;
+/* Large desktop (1200px and up) */
+@media (min-width: 1200px) {
+  .left,
+  .right {
+    padding: var(--spacing-2xl);
+  }
 }
