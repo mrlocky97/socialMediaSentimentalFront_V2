@@ -145,7 +145,6 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
   readonly tweetsError = computed(() => this.state().tweetsError);
   readonly campaignStats = computed(() => this.state().campaignStats);
   readonly tweetsWithCalculatedFields = computed(() => this.state().tweetsWithCalculatedFields);
-  readonly mutableTweetsForTable = computed(() => [...this.state().tweetsWithCalculatedFields]);
 
   // Setup effect for scraping progress in injection context
   private scrapingProgressEffect = effect(() => {
@@ -248,11 +247,11 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
       });
   }
 
-  onTweetRowClick(tweet: Tweet): void {
+  onTweetRowClick(tweet: TweetWithCalculatedFields): void {
     this.tweetFacade.selectTweet(tweet._id);
   }
 
-  onTweetAction(event: { action: TableAction<Tweet>; item: Tweet }): void {
+  onTweetAction(event: { action: TableAction<TweetWithCalculatedFields>; item: TweetWithCalculatedFields }): void {
     const { action, item } = event;
 
     switch (action.label.toLowerCase()) {
@@ -438,12 +437,12 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
     }
   }
 
-  private showTweetDetails(tweet: Tweet): void {
+  private showTweetDetails(tweet: TweetWithCalculatedFields): void {
     const truncatedContent = this.uiService.truncateText(tweet.content, 50);
     this.snackBar.open(`Viewing tweet: ${truncatedContent}`, 'Close', { duration: 3000 });
   }
 
-  private openTweetInNewTab(tweet: Tweet): void {
+  private openTweetInNewTab(tweet: TweetWithCalculatedFields): void {
     const tweetUrl = this.uiService.generateTweetUrl(tweet.tweetId);
     window.open(tweetUrl, '_blank');
   }

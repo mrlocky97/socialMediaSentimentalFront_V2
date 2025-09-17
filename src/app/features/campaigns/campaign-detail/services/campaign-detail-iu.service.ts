@@ -4,7 +4,7 @@
  */
 
 import { Injectable } from '@angular/core';
-import { Tweet, TweetWithCalculatedFields } from '../../../../core/interfaces/tweet.interface';
+import { TweetWithCalculatedFields } from '../../../../core/interfaces/tweet.interface';
 import { Campaign } from '../../../../core/state/app.state';
 import { TableAction, TableColumn, TableConfig } from '../../../../shared/components/solid-data-table/interfaces/solid-data-table.interface';
 
@@ -88,7 +88,7 @@ export class CampaignUIService {
   createTweetTableConfig(): {
     readonly columns: TableColumn<TweetWithCalculatedFields>[];
     readonly config: TableConfig;
-    readonly actions: TableAction<Tweet>[];
+    readonly actions: TableAction<TweetWithCalculatedFields>[];
   } {
     const columns: TableColumn<TweetWithCalculatedFields>[] = [
       {
@@ -114,26 +114,23 @@ export class CampaignUIService {
         formatter: (sentiment: any) => sentiment?.label || 'Unknown',
       },
       {
-        key: 'engagement',
+        key: 'calculatedEngagement',
         label: 'Engagement',
         sortable: true,
         width: '100px',
-        formatter: (value: any, row?: any) => {
-          const tweet = row as TweetWithCalculatedFields;
-          return (
-            tweet?.calculatedEngagement?.toString() || tweet?.metrics?.engagement?.toString() || '0'
-          );
+        formatter: (value: number, row?: TweetWithCalculatedFields) => {
+          // Use calculated field first, fallback to metrics
+          const engagement = value ?? row?.metrics?.engagement ?? 0;
+          return engagement.toString();
         },
       },
       {
-        key: 'engagementRate',
+        key: 'calculatedEngagementRate',
         label: 'Eng. Rate %',
         sortable: true,
         width: '110px',
-        formatter: (value: any, row?: any) => {
-          const tweet = row as TweetWithCalculatedFields;
-          const rate = tweet?.calculatedEngagementRate;
-          return rate !== undefined ? `${rate.toFixed(2)}%` : '0.00%';
+        formatter: (value: number) => {
+          return value !== undefined ? `${value.toFixed(2)}%` : '0.00%';
         },
       },
       {
@@ -160,7 +157,7 @@ export class CampaignUIService {
       pageSizeOptions: [10, 15, 25, 50],
     });
 
-    const actions: TableAction<Tweet>[] = [
+    const actions: TableAction<TweetWithCalculatedFields>[] = [
       { icon: 'visibility', label: 'View', color: 'primary' },
       { icon: 'link', label: 'Open Tweet', color: 'primary' },
     ];

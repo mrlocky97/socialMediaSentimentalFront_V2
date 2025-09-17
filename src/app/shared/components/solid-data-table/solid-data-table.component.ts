@@ -79,7 +79,7 @@ export class SolidDataTableRxjsComponent<T = any> implements OnInit, AfterViewIn
   // INPUT/OUTPUT PROPERTIES
   // ================================
 
-  @Input() data: T[] = [];
+  @Input() data: readonly T[] = [];
   @Input() columns: TableColumn<T>[] = [];
   @Input() config: TableConfig = {
     showSearch: true,
@@ -192,7 +192,8 @@ export class SolidDataTableRxjsComponent<T = any> implements OnInit, AfterViewIn
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['data']) {
-      this.dataService.setData(this.data);
+      // Convert readonly array to mutable array for internal processing
+      this.dataService.setData([...this.data]);
       this.lastRefreshTime.set(new Date());
     }
 

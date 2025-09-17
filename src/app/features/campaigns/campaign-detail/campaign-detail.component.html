@@ -831,7 +831,7 @@
               0) {
               <div class="tweets-table-container">
                 <app-solid-data-table
-                  [data]="mutableTweetsForTable()"
+                  [data]="tweetsWithCalculatedFields()"
                   [columns]="tweetTableColumns"
                   [config]="tweetTableConfig"
                   [actions]="tweetTableActions"
