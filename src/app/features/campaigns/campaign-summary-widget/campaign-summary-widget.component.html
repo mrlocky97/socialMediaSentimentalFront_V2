@@ -14,7 +14,7 @@
         <button
           mat-icon-button
           (click)="onRefresh()"
-          [disabled]="componentLoading()"
+          [disabled]="(loading$ | async) || false"
           [attr.aria-label]="'common.refresh' | transloco"
         >
           <mat-icon>refresh</mat-icon>
@@ -31,12 +31,12 @@
   </mat-card-header>
 
   <mat-card-content>
-    @if (!componentLoading()) {
+    @if (!(loading$ | async)) {
     <!-- Error State -->
-    @if (componentError()) {
+    @if (error$ | async) {
     <div class="error-state">
       <mat-icon class="error-icon" color="warn">error_outline</mat-icon>
-      <p class="error-message">{{ componentError() }}</p>
+      <p class="error-message">{{ error$ | async }}</p>
       <button mat-button color="primary" (click)="onRetry()">
         <mat-icon>refresh</mat-icon>
         {{ 'common.retry' | transloco }}
@@ -51,7 +51,7 @@
             <mat-icon>campaign</mat-icon>
           </div>
           <div class="metric-info">
-            <div class="metric-value">{{ summary().totalCampaigns }}</div>
+            <div class="metric-value">{{ (campaignSummary$ | async)?.totalCampaigns || 0 }}</div>
             <div class="metric-label">{{ 'campaigns.summary.totalCampaigns' | transloco }}</div>
           </div>
         </div>
@@ -61,7 +61,7 @@
             <mat-icon>play_circle</mat-icon>
           </div>
           <div class="metric-info">
-            <div class="metric-value">{{ summary().activeCampaigns }}</div>
+            <div class="metric-value">{{ (campaignSummary$ | async)?.activeCampaigns || 0 }}</div>
             <div class="metric-label">{{ 'campaigns.summary.activeCampaigns' | transloco }}</div>
           </div>
         </div>
@@ -80,8 +80,8 @@
         >
         </mat-progress-bar>
         <div class="budget-details">
-          <span class="budget-spent">{{ formatCurrency(summary().totalSpent) }}</span>
-          <span class="budget-total">/ {{ formatCurrency(summary().totalBudget) }}</span>
+          <span class="budget-spent">{{ formatCurrency((campaignSummary$ | async)?.totalSpent || 0) }}</span>
+          <span class="budget-total">/ {{ formatCurrency((campaignSummary$ | async)?.totalBudget || 0) }}</span>
         </div>
       </div>
 
@@ -90,7 +90,7 @@
         <div class="performance-item">
           <mat-icon class="performance-icon">visibility</mat-icon>
           <div class="performance-data">
-            <div class="performance-value">{{ formatNumber(summary().totalImpressions) }}</div>
+            <div class="performance-value">{{ formatNumber((campaignSummary$ | async)?.totalImpressions || 0) }}</div>
             <div class="performance-label">{{ 'campaigns.summary.impressions' | transloco }}</div>
           </div>
         </div>
@@ -98,7 +98,7 @@
         <div class="performance-item">
           <mat-icon class="performance-icon">trending_up</mat-icon>
           <div class="performance-data">
-            <div class="performance-value">{{ summary().totalConversions }}</div>
+            <div class="performance-value">{{ (campaignSummary$ | async)?.totalConversions || 0 }}</div>
             <div class="performance-label">{{ 'campaigns.summary.conversions' | transloco }}</div>
           </div>
         </div>
@@ -106,7 +106,7 @@
         <div class="performance-item">
           <mat-icon class="performance-icon">mouse</mat-icon>
           <div class="performance-data">
-            <div class="performance-value">{{ formatPercentage(summary().averageCTR) }}</div>
+            <div class="performance-value">{{ formatPercentage((campaignSummary$ | async)?.averageCTR || 0) }}</div>
             <div class="performance-label">{{ 'campaigns.summary.avgCTR' | transloco }}</div>
           </div>
         </div>
@@ -114,18 +114,18 @@
         <div class="performance-item">
           <mat-icon class="performance-icon">account_balance</mat-icon>
           <div class="performance-data">
-            <div class="performance-value">{{ summary().averageROAS.toFixed(1) }}x</div>
+            <div class="performance-value">{{ ((campaignSummary$ | async)?.averageROAS || 0).toFixed(1) }}x</div>
             <div class="performance-label">{{ 'campaigns.summary.avgROAS' | transloco }}</div>
           </div>
         </div>
       </div>
 
       <!-- Recent Campaigns -->
-      @if (recentCampaigns().length > 0) {
+      @if ((recentCampaigns$ | async)?.length && (recentCampaigns$ | async)!.length > 0) {
       <div class="recent-campaigns">
         <h4>{{ 'campaigns.summary.recentCampaigns' | transloco }}</h4>
         <div class="campaign-list">
-          @for (campaign of recentCampaigns(); track campaign.id) {
+          @for (campaign of (recentCampaigns$ | async) || []; track campaign.id) {
           <div class="campaign-item">
             <div class="campaign-info">
               <div class="campaign-name">{{ campaign.name }}</div>

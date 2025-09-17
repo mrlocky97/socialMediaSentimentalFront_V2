@@ -169,7 +169,6 @@ export class CampaignDialogComponent implements OnInit, AfterViewInit {
     { value: 'hashtag', label: 'Hashtag', icon: 'tag' },
     { value: 'keyword', label: 'Keyword', icon: 'search' },
     { value: 'user', label: 'User', icon: 'person' },
-    { value: 'custom', label: 'Custom', icon: 'tune' },
   ];
 
   readonly dataSourceOptions: { value: DataSource; label: string }[] = [

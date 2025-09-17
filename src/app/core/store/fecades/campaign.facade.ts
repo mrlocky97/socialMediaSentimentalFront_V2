@@ -8,9 +8,9 @@ import { Store } from '@ngrx/store';
 import { Observable, take, tap } from 'rxjs';
 import { CampaignRequest } from '../../../features/campaign-dialog/interfaces/campaign-dialog.interface';
 import {
-    CampaignFilter,
-    CampaignSortOptions,
-    UpdateCampaignRequest
+  CampaignFilter,
+  CampaignSortOptions,
+  UpdateCampaignRequest
 } from '../../services/campaign.service';
 import { Campaign } from '../../state/app.state';
 import * as CampaignActions from '../actions/campaign.actions';
@@ -28,12 +28,23 @@ export class CampaignFacade {
   readonly activeCampaigns$: Observable<Campaign[]>;
   readonly campaignCount$: Observable<number>;
   readonly activeCampaignCount$: Observable<number>;
+  
+  // Nuevos selectores para reemplazar CampaignsStore functionality
+  readonly campaignStats$: Observable<any>;
+  readonly statusCounts$: Observable<any>;
+  readonly typeCounts$: Observable<any>;
+  readonly recentCampaigns$: Observable<Campaign[]>;
+  readonly campaignSummary$: Observable<any>;
+  readonly isEmpty$: Observable<boolean>;
+  readonly hasItems$: Observable<boolean>;
+  readonly totalCount$: Observable<number>;
+  readonly hasSelection$: Observable<boolean>;
 
   constructor(
     private store: Store,
     private actions$: Actions
   ) {
-    // Inicialización de selectores
+    // Inicialización de selectores existentes
     this.campaigns$ = this.store.select(CampaignSelectors.selectAllCampaigns);
     this.loading$ = this.store.select(CampaignSelectors.selectCampaignsLoading);
     this.error$ = this.store.select(CampaignSelectors.selectCampaignsError);
@@ -41,6 +52,17 @@ export class CampaignFacade {
     this.activeCampaigns$ = this.store.select(CampaignSelectors.selectActiveCampaigns);
     this.campaignCount$ = this.store.select(CampaignSelectors.selectCampaignCount);
     this.activeCampaignCount$ = this.store.select(CampaignSelectors.selectActiveCampaignCount);
+    
+    // Inicialización de nuevos selectores
+    this.campaignStats$ = this.store.select(CampaignSelectors.selectCampaignStats);
+    this.statusCounts$ = this.store.select(CampaignSelectors.selectStatusCounts);
+    this.typeCounts$ = this.store.select(CampaignSelectors.selectTypeCounts);
+    this.recentCampaigns$ = this.store.select(CampaignSelectors.selectRecentCampaigns);
+    this.campaignSummary$ = this.store.select(CampaignSelectors.selectCampaignSummary);
+    this.isEmpty$ = this.store.select(CampaignSelectors.selectIsEmpty);
+    this.hasItems$ = this.store.select(CampaignSelectors.selectHasItems);
+    this.totalCount$ = this.store.select(CampaignSelectors.selectTotalCount);
+    this.hasSelection$ = this.store.select(CampaignSelectors.selectHasSelection);
   }
 
   /**

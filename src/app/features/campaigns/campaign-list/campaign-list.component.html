@@ -25,7 +25,7 @@
   </header>
 
   <!-- Quick Stats Cards -->
-  @if (campaigns().length > 0) {
+  @if ((campaigns$ | async)?.length && (campaigns$ | async)!.length > 0) {
     <section class="stats-grid">
       @for (stat of statsConfig; track stat.key) {
         <mat-card class="stat-card">
@@ -42,7 +42,7 @@
   }
 
   <!-- Loading State -->
-  @if (loading()) {
+  @if (loading$ | async) {
     <div class="loading-container" role="status" [attr.aria-label]="'campaign_list.loading' | transloco">
       <mat-progress-spinner mode="indeterminate" diameter="50"></mat-progress-spinner>
       <p>{{ 'campaign_list.loading' | transloco }}</p>
@@ -50,7 +50,7 @@
   }
 
   <!-- Empty State -->
-  @if (!loading() && campaigns().length === 0 && !error()) {
+  @if (!(loading$ | async) && (campaigns$ | async)?.length === 0 && !(error$ | async)) {
     <section class="empty-state">
       <mat-card class="empty-card">
         <mat-card-content>
@@ -75,12 +75,12 @@
   }
 
   <!-- Campaigns Table -->
-  @if (!loading() && filteredCampaigns().length > 0) {
+  @if (!(loading$ | async) && ((campaigns$ | async) || []).length > 0) {
     <mat-card class="table-card">
       <header class="table-header">
         <h3>
           {{ 'campaign_list.campaigns' | transloco }} 
-          <span class="campaign-count">({{ filteredCampaigns().length }})</span>
+          <span class="campaign-count">({{ ((campaigns$ | async) || []).length }})</span>
         </h3>
         
         @if (hasSelectedCampaigns()) {
@@ -113,12 +113,12 @@
 
       <div class="table-container">
         <app-solid-data-table
-          [data]="campaigns()"
+          [data]="(campaigns$ | async) || []"
           [columns]="tableColumns"
           [config]="tableConfig"
           [actions]="tableActions"
-          [loading]="loading()"
-          [error]="error()"
+          [loading]="(loading$ | async) || false"
+          [error]="error$ | async"
           (rowClick)="navigateToCampaign($event)"
           (actionClick)="onTableAction($event)"
           (pageChange)="onPageChange($event)"
@@ -128,13 +128,13 @@
   }
 
   <!-- Error State -->
-  @if (error()) {
+  @if (error$ | async) {
     <section class="error-state" role="alert">
       <mat-card class="error-card">
         <mat-card-content>
           <mat-icon class="error-icon" aria-hidden="true">error</mat-icon>
           <h3>{{ 'campaign_list.error_loading' | transloco }}</h3>
-          <p>{{ error() }}</p>
+          <p>{{ error$ | async }}</p>
           <button 
             mat-raised-button 
             color="primary" 

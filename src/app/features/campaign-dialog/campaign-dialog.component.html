@@ -198,11 +198,6 @@
         </button>
       </mat-card-content>
     </mat-card>
-    } @if (form.get('type')?.value === 'custom') {
-    <div class="custom-targeting-note">
-      <mat-icon color="primary">info</mat-icon>
-      <p>{{ 'campaign_dialog.custom_targeting_note' | transloco }}</p>
-    </div>
     } @if (form.errors?.['noTargeting'] && (hashtags.touched || keywords.touched ||
     mentions.touched)) {
     <div class="error-box" style="margin-top: 8px">
@@ -346,7 +341,7 @@
     <div class="error-box" style="margin-top: 8px">
       {{ 'campaign_dialog.date_range_error' | transloco }}
     </div>
-    } 
+    }
   </section>
 
   @if (submitError()) {

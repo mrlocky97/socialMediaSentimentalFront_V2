@@ -408,8 +408,6 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
       const shouldAutoStart = autoStartScraping || this.uiService.isRecentlyCreated(campaign);
       
       if (!this.state().scrapingInitiated && !hasScrapingBeenInitiated && shouldAutoStart) {
-        console.log('Auto-starting scraping for newly created campaign:', campaign.id);
-        
         // Mark scraping as initiated both locally and persistently
         this.updateState({ scrapingInitiated: true });
         this.scrapingStateService.markScrapingInitiated(campaign.id);

@@ -127,22 +127,38 @@ export class CampaignAdapter {
   static fromRequestToApi(
     request: CampaignRequest,
     userId?: string
-  ): Partial<ApiCampaignExtended> & { type: string; organizationId: string; userId?: string } {
-    // Extendemos el tipo para permitir cualquier string en type
-    return {
+  ): any {
+    // Estructura exacta que espera el backend
+    const payload: any = {
       name: request.name,
       description: request.description,
       type: this.mapRequestType(request.type),
-      hashtags: request.hashtags,
-      keywords: request.keywords,
-      startDate: new Date(request.startDate),
-      endDate: new Date(request.endDate),
       status: 'draft',
-      dataSources: request.dataSources || ['twitter'], // Asegurarnos de enviar el campo dataSources que es obligatorio
-      organizationId: request.organizationId || 'default-org-id', // Asegurarnos de enviar siempre un organizationId
-      maxTweets: request.maxTweets,
-      ...(userId && { userId }), // Incluir userId si se proporciona
+      dataSources: request.dataSources || ['twitter'],
+      hashtags: request.hashtags || [],
+      keywords: request.keywords || [],
+      mentions: request.mentions || [],
+      startDate: new Date(request.startDate).toISOString(),
+      endDate: new Date(request.endDate).toISOString(),
+      maxTweets: request.maxTweets || 1000,
+      collectImages: !!request.collectImages,
+      collectVideos: !!request.collectVideos,
+      collectReplies: !!request.collectReplies,
+      collectRetweets: !!request.collectRetweets,
+      languages: Array.isArray(request.languages) ? request.languages : [request.languages || 'en'],
+      sentimentAnalysis: !!request.sentimentAnalysis,
+      emotionAnalysis: !!request.emotionAnalysis,
+      topicsAnalysis: !!request.topicsAnalysis,
+      influencerAnalysis: !!request.influencerAnalysis,
+      organizationId: request.organizationId || 'org-default-id'
     };
+
+    // Incluir userId si se proporciona
+    if (userId) {
+      payload.userId = userId;
+    }
+
+    return payload;
   }
   private static mapApiStatus(status: string): AppStateCampaign['status'] {
     switch (status) {
@@ -192,7 +208,7 @@ export class CampaignAdapter {
       case 'hashtag':
         return 'hashtag';
       case 'user':
-        return 'competitor';
+        return 'mention';
       case 'mention':
         return 'mention';
       case 'keyword':
@@ -202,19 +218,17 @@ export class CampaignAdapter {
   }
 
   private static mapRequestType(type: string): string {
-    // La API espera directamente: "hashtag", "keyword", "mention", "competitor"
+    // La API espera los tipos directamente: "mention", "hashtag", "keyword", etc.
     switch (type) {
       case 'hashtag':
-        return 'hashtag'; // Ya está en el formato correcto
+        return 'hashtag';
       case 'user':
-        return 'competitor'; // Mapear user a competitor
+        return 'mention'; // user campaigns se mapean a mention
       case 'keyword':
-        return 'keyword'; // Ya está en el formato correcto
-      case 'mention':
-        return 'mention'; // Ya está en el formato correcto
+        return 'keyword';
       case 'custom':
       default:
-        return 'keyword'; // Por defecto usamos keyword
+        return 'hashtag';
     }
   }
 }

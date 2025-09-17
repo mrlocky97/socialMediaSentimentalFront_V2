@@ -1,8 +1,10 @@
 /**
  * State Management Stores - Centralized Signal-based State
  * 
- * This module exports all the application stores that follow the
+ * This module exports application stores that follow the
  * Signal-based architecture pattern for state management.
+ * 
+ * Note: Campaigns now use NgRx exclusively (CampaignFacade)
  * 
  * Pattern:
  * - Components consume computed signals (readonly)
@@ -13,9 +15,9 @@
 
 export { SessionStore } from './session.store';
 export { TweetsStore } from './tweets.store';
-export { CampaignsStore } from './campaigns.store';
+// CampaignsStore removed - now using NgRx CampaignFacade exclusively
 
 // Re-export types for convenience
 export type { SessionState } from './session.store';
-export type { TweetsState, Tweet, TweetFilters } from './tweets.store';
-export type { CampaignsState, CampaignSummary, CampaignsFilters } from './campaigns.store';
+export type { Tweet, TweetFilters, TweetsState } from './tweets.store';
+// CampaignsState types removed - now in NgRx selectors
