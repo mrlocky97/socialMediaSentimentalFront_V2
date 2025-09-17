@@ -264,20 +264,10 @@ export class CampaignDetailComponent implements OnInit, OnDestroy {
     }
   }
 
-  onTweetPageChange(event: any): void {
-    const campaignId = this.extractCampaignId();
-    if (campaignId) {
-      this.tweetFacade.loadTweets(campaignId, {
-        page: event.pageIndex + 1,
-        limit: event.pageSize,
-      });
-    }
-  }
-
   refreshTweets(): void {
     const campaignId = this.extractCampaignId();
     if (campaignId) {
-      this.tweetFacade.loadTweets(campaignId, { page: 1, limit: 20 });
+      this.tweetFacade.loadTweets(campaignId, { page: 1, limit: 100 });
     }
   }
 

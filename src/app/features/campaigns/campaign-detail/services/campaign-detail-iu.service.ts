@@ -153,8 +153,8 @@ export class CampaignUIService {
       showPagination: true,
       showSelection: false,
       multiSelection: false,
-      pageSize: 15,
-      pageSizeOptions: [10, 15, 25, 50],
+      pageSize: 25,
+      pageSizeOptions: [10, 25, 50, 100],
     });
 
     const actions: TableAction<TweetWithCalculatedFields>[] = [
