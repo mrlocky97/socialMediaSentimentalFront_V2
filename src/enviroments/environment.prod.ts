@@ -1,7 +1,7 @@
 export const environment = {
   production: true,
   apiUrl: 'https://tu-backend-production.com',
-  websocketUrl: 'wss://tu-websocket-production.com', // Production WebSocket URL
+  websocketUrl: 'wss://tu-backend-production.com', // Production WebSocket URL - ACTUALIZADO para coincidir con backend
   apiVersion: 'v1',
   features: {
     mockData: false,

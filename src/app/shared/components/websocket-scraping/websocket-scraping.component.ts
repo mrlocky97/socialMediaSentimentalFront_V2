@@ -108,6 +108,14 @@ import { ConnectionStatus, ScrapingProgress, WebSocketService } from '../../../c
         <button mat-raised-button 
                 color="accent"
                 [disabled]="!connectionStatus.connected"
+                (click)="refreshConnection()">
+          <mat-icon>refresh</mat-icon>
+          Refresh
+        </button>
+
+        <button mat-raised-button 
+                color="accent"
+                [disabled]="!connectionStatus.connected"
                 (click)="startTestScraping()">
           Start Test Scraping
         </button>
@@ -280,6 +288,18 @@ export class WebsocketScrapingComponent implements OnInit, OnDestroy {
     } else {
       this.websocketService.connect().subscribe();
     }
+  }
+
+  refreshConnection(): void {
+    console.log('🔄 Refreshing WebSocket connection manually...');
+    this.websocketService.refresh().subscribe({
+      next: (status) => {
+        console.log('✅ Connection refreshed:', status);
+      },
+      error: (error) => {
+        console.error('❌ Error refreshing connection:', error);
+      }
+    });
   }
 
   startTestScraping(): void {
