@@ -164,13 +164,42 @@ export class ScrapingMonitorComponent implements OnInit, OnDestroy {
   }
 
   private setupWebSocketListeners(): void {
-    // Listen for scraping progress
-    this.websocketService.on<ScrapingProgressUpdate>('scraping-progress')
+    // Listen for connection status changes
+    this.websocketService.getConnectionStatus()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe(status => {
+        this.isWebSocketConnected.set(status.connected);
+        if (!status.connected && status.error) {
+          console.error('WebSocket error:', status.error);
+          this.snackBar.open(`WebSocket Error: ${status.error}`, 'Close', {
+            duration: 5000,
+            panelClass: ['error-snackbar']
+          });
+        }
+      });
+
+    // Listen for general scraping progress (for monitoring all sessions)
+    this.websocketService.getScrapingProgress()
       .pipe(takeUntil(this.destroy$))
       .subscribe(progress => {
-        console.log('📈 Progress update received:', progress);
-        this.currentProgress.set(progress);
-        this.updateCampaignFromProgress(progress);
+        if (progress) {
+          console.log('📈 General progress update received:', progress);
+          // Convert to ScrapingProgressUpdate for component compatibility
+          const progressUpdate: ScrapingProgressUpdate = {
+            sessionId: progress.sessionId,
+            campaignId: 'unknown', // Will be updated from active campaigns
+            status: progress.status,
+            totalTweets: progress.totalTweets,
+            scrapedTweets: progress.processedTweets,
+            percentage: progress.percentage,
+            message: `Processing ${progress.processedTweets}/${progress.totalTweets} tweets`,
+            startTime: progress.startTime,
+            endTime: progress.endTime,
+            estimatedTimeRemaining: progress.estimatedTimeRemaining
+          };
+          this.currentProgress.set(progressUpdate);
+          this.updateCampaignFromProgress(progressUpdate);
+        }
       });
 
     // Listen for scraping completion
@@ -179,16 +208,6 @@ export class ScrapingMonitorComponent implements OnInit, OnDestroy {
       .subscribe(result => {
         console.log('✅ Scraping completed:', result);
         this.handleScrapingCompleted(result);
-      });
-
-    // Listen for connection status
-    this.websocketService.getConnectionStatus()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe(status => {
-        this.isWebSocketConnected.set(status.connected);
-        if (!status.connected && status.error) {
-          console.error('WebSocket error:', status.error);
-        }
       });
   }
 

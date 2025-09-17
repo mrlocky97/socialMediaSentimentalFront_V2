@@ -14,6 +14,7 @@ import {
   catchError,
   concatMap,
   delay,
+  filter,
   finalize,
   from,
   map,
@@ -691,41 +692,76 @@ export class ScrapingService {
    * Subscribe to WebSocket updates for a scraping session
    */
   private subscribeToScrapingUpdates(sessionId: string, campaignId: string): void {
-    console.log(`Subscribing to updates for session: ${sessionId}`);
+    console.log(`📡 Subscribing to updates for session: ${sessionId}`);
 
-    // Join the scraping session room
-    this.websocketService.emit('join-campaign', campaignId);
-
-    // Listen for progress updates
-    this.websocketService
-      .on<ScrapingProgressUpdate>('scraping-progress')
+    // Join both campaign room and specific session room for compatibility
+    this.websocketService.joinCampaign(campaignId);
+    
+    // Use the improved subscription method from WebSocketService
+    this.websocketService.subscribeToScrapingProgress(sessionId)
       .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((progress) => {
-        if (progress.sessionId === sessionId) {
-          console.log('Progress update:', progress);
-          this.handleAsyncProgressUpdate(progress);
+      .subscribe({
+        next: (progress) => {
+          console.log('📈 Progress update:', progress);
+          // Convert ScrapingProgress to ScrapingProgressUpdate format
+          const progressUpdate: ScrapingProgressUpdate = {
+            sessionId: progress.sessionId,
+            campaignId: campaignId,
+            status: progress.status,
+            totalTweets: progress.totalTweets,
+            scrapedTweets: progress.processedTweets,
+            percentage: progress.percentage,
+            message: `Processing ${progress.processedTweets}/${progress.totalTweets} tweets`,
+            startTime: progress.startTime,
+            endTime: progress.endTime,
+            estimatedTimeRemaining: progress.estimatedTimeRemaining
+          };
+          this.handleAsyncProgressUpdate(progressUpdate);
+        },
+        error: (error) => {
+          console.error('❌ Progress subscription error:', error);
+          this.handleAsyncScrapingError({ 
+            sessionId, 
+            message: error.message || 'WebSocket progress error' 
+          });
         }
       });
 
-    // Listen for completion
-    this.websocketService
-      .on<ScrapingCompletedResult>('scraping-completed')
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((result) => {
-        if (result.sessionId === sessionId) {
-          console.log('Scraping completed:', result);
+    // Listen for completion using the WebSocketService method
+    this.websocketService.on<ScrapingCompletedResult>('scraping-completed')
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        filter((result: ScrapingCompletedResult) => result.sessionId === sessionId || result.campaignId === campaignId)
+      )
+      .subscribe({
+        next: (result: ScrapingCompletedResult) => {
+          console.log('✅ Scraping completed:', result);
           this.handleAsyncScrapingCompleted(result);
+          // Clean up session subscription
+          this.websocketService.unsubscribeFromScrapingProgress(sessionId);
+          this.websocketService.leaveCampaign(campaignId);
+        },
+        error: (error) => {
+          console.error('❌ Completion subscription error:', error);
         }
       });
 
     // Listen for errors
-    this.websocketService
-      .on<any>('scraping-error')
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe((error) => {
-        if (error.sessionId === sessionId) {
-          console.error('Scraping error:', error);
+    this.websocketService.on<any>('scraping-error')
+      .pipe(
+        takeUntilDestroyed(this.destroyRef),
+        filter((error: any) => error.sessionId === sessionId || error.campaignId === campaignId)
+      )
+      .subscribe({
+        next: (error: any) => {
+          console.error('❌ Scraping error received:', error);
           this.handleAsyncScrapingError(error);
+          // Clean up on error
+          this.websocketService.unsubscribeFromScrapingProgress(sessionId);
+          this.websocketService.leaveCampaign(campaignId);
+        },
+        error: (error) => {
+          console.error('❌ Error subscription error:', error);
         }
       });
   }
