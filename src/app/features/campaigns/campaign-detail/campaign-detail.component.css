@@ -147,6 +147,17 @@
   align-items: center;
   justify-content: center;
 }
+.details-panel {
+  border-radius: 24px;
+}
+
+.tweets-panel {
+  border-radius: 24px;
+}
+
+.mat-expansion-panel-mat-expansion-panel-header{
+  border-radius: 24px;
+}
 
 .ai-loading {
   display: flex;
