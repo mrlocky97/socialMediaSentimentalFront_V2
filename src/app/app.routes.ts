@@ -36,13 +36,6 @@ export const routes: Routes = [
     pathMatch: 'full'
   },
   {
-    path: 'monitor',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/scraping-monitor/scraping-monitor.component').then((c) => c.ScrapingMonitorComponent),
-    title: 'Monitor - Sentimental Social',
-  },
-  {
     path: 'create-campaign',
     canActivate: [authGuard],
     loadComponent: () =>
