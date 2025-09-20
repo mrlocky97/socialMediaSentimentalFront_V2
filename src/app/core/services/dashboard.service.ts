@@ -2,12 +2,14 @@
  * ===== DASHBOARD SERVICE =====
  * Servicio específico para endpoints del dashboard
  * Cumple con los requirements del checklist de endpoints indispensables
+ * ✅ FIXED: Implementa cleanup automático para evitar memory leaks
  */
 
 import { HttpClient } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { Observable, of, timer } from 'rxjs';
 import { catchError, map, retry, tap } from 'rxjs/operators';
+import { BaseCleanupService } from './base-cleanup.service';
 
 // ===== CONFIGURACIÓN =====
 const DASHBOARD_CONFIG = {
@@ -91,7 +93,7 @@ export interface ApiResponse<T> {
 @Injectable({
   providedIn: 'root'
 })
-export class DashboardService {
+export class DashboardService extends BaseCleanupService {
   private readonly http = inject(HttpClient);
 
   // ===== SIGNALS REACTIVOS =====
@@ -135,12 +137,19 @@ export class DashboardService {
   });
 
   constructor() {
-    // Auto-refresh cada 30 segundos (solo si está cargado)
-    timer(0, DASHBOARD_CONFIG.REFRESH_INTERVAL).subscribe(() => {
+    super(); // ✅ Llamar al constructor de BaseCleanupService para cleanup automático
+    
+    // Auto-refresh cada 30 segundos con cleanup automático ✅ FIXED
+    const autoRefreshSubscription = this.autoCleanup(
+      timer(0, DASHBOARD_CONFIG.REFRESH_INTERVAL)
+    ).subscribe(() => {
       if (this.overview() !== null) {
         this.refreshData();
       }
     });
+
+    // Registrar la suscripción para tracking
+    this.addSubscription('auto-refresh', autoRefreshSubscription);
   }
 
   // ===== MÉTODOS PÚBLICOS =====

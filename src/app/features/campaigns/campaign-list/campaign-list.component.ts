@@ -2,6 +2,7 @@ import { CommonModule } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
+  DestroyRef,
   OnDestroy,
   OnInit,
   computed,
@@ -9,6 +10,7 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatButtonModule } from '@angular/material/button';
@@ -28,7 +30,7 @@ import { MatSortModule } from '@angular/material/sort';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
+import { debounceTime, distinctUntilChanged } from 'rxjs';
 
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { TranslocoModule, TranslocoService } from '@ngneat/transloco';
@@ -80,6 +82,8 @@ import { BulkActionConfig, CampaignStats, StatConfig } from './interfaces/campai
   styleUrls: ['./campaign-list.component.css'],
 })
 export class CampaignListComponent implements OnInit, OnDestroy {
+  private readonly destroyRef = inject(DestroyRef);
+  
   // Injected services - usando solo NgRx facade
   private readonly backendApiService = inject(BackendApiService);
   private readonly campaignFacade = inject(CampaignFacade);
@@ -90,7 +94,6 @@ export class CampaignListComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly snackBar = inject(MatSnackBar);
   private readonly fb = inject(FormBuilder);
-  private readonly destroy$ = new Subject<void>();
 
   // NgRx Observables - reemplazando signals
   readonly campaigns$ = this.campaignFacade.campaigns$;
@@ -222,7 +225,7 @@ export class CampaignListComponent implements OnInit, OnDestroy {
     effect(() => {
       this.filterForm
         .get('search')
-        ?.valueChanges.pipe(debounceTime(300), distinctUntilChanged(), takeUntil(this.destroy$))
+        ?.valueChanges.pipe(debounceTime(300), distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
         .subscribe();
     });
   }
@@ -233,8 +236,6 @@ export class CampaignListComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
   }
 
   /**
@@ -317,11 +318,13 @@ export class CampaignListComponent implements OnInit, OnDestroy {
       },
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
-      if (result?.mode === 'create') {
-        this.handleCampaignCreation(result);
-      }
-    });
+    dialogRef.afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef)) 
+      .subscribe((result) => {
+        if (result?.mode === 'create') {
+          this.handleCampaignCreation(result);
+        }
+      });
   }
 
   /**
@@ -435,7 +438,9 @@ export class CampaignListComponent implements OnInit, OnDestroy {
       },
     });
 
-    dialogRef.afterClosed().subscribe((result) => {
+    dialogRef.afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef)) 
+      .subscribe((result) => {
       if (result?.mode === 'edit' && result.id) {
         this.handleCampaignUpdate(result);
       }
@@ -506,7 +511,9 @@ export class CampaignListComponent implements OnInit, OnDestroy {
       },
     });
 
-    dialogRef.afterClosed().subscribe((confirmed) => {
+    dialogRef.afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef)) 
+      .subscribe((confirmed) => {
       if (confirmed) {
         this.handleCampaignDeletion(campaign);
       }
@@ -593,7 +600,9 @@ export class CampaignListComponent implements OnInit, OnDestroy {
       },
     });
 
-    dialogRef.afterClosed().subscribe((confirmed) => {
+    dialogRef.afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef)) 
+      .subscribe((confirmed) => {
       if (confirmed) {
         this.processBulkDeletion(selectedIds);
       }

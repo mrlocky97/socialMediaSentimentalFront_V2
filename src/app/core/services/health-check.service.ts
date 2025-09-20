@@ -2,12 +2,14 @@
  * ===== HEALTH CHECK SERVICE =====
  * Servicio para verificar el estado de salud del sistema y conectividad
  * Cumple con los requirements del checklist de endpoints indispensables
+ * FIXED: Implementa cleanup automático para evitar memory leaks
  */
 
 import { HttpClient } from '@angular/common/http';
 import { computed, inject, Injectable, signal } from '@angular/core';
 import { Observable, of, timer } from 'rxjs';
 import { catchError, map, retry, switchMap, tap } from 'rxjs/operators';
+import { BaseCleanupService } from './base-cleanup.service';
 
 // ===== CONFIGURACIÓN =====
 const HEALTH_CONFIG = {
@@ -84,7 +86,7 @@ export interface ApiResponse<T> {
 @Injectable({
   providedIn: 'root'
 })
-export class HealthCheckService {
+export class HealthCheckService extends BaseCleanupService {
   private readonly http = inject(HttpClient);
 
   // ===== SIGNALS REACTIVOS =====
@@ -140,6 +142,8 @@ export class HealthCheckService {
   });
 
   constructor() {
+    super(); // ✅ Llamar al constructor de BaseCleanupService para cleanup automático
+    
     // Iniciar verificación automática
     this.startHealthChecks();
   }
@@ -419,23 +423,36 @@ export class HealthCheckService {
 
   /**
    * Iniciar verificaciones automáticas de salud
+   * ✅ FIXED: Ahora usa cleanup automático para evitar memory leaks
    */
   public startHealthChecks(): void {
-    // Verificación inicial
-    this.performFullHealthCheck().subscribe();
+    // Verificación inicial con cleanup automático
+    this.autoCleanup(this.performFullHealthCheck())
+      .subscribe({
+        next: () => console.log('✅ Initial health check completed'),
+        error: (error) => console.error('❌ Initial health check failed:', error)
+      });
     
-    // Verificaciones periódicas
-    timer(HEALTH_CONFIG.CHECK_INTERVAL, HEALTH_CONFIG.CHECK_INTERVAL).subscribe(() => {
-      this.performFullHealthCheck().subscribe();
+    // Verificaciones periódicas con cleanup automático
+    const healthCheckSubscription = this.autoCleanup(
+      timer(HEALTH_CONFIG.CHECK_INTERVAL, HEALTH_CONFIG.CHECK_INTERVAL)
+    ).subscribe(() => {
+      this.autoCleanup(this.performFullHealthCheck()).subscribe({
+        error: (error) => console.error('❌ Periodic health check failed:', error)
+      });
     });
+
+    // Registrar la suscripción para tracking
+    this.addSubscription('periodic-health-checks', healthCheckSubscription);
   }
 
   /**
    * Detener verificaciones automáticas
+   * ✅ FIXED: Ahora limpia las suscripciones correctamente
    */
   public stopHealthChecks(): void {
-    // Las verificaciones se detienen automáticamente cuando el servicio se destruye
-    console.log('Health checks stopped');
+    this.removeSubscription('periodic-health-checks');
+    console.log('🛑 Health checks stopped and cleaned up');
   }
 
   // ===== MÉTODOS PRIVADOS =====
