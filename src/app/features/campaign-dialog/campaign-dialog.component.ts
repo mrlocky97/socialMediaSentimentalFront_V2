@@ -154,7 +154,7 @@ export class CampaignDialogComponent implements OnInit, AfterViewInit {
       influencerAnalysis: this.fb.control(false),
 
       // Org
-      organizationId: ['org-default-id', Validators.required],
+      organizationId: ['test', Validators.required],
     },
     {
       validators: [

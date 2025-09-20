@@ -83,7 +83,7 @@ import { BulkActionConfig, CampaignStats, StatConfig } from './interfaces/campai
 })
 export class CampaignListComponent implements OnInit, OnDestroy {
   private readonly destroyRef = inject(DestroyRef);
-  
+
   // Injected services - usando solo NgRx facade
   private readonly backendApiService = inject(BackendApiService);
   private readonly campaignFacade = inject(CampaignFacade);
@@ -192,7 +192,7 @@ export class CampaignListComponent implements OnInit, OnDestroy {
     showPagination: true,
     showSelection: true,
     multiSelection: true,
-    pageSize: 10,
+    pageSize: 5,
   };
 
   readonly tableActions: TableAction<Campaign>[] = [
@@ -225,7 +225,11 @@ export class CampaignListComponent implements OnInit, OnDestroy {
     effect(() => {
       this.filterForm
         .get('search')
-        ?.valueChanges.pipe(debounceTime(300), distinctUntilChanged(), takeUntilDestroyed(this.destroyRef))
+        ?.valueChanges.pipe(
+          debounceTime(300),
+          distinctUntilChanged(),
+          takeUntilDestroyed(this.destroyRef)
+        )
         .subscribe();
     });
   }
@@ -235,8 +239,7 @@ export class CampaignListComponent implements OnInit, OnDestroy {
     // Con NgRx no necesitamos subscribeToFacade ya que usamos observables directamente
   }
 
-  ngOnDestroy(): void {
-  }
+  ngOnDestroy(): void {}
 
   /**
    * Eliminamos subscribeToFacade ya que ahora usamos observables directamente en el template
@@ -318,8 +321,9 @@ export class CampaignListComponent implements OnInit, OnDestroy {
       },
     });
 
-    dialogRef.afterClosed()
-      .pipe(takeUntilDestroyed(this.destroyRef)) 
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((result) => {
         if (result?.mode === 'create') {
           this.handleCampaignCreation(result);
@@ -438,13 +442,14 @@ export class CampaignListComponent implements OnInit, OnDestroy {
       },
     });
 
-    dialogRef.afterClosed()
-      .pipe(takeUntilDestroyed(this.destroyRef)) 
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((result) => {
-      if (result?.mode === 'edit' && result.id) {
-        this.handleCampaignUpdate(result);
-      }
-    });
+        if (result?.mode === 'edit' && result.id) {
+          this.handleCampaignUpdate(result);
+        }
+      });
   }
 
   /**
@@ -511,13 +516,14 @@ export class CampaignListComponent implements OnInit, OnDestroy {
       },
     });
 
-    dialogRef.afterClosed()
-      .pipe(takeUntilDestroyed(this.destroyRef)) 
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((confirmed) => {
-      if (confirmed) {
-        this.handleCampaignDeletion(campaign);
-      }
-    });
+        if (confirmed) {
+          this.handleCampaignDeletion(campaign);
+        }
+      });
   }
 
   /**
@@ -600,13 +606,14 @@ export class CampaignListComponent implements OnInit, OnDestroy {
       },
     });
 
-    dialogRef.afterClosed()
-      .pipe(takeUntilDestroyed(this.destroyRef)) 
+    dialogRef
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe((confirmed) => {
-      if (confirmed) {
-        this.processBulkDeletion(selectedIds);
-      }
-    });
+        if (confirmed) {
+          this.processBulkDeletion(selectedIds);
+        }
+      });
   }
 
   /**
